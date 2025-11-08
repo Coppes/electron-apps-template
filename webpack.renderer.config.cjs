@@ -1,9 +1,6 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
+const path = require('path');
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-export default {
+module.exports = {
   module: {
     rules: [
       {
@@ -33,7 +30,7 @@ export default {
             loader: 'postcss-loader',
             options: {
               postcssOptions: {
-                plugins: ['tailwindcss', 'autoprefixer'],
+                plugins: ['@tailwindcss/postcss', 'autoprefixer'],
               },
             },
           },
