@@ -25,6 +25,25 @@ const electronAPI = {
     // Retorna função para remover o listener (cleanup)
     return () => ipcRenderer.removeListener('counter-updated', listener);
   },
+
+  /**
+   * Obtém informações de versão do Electron, Node, Chrome e app
+   * @returns {Promise<Object>} Objeto com versões
+   */
+  getVersion: () => ipcRenderer.invoke('get-version'),
+
+  /**
+   * Abre um diálogo para selecionar e ler um arquivo
+   * @returns {Promise<Object>} Objeto com caminho e conteúdo do arquivo
+   */
+  openFile: () => ipcRenderer.invoke('open-file'),
+
+  // Store API
+  store: {
+    get: (key) => ipcRenderer.invoke('store-get', key),
+    set: (key, value) => ipcRenderer.invoke('store-set', key, value),
+    delete: (key) => ipcRenderer.invoke('store-delete', key),
+  },
 };
 
 /**
