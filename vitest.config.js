@@ -16,6 +16,9 @@ export default defineConfig({
       ],
     },
   },
+  define: {
+    'process.env.NODE_ENV': '"test"',
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src/renderer'),
