@@ -1,16 +1,23 @@
 import { app, BrowserWindow, ipcMain, dialog } from 'electron';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 import Store from 'electron-store';
 import fs from 'fs/promises';
 
-// electron-vite fornece __dirname automaticamente após compilação
+// Definir __dirname para ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 const store = new Store();
 
 let mainWindow;
 
 const createWindow = () => {
-  // Construir path absoluto para o preload
-  const preloadPath = join(__dirname, '../preload/index.mjs');
+  // Em desenvolvimento, electron-vite compila o preload para out/preload
+  // Em produção, estará em resources/app.asar
+  const preloadPath = app.isPackaged
+    ? join(__dirname, '../preload/index.mjs')
+    : join(__dirname, '../../out/preload/index.mjs');
   
   mainWindow = new BrowserWindow({
     width: 1200,
