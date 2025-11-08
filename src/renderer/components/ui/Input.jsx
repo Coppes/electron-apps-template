@@ -1,4 +1,6 @@
+import React from 'react';
 import { forwardRef } from 'react';
+import PropTypes from 'prop-types';
 import { cn } from '../../utils/cn';
 
 const Input = forwardRef(
@@ -35,5 +37,15 @@ const Input = forwardRef(
 );
 
 Input.displayName = 'Input';
+
+Input.propTypes = {
+  className: PropTypes.string,
+  type: PropTypes.string,
+  disabled: PropTypes.bool,
+  placeholder: PropTypes.string,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  onChange: PropTypes.func,
+  onKeyPress: PropTypes.func,
+};
 
 export default Input;

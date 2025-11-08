@@ -1,4 +1,6 @@
+import React from 'react';
 import { forwardRef } from 'react';
+import PropTypes from 'prop-types';
 import { cn } from '../../utils/cn';
 
 const Button = forwardRef(
@@ -56,5 +58,13 @@ const Button = forwardRef(
 );
 
 Button.displayName = 'Button';
+
+Button.propTypes = {
+  className: PropTypes.string,
+  variant: PropTypes.oneOf(['default', 'destructive', 'outline', 'secondary', 'ghost', 'link']),
+  size: PropTypes.oneOf(['sm', 'md', 'lg', 'icon']),
+  disabled: PropTypes.bool,
+  children: PropTypes.node,
+};
 
 export default Button;
