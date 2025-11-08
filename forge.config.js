@@ -40,9 +40,9 @@ export default {
     {
       name: "@electron-forge/plugin-webpack",
       config: {
-        mainConfig: "./webpack.main.config.js",
+        mainConfig: "./webpack.main.config.cjs",
         renderer: {
-          config: "./webpack.renderer.config.js",
+          config: "./webpack.renderer.config.cjs",
           entryPoints: [
             {
               html: "./src/renderer/index.html",
@@ -56,6 +56,6 @@ export default {
         },
       },
     },
-    "@electron-forge/plugin-auto-unpack-natives",
   ],
 };
+

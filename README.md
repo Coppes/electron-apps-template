@@ -1,103 +1,262 @@
 # Electron + React Template Boilerplate
 
-Um template boilerplate seguro, escalável e moderno para criar aplicações desktop com Electron e React.
+A secure, scalable, and modern boilerplate template for creating desktop applications with Electron and React.
 
-## 🎯 Características
+## 🎯 Features
 
-- ✅ **Segurança de Primeira Prioridade**
-  - Context Isolation habilitado
-  - Node Integration desabilitado
-  - Sandbox ativado
-  - Preload script robusto com contextBridge
+- ✅ **Security First**
+  - Context Isolation enabled
+  - Node Integration disabled
+  - Sandbox activated
+  - Robust preload script with contextBridge
+  - Content Security Policy (CSP) configured
 
-- ✅ **Stack Moderno**
-  - React 18.3.1
-  - Tailwind CSS 3.4
+- ✅ **Modern Stack**
+  - React 18 with hooks
+  - Tailwind CSS 4
   - shadcn/ui components
-  - Electron 32.0.0
+  - Electron 39
+  - electron-store for persistence
 
-- ✅ **Ferramentas de Desenvolvimento**
-  - ESLint configurado
+- ✅ **Developer Experience**
+  - ESLint configured
   - Vitest + React Testing Library
-  - Webpack para build
-  - Electron Forge para packaging
+  - Webpack for build
+  - Electron Forge for packaging
+  - Hot Module Replacement (HMR)
+  - Auto-reload for main process
 
-## 📦 Instalação
+- ✅ **UI Components**
+  - Resizable sidebar layout
+  - Pre-built pages (Home, Demo, Settings, About)
+  - Form components (Button, Input, Select, Switch, Textarea)
+  - Cards, Labels, Separators
+  - Native file dialog integration
+
+## 📦 Installation
 
 ```bash
-# Clone o repositório
+# Clone the repository
 git clone <repository>
 cd electron-apps-template
 
-# Instale as dependências
+# Install dependencies
 npm install
 ```
 
-## 🚀 Scripts Disponíveis
+## 🚀 Available Scripts
 
 ```bash
-# Inicia a aplicação em modo desenvolvimento
+# Start the application in development mode
 npm start
 
-# Executa o linter
+# Package the application
+npm run package
+
+# Create distributables (installers)
+npm run make
+
+# Run linter
 npm run lint
 
-# Corrige automaticamente os problemas de lint
-npm run lint:fix
-
-# Executa os testes
+# Run tests
 npm test
 
-# Abre a interface do Vitest
+# Open Vitest UI
 npm run test:ui
 
-# Gera relatório de cobertura
+# Generate coverage report
 npm run test:coverage
-
-# Faz o build da aplicação
-npm run build
-
-# Empacota a aplicação
-npm run package
 ```
 
-## 📁 Estrutura de Pastas
+## 📁 Project Structure
 
 ```
 src/
-├── main.js              # Processo principal do Electron
-├── preload.js           # Script de isolamento (contextBridge)
+├── main.js              # Electron main process
+├── preload.js           # Isolation script (contextBridge)
 ├── css/
-│   └── globals.css      # Estilos globais + variáveis Tailwind
+│   └── globals.css      # Global styles + Tailwind variables
 └── renderer/
-    ├── index.html       # Arquivo HTML raiz
-    ├── index.js         # Ponto de entrada React
-    ├── App.jsx          # Componente raiz
+    ├── index.html       # Root HTML file
+    ├── index.js         # React entry point
+    ├── App.jsx          # Root component
     ├── components/
-    │   ├── Demo.jsx     # Componente de exemplo
-    │   └── ui/
-    │       ├── Button.jsx   # Componente Button
-    │       └── Input.jsx    # Componente Input
-    ├── utils/
-    │   └── cn.js        # Utilitário para merge de classes
-    └── App.test.jsx     # Testes do App
+    │   ├── layout/
+    │   │   └── AppShell.jsx    # Main layout with sidebar
+    │   ├── pages/
+    │   │   ├── HomePage.jsx     # Home page
+    │   │   ├── DemoPage.jsx     # Demo with file opener
+    │   │   ├── SettingsPage.jsx # Settings with persistence
+    │   │   └── AboutPage.jsx    # About with version info
+    │   ├── ui/
+    │   │   ├── Button.jsx
+    │   │   ├── Input.jsx
+    │   │   ├── Textarea.jsx
+    │   │   ├── Select.jsx
+    │   │   ├── Switch.jsx
+    │   │   ├── Label.jsx
+    │   │   ├── Card.jsx
+    │   │   └── Separator.jsx
+    │   └── Demo.jsx     # Legacy demo component
+    └── utils/
+        └── cn.js        # Class merge utility
 ```
 
-## 🔐 Segurança
+## 🔐 Security
 
 ### Context Isolation
-O template usa `contextIsolation: true` por padrão, garantindo que o código do renderer e main process sejam executados em contextos separados.
+The template uses `contextIsolation: true` by default, ensuring that renderer and main process code run in separate contexts.
 
 ### Preload Script
-O arquivo `src/preload.js` expõe uma API segura via `contextBridge`:
+The `src/preload.js` file exposes a secure API via `contextBridge`:
 
 ```javascript
-// Alterar título da janela
-await window.electronAPI.setTitle('Novo Título');
+// Get version information
+const versions = await window.electronAPI.getVersion();
 
-// Listener para updates
-window.electronAPI.onUpdateCounter((count) => {
-  console.log('Counter:', count);
+// Open file dialog and read file
+const result = await window.electronAPI.openFile();
+
+// Store API - persist settings
+await window.electronAPI.store.set('theme', 'dark');
+const theme = await window.electronAPI.store.get('theme');
+```
+
+### Content Security Policy
+A CSP meta tag is configured in `index.html` to restrict resource loading.
+
+## 💾 Persistent Storage
+
+The template includes electron-store for easy data persistence:
+
+```javascript
+// In renderer process
+await window.electronAPI.store.set('settings', {
+  theme: 'dark',
+  notifications: true
+});
+
+const settings = await window.electronAPI.store.get('settings');
+```
+
+Settings are automatically saved in a JSON file in the user's app data directory.
+
+## 🎨 UI Components
+
+### AppShell Layout
+The main layout uses a resizable sidebar pattern common in desktop applications:
+
+```jsx
+<AppShell>
+  {(currentPage) => {
+    // Render different pages based on currentPage
+  }}
+</AppShell>
+```
+
+### shadcn/ui Components
+Pre-configured components ready to use:
+- **Button**: Multiple variants (default, destructive, outline, secondary, ghost, link)
+- **Input/Textarea**: Form inputs with proper styling
+- **Select**: Dropdown selection
+- **Switch**: Toggle switch for boolean settings
+- **Card**: Container with header, content, and footer
+- **Label**: Form labels
+- **Separator**: Visual dividers
+
+## 📱 Pages
+
+### Home
+Welcome page with feature overview and getting started guide.
+
+### Demo
+Interactive demonstration of:
+- Native file dialog (IPC communication)
+- File reading and display
+- Secure main/renderer communication
+
+### Settings
+Persistent settings management:
+- Theme selection
+- Notification preferences
+- Auto-start configuration
+- Language selection
+
+All settings are automatically saved using electron-store.
+
+### About
+Application information:
+- Electron version
+- Chrome version
+- Node.js version
+- App version (from IPC)
+
+## 🔧 IPC Communication
+
+The template demonstrates secure IPC patterns:
+
+```javascript
+// Main process (main.js)
+ipcMain.handle('get-version', async () => {
+  return {
+    electron: process.versions.electron,
+    app: app.getVersion()
+  };
+});
+
+// Preload script (preload.js)
+contextBridge.exposeInMainWorld('electronAPI', {
+  getVersion: () => ipcRenderer.invoke('get-version')
+});
+
+// Renderer process (React)
+const versions = await window.electronAPI.getVersion();
+```
+
+## 📦 Building & Distribution
+
+The template uses Electron Forge with makers for multiple platforms:
+
+```bash
+# Package for current platform
+npm run package
+
+# Create distributables
+npm run make
+```
+
+Supported outputs:
+- **Windows**: .exe (Squirrel)
+- **macOS**: .dmg, .app
+- **Linux**: .deb, .AppImage (via zip)
+
+## 🧪 Testing
+
+Tests are configured with Vitest and React Testing Library:
+
+```bash
+# Run tests
+npm test
+
+# Watch mode
+npm test -- --watch
+
+# Coverage
+npm run test:coverage
+```
+
+## 📚 Learn More
+
+- [Electron Documentation](https://www.electronjs.org/docs)
+- [React Documentation](https://react.dev)
+- [Tailwind CSS](https://tailwindcss.com)
+- [shadcn/ui](https://ui.shadcn.com)
+- [electron-store](https://github.com/sindresorhus/electron-store)
+
+## 📄 License
+
+ISC
 });
 ```
 
