@@ -147,6 +147,18 @@ const appAPI = {
    * @returns {Promise<Object>} Result
    */
   relaunch: () => ipcRenderer.invoke(IPC_CHANNELS.APP_RELAUNCH, {}),
+
+  /**
+   * Check for updates
+   * @returns {Promise<Object>} Result with update availability
+   */
+  checkForUpdates: () => ipcRenderer.invoke(IPC_CHANNELS.APP_CHECK_FOR_UPDATES, {}),
+
+  /**
+   * Install update and restart
+   * @returns {Promise<Object>} Result
+   */
+  installUpdate: () => ipcRenderer.invoke(IPC_CHANNELS.APP_INSTALL_UPDATE, {}),
 };
 
 /**
@@ -196,6 +208,65 @@ const eventsAPI = {
     ipcRenderer.on(IPC_CHANNELS.UPDATE_DOWNLOADED, listener);
     return () => ipcRenderer.removeListener(IPC_CHANNELS.UPDATE_DOWNLOADED, listener);
   },
+
+  /**
+   * Register listener for update progress
+   * @param {Function} callback - Callback function
+   * @returns {Function} Cleanup function
+   */
+  onUpdateProgress: (callback) => {
+    const listener = (event, progress) => callback(progress);
+    ipcRenderer.on(IPC_CHANNELS.UPDATE_PROGRESS, listener);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.UPDATE_PROGRESS, listener);
+  },
+
+  /**
+   * Register listener for update error
+   * @param {Function} callback - Callback function
+   * @returns {Function} Cleanup function
+   */
+  onUpdateError: (callback) => {
+    const listener = (event, error) => callback(error);
+    ipcRenderer.on(IPC_CHANNELS.UPDATE_ERROR, listener);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.UPDATE_ERROR, listener);
+  },
+};
+
+/**
+ * Logging API - Forwards logs to main process
+ */
+const logAPI = {
+  /**
+   * Log debug message
+   * @param {string} message - Log message
+   * @param {Object} [meta] - Additional metadata
+   * @returns {Promise<Object>} Result
+   */
+  debug: (message, meta = {}) => ipcRenderer.invoke(IPC_CHANNELS.LOG_DEBUG, { message, meta }),
+
+  /**
+   * Log info message
+   * @param {string} message - Log message
+   * @param {Object} [meta] - Additional metadata
+   * @returns {Promise<Object>} Result
+   */
+  info: (message, meta = {}) => ipcRenderer.invoke(IPC_CHANNELS.LOG_INFO, { message, meta }),
+
+  /**
+   * Log warning message
+   * @param {string} message - Log message
+   * @param {Object} [meta] - Additional metadata
+   * @returns {Promise<Object>} Result
+   */
+  warn: (message, meta = {}) => ipcRenderer.invoke(IPC_CHANNELS.LOG_WARN, { message, meta }),
+
+  /**
+   * Log error message
+   * @param {string} message - Log message
+   * @param {Object} [meta] - Additional metadata
+   * @returns {Promise<Object>} Result
+   */
+  error: (message, meta = {}) => ipcRenderer.invoke(IPC_CHANNELS.LOG_ERROR, { message, meta }),
 };
 
 /**
@@ -208,6 +279,7 @@ const electronAPI = {
   app: appAPI,
   system: systemAPI,
   events: eventsAPI,
+  log: logAPI,
 
   // Legacy compatibility - will be deprecated
   setTitle: (title) => windowAPI.getState().then(() => title),
@@ -230,4 +302,5 @@ Object.freeze(dialogAPI);
 Object.freeze(appAPI);
 Object.freeze(systemAPI);
 Object.freeze(eventsAPI);
+Object.freeze(logAPI);
 
