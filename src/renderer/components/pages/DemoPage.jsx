@@ -10,28 +10,77 @@ const DemoPage = () => {
   const [filePath, setFilePath] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [saveStatus, setSaveStatus] = useState('');
 
   const handleOpenFile = async () => {
     setIsLoading(true);
     setError('');
 
     try {
-      if (window.electronAPI?.openFile) {
-        const result = await window.electronAPI.openFile();
+      if (window.electronAPI?.dialogAPI) {
+        const result = await window.electronAPI.dialogAPI.openFile({
+          title: 'Open Text File',
+          filters: [
+            { name: 'Text Files', extensions: ['txt', 'md', 'json', 'js', 'jsx'] },
+            { name: 'All Files', extensions: ['*'] },
+          ],
+          properties: ['openFile'],
+        });
 
         if (result.canceled) {
           setError('File selection canceled');
         } else if (result.error) {
           setError(`Error: ${result.error}`);
-        } else {
-          setFilePath(result.filePath);
-          setFileContent(result.content);
+        } else if (result.filePaths && result.filePaths.length > 0) {
+          setFilePath(result.filePaths[0]);
+          setFileContent(result.content || '');
         }
       } else {
-        setError('File API not available');
+        setError('Dialog API not available');
       }
     } catch (err) {
       setError(`Error opening file: ${err.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSaveFile = async () => {
+    if (!fileContent.trim()) {
+      setError('No content to save');
+      return;
+    }
+
+    setIsLoading(true);
+    setError('');
+    setSaveStatus('');
+
+    try {
+      if (window.electronAPI?.dialogAPI) {
+        const result = await window.electronAPI.dialogAPI.saveFile({
+          title: 'Save File',
+          defaultPath: filePath || 'untitled.txt',
+          filters: [
+            { name: 'Text Files', extensions: ['txt'] },
+            { name: 'All Files', extensions: ['*'] },
+          ],
+          content: fileContent,
+        });
+
+        if (result.canceled) {
+          setError('Save canceled');
+        } else if (result.error) {
+          setError(`Error: ${result.error}`);
+        } else if (result.filePath) {
+          setFilePath(result.filePath);
+          setSaveStatus(`✓ File saved successfully to: ${result.filePath}`);
+          setTimeout(() => setSaveStatus(''), 3000);
+        }
+      } else {
+        setError('Dialog API not available');
+      }
+    } catch (err) {
+      setError(`Error saving file: ${err.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -59,6 +108,9 @@ const DemoPage = () => {
               <Button onClick={handleOpenFile} disabled={isLoading}>
                 {isLoading ? 'Opening...' : '📁 Open File'}
               </Button>
+              <Button onClick={handleSaveFile} disabled={isLoading || !fileContent.trim()}>
+                {isLoading ? 'Saving...' : '💾 Save File'}
+              </Button>
               {filePath && (
                 <span className="text-sm text-muted-foreground truncate flex-1">
                   {filePath}
@@ -68,6 +120,10 @@ const DemoPage = () => {
 
             {error && (
               <p className="text-sm text-red-600">{error}</p>
+            )}
+
+            {saveStatus && (
+              <p className="text-sm text-green-600">{saveStatus}</p>
             )}
 
             <Separator />

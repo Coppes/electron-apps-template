@@ -1,78 +1,134 @@
 import React, { useState } from 'react';
 import Button from './ui/Button';
-import Input from './ui/Input';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/Card';
 
 function Demo() {
-  const [title, setTitle] = useState('');
-  const [status, setStatus] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [windowStatus, setWindowStatus] = useState('');
+  const [dialogResult, setDialogResult] = useState('');
 
-  const handleSetTitle = async () => {
-    if (!title.trim()) {
-      setStatus('Por favor, digite um título');
-      return;
-    }
-
-    setIsLoading(true);
+  const handleMinimize = async () => {
     try {
-      const result = await window.electronAPI.setTitle(title);
-      if (result.success) {
-        setStatus(`✓ Título alterado para: "${result.title}"`);
-        setTitle('');
-      }
+      await window.electronAPI.windowAPI.minimize();
+      setWindowStatus('✓ Window minimized');
+      setTimeout(() => setWindowStatus(''), 2000);
     } catch (error) {
-      setStatus(`✗ Erro: ${error.message}`);
-    } finally {
-      setIsLoading(false);
+      setWindowStatus(`✗ Error: ${error.message}`);
     }
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && !isLoading) {
-      handleSetTitle();
+  const handleMaximize = async () => {
+    try {
+      await window.electronAPI.windowAPI.maximize();
+      setWindowStatus('✓ Window maximized/restored');
+      setTimeout(() => setWindowStatus(''), 2000);
+    } catch (error) {
+      setWindowStatus(`✗ Error: ${error.message}`);
+    }
+  };
+
+  const handleGetWindowState = async () => {
+    try {
+      const state = await window.electronAPI.windowAPI.getState();
+      setWindowStatus(
+        `Window: ${state.isMaximized ? 'Maximized' : 'Normal'}, ` +
+        `Visible: ${state.isVisible ? 'Yes' : 'No'}, ` +
+        `Size: ${state.bounds.width}x${state.bounds.height}`
+      );
+    } catch (error) {
+      setWindowStatus(`✗ Error: ${error.message}`);
+    }
+  };
+
+  const handleShowMessage = async () => {
+    try {
+      const result = await window.electronAPI.dialogAPI.message({
+        type: 'info',
+        title: 'Demo Dialog',
+        message: 'This is a native dialog from the new Dialog API!',
+        buttons: ['OK', 'Cancel'],
+      });
+      setDialogResult(`✓ User clicked: ${result.response === 0 ? 'OK' : 'Cancel'}`);
+    } catch (error) {
+      setDialogResult(`✗ Error: ${error.message}`);
+    }
+  };
+
+  const handleShowError = async () => {
+    try {
+      await window.electronAPI.dialogAPI.error({
+        title: 'Demo Error',
+        content: 'This is an error dialog example',
+      });
+      setDialogResult('✓ Error dialog shown');
+    } catch (error) {
+      setDialogResult(`✗ Error: ${error.message}`);
     }
   };
 
   return (
-    <section className="p-6 bg-card border border-border rounded-lg">
-      <h2 className="text-xl font-semibold mb-6">Demo - Electron IPC</h2>
-
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <label htmlFor="title-input" className="text-sm font-medium">
-            Novo Título da Janela
-          </label>
-          <Input
-            id="title-input"
-            type="text"
-            placeholder="Digite um novo título..."
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            onKeyPress={handleKeyPress}
-            disabled={isLoading}
-          />
-        </div>
-
-        <Button
-          onClick={handleSetTitle}
-          disabled={isLoading || !title.trim()}
-          className="w-full"
-        >
-          {isLoading ? 'Alterando...' : 'Alterar Título'}
-        </Button>
-
-        {status && (
-          <div
-            className={`p-3 rounded text-sm ${
-              status.startsWith('✓')
-                ? 'bg-green-50 text-green-800 dark:bg-green-900 dark:text-green-100'
-                : 'bg-red-50 text-red-800 dark:bg-red-900 dark:text-red-100'
-            }`}
-          >
-            {status}
+    <section className="p-6 space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Window Management API</CardTitle>
+          <CardDescription>
+            Control window state using the new windowAPI
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex gap-2">
+            <Button onClick={handleMinimize} variant="outline">
+              Minimize Window
+            </Button>
+            <Button onClick={handleMaximize} variant="outline">
+              Maximize/Restore
+            </Button>
+            <Button onClick={handleGetWindowState} variant="outline">
+              Get Window State
+            </Button>
           </div>
-        )}
-      </div>
+          {windowStatus && (
+            <div
+              className={`p-3 rounded text-sm ${
+                windowStatus.startsWith('✓')
+                  ? 'bg-green-50 text-green-800 dark:bg-green-900 dark:text-green-100'
+                  : 'bg-red-50 text-red-800 dark:bg-red-900 dark:text-red-100'
+              }`}
+            >
+              {windowStatus}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Dialog API</CardTitle>
+          <CardDescription>
+            Show native dialogs using the new dialogAPI
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex gap-2">
+            <Button onClick={handleShowMessage} variant="outline">
+              Show Message Dialog
+            </Button>
+            <Button onClick={handleShowError} variant="outline">
+              Show Error Dialog
+            </Button>
+          </div>
+          {dialogResult && (
+            <div
+              className={`p-3 rounded text-sm ${
+                dialogResult.startsWith('✓')
+                  ? 'bg-green-50 text-green-800 dark:bg-green-900 dark:text-green-100'
+                  : 'bg-red-50 text-red-800 dark:bg-red-900 dark:text-red-100'
+              }`}
+            >
+              {dialogResult}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </section>
   );
 }
