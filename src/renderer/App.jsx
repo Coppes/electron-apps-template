@@ -5,6 +5,7 @@ import DemoPage from './components/pages/DemoPage';
 import SettingsPage from './components/pages/SettingsPage';
 import AboutPage from './components/pages/AboutPage';
 import { UpdateNotification } from './components/UpdateNotification';
+import ErrorBoundary from './components/ErrorBoundary';
 
 function App() {
   const [updateInfo, setUpdateInfo] = useState(null);
@@ -63,7 +64,7 @@ function App() {
   };
 
   return (
-    <>
+    <ErrorBoundary>
       <AppShell>
         {(currentPage) => {
           switch (currentPage) {
@@ -90,7 +91,7 @@ function App() {
           onDismiss={handleDismiss}
         />
       )}
-    </>
+    </ErrorBoundary>
   );
 }
 
