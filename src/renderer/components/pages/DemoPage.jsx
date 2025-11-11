@@ -17,8 +17,8 @@ const DemoPage = () => {
     setError('');
 
     try {
-      if (window.electronAPI?.dialogAPI) {
-        const result = await window.electronAPI.dialogAPI.openFile({
+      if (window.electronAPI?.dialog) {
+        const result = await window.electronAPI.dialog.openFile({
           title: 'Open Text File',
           filters: [
             { name: 'Text Files', extensions: ['txt', 'md', 'json', 'js', 'jsx'] },
@@ -56,8 +56,8 @@ const DemoPage = () => {
     setSaveStatus('');
 
     try {
-      if (window.electronAPI?.dialogAPI) {
-        const result = await window.electronAPI.dialogAPI.saveFile({
+      if (window.electronAPI?.dialog) {
+        const result = await window.electronAPI.dialog.saveFile({
           title: 'Save File',
           defaultPath: filePath || 'untitled.txt',
           filters: [

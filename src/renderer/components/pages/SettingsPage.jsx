@@ -22,8 +22,8 @@ const SettingsPage = () => {
   // Load settings on mount
   useEffect(() => {
     const loadSettings = async () => {
-      if (window.electronAPI?.storeAPI) {
-        const savedSettings = await window.electronAPI.storeAPI.get('settings');
+      if (window.electronAPI?.store) {
+        const savedSettings = await window.electronAPI.store.get('settings');
         if (savedSettings) {
           setSettings(savedSettings);
         }
@@ -37,8 +37,8 @@ const SettingsPage = () => {
     setSaveMessage('');
 
     try {
-      if (window.electronAPI?.storeAPI) {
-        await window.electronAPI.storeAPI.set('settings', settings);
+      if (window.electronAPI?.store) {
+        await window.electronAPI.store.set('settings', settings);
         setSaveMessage('✓ Settings saved successfully!');
       } else {
         setSaveMessage('⚠ Store API not available');

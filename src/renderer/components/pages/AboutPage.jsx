@@ -10,8 +10,8 @@ const AboutPage = () => {
   useEffect(() => {
     const loadVersionInfo = async () => {
       try {
-        if (window.electronAPI?.appAPI) {
-          const info = await window.electronAPI.appAPI.getVersion();
+        if (window.electronAPI?.app) {
+          const info = await window.electronAPI.app.getVersion();
           setVersionInfo(info);
         }
       } catch (error) {

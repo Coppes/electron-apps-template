@@ -8,7 +8,7 @@ function Demo() {
 
   const handleMinimize = async () => {
     try {
-      await window.electronAPI.windowAPI.minimize();
+      await window.electronAPI.window.minimize();
       setWindowStatus('✓ Window minimized');
       setTimeout(() => setWindowStatus(''), 2000);
     } catch (error) {
@@ -18,7 +18,7 @@ function Demo() {
 
   const handleMaximize = async () => {
     try {
-      await window.electronAPI.windowAPI.maximize();
+      await window.electronAPI.window.maximize();
       setWindowStatus('✓ Window maximized/restored');
       setTimeout(() => setWindowStatus(''), 2000);
     } catch (error) {
@@ -28,7 +28,7 @@ function Demo() {
 
   const handleGetWindowState = async () => {
     try {
-      const state = await window.electronAPI.windowAPI.getState();
+      const state = await window.electronAPI.window.getState();
       setWindowStatus(
         `Window: ${state.isMaximized ? 'Maximized' : 'Normal'}, ` +
         `Visible: ${state.isVisible ? 'Yes' : 'No'}, ` +
@@ -41,7 +41,7 @@ function Demo() {
 
   const handleShowMessage = async () => {
     try {
-      const result = await window.electronAPI.dialogAPI.message({
+      const result = await window.electronAPI.dialog.message({
         type: 'info',
         title: 'Demo Dialog',
         message: 'This is a native dialog from the new Dialog API!',
@@ -55,7 +55,7 @@ function Demo() {
 
   const handleShowError = async () => {
     try {
-      await window.electronAPI.dialogAPI.error({
+      await window.electronAPI.dialog.error({
         title: 'Demo Error',
         content: 'This is an error dialog example',
       });
