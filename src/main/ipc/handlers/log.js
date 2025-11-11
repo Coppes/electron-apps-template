@@ -1,6 +1,6 @@
 import { ipcMain, BrowserWindow } from 'electron';
-import { IPC_CHANNELS } from '../../common/constants.js';
-import { logger } from '../logger.js';
+import { IPC_CHANNELS } from '../../../common/constants.js';
+import { logger } from '../../logger.js';
 
 /**
  * Maximum log message size to prevent DOS attacks (10KB)
