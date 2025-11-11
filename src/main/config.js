@@ -97,6 +97,16 @@ export const config = {
     enabled: true,
   },
 
+  // Crash Reporting
+  crashReporting: {
+    enabled: false, // Opt-in by default for privacy
+    dsn: process.env.SENTRY_DSN || '',
+    environment: getEnvironment(),
+    sampleRate: 1.0,
+    attachScreenshot: false,
+    attachStacktrace: true,
+  },
+
   // Paths (will be resolved at runtime)
   paths: {
     userData: app.getPath('userData'),

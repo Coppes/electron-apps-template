@@ -30,6 +30,8 @@ export const IPC_CHANNELS = {
   APP_GET_PATH: 'app:get-path',
   APP_QUIT: 'app:quit',
   APP_RELAUNCH: 'app:relaunch',
+  APP_CHECK_FOR_UPDATES: 'app:check-for-updates',
+  APP_INSTALL_UPDATE: 'app:install-update',
   
   // System
   SYSTEM_GET_PLATFORM: 'system:get-platform',
@@ -39,6 +41,13 @@ export const IPC_CHANNELS = {
   UPDATE_AVAILABLE: 'update:available',
   UPDATE_DOWNLOADED: 'update:downloaded',
   UPDATE_ERROR: 'update:error',
+  UPDATE_PROGRESS: 'update:progress',
+  
+  // Logging
+  LOG_DEBUG: 'log:debug',
+  LOG_INFO: 'log:info',
+  LOG_WARN: 'log:warn',
+  LOG_ERROR: 'log:error',
 };
 
 // Window Types
