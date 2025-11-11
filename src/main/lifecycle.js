@@ -5,6 +5,7 @@ import { logger } from './logger.js';
 import { windowManager } from './window-manager.js';
 import { setupMenu } from './menu.js';
 import { registerHandlers } from './ipc/bridge.js';
+import { registerLogHandlers } from './ipc/handlers/log.js';
 import { ipcSchema } from './ipc/schema.js';
 import { createWindowHandlers } from './ipc/handlers/window.js';
 import { createStoreHandlers } from './ipc/handlers/store.js';
@@ -73,6 +74,9 @@ class LifecycleManager {
    * Register all IPC handlers
    */
   async registerIPC() {
+    // Register log handlers (don't need schema validation)
+    registerLogHandlers();
+    
     const handlers = {
       ...createWindowHandlers(windowManager),
       ...createStoreHandlers(),
