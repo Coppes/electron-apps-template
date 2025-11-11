@@ -30,7 +30,7 @@ export default defineConfig({
   },
   renderer: {
     // Configuração para o processo renderer (React)
-    root: '.',
+    root: resolve(__dirname, 'src/renderer'),
     build: {
       rollupOptions: {
         input: {
@@ -43,16 +43,25 @@ export default defineConfig({
         '@': resolve(__dirname, 'src/renderer')
       }
     },
-    plugins: [react()],
+    plugins: [
+      react({
+        babel: {
+          parserOpts: {
+            plugins: ['jsx']
+          }
+        }
+      })
+    ],
     esbuild: {
       loader: 'jsx',
-      include: /src\/.*\.js$/,
+      include: /src\/.*\.jsx?$/,
       exclude: []
     },
     optimizeDeps: {
       esbuildOptions: {
         loader: {
-          '.js': 'jsx'
+          '.js': 'jsx',
+          '.jsx': 'jsx'
         }
       }
     },
