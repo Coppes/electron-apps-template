@@ -1,163 +1,136 @@
-import { app, BrowserWindow, ipcMain, dialog } from 'electron';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
-import Store from 'electron-store';
-import fs from 'fs/promises';
+import { app } from 'electron';
+import { logger } from './main/logger.js';
+import { lifecycleManager } from './main/lifecycle.js';
+import { updater } from './main/updater.js';
+import { setupErrorHandlers, logStartupError } from './main/error-handler.js';
+import { setupDevTools, logEnvironmentInfo, setupPerformanceMonitoring } from './main/dev-tools.js';
+import { applyCSP } from './main/security/csp.js';
+import { setupSecurityGuards } from './main/security/navigation-guard.js';
+import { isDevelopment } from './main/config.js';
 
-// Definir __dirname para ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+/**
+ * Main process entry point
+ * Orchestrates application lifecycle and wires together all modules
+ */
 
-const store = new Store();
+// Setup error handlers early
+setupErrorHandlers();
 
-let mainWindow;
+/**
+ * Handle single instance lock
+ */
+if (!lifecycleManager.setupSingleInstance()) {
+  app.quit();
+}
 
-const createWindow = () => {
-  // Em desenvolvimento, electron-vite compila o preload para out/preload
-  // Em produção, estará em resources/app.asar
-  const preloadPath = app.isPackaged
-    ? join(__dirname, '../preload/index.mjs')
-    : join(process.cwd(), 'out/preload/index.mjs');
-  
-  mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
-    minWidth: 800,
-    minHeight: 600,
-    webPreferences: {
-      contextIsolation: true,
-      nodeIntegration: false,
-      enableRemoteModule: false,
-      preload: preloadPath,
-      sandbox: false,
-    },
-  });
+/**
+ * Setup deep linking protocol
+ */
+lifecycleManager.setupDeepLinking();
 
-  // Em desenvolvimento, carrega do servidor Vite
-  // Em produção, carrega do arquivo compilado
-  const isDevelopment = !app.isPackaged;
-  
-  if (isDevelopment) {
-    mainWindow.loadURL('http://localhost:5173');
-    mainWindow.webContents.openDevTools();
-  } else {
-    mainWindow.loadFile(join(__dirname, '../renderer/index.html'));
-  }
-
-  // Remover CSP em desenvolvimento para evitar bloqueios
-  if (!isDevelopment) {
-    mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
-      callback({
-        responseHeaders: {
-          ...details.responseHeaders,
-          'Content-Security-Policy': ["default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:;"]
-        }
-      });
-    });
-  }
-
-  mainWindow.on('closed', () => {
-    mainWindow = null;
-  });
-};
-
-// Desabilitar navegação para URLs externas
-app.on('web-contents-created', (event, contents) => {
-  contents.on('will-navigate', (event, navigationUrl) => {
-    const parsedUrl = new URL(navigationUrl);
-    const isDevelopment = process.env.NODE_ENV === 'development';
-    const allowedOrigins = isDevelopment ? ['http://localhost:5173'] : [];
-    
-    if (!allowedOrigins.includes(parsedUrl.origin)) {
-      event.preventDefault();
+/**
+ * App ready event - Initialize application
+ */
+app.on('ready', async () => {
+  try {
+    // Log environment info in development
+    if (isDevelopment()) {
+      logEnvironmentInfo();
+      setupPerformanceMonitoring();
     }
-  });
 
-  contents.setWindowOpenHandler(({ url }) => {
-    const parsedUrl = new URL(url);
-    if (parsedUrl.origin === 'https://example.com') {
-      return { action: 'allow' };
+    // Initialize lifecycle manager (starts application)
+    await lifecycleManager.startup();
+
+    // Initialize auto-updater (async)
+    await updater.initialize();
+
+    // Check for updates on startup (production only)
+    if (!isDevelopment()) {
+      setTimeout(() => {
+        updater.checkForUpdates().catch(err => {
+          logger.warn('Update check failed', err);
+        });
+      }, 5000); // Wait 5 seconds after startup
     }
-    return { action: 'deny' };
-  });
+
+    logger.info('Application ready and initialized');
+  } catch (error) {
+    logStartupError(error);
+    app.quit();
+  }
 });
 
-app.on('ready', createWindow);
-
+/**
+ * All windows closed - Quit on non-macOS platforms
+ */
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
 });
 
-app.on('activate', () => {
-  if (mainWindow === null) {
-    createWindow();
+/**
+ * Activate (macOS) - Recreate window when dock icon is clicked
+ */
+app.on('activate', async () => {
+  const { windowManager } = await import('./main/window-manager.js');
+  const mainWindow = windowManager.getWindowByType('main');
+  
+  if (!mainWindow) {
+    windowManager.createWindow('main');
   }
 });
 
-// IPC Handlers
-ipcMain.handle('set-title', async (event, title) => {
-  mainWindow.setTitle(title);
-  return { success: true, title };
+/**
+ * Before quit - Graceful shutdown
+ */
+app.on('before-quit', async (event) => {
+  event.preventDefault();
+  await lifecycleManager.shutdown();
+  app.exit(0);
 });
 
-ipcMain.handle('update-counter', async (event, count) => {
-  mainWindow.webContents.send('counter-updated', count);
-  return { success: true, count };
+/**
+ * Setup security and dev tools for all web contents
+ */
+app.on('web-contents-created', (event, contents) => {
+  // Apply security guards
+  setupSecurityGuards(contents);
+
+  // Apply CSP in production
+  if (!isDevelopment()) {
+    applyCSP(contents);
+  }
+
+  // Setup DevTools in development
+  if (isDevelopment() && contents.getType() === 'window') {
+    contents.on('did-finish-load', () => {
+      const window = contents.getOwnerBrowserWindow?.();
+      if (window) {
+        setupDevTools(window);
+      }
+    });
+  }
 });
 
-ipcMain.handle('get-version', async () => {
-  return {
-    electron: process.versions.electron,
-    chrome: process.versions.chrome,
-    node: process.versions.node,
-    v8: process.versions.v8,
-    app: app.getVersion(),
-  };
+/**
+ * Handle GPU process crashes
+ */
+app.on('gpu-process-crashed', (event, killed) => {
+  logger.error('GPU process crashed', { killed });
 });
 
-// Store handlers
-ipcMain.handle('store-get', async (event, key) => {
-  return store.get(key);
-});
-
-ipcMain.handle('store-set', async (event, key, value) => {
-  store.set(key, value);
-  return { success: true };
-});
-
-ipcMain.handle('store-delete', async (event, key) => {
-  store.delete(key);
-  return { success: true };
-});
-
-// File dialog handler
-ipcMain.handle('open-file', async () => {
-  const result = await dialog.showOpenDialog(mainWindow, {
-    properties: ['openFile'],
-    filters: [
-      { name: 'Text Files', extensions: ['txt', 'md', 'json', 'js', 'jsx', 'ts', 'tsx'] },
-      { name: 'All Files', extensions: ['*'] }
-    ]
+/**
+ * Handle child process gone
+ */
+app.on('child-process-gone', (event, details) => {
+  logger.error('Child process gone', {
+    type: details.type,
+    reason: details.reason,
+    exitCode: details.exitCode,
   });
-
-  if (result.canceled) {
-    return { canceled: true };
-  }
-
-  try {
-    const filePath = result.filePaths[0];
-    const content = await fs.readFile(filePath, 'utf-8');
-    return { 
-      canceled: false, 
-      filePath, 
-      content 
-    };
-  } catch (error) {
-    return { 
-      canceled: false, 
-      error: error.message 
-    };
-  }
 });
+
+logger.info('Main process initialized, waiting for ready event');
+

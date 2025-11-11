@@ -1,53 +1,233 @@
 import { contextBridge, ipcRenderer } from 'electron';
+import { IPC_CHANNELS } from './common/constants.js';
 
 /**
- * Preload script - Expõe uma API segura ao renderer process
- * Usa contextBridge para isolar contextos e ipcRenderer para comunicação
+ * Preload script - Exposes a secure, type-safe API to the renderer process
+ * Uses contextBridge for context isolation and ipcRenderer for IPC communication
  */
 
-const electronAPI = {
+/**
+ * Window management API
+ */
+const windowAPI = {
   /**
-   * Envia um IPC ao main process para alterar o título da janela
-   * @param {string} title - O novo título da janela
-   * @returns {Promise} Retorna a resposta do main process
+   * Create a new window
+   * @param {string} type - Window type (main, settings, about)
+   * @param {Object} [options] - Window options
+   * @returns {Promise<Object>} Result with windowId
    */
-  setTitle: (title) => ipcRenderer.invoke('set-title', title),
+  create: (type, options) => ipcRenderer.invoke(IPC_CHANNELS.WINDOW_CREATE, { type, options }),
 
   /**
-   * Registra um listener para receber atualizações de counter do main process
-   * @param {Function} callback - Função executada quando counter é atualizado
-   * @returns {Function} Função para remover o listener
+   * Close a window
+   * @param {number} windowId - Window ID to close
+   * @returns {Promise<Object>} Result
+   */
+  close: (windowId) => ipcRenderer.invoke(IPC_CHANNELS.WINDOW_CLOSE, { windowId }),
+
+  /**
+   * Minimize current window
+   * @returns {Promise<Object>} Result
+   */
+  minimize: () => ipcRenderer.invoke(IPC_CHANNELS.WINDOW_MINIMIZE, {}),
+
+  /**
+   * Maximize/unmaximize current window
+   * @returns {Promise<Object>} Result with maximized state
+   */
+  maximize: () => ipcRenderer.invoke(IPC_CHANNELS.WINDOW_MAXIMIZE, {}),
+
+  /**
+   * Get current window state
+   * @returns {Promise<Object>} Window state (position, size, maximized, etc.)
+   */
+  getState: () => ipcRenderer.invoke(IPC_CHANNELS.WINDOW_GET_STATE, {}),
+};
+
+/**
+ * Store/persistence API
+ */
+const storeAPI = {
+  /**
+   * Get value from store
+   * @param {string} key - Key to retrieve
+   * @returns {Promise<*>} Stored value
+   */
+  get: (key) => ipcRenderer.invoke(IPC_CHANNELS.STORE_GET, { key }).then(r => r.value),
+
+  /**
+   * Set value in store
+   * @param {string} key - Key to store
+   * @param {*} value - Value to store
+   * @returns {Promise<Object>} Result
+   */
+  set: (key, value) => ipcRenderer.invoke(IPC_CHANNELS.STORE_SET, { key, value }),
+
+  /**
+   * Delete key from store
+   * @param {string} key - Key to delete
+   * @returns {Promise<Object>} Result
+   */
+  delete: (key) => ipcRenderer.invoke(IPC_CHANNELS.STORE_DELETE, { key }),
+
+  /**
+   * Clear entire store
+   * @returns {Promise<Object>} Result
+   */
+  clear: () => ipcRenderer.invoke(IPC_CHANNELS.STORE_CLEAR, {}),
+
+  /**
+   * Check if key exists in store
+   * @param {string} key - Key to check
+   * @returns {Promise<boolean>} True if key exists
+   */
+  has: (key) => ipcRenderer.invoke(IPC_CHANNELS.STORE_HAS, { key }).then(r => r.exists),
+};
+
+/**
+ * Dialog API
+ */
+const dialogAPI = {
+  /**
+   * Open file dialog and read content
+   * @param {Object} [options] - Dialog options
+   * @returns {Promise<Object>} Result with filePath and content
+   */
+  openFile: (options) => ipcRenderer.invoke(IPC_CHANNELS.DIALOG_OPEN_FILE, { options }),
+
+  /**
+   * Save file dialog and write content
+   * @param {Object} options - Dialog options
+   * @param {string} content - Content to save
+   * @returns {Promise<Object>} Result with filePath
+   */
+  saveFile: (options, content) => ipcRenderer.invoke(IPC_CHANNELS.DIALOG_SAVE_FILE, { options, content }),
+
+  /**
+   * Show message dialog
+   * @param {Object} options - Dialog options (type, title, message, buttons, etc.)
+   * @returns {Promise<Object>} Result with response index
+   */
+  message: (options) => ipcRenderer.invoke(IPC_CHANNELS.DIALOG_MESSAGE, { options }),
+
+  /**
+   * Show error dialog
+   * @param {string} title - Error title
+   * @param {string} content - Error content
+   * @returns {Promise<Object>} Result
+   */
+  error: (title, content) => ipcRenderer.invoke(IPC_CHANNELS.DIALOG_ERROR, { title, content }),
+};
+
+/**
+ * App info API
+ */
+const appAPI = {
+  /**
+   * Get version information
+   * @returns {Promise<Object>} Version info (electron, chrome, node, v8, app)
+   */
+  getVersion: () => ipcRenderer.invoke(IPC_CHANNELS.APP_GET_VERSION, {}),
+
+  /**
+   * Get app path
+   * @param {string} name - Path name (userData, appData, temp, etc.)
+   * @returns {Promise<string>} Path
+   */
+  getPath: (name) => ipcRenderer.invoke(IPC_CHANNELS.APP_GET_PATH, { name }).then(r => r.path),
+
+  /**
+   * Quit application
+   * @returns {Promise<Object>} Result
+   */
+  quit: () => ipcRenderer.invoke(IPC_CHANNELS.APP_QUIT, {}),
+
+  /**
+   * Relaunch application
+   * @returns {Promise<Object>} Result
+   */
+  relaunch: () => ipcRenderer.invoke(IPC_CHANNELS.APP_RELAUNCH, {}),
+};
+
+/**
+ * System info API
+ */
+const systemAPI = {
+  /**
+   * Get platform information
+   * @returns {Promise<Object>} Platform info (platform, arch)
+   */
+  getPlatform: () => ipcRenderer.invoke(IPC_CHANNELS.SYSTEM_GET_PLATFORM, {}),
+};
+
+/**
+ * Event listeners API
+ */
+const eventsAPI = {
+  /**
+   * Register listener for counter updates (legacy compatibility)
+   * @param {Function} callback - Callback function
+   * @returns {Function} Cleanup function to remove listener
    */
   onUpdateCounter: (callback) => {
     const listener = (event, count) => callback(count);
-    ipcRenderer.on('counter-updated', listener);
-
-    // Retorna função para remover o listener (cleanup)
-    return () => ipcRenderer.removeListener('counter-updated', listener);
+    ipcRenderer.on(IPC_CHANNELS.COUNTER_UPDATED, listener);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.COUNTER_UPDATED, listener);
   },
 
   /**
-   * Obtém informações de versão do Electron, Node, Chrome e app
-   * @returns {Promise<Object>} Objeto com versões
+   * Register listener for update available
+   * @param {Function} callback - Callback function
+   * @returns {Function} Cleanup function
    */
-  getVersion: () => ipcRenderer.invoke('get-version'),
+  onUpdateAvailable: (callback) => {
+    const listener = (event, info) => callback(info);
+    ipcRenderer.on(IPC_CHANNELS.UPDATE_AVAILABLE, listener);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.UPDATE_AVAILABLE, listener);
+  },
 
   /**
-   * Abre um diálogo para selecionar e ler um arquivo
-   * @returns {Promise<Object>} Objeto com caminho e conteúdo do arquivo
+   * Register listener for update downloaded
+   * @param {Function} callback - Callback function
+   * @returns {Function} Cleanup function
    */
-  openFile: () => ipcRenderer.invoke('open-file'),
-
-  // Store API
-  store: {
-    get: (key) => ipcRenderer.invoke('store-get', key),
-    set: (key, value) => ipcRenderer.invoke('store-set', key, value),
-    delete: (key) => ipcRenderer.invoke('store-delete', key),
+  onUpdateDownloaded: (callback) => {
+    const listener = (event, info) => callback(info);
+    ipcRenderer.on(IPC_CHANNELS.UPDATE_DOWNLOADED, listener);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.UPDATE_DOWNLOADED, listener);
   },
 };
 
 /**
- * Exponha a API segura ao context do renderer
- * Apenas estes métodos estarão disponíveis em window.electronAPI
+ * Complete Electron API surface exposed to renderer
+ */
+const electronAPI = {
+  window: windowAPI,
+  store: storeAPI,
+  dialog: dialogAPI,
+  app: appAPI,
+  system: systemAPI,
+  events: eventsAPI,
+
+  // Legacy compatibility - will be deprecated
+  setTitle: (title) => windowAPI.getState().then(() => title),
+  getVersion: appAPI.getVersion,
+  openFile: dialogAPI.openFile,
+  onUpdateCounter: eventsAPI.onUpdateCounter,
+};
+
+/**
+ * Expose the API to the renderer context
+ * Object is frozen to prevent modifications from renderer
  */
 contextBridge.exposeInMainWorld('electronAPI', electronAPI);
+
+// Freeze API to prevent tampering
+Object.freeze(electronAPI);
+Object.freeze(windowAPI);
+Object.freeze(storeAPI);
+Object.freeze(dialogAPI);
+Object.freeze(appAPI);
+Object.freeze(systemAPI);
+Object.freeze(eventsAPI);
+
