@@ -1,5 +1,6 @@
 import { app } from 'electron';
 import { logger } from '../../logger.js';
+import { updater } from '../../updater.js';
 import { createErrorResponse, createSuccessResponse } from '../bridge.js';
 import { IPC_CHANNELS } from '../../../common/constants.js';
 
@@ -91,6 +92,42 @@ export function getPlatformHandler() {
 }
 
 /**
+ * Check for updates
+ */
+export function checkForUpdatesHandler() {
+  return async () => {
+    try {
+      const result = await updater.checkForUpdates();
+      if (result && result.updateInfo) {
+        return {
+          available: true,
+          version: result.updateInfo.version,
+        };
+      }
+      return { available: false };
+    } catch (error) {
+      logger.error('Failed to check for updates', error);
+      return createErrorResponse(error.message, 'UPDATE_CHECK_FAILED');
+    }
+  };
+}
+
+/**
+ * Install update and restart
+ */
+export function installUpdateHandler() {
+  return async () => {
+    try {
+      updater.quitAndInstall();
+      return createSuccessResponse();
+    } catch (error) {
+      logger.error('Failed to install update', error);
+      return createErrorResponse(error.message, 'UPDATE_INSTALL_FAILED');
+    }
+  };
+}
+
+/**
  * Create all app and system handlers
  * @returns {Object} Handlers keyed by channel
  */
@@ -101,5 +138,7 @@ export function createAppHandlers() {
     [IPC_CHANNELS.APP_QUIT]: quitHandler(),
     [IPC_CHANNELS.APP_RELAUNCH]: relaunchHandler(),
     [IPC_CHANNELS.SYSTEM_GET_PLATFORM]: getPlatformHandler(),
+    [IPC_CHANNELS.APP_CHECK_FOR_UPDATES]: checkForUpdatesHandler(),
+    [IPC_CHANNELS.APP_INSTALL_UPDATE]: installUpdateHandler(),
   };
 }

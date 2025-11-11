@@ -1,3 +1,5 @@
+import { BrowserWindow } from 'electron';
+import { IPC_CHANNELS } from '../common/constants.js';
 import { logger } from './logger.js';
 import { config } from './config.js';
 
@@ -66,8 +68,15 @@ class Updater {
         releaseDate: info.releaseDate,
       });
 
-      // TODO: Notify renderer process
-      // Send update-available event to all windows
+      // Notify all renderer processes
+      const allWindows = BrowserWindow.getAllWindows();
+      allWindows.forEach(win => {
+        win.webContents.send(IPC_CHANNELS.UPDATE_AVAILABLE, {
+          version: info.version,
+          releaseDate: info.releaseDate,
+          releaseNotes: info.releaseNotes || '',
+        });
+      });
     });
 
     this.autoUpdater.on('update-not-available', (info) => {
@@ -79,7 +88,14 @@ class Updater {
     this.autoUpdater.on('error', (error) => {
       logger.error('Auto-updater error', error);
       
-      // TODO: Notify renderer of error
+      // Notify renderer of error
+      const allWindows = BrowserWindow.getAllWindows();
+      allWindows.forEach(win => {
+        win.webContents.send(IPC_CHANNELS.UPDATE_ERROR, {
+          message: error.message || 'Unknown update error',
+          code: error.code || 'UPDATE_ERROR',
+        });
+      });
     });
 
     this.autoUpdater.on('download-progress', (progress) => {
@@ -89,7 +105,16 @@ class Updater {
         total: progress.total,
       });
 
-      // TODO: Send progress to renderer
+      // Send progress to renderer (throttled by electron-updater)
+      const allWindows = BrowserWindow.getAllWindows();
+      allWindows.forEach(win => {
+        win.webContents.send(IPC_CHANNELS.UPDATE_PROGRESS, {
+          percent: progress.percent,
+          transferred: progress.transferred,
+          total: progress.total,
+          bytesPerSecond: progress.bytesPerSecond,
+        });
+      });
     });
 
     this.autoUpdater.on('update-downloaded', (info) => {
@@ -98,7 +123,15 @@ class Updater {
         releaseDate: info.releaseDate,
       });
 
-      // TODO: Notify renderer that update is ready to install
+      // Notify renderer that update is ready to install
+      const allWindows = BrowserWindow.getAllWindows();
+      allWindows.forEach(win => {
+        win.webContents.send(IPC_CHANNELS.UPDATE_DOWNLOADED, {
+          version: info.version,
+          releaseDate: info.releaseDate,
+          downloadedAt: new Date().toISOString(),
+        });
+      });
     });
   }
 
