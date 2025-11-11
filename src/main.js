@@ -17,7 +17,7 @@ const createWindow = () => {
   // Em produção, estará em resources/app.asar
   const preloadPath = app.isPackaged
     ? join(__dirname, '../preload/index.mjs')
-    : join(__dirname, '../../out/preload/index.mjs');
+    : join(process.cwd(), 'out/preload/index.mjs');
   
   mainWindow = new BrowserWindow({
     width: 1200,
@@ -35,26 +35,26 @@ const createWindow = () => {
 
   // Em desenvolvimento, carrega do servidor Vite
   // Em produção, carrega do arquivo compilado
-  if (process.env.NODE_ENV === 'development') {
+  const isDevelopment = !app.isPackaged;
+  
+  if (isDevelopment) {
     mainWindow.loadURL('http://localhost:5173');
     mainWindow.webContents.openDevTools();
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'));
   }
 
-  // Aplicar CSP após o carregamento
-  mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
-    const isDevelopment = process.env.NODE_ENV === 'development';
-    
-    callback({
-      responseHeaders: {
-        ...details.responseHeaders,
-        'Content-Security-Policy': isDevelopment
-          ? ["default-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:5173 ws://localhost:5173; script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:5173; style-src 'self' 'unsafe-inline' http://localhost:5173; img-src 'self' data: http://localhost:5173; font-src 'self' data:; connect-src 'self' http://localhost:5173 ws://localhost:5173;"]
-          : ["default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:;"]
-      }
+  // Remover CSP em desenvolvimento para evitar bloqueios
+  if (!isDevelopment) {
+    mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+      callback({
+        responseHeaders: {
+          ...details.responseHeaders,
+          'Content-Security-Policy': ["default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:;"]
+        }
+      });
     });
-  });
+  }
 
   mainWindow.on('closed', () => {
     mainWindow = null;
