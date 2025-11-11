@@ -2,6 +2,7 @@ import { app } from 'electron';
 import { logger } from './main/logger.js';
 import { lifecycleManager } from './main/lifecycle.js';
 import { updater } from './main/updater.js';
+import { initializeCrashReporting } from './main/crash-reporter.js';
 import { setupErrorHandlers, logStartupError } from './main/error-handler.js';
 import { setupDevTools, logEnvironmentInfo, setupPerformanceMonitoring } from './main/dev-tools.js';
 import { applyCSP } from './main/security/csp.js';
@@ -12,6 +13,9 @@ import { isDevelopment } from './main/config.js';
  * Main process entry point
  * Orchestrates application lifecycle and wires together all modules
  */
+
+// Initialize crash reporting early (before error handlers)
+initializeCrashReporting();
 
 // Setup error handlers early
 setupErrorHandlers();

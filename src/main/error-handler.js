@@ -1,5 +1,6 @@
 import { app, dialog } from 'electron';
 import { logger } from './logger.js';
+import { reportError } from './crash-reporter.js';
 
 /**
  * Error handling framework
@@ -14,6 +15,9 @@ export function setupErrorHandlers() {
   process.on('uncaughtException', (error) => {
     logger.error('Uncaught exception in main process', error);
     
+    // Report to crash reporting service
+    reportError(error, { type: 'uncaughtException' });
+    
     showErrorDialog(
       'Application Error',
       `An unexpected error occurred: ${error.message}\n\nThe application will attempt to continue.`
@@ -24,11 +28,16 @@ export function setupErrorHandlers() {
 
   // Handle unhandled promise rejections
   process.on('unhandledRejection', (reason, promise) => {
+    const error = reason instanceof Error ? reason : new Error(String(reason));
+    
     logger.error('Unhandled promise rejection', {
       reason: reason instanceof Error ? reason.message : reason,
       stack: reason instanceof Error ? reason.stack : undefined,
       promise: promise.toString(),
     });
+    
+    // Report to crash reporting service
+    reportError(error, { type: 'unhandledRejection' });
 
     // Don't show dialog for every rejection, just log it
   });
@@ -108,9 +117,18 @@ export function getDiagnostics() {
  * @param {BrowserWindow} window - Crashed window
  */
 export function handleRendererCrash(window) {
+  const diagnostics = getDiagnostics();
+  
   logger.error('Renderer process crashed', {
     windowId: window.id,
-    diagnostics: getDiagnostics(),
+    diagnostics,
+  });
+  
+  // Report to crash reporting service
+  reportError(new Error('Renderer process crashed'), {
+    type: 'rendererCrash',
+    windowId: window.id,
+    diagnostics,
   });
 
   // Show error and offer to reload
@@ -138,6 +156,14 @@ export function handleRendererCrash(window) {
 export function setupRendererCrashHandler(window) {
   window.webContents.on('render-process-gone', (event, details) => {
     logger.error('Render process gone', {
+      windowId: window.id,
+      reason: details.reason,
+      exitCode: details.exitCode,
+    });
+    
+    // Report with details
+    reportError(new Error(`Render process gone: ${details.reason}`), {
+      type: 'renderProcessGone',
       windowId: window.id,
       reason: details.reason,
       exitCode: details.exitCode,
