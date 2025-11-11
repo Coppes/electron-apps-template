@@ -103,20 +103,48 @@ The system SHALL provide secure webview configuration patterns and discourage we
 - **AND** examples show secure webview configuration if needed
 
 ### Requirement: Permission Management
+
 The system SHALL explicitly handle permission requests (camera, microphone, notifications) with user consent and logging.
 
 #### Scenario: Handle permission request with user prompt
+
 - **WHEN** the renderer requests a permission (e.g., camera)
-- **THEN** the 'setPermissionRequestHandler' intercepts the request
+- **THEN** the session's `setPermissionRequestHandler` intercepts the request
 - **AND** a dialog prompts the user to allow or deny
 - **AND** the user's choice is respected
 - **AND** the permission request and response are logged
 
 #### Scenario: Auto-deny unexpected permissions
+
 - **WHEN** a permission request is made for an unexpected permission type
 - **THEN** the permission is automatically denied
 - **AND** the denial is logged with the requested permission type
 - **AND** the user is not prompted unnecessarily
+
+#### Scenario: Configure allowed permissions per app
+
+- **GIVEN** the application has defined required permissions in config
+- **WHEN** a permission is requested
+- **THEN** the permission type is checked against the allowed list
+- **AND** if in the allowed list, the user is prompted
+- **AND** if not in the allowed list, the permission is auto-denied
+- **AND** all decisions are logged with timestamp and origin
+
+#### Scenario: Deny all permissions by default
+
+- **GIVEN** no permissions are explicitly configured as allowed
+- **WHEN** any permission request is received
+- **THEN** the permission is denied by default
+- **AND** the denial is logged
+- **AND** the user is not prompted
+
+#### Scenario: Handle permission revocation
+
+- **WHEN** the user revokes a previously granted permission
+- **THEN** the permission status is updated
+- **AND** the renderer is notified of the revocation (if subscribed)
+- **AND** subsequent requests for that permission require new consent
+- **AND** the revocation is logged
 
 ### Requirement: Security Audit Logging
 The system SHALL log all security-relevant events for audit and monitoring purposes.

@@ -57,8 +57,13 @@
 - [x] Create allowlist for development (localhost origins)
 - [x] Add CSP header injection for production windows
 - [x] Create `src/main/security/context-isolation.js` with security patterns
-- [ ] Test CSP blocks unauthorized scripts and resources
-- [ ] Test navigation guards block external URLs
+- [x] Create `src/main/security/permissions.js` for permission management
+- [x] Create `src/main/security/audit-log.js` for security audit logging
+- [x] Implement permission request handler with user consent dialogs
+- [x] Implement device permission handlers (USB, serial, etc.)
+- [x] Add security audit logging for all security events
+- [x] Test CSP blocks unauthorized scripts and resources
+- [x] Test navigation guards block external URLs
 - [x] Document security configuration and best practices
 
 ## 7. IPC Bridge and Schema
@@ -141,11 +146,11 @@
 - [x] Add global error handler for uncaught exceptions in main process
 - [x] Add global handler for unhandled promise rejections
 - [x] Create error dialog utility for user-facing errors
-- [ ] Implement error reporting from renderer to main via IPC
-- [ ] Add React error boundaries in renderer (create ErrorBoundary component)
+- [x] Implement error reporting from renderer to main via IPC
+- [x] Add React error boundaries in renderer (create ErrorBoundary component)
 - [x] Collect diagnostics on error (version, platform, logs)
-- [ ] Test main process errors are caught and logged
-- [ ] Test renderer errors show fallback UI
+- [x] Test main process errors are caught and logged
+- [x] Test renderer errors show fallback UI
 - [x] Document error handling patterns
 
 ## 14. Main Process Refactoring
