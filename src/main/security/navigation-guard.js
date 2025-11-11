@@ -1,6 +1,7 @@
 import { shell } from 'electron';
 import { logger } from '../logger.js';
 import { config } from '../config.js';
+import { logNavigationBlock, logExternalLink } from './audit-log.js';
 
 /**
  * Navigation security guards to prevent unauthorized navigation
@@ -51,6 +52,13 @@ export function setupNavigationGuard(webContents) {
         url: navigationUrl,
         reason: 'Not in allowed origins',
       });
+      
+      // Log to security audit
+      logNavigationBlock({
+        windowId: webContents.id,
+        url: navigationUrl,
+        reason: 'Not in allowed origins',
+      });
     } else {
       logger.debug('Allowed navigation', { url: navigationUrl });
     }
@@ -84,6 +92,13 @@ export function setupWindowOpenHandler(webContents) {
     if (!isAllowedOrigin(url)) {
       logger.info('Opening external URL in default browser', { url });
       shell.openExternal(url);
+      
+      // Log to security audit
+      logExternalLink({
+        url,
+        windowId: webContents.id,
+      });
+      
       return { action: 'deny' };
     }
 
@@ -112,6 +127,12 @@ export function setupExternalLinkHandler(webContents) {
       event.preventDefault();
       shell.openExternal(url);
       logger.info('Opened external link in browser', { url });
+      
+      // Log to security audit
+      logExternalLink({
+        url,
+        windowId: webContents.id,
+      });
     }
   });
 

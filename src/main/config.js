@@ -66,6 +66,10 @@ export const config = {
     cspEnabled: isProduction(),
     strictNavigation: isProduction(),
     allowedOrigins: isDevelopment() ? ['http://localhost:5173', 'http://localhost:5174'] : [],
+    allowedPermissions: new Set([
+      // Add permissions your app needs here
+      // Examples: 'notifications', 'media', 'geolocation'
+    ]),
   },
 
   // Logging

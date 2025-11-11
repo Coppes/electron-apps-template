@@ -7,6 +7,8 @@ import { setupErrorHandlers, logStartupError } from './main/error-handler.js';
 import { setupDevTools, logEnvironmentInfo, setupPerformanceMonitoring } from './main/dev-tools.js';
 import { applyCSP } from './main/security/csp.js';
 import { setupSecurityGuards } from './main/security/navigation-guard.js';
+import { setupAllPermissionHandlers } from './main/security/permissions.js';
+import { initSecurityAuditLog } from './main/security/audit-log.js';
 import { isDevelopment } from './main/config.js';
 
 /**
@@ -37,6 +39,9 @@ lifecycleManager.setupDeepLinking();
  */
 app.on('ready', async () => {
   try {
+    // Initialize security audit log
+    initSecurityAuditLog();
+
     // Log environment info in development
     if (isDevelopment()) {
       logEnvironmentInfo();
@@ -99,6 +104,9 @@ app.on('before-quit', async (event) => {
  * Setup security and dev tools for all web contents
  */
 app.on('web-contents-created', (event, contents) => {
+  // Setup permission handlers for the session
+  setupAllPermissionHandlers(contents.session);
+
   // Apply security guards
   setupSecurityGuards(contents);
 

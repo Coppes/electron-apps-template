@@ -1,4 +1,5 @@
 import { isDevelopment } from '../config.js';
+import { logger } from '../logger.js';
 
 /**
  * Content Security Policy (CSP) configuration
@@ -83,5 +84,23 @@ export function applyCSP(webContents) {
         'Content-Security-Policy': [cspHeader],
       },
     });
+  });
+
+  // Log CSP violations
+  webContents.on('console-message', (event, level, message, line, sourceId) => {
+    if (message.includes('Content Security Policy') || message.includes('CSP')) {
+      logger.warn('CSP Violation detected', {
+        windowId: webContents.id,
+        message,
+        line,
+        source: sourceId,
+        timestamp: new Date().toISOString(),
+      });
+    }
+  });
+
+  logger.debug('CSP applied to window', {
+    windowId: webContents.id,
+    policy: isDevelopment() ? 'development (relaxed)' : 'production (strict)',
   });
 }
