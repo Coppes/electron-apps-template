@@ -233,18 +233,38 @@ Supported outputs:
 
 ## 🧪 Testing
 
-Tests are configured with Vitest and React Testing Library:
+Comprehensive test infrastructure with Vitest for unit, integration, and E2E testing:
 
 ```bash
-# Run tests
+# Run all tests
 npm test
 
-# Watch mode
-npm test -- --watch
+# Run unit tests only
+npm run test:unit
 
-# Coverage
+# Run main process tests
+npm run test:main
+
+# Run renderer process tests
+npm run test:renderer
+
+# Watch mode for development
+npm run test:watch
+
+# Generate coverage report
 npm run test:coverage
+
+# Open interactive test UI
+npm run test:ui
 ```
+
+**Test Coverage**: The project maintains >80% test coverage for critical modules including:
+- Window management
+- IPC communication
+- Security features
+- React components
+
+For detailed testing documentation, see [TESTING.md](./TESTING.md).
 
 ## 📚 Learn More
 
