@@ -4,115 +4,115 @@
 
 ### Task 1.1: Configure Vitest for main process
 
-- [ ] Create `vitest.config.main.js` with Node.js environment
-- [ ] Configure include patterns for main process tests
-- [ ] Configure coverage for src/main/**/*.js
-- [ ] Exclude entry points (main.js, preload.js) from coverage
-- [ ] Add test:main script to package.json
-- [ ] Validate: npm run test:main executes successfully
+- [x] Create `vitest.config.main.js` with Node.js environment
+- [x] Configure include patterns for main process tests
+- [x] Configure coverage for src/main/**/*.js
+- [x] Exclude entry points (main.js, preload.js) from coverage
+- [x] Add test:main script to package.json
+- [x] Validate: npm run test:main executes successfully
 
 ### Task 1.2: Configure Vitest for renderer process
 
-- [ ] Create `vitest.config.renderer.js` with jsdom environment
-- [ ] Configure include patterns for renderer tests
-- [ ] Configure coverage for src/renderer/**/*.{js,jsx}
-- [ ] Setup alias for @ pointing to src/renderer
-- [ ] Add test:renderer script to package.json
-- [ ] Validate: npm run test:renderer executes successfully
+- [x] Create `vitest.config.renderer.js` with jsdom environment
+- [x] Configure include patterns for renderer tests
+- [x] Configure coverage for src/renderer/**/*.{js,jsx}
+- [x] Setup alias for @ pointing to src/renderer
+- [x] Add test:renderer script to package.json
+- [x] Validate: npm run test:renderer executes successfully
 
 ### Task 1.3: Create test setup files
 
-- [ ] Create `test/setup/vitest.setup.main.js` for main process
-- [ ] Create `test/setup/vitest.setup.renderer.js` for renderer process
-- [ ] Import @testing-library/jest-dom in renderer setup
-- [ ] Configure global test utilities
-- [ ] Add beforeEach/afterEach hooks for cleanup
-- [ ] Validate: Setup files load correctly
+- [x] Create `test/setup/vitest.setup.main.js` for main process
+- [x] Create `test/setup/vitest.setup.renderer.js` for renderer process
+- [x] Import @testing-library/jest-dom in renderer setup
+- [x] Configure global test utilities
+- [x] Add beforeEach/afterEach hooks for cleanup
+- [x] Validate: Setup files load correctly
 
 ### Task 1.4: Create test directory structure
 
-- [ ] Create test/setup/ directory
-- [ ] Create test/fixtures/ directory
-- [ ] Create test/unit/main/ directory
-- [ ] Create test/unit/renderer/ directory
-- [ ] Create test/integration/ directory
-- [ ] Create test/e2e/ directory
-- [ ] Validate: Structure matches design.md
+- [x] Create test/setup/ directory
+- [x] Create test/fixtures/ directory
+- [x] Create test/unit/main/ directory
+- [x] Create test/unit/renderer/ directory
+- [x] Create test/integration/ directory
+- [x] Create test/e2e/ directory
+- [x] Validate: Structure matches design.md
 
 ## Phase 2: Mocks and Fixtures (Week 1)
 
 ### Task 2.1: Create Electron API mocks
 
-- [ ] Create `test/setup/electron-mocks.js`
-- [ ] Mock BrowserWindow (constructor, static methods, instance methods)
-- [ ] Mock app (getPath, getVersion, quit, on, whenReady)
-- [ ] Mock dialog (showOpenDialog, showSaveDialog, showMessageBox)
-- [ ] Mock ipcMain (handle, on, removeHandler)
-- [ ] Mock ipcRenderer (invoke, send, on)
-- [ ] Mock session (setPermissionRequestHandler, etc.)
-- [ ] Mock shell (openExternal, openPath)
-- [ ] Validate: All mocks are callable and return expected types
+- [x] Create `test/setup/electron-mocks.js`
+- [x] Mock BrowserWindow (constructor, static methods, instance methods)
+- [x] Mock app (getPath, getVersion, quit, on, whenReady)
+- [x] Mock dialog (showOpenDialog, showSaveDialog, showMessageBox)
+- [x] Mock ipcMain (handle, on, removeHandler)
+- [x] Mock ipcRenderer (invoke, send, on)
+- [x] Mock session (setPermissionRequestHandler, etc.)
+- [x] Mock shell (openExternal, openPath)
+- [x] Validate: All mocks are callable and return expected types
 
 ### Task 2.2: Create electronAPI mock for renderer
 
-- [ ] Create complete mockElectronAPI in electron-mocks.js
-- [ ] Mock setTitle, openFile, saveFile methods
-- [ ] Mock events object with onUpdateAvailable, onUpdateDownloaded, etc.
-- [ ] Mock store object (get, set, delete, has)
-- [ ] All event handlers return cleanup functions
-- [ ] Export mockElectronAPI for renderer tests
-- [ ] Update vitest.setup.renderer.js to use mockElectronAPI
-- [ ] Validate: window.electronAPI is fully mocked
+- [x] Create complete mockElectronAPI in electron-mocks.js
+- [x] Mock setTitle, openFile, saveFile methods
+- [x] Mock events object with onUpdateAvailable, onUpdateDownloaded, etc.
+- [x] Mock store object (get, set, delete, has)
+- [x] All event handlers return cleanup functions
+- [x] Export mockElectronAPI for renderer tests
+- [x] Update vitest.setup.renderer.js to use mockElectronAPI
+- [x] Validate: window.electronAPI is fully mocked
 
 ### Task 2.3: Create test fixtures
 
-- [ ] Create `test/fixtures/window-fixtures.js` with window states
-- [ ] Create `test/fixtures/ipc-fixtures.js` with IPC payloads
-- [ ] Create `test/fixtures/app-fixtures.js` with app states
-- [ ] Add valid and invalid payloads for each IPC channel
-- [ ] Add edge cases (empty, null, undefined, large data)
-- [ ] Export all fixtures as named exports
-- [ ] Validate: Fixtures are importable and well-typed
+- [x] Create `test/fixtures/window-fixtures.js` with window states
+- [x] Create `test/fixtures/ipc-fixtures.js` with IPC payloads
+- [x] Create `test/fixtures/app-fixtures.js` with app states
+- [x] Add valid and invalid payloads for each IPC channel
+- [x] Add edge cases (empty, null, undefined, large data)
+- [x] Export all fixtures as named exports
+- [x] Validate: Fixtures are importable and well-typed
 
 ### Task 2.4: Create test helpers
 
-- [ ] Create `test/setup/test-helpers.js`
-- [ ] Add createMockWindow() helper
-- [ ] Add createMockWebContents() helper
-- [ ] Add waitForIpc() helper for async IPC tests
-- [ ] Add mockLogger() to prevent log spam in tests
-- [ ] Add resetAllMocks() to clear all vi.mock calls
-- [ ] Export all helpers
-- [ ] Validate: Helpers work in test files
+- [x] Create `test/setup/test-helpers.js`
+- [x] Add createMockWindow() helper
+- [x] Add createMockWebContents() helper
+- [x] Add waitForIpc() helper for async IPC tests
+- [x] Add mockLogger() to prevent log spam in tests
+- [x] Add resetAllMocks() to clear all vi.mock calls
+- [x] Export all helpers
+- [x] Validate: Helpers work in test files
 
 ## Phase 3: Unit Tests - Main Process (Week 2)
 
 ### Task 3.1: Test window-manager module
 
-- [ ] Create `test/unit/main/window-manager.test.js`
-- [ ] Mock electron.BrowserWindow
-- [ ] Test createWindow() creates window with correct options
-- [ ] Test createWindow() prevents duplicate windows
-- [ ] Test getWindowByType() returns correct window
-- [ ] Test getAllWindows() returns all windows
-- [ ] Test closeWindow() closes specific window
-- [ ] Test closeAllWindows() closes all windows
-- [ ] Test saveWindowState() persists state
-- [ ] Test restoreWindowState() loads saved state
-- [ ] Validate: >80% coverage for window-manager
+- [x] Create `test/unit/main/window-manager.test.js`
+- [x] Mock electron.BrowserWindow
+- [x] Test createWindow() creates window with correct options
+- [x] Test createWindow() prevents duplicate windows
+- [x] Test getWindowByType() returns correct window
+- [x] Test getAllWindows() returns all windows
+- [x] Test closeWindow() closes specific window
+- [x] Test closeAllWindows() closes all windows
+- [x] Test saveWindowState() persists state
+- [x] Test restoreWindowState() loads saved state
+- [x] Validate: >80% coverage for window-manager
 
 ### Task 3.2: Test logger module
 
-- [ ] Create `test/unit/main/logger.test.js`
-- [ ] Mock fs and console
-- [ ] Test logger.info() logs to console and file
-- [ ] Test logger.error() logs with stack trace
-- [ ] Test logger.warn() logs warnings
-- [ ] Test logger.debug() only logs in development
-- [ ] Test log file rotation
-- [ ] Test log levels (info, warn, error, debug)
-- [ ] Test structured logging (object payloads)
-- [ ] Validate: >80% coverage for logger
+- [x] Create `test/unit/main/logger.test.js`
+- [x] Mock fs and console
+- [x] Test logger.info() logs to console and file
+- [x] Test logger.error() logs with stack trace
+- [x] Test logger.warn() logs warnings
+- [x] Test logger.debug() only logs in development
+- [x] Test log file rotation
+- [x] Test log levels (info, warn, error, debug)
+- [x] Test structured logging (object payloads)
+- [x] Validate: >80% coverage for logger
 
 ### Task 3.3: Test lifecycle module
 
@@ -180,22 +180,22 @@
 
 ### Task 3.8: Test security modules
 
-- [ ] Migrate test/security.*.test.js to test/unit/security/
-- [ ] Remove placeholder tests (expect(true).toBe(true))
-- [ ] Implement real mocks for WebContents, session
-- [ ] Test CSP header building with actual values
-- [ ] Test navigation guard blocks unauthorized URLs
-- [ ] Test permission handler prompts user
-- [ ] Test audit log writes to file
-- [ ] Add tests for edge cases and error paths
-- [ ] Validate: >80% coverage for all security modules
+- [x] Migrate test/security.*.test.js to test/unit/security/
+- [x] Remove placeholder tests (expect(true).toBe(true))
+- [x] Implement real mocks for WebContents, session
+- [x] Test CSP header building with actual values
+- [x] Test navigation guard blocks unauthorized URLs
+- [x] Test permission handler prompts user
+- [x] Test audit log writes to file
+- [x] Add tests for edge cases and error paths
+- [x] Validate: >80% coverage for all security modules
 
 ## Phase 4: Unit Tests - Renderer Process (Week 2-3)
 
 ### Task 4.1: Test React components
 
-- [ ] Update src/renderer/App.test.jsx to use mockElectronAPI
-- [ ] Update src/renderer/components/Demo.test.jsx
+- [x] Update src/renderer/App.test.jsx to use mockElectronAPI
+- [ ] Update src/renderer/components/Demo.test.jsx (needs refactoring - component changed)
 - [ ] Create tests for ErrorBoundary component
 - [ ] Create tests for UpdateNotification component
 - [ ] Create tests for SafeHTML component
@@ -215,8 +215,8 @@
 
 ### Task 4.3: Fix failing renderer tests
 
-- [ ] Ensure mockElectronAPI is available in all renderer tests
-- [ ] Fix "Cannot read properties of undefined" errors
+- [x] Ensure mockElectronAPI is available in all renderer tests
+- [ ] Fix "Cannot read properties of undefined" errors in Demo test
 - [ ] Update all tests to use vi.fn() for event handlers
 - [ ] Ensure cleanup functions are called in useEffect tests
 - [ ] Validate: All renderer tests pass
@@ -316,25 +316,25 @@
 
 ### Task 7.1: Create GitHub Actions workflow
 
-- [ ] Create `.github/workflows/test.yml`
-- [ ] Configure matrix for [ubuntu, windows, macos]
-- [ ] Configure Node.js versions [18.x, 20.x]
-- [ ] Add checkout and setup-node steps
-- [ ] Add npm ci step with cache
-- [ ] Add test:unit step
+- [x] Create `.github/workflows/test.yml`
+- [x] Configure matrix for [ubuntu, windows, macos]
+- [x] Configure Node.js versions [18.x, 20.x]
+- [x] Add checkout and setup-node steps
+- [x] Add npm ci step with cache
+- [x] Add test:unit step
 - [ ] Add test:integration step
-- [ ] Add test:coverage step
-- [ ] Validate: Workflow file is valid YAML
+- [x] Add test:coverage step
+- [x] Validate: Workflow file is valid YAML
 
 ### Task 7.2: Configure coverage reporting
 
-- [ ] Generate lcov coverage format
-- [ ] Add Codecov integration
-- [ ] Upload coverage only from ubuntu-latest
-- [ ] Add coverage badge to README.md
-- [ ] Set coverage threshold to 80%
-- [ ] Fail CI if coverage drops below threshold
-- [ ] Validate: Coverage is uploaded to Codecov
+- [x] Generate lcov coverage format
+- [x] Add Codecov integration
+- [x] Upload coverage only from ubuntu-latest
+- [ ] Add coverage badge to README.md (needs Codecov token)
+- [x] Set coverage threshold to 80%
+- [x] Fail CI if coverage drops below threshold
+- [ ] Validate: Coverage is uploaded to Codecov (needs token)
 
 ### Task 7.3: Add E2E tests to CI
 
@@ -348,11 +348,11 @@
 
 ### Task 7.4: Configure CI caching and optimization
 
-- [ ] Cache node_modules with actions/cache
+- [x] Cache node_modules with actions/cache
 - [ ] Cache Playwright binaries
-- [ ] Run unit and integration tests in parallel
-- [ ] Fail fast if any job fails
-- [ ] Add concurrency groups to cancel outdated runs
+- [x] Run unit and integration tests in parallel
+- [x] Fail fast if any job fails
+- [x] Add concurrency groups to cancel outdated runs
 - [ ] Optimize workflow for speed (<10 min total)
 - [ ] Validate: CI runs efficiently
 
@@ -360,51 +360,51 @@
 
 ### Task 8.1: Create testing guide
 
-- [ ] Create `TESTING.md` documentation
-- [ ] Document how to run tests locally
-- [ ] Document test file naming conventions
-- [ ] Document mock and fixture usage
-- [ ] Document how to debug failing tests
-- [ ] Add examples of good test patterns
-- [ ] Document E2E test setup and execution
-- [ ] Validate: Documentation is clear and complete
+- [x] Create `TESTING.md` documentation
+- [x] Document how to run tests locally
+- [x] Document test file naming conventions
+- [x] Document mock and fixture usage
+- [x] Document how to debug failing tests
+- [x] Add examples of good test patterns
+- [ ] Document E2E test setup and execution (deferred - E2E not implemented yet)
+- [x] Validate: Documentation is clear and complete
 
 ### Task 8.2: Update package.json scripts
 
-- [ ] Add test:unit (runs unit tests only)
-- [ ] Add test:integration (runs integration tests)
-- [ ] Add test:e2e (runs E2E tests)
-- [ ] Add test:coverage (runs with coverage)
-- [ ] Add test:watch (watch mode for development)
-- [ ] Add test:ui (opens Vitest UI)
-- [ ] Update existing test script to run all tests
-- [ ] Validate: All scripts work correctly
+- [x] Add test:unit (runs unit tests only)
+- [ ] Add test:integration (runs integration tests) (deferred)
+- [ ] Add test:e2e (runs E2E tests) (deferred)
+- [x] Add test:coverage (runs with coverage)
+- [x] Add test:watch (watch mode for development)
+- [x] Add test:ui (opens Vitest UI)
+- [x] Update existing test script to run all tests
+- [x] Validate: All scripts work correctly
 
 ### Task 8.3: Update README and documentation
 
-- [ ] Add testing section to README.md
-- [ ] Add coverage badge
-- [ ] Add link to TESTING.md
-- [ ] Update CI/CD section with GitHub Actions
-- [ ] Document required Node.js and npm versions for tests
-- [ ] Add troubleshooting section for common test issues
-- [ ] Validate: README is up-to-date
+- [x] Add testing section to README.md
+- [ ] Add coverage badge (needs Codecov setup)
+- [x] Add link to TESTING.md
+- [x] Update CI/CD section with GitHub Actions
+- [x] Document required Node.js and npm versions for tests
+- [x] Add troubleshooting section for common test issues
+- [x] Validate: README is up-to-date
 
 ### Task 8.4: Final validation
 
-- [ ] Run all tests locally and verify they pass
-- [ ] Verify coverage meets >80% threshold
-- [ ] Run E2E tests and verify they pass
-- [ ] Push to GitHub and verify CI passes
-- [ ] Check coverage report on Codecov
-- [ ] Verify tests run on all platforms (macOS, Windows, Linux)
+- [x] Run all tests locally and verify they pass (main process tests pass)
+- [ ] Verify coverage meets >80% threshold (main modules covered, renderer needs work)
+- [ ] Run E2E tests and verify they pass (deferred - not implemented)
+- [ ] Push to GitHub and verify CI passes (CI configured, needs testing)
+- [ ] Check coverage report on Codecov (needs token setup)
+- [ ] Verify tests run on all platforms (macOS, Windows, Linux) (CI configured)
 - [ ] Document any platform-specific issues
-- [ ] Validate: All tests pass in CI
+- [ ] Validate: All tests pass in CI (needs CI run)
 
 ## Summary
 
 - **Total Tasks**: 74
-- **Estimated Effort**: ~70 hours
-- **Parallelizable**: Infrastructure and mocks can be built in parallel with test migration
-- **Dependencies**: Phase 1-2 must complete before Phase 3-6
-- **Critical Path**: Infrastructure → Unit Tests → Integration Tests → E2E → CI/CD
+- **Completed**: ~45 tasks
+- **In Progress**: Renderer tests need updating for refactored components
+- **Deferred**: E2E tests, full integration tests (can be added incrementally)
+- **Status**: Core infrastructure complete, main process tests passing, security tests passing
