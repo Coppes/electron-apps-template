@@ -1,7 +1,8 @@
 import '@testing-library/jest-dom';
+import { mockElectronAPI } from './test/setup/electron-mocks.js';
 
-// Mock do Electron API para testes
-global.electronAPI = {
-  setTitle: () => Promise.resolve(),
-  onUpdateCounter: () => {},
-};
+// Mock window.electronAPI for renderer tests
+if (typeof window !== 'undefined') {
+  window.electronAPI = mockElectronAPI;
+}
+global.electronAPI = mockElectronAPI;

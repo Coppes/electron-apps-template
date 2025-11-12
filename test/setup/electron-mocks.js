@@ -233,30 +233,64 @@ export const mockElectron = {
 // ============================================================================
 
 export const mockElectronAPI = {
-  // Window methods
-  setTitle: vi.fn(() => Promise.resolve()),
-  minimizeWindow: vi.fn(() => Promise.resolve()),
-  maximizeWindow: vi.fn(() => Promise.resolve()),
-  closeWindow: vi.fn(() => Promise.resolve()),
-  
-  // File operations
-  openFile: vi.fn(() => Promise.resolve({ canceled: false, filePath: '/mock/file.txt', content: 'mock content' })),
-  saveFile: vi.fn(() => Promise.resolve({ canceled: false, filePath: '/mock/save.txt' })),
-  
-  // App info
-  getAppVersion: vi.fn(() => Promise.resolve('1.0.0')),
-  getAppPath: vi.fn((name) => Promise.resolve(`/mock/path/${name}`)),
-  
-  // Store operations
-  store: {
-    get: vi.fn((key, defaultValue) => Promise.resolve(defaultValue)),
-    set: vi.fn(() => Promise.resolve()),
-    delete: vi.fn(() => Promise.resolve()),
-    has: vi.fn(() => Promise.resolve(false)),
-    clear: vi.fn(() => Promise.resolve()),
+  // Window API
+  window: {
+    create: vi.fn((_type, _options) => Promise.resolve({ success: true, windowId: 1 })),
+    close: vi.fn((_windowId) => Promise.resolve({ success: true })),
+    minimize: vi.fn(() => Promise.resolve({ success: true })),
+    maximize: vi.fn(() => Promise.resolve({ success: true, maximized: true })),
+    getState: vi.fn(() => Promise.resolve({ 
+      success: true,
+      isMaximized: false,
+      isVisible: true,
+      bounds: { x: 0, y: 0, width: 800, height: 600 }
+    })),
   },
-  
-  // Events
+
+  // Dialog API
+  dialog: {
+    openFile: vi.fn((_options) => Promise.resolve({ 
+      canceled: false, 
+      filePath: '/mock/file.txt', 
+      content: 'mock content' 
+    })),
+    saveFile: vi.fn((_options, _content) => Promise.resolve({ 
+      canceled: false, 
+      filePath: '/mock/save.txt' 
+    })),
+    message: vi.fn((_options) => Promise.resolve({ 
+      success: true, 
+      response: 0 
+    })),
+    error: vi.fn((_options) => Promise.resolve({ 
+      success: true 
+    })),
+  },
+
+  // Store API
+  store: {
+    get: vi.fn((_key) => Promise.resolve(null)),
+    set: vi.fn((_key, _value) => Promise.resolve({ success: true })),
+    delete: vi.fn((_key) => Promise.resolve({ success: true })),
+    has: vi.fn((_key) => Promise.resolve(false)),
+    clear: vi.fn(() => Promise.resolve({ success: true })),
+  },
+
+  // App API
+  app: {
+    getVersion: vi.fn(() => Promise.resolve({ 
+      app: '1.0.0',
+      electron: '28.0.0',
+      chrome: '120.0.0',
+      node: '18.0.0',
+      v8: '12.0.0'
+    })),
+    getPath: vi.fn((name) => Promise.resolve(`/mock/path/${name}`)),
+    quit: vi.fn(() => Promise.resolve({ success: true })),
+    relaunch: vi.fn(() => Promise.resolve({ success: true })),
+  },
+
+  // Events API
   events: {
     onUpdateAvailable: vi.fn((_callback) => {
       // Return cleanup function
@@ -275,8 +309,15 @@ export const mockElectronAPI = {
       return () => {};
     }),
   },
+
+  // Update API
+  update: {
+    check: vi.fn(() => Promise.resolve({ success: true })),
+    quitAndInstall: vi.fn(() => Promise.resolve({ success: true })),
+  },
   
-  // Update methods
-  checkForUpdates: vi.fn(() => Promise.resolve()),
-  quitAndInstall: vi.fn(() => Promise.resolve()),
+  // Backward compatibility methods (deprecated, to be removed)
+  setTitle: vi.fn(() => Promise.resolve()),
+  openFile: vi.fn(() => Promise.resolve({ canceled: false, filePath: '/mock/file.txt', content: 'mock content' })),
+  saveFile: vi.fn(() => Promise.resolve({ canceled: false, filePath: '/mock/save.txt' })),
 };

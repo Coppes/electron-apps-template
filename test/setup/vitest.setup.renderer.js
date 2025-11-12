@@ -1,9 +1,20 @@
 import '@testing-library/jest-dom';
-import { vi, afterEach } from 'vitest';
+import { vi, afterEach, beforeEach } from 'vitest';
 import { mockElectronAPI } from './electron-mocks.js';
 
 // Mock window.electronAPI for renderer tests
+if (typeof window !== 'undefined') {
+  window.electronAPI = mockElectronAPI;
+}
 global.window.electronAPI = mockElectronAPI;
+
+// Restore mock before each test
+beforeEach(() => {
+  if (typeof window !== 'undefined') {
+    window.electronAPI = mockElectronAPI;
+  }
+  global.window.electronAPI = mockElectronAPI;
+});
 
 // Global test utilities
 global.testHelpers = {
