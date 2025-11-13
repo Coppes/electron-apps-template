@@ -6,6 +6,8 @@
 import { IPC_CHANNELS } from '../../../common/constants.js';
 import backupManager from '../../data/backup-manager.js';
 import importExportManager from '../../data/import-export.js';
+import connectivityManager from '../../data/connectivity-manager.js';
+import syncQueue from '../../data/sync-queue.js';
 import { logger } from '../../logger.js';
 
 /**
@@ -175,6 +177,86 @@ export async function handleListFormats() {
   }
 }
 
+/**
+ * Handle connectivity status request
+ */
+export async function handleConnectivityStatus() {
+  try {
+    const status = connectivityManager.getStatus();
+    return {
+      success: true,
+      ...status
+    };
+  } catch (error) {
+    logger.error('Get connectivity status failed:', error);
+    return {
+      success: false,
+      error: error.message,
+      online: false
+    };
+  }
+}
+
+/**
+ * Handle sync queue add request
+ */
+export async function handleSyncQueueAdd(event, payload) {
+  const { operation } = payload || {};
+
+  if (!operation) {
+    return {
+      success: false,
+      error: 'Operation is required'
+    };
+  }
+
+  try {
+    const result = await syncQueue.enqueue(operation);
+    return result;
+  } catch (error) {
+    logger.error('Sync queue add failed:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}
+
+/**
+ * Handle sync queue process request
+ */
+export async function handleSyncQueueProcess() {
+  try {
+    const result = await syncQueue.process();
+    return result;
+  } catch (error) {
+    logger.error('Sync queue process failed:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}
+
+/**
+ * Handle sync queue status request
+ */
+export async function handleSyncQueueStatus() {
+  try {
+    const status = syncQueue.getStatus();
+    return {
+      success: true,
+      ...status
+    };
+  } catch (error) {
+    logger.error('Sync queue status failed:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}
+
 // Export handlers registry
 export const dataHandlers = {
   [IPC_CHANNELS.DATA_CREATE_BACKUP]: handleCreateBackup,
@@ -183,7 +265,11 @@ export const dataHandlers = {
   [IPC_CHANNELS.DATA_DELETE_BACKUP]: handleDeleteBackup,
   [IPC_CHANNELS.DATA_IMPORT]: handleDataImport,
   [IPC_CHANNELS.DATA_EXPORT]: handleDataExport,
-  [IPC_CHANNELS.DATA_LIST_FORMATS]: handleListFormats
+  [IPC_CHANNELS.DATA_LIST_FORMATS]: handleListFormats,
+  [IPC_CHANNELS.CONNECTIVITY_STATUS]: handleConnectivityStatus,
+  [IPC_CHANNELS.SYNC_QUEUE_ADD]: handleSyncQueueAdd,
+  [IPC_CHANNELS.SYNC_QUEUE_PROCESS]: handleSyncQueueProcess,
+  [IPC_CHANNELS.SYNC_QUEUE_STATUS]: handleSyncQueueStatus
 };
 
 export default dataHandlers;

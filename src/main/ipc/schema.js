@@ -412,6 +412,53 @@ export const dataSchema = {
       error: { type: 'string', required: false },
     },
   },
+
+  [IPC_CHANNELS.CONNECTIVITY_STATUS]: {
+    input: {},
+    output: {
+      success: { type: 'boolean', required: true },
+      online: { type: 'boolean', required: false },
+      checkUrl: { type: 'string', required: false },
+      lastCheck: { type: 'number', required: false },
+      error: { type: 'string', required: false },
+    },
+  },
+
+  [IPC_CHANNELS.SYNC_QUEUE_ADD]: {
+    input: {
+      operation: { type: 'object', required: true },
+    },
+    output: {
+      success: { type: 'boolean', required: true },
+      id: { type: 'string', required: false },
+      queued: { type: 'number', required: false },
+      error: { type: 'string', required: false },
+    },
+  },
+
+  [IPC_CHANNELS.SYNC_QUEUE_PROCESS]: {
+    input: {},
+    output: {
+      success: { type: 'boolean', required: true },
+      processed: { type: 'number', required: false },
+      failed: { type: 'number', required: false },
+      pending: { type: 'number', required: false },
+      error: { type: 'string', required: false },
+    },
+  },
+
+  [IPC_CHANNELS.SYNC_QUEUE_STATUS]: {
+    input: {},
+    output: {
+      success: { type: 'boolean', required: true },
+      total: { type: 'number', required: false },
+      pending: { type: 'number', required: false },
+      syncing: { type: 'number', required: false },
+      synced: { type: 'number', required: false },
+      failed: { type: 'number', required: false },
+      error: { type: 'string', required: false },
+    },
+  },
 };
 
 /**
