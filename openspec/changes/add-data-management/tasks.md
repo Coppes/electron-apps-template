@@ -32,39 +32,39 @@
 
 ### File Watching Service (8 tasks)
 
-- [ ] 23. Create `src/main/data/file-watcher.js` with FileWatcher class
-- [ ] 24. Implement watch method using fs.watch() with debouncing (300ms)
-- [ ] 25. Implement unwatch method with cleanup
-- [ ] 26. Add file metadata tracking (mtime, size) for conflict detection
-- [ ] 27. Create IPC event emitter for file change notifications (FILE_CHANGED)
-- [ ] 28. Handle edge cases (file deletion, rename, rapid changes)
-- [ ] 29. Add file watcher registry to track active watchers
+- [x] 23. Create `src/main/data/file-watcher.js` with FileWatcher class
+- [x] 24. Implement watch method using fs.watch() with debouncing (300ms)
+- [x] 25. Implement unwatch method with cleanup
+- [x] 26. Add file metadata tracking (mtime, size) for conflict detection
+- [x] 27. Create IPC event emitter for file change notifications (FILE_CHANGED)
+- [x] 28. Handle edge cases (file deletion, rename, rapid changes)
+- [x] 29. Add file watcher registry to track active watchers
 - [ ] 30. Write tests for file watching, debouncing, and conflict detection
 
 ## Phase 2: Import/Export System (Sequential)
 
 ### Format Handler Architecture (10 tasks)
 
-- [ ] 31. Install CSV and Markdown dependencies (`npm install csv-parse csv-stringify marked`)
-- [ ] 32. Create `src/main/data/import-export.js` with ImportExportManager class
-- [ ] 33. Create `src/main/data/format-handlers/` directory
-- [ ] 34. Define FormatHandler interface (canHandle, export, import, validate)
-- [ ] 35. Implement JsonHandler in `format-handlers/json-handler.js`
-- [ ] 36. Implement CsvHandler in `format-handlers/csv-handler.js` with csv-parse/stringify
-- [ ] 37. Implement MarkdownHandler in `format-handlers/markdown-handler.js` (optional)
-- [ ] 38. Add format handler registry to ImportExportManager
-- [ ] 39. Implement auto-detection logic (determine format from file extension/content)
+- [x] 31. Install CSV and Markdown dependencies (`npm install csv-parse csv-stringify marked`)
+- [x] 32. Create `src/main/data/import-export.js` with ImportExportManager class
+- [x] 33. Create `src/main/data/format-handlers/` directory
+- [x] 34. Define FormatHandler interface (canHandle, export, import, validate)
+- [x] 35. Implement JsonHandler in `format-handlers/json-handler.js`
+- [x] 36. Implement CsvHandler in `format-handlers/csv-handler.js` with csv-parse/stringify
+- [x] 37. Implement MarkdownHandler in `format-handlers/markdown-handler.js` (optional)
+- [x] 38. Add format handler registry to ImportExportManager
+- [x] 39. Implement auto-detection logic (determine format from file extension/content)
 - [ ] 40. Write tests for each format handler (export, import, validate)
 
 ### Import/Export Features (10 tasks)
 
-- [ ] 41. Implement export method in ImportExportManager (select handler, transform, write)
-- [ ] 42. Implement import method in ImportExportManager (validate, parse, transform)
-- [ ] 43. Add schema validation using JSON Schema (validate imported data structure)
+- [x] 41. Implement export method in ImportExportManager (select handler, transform, write)
+- [x] 42. Implement import method in ImportExportManager (validate, parse, transform)
+- [x] 43. Add schema validation using JSON Schema (validate imported data structure)
 - [ ] 44. Implement transformation pipeline for format conversion (CSV→JSON, etc.)
-- [ ] 45. Add file size validation (default max 100MB, configurable)
-- [ ] 46. Implement error handling and user-friendly error messages
-- [ ] 47. Add IPC handlers for import/export operations in data.js
+- [x] 45. Add file size validation (default max 100MB, configurable)
+- [x] 46. Implement error handling and user-friendly error messages
+- [x] 47. Add IPC handlers for import/export operations in data.js
 - [ ] 48. Create export presets (e.g., "Export All Settings", "Export Documents")
 - [ ] 49. Add progress reporting for large file operations
 - [ ] 50. Write integration tests for import/export round-trips
