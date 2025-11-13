@@ -4,30 +4,30 @@
 
 ### Drag and Drop Infrastructure (10 tasks)
 
-- [ ] 1. Install archiver dependency for ZIP operations (`npm install archiver`)
-- [ ] 2. Create `src/main/data/` directory for data management modules
-- [ ] 3. Create `src/main/ipc/handlers/files.js` for file operation IPC handlers
-- [ ] 4. Implement file path validation function in files.js (prevent traversal, check extensions)
-- [ ] 5. Add file operation IPC channels to `src/common/constants.js` (FILE_DROP, FILE_DRAG_START)
-- [ ] 6. Create useDragDrop hook in `src/renderer/hooks/useDragDrop.js`
-- [ ] 7. Create DropZone component in `src/renderer/components/DropZone.jsx` with drag event handlers
-- [ ] 8. Implement startDrag IPC handler for dragging files from app to desktop
-- [ ] 9. Add file drop IPC handler with security validation
+- [x] 1. Install archiver dependency for ZIP operations (`npm install archiver`)
+- [x] 2. Create `src/main/data/` directory for data management modules
+- [x] 3. Create `src/main/ipc/handlers/files.js` for file operation IPC handlers
+- [x] 4. Implement file path validation function in files.js (prevent traversal, check extensions)
+- [x] 5. Add file operation IPC channels to `src/common/constants.js` (FILE_DROP, FILE_DRAG_START)
+- [x] 6. Create useDragDrop hook in `src/renderer/hooks/useDragDrop.js`
+- [x] 7. Create DropZone component in `src/renderer/components/DropZone.jsx` with drag event handlers
+- [x] 8. Implement startDrag IPC handler for dragging files from app to desktop
+- [x] 9. Add file drop IPC handler with security validation
 - [ ] 10. Write tests for file path validation and security checks
 
 ### Backup Manager Core (12 tasks)
 
-- [ ] 11. Create `src/main/data/backup-manager.js` with BackupManager class
-- [ ] 12. Implement createBackup method (collect electron-store data, create manifest)
-- [ ] 13. Implement ZIP compression using archiver library
-- [ ] 14. Add backup metadata storage in electron-store (history, timestamps)
-- [ ] 15. Implement listBackups method to retrieve backup history
-- [ ] 16. Implement deleteBackup method with confirmation
-- [ ] 17. Implement restoreBackup method with validation and extraction
-- [ ] 18. Add checksum calculation and verification (SHA-256)
-- [ ] 19. Create backup retention policy (auto-delete old backups, configurable limit)
-- [ ] 20. Add IPC handlers in `src/main/ipc/handlers/data.js` for backup operations
-- [ ] 21. Integrate SQLite backup support (conditional on add-secure-storage presence)
+- [x] 11. Create `src/main/data/backup-manager.js` with BackupManager class
+- [x] 12. Implement createBackup method (collect electron-store data, create manifest)
+- [x] 13. Implement ZIP compression using archiver library
+- [x] 14. Add backup metadata storage in electron-store (history, timestamps)
+- [x] 15. Implement listBackups method to retrieve backup history
+- [x] 16. Implement deleteBackup method with confirmation
+- [x] 17. Implement restoreBackup method with validation and extraction
+- [x] 18. Add checksum calculation and verification (SHA-256)
+- [x] 19. Create backup retention policy (auto-delete old backups, configurable limit)
+- [x] 20. Add IPC handlers in `src/main/ipc/handlers/data.js` for backup operations
+- [x] 21. Integrate SQLite backup support (conditional on add-secure-storage presence)
 - [ ] 22. Write tests for backup creation, restoration, and integrity checks
 
 ### File Watching Service (8 tasks)
