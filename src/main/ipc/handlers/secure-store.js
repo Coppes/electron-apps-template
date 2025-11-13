@@ -5,7 +5,7 @@
  */
 
 import { IPC_CHANNELS } from '../../../common/constants.js';
-import logger from '../../logger.js';
+import { logger } from '../../logger.js';
 import {
   encryptAndStore,
   retrieveAndDecrypt,

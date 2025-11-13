@@ -10,7 +10,7 @@
 
 import { safeStorage } from 'electron';
 import Store from 'electron-store';
-import logger from '../logger.js';
+import { logger } from '../logger.js';
 
 const store = new Store();
 const ENCRYPTED_PREFIX = '__ENCRYPTED__';
