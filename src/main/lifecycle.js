@@ -12,6 +12,8 @@ import { createStoreHandlers } from './ipc/handlers/store.js';
 import { createDialogHandlers } from './ipc/handlers/dialog.js';
 import { createAppHandlers } from './ipc/handlers/app.js';
 import { secureStoreHandlers } from './ipc/handlers/secure-store.js';
+import { fileHandlers } from './ipc/handlers/files.js';
+import { dataHandlers } from './ipc/handlers/data.js';
 import { config, loadEnvironmentOverrides } from './config.js';
 
 /**
@@ -84,6 +86,8 @@ class LifecycleManager {
       ...createDialogHandlers(),
       ...createAppHandlers(),
       ...secureStoreHandlers,
+      ...fileHandlers,
+      ...dataHandlers,
     };
 
     registerHandlers(ipcSchema, handlers);

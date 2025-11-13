@@ -260,6 +260,100 @@ export const systemSchema = {
 };
 
 /**
+ * File operation handlers
+ */
+export const fileSchema = {
+  [IPC_CHANNELS.FILE_DROP]: {
+    input: {
+      filePaths: { type: 'array', required: true },
+      options: { type: 'object', required: false },
+    },
+    output: {
+      success: { type: 'boolean', required: true },
+      validFiles: { type: 'array', required: false },
+      invalidFiles: { type: 'array', required: false },
+      total: { type: 'number', required: false },
+      valid: { type: 'number', required: false },
+      invalid: { type: 'number', required: false },
+      error: { type: 'string', required: false },
+    },
+  },
+
+  [IPC_CHANNELS.FILE_DRAG_START]: {
+    input: {
+      filePath: { type: 'string', required: true },
+      icon: { type: 'string', required: false },
+    },
+    output: {
+      success: { type: 'boolean', required: true },
+      file: { type: 'object', required: false },
+      error: { type: 'string', required: false },
+    },
+  },
+
+  [IPC_CHANNELS.FILE_VALIDATE_PATH]: {
+    input: {
+      filePath: { type: 'string', required: true },
+      options: { type: 'object', required: false },
+    },
+    output: {
+      success: { type: 'boolean', required: true },
+      metadata: { type: 'object', required: false },
+      error: { type: 'string', required: false },
+    },
+  },
+};
+
+/**
+ * Data management handlers
+ */
+export const dataSchema = {
+  [IPC_CHANNELS.DATA_CREATE_BACKUP]: {
+    input: {
+      type: { type: 'string', required: false },
+      includeDatabase: { type: 'boolean', required: false },
+    },
+    output: {
+      success: { type: 'boolean', required: true },
+      backup: { type: 'object', required: false },
+      error: { type: 'string', required: false },
+    },
+  },
+
+  [IPC_CHANNELS.DATA_LIST_BACKUPS]: {
+    input: {},
+    output: {
+      success: { type: 'boolean', required: true },
+      backups: { type: 'array', required: true },
+      total: { type: 'number', required: false },
+      error: { type: 'string', required: false },
+    },
+  },
+
+  [IPC_CHANNELS.DATA_RESTORE_BACKUP]: {
+    input: {
+      filename: { type: 'string', required: true },
+    },
+    output: {
+      success: { type: 'boolean', required: true },
+      message: { type: 'string', required: false },
+      error: { type: 'string', required: false },
+    },
+  },
+
+  [IPC_CHANNELS.DATA_DELETE_BACKUP]: {
+    input: {
+      filename: { type: 'string', required: true },
+    },
+    output: {
+      success: { type: 'boolean', required: true },
+      deleted: { type: 'string', required: false },
+      error: { type: 'string', required: false },
+    },
+  },
+};
+
+/**
  * Combined schema export
  */
 export const ipcSchema = {
@@ -269,4 +363,6 @@ export const ipcSchema = {
   ...dialogSchema,
   ...appSchema,
   ...systemSchema,
+  ...fileSchema,
+  ...dataSchema,
 };
