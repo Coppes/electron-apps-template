@@ -9,6 +9,11 @@ import { BrowserWindow } from 'electron';
 import { IPC_CHANNELS } from '../../../common/constants.js';
 import { logger } from '../../logger.js';
 import fileWatcher from '../../data/file-watcher.js';
+import { 
+  validateFilePath as secureValidatePath, 
+  sanitizeFilename,
+  fileOperationLimiter 
+} from '../../security/data-security.js';
 
 // Security configuration
 const ALLOWED_EXTENSIONS = [
@@ -18,10 +23,9 @@ const ALLOWED_EXTENSIONS = [
 ];
 
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB default
-const FORBIDDEN_PATHS = ['/etc', '/sys', '/proc', 'C:\\Windows\\System32'];
 
 /**
- * Validate file path for security
+ * Validate file path for security (wrapper for centralized security module)
  * Prevents path traversal, checks extensions and size limits
  * @param {string} filePath - Path to validate
  * @param {object} options - Validation options
@@ -34,101 +38,87 @@ export async function validateFilePath(filePath, options = {}) {
     mustExist = true
   } = options;
 
-  try {
-    // Normalize and resolve path to prevent traversal
-    const normalizedPath = path.normalize(filePath);
-    const resolvedPath = path.resolve(normalizedPath);
+  // Use centralized security validation
+  const securityResult = secureValidatePath(filePath, {
+    allowedExtensions,
+    maxSize,
+    allowAbsolute: true,
+    allowRelative: false
+  });
 
-    // Check for path traversal attempts
-    if (normalizedPath.includes('..')) {
-      return {
-        valid: false,
-        error: 'Path traversal detected'
-      };
-    }
+  if (!securityResult.valid) {
+    return securityResult;
+  }
 
-    // Check against forbidden system paths
-    const isForbidden = FORBIDDEN_PATHS.some(forbiddenPath => 
-      resolvedPath.startsWith(forbiddenPath)
-    );
-    if (isForbidden) {
-      return {
-        valid: false,
-        error: 'Access to system paths is forbidden'
-      };
-    }
+  const { resolvedPath } = securityResult;
 
-    // Check file extension
-    const ext = path.extname(resolvedPath).toLowerCase();
-    if (allowedExtensions.length > 0 && !allowedExtensions.includes(ext)) {
-      return {
-        valid: false,
-        error: `File extension ${ext} is not allowed`
-      };
-    }
+  // Check if file exists (if required)
+  if (mustExist) {
+    try {
+      const stats = await fs.stat(resolvedPath);
 
-    // Check if file exists (if required)
-    if (mustExist) {
-      try {
-        const stats = await fs.stat(resolvedPath);
-
-        // Verify it's a file, not a directory
-        if (!stats.isFile()) {
-          return {
-            valid: false,
-            error: 'Path must point to a file, not a directory'
-          };
-        }
-
-        // Check file size
-        if (stats.size > maxSize) {
-          return {
-            valid: false,
-            error: `File size (${stats.size} bytes) exceeds maximum (${maxSize} bytes)`
-          };
-        }
-
-        // Return success with metadata
-        return {
-          valid: true,
-          metadata: {
-            path: resolvedPath,
-            name: path.basename(resolvedPath),
-            extension: ext,
-            size: stats.size,
-            modified: stats.mtime
-          }
-        };
-      } catch (error) {
+      // Verify it's a file, not a directory
+      if (!stats.isFile()) {
         return {
           valid: false,
-          error: `File does not exist or is not accessible: ${error.message}`
+          error: 'Path must point to a file, not a directory',
+          code: 'NOT_A_FILE'
         };
       }
-    }
 
-    // If existence check not required, return basic validation
-    return {
-      valid: true,
-      metadata: {
-        path: resolvedPath,
-        name: path.basename(resolvedPath),
-        extension: ext
+      // Check file size
+      if (stats.size > maxSize) {
+        return {
+          valid: false,
+          error: `File size (${stats.size} bytes) exceeds maximum (${maxSize} bytes)`,
+          code: 'FILE_TOO_LARGE'
+        };
       }
-    };
-  } catch (error) {
-    logger.error('File validation error:', error);
-    return {
-      valid: false,
-      error: `Validation failed: ${error.message}`
-    };
+
+      // Return success with metadata
+      return {
+        valid: true,
+        metadata: {
+          path: resolvedPath,
+          name: path.basename(resolvedPath),
+          extension: securityResult.extension,
+          size: stats.size,
+          modified: stats.mtime
+        }
+      };
+    } catch (error) {
+      return {
+        valid: false,
+        error: `File does not exist or is not accessible: ${error.message}`,
+        code: 'FILE_NOT_ACCESSIBLE'
+      };
+    }
   }
+
+  // If existence check not required, return basic validation
+  return {
+    valid: true,
+    metadata: {
+      path: resolvedPath,
+      name: sanitizeFilename(path.basename(resolvedPath)),
+      extension: securityResult.extension
+    }
+  };
 }
 
 /**
  * Handle file drop operation
  */
 export async function handleFileDrop(event, payload) {
+  // Rate limiting
+  if (!fileOperationLimiter.isAllowed('file-drop')) {
+    return {
+      success: false,
+      error: 'Too many file operations. Please wait and try again.',
+      code: 'RATE_LIMIT_EXCEEDED'
+    };
+  }
+
   const { filePaths, options = {} } = payload;
 
   if (!Array.isArray(filePaths) || filePaths.length === 0) {

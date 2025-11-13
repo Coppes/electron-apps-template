@@ -9,11 +9,25 @@ import importExportManager from '../../data/import-export.js';
 import connectivityManager from '../../data/connectivity-manager.js';
 import syncQueue from '../../data/sync-queue.js';
 import { logger } from '../../logger.js';
+import { 
+  backupLimiter, 
+  importExportLimiter,
+  validateImportData
+} from '../../security/data-security.js';
 
 /**
  * Handle create backup request
  */
 export async function handleCreateBackup(event, payload) {
+  // Rate limiting
+  if (!backupLimiter.isAllowed('create-backup')) {
+    return {
+      success: false,
+      error: 'Too many backup operations. Please wait and try again.',
+      code: 'RATE_LIMIT_EXCEEDED'
+    };
+  }
+
   const { type = 'manual', includeDatabase = true } = payload || {};
 
   try {
@@ -102,6 +116,15 @@ export async function handleDeleteBackup(event, payload) {
  * Handle data import request
  */
 export async function handleDataImport(event, payload) {
+  // Rate limiting
+  if (!importExportLimiter.isAllowed('import')) {
+    return {
+      success: false,
+      error: 'Too many import operations. Please wait and try again.',
+      code: 'RATE_LIMIT_EXCEEDED'
+    };
+  }
+
   const { filePath, options = {} } = payload || {};
 
   if (!filePath) {
@@ -114,6 +137,23 @@ export async function handleDataImport(event, payload) {
   try {
     logger.info(`Importing data from: ${filePath}`);
     const result = await importExportManager.import(filePath, options);
+    
+    // Validate imported data
+    if (result.success && result.data) {
+      const validation = validateImportData(result.data, {
+        maxRecords: options.maxRecords || 10000,
+        maxStringLength: options.maxStringLength || 1000000
+      });
+      
+      if (!validation.valid) {
+        return {
+          success: false,
+          error: validation.error,
+          code: validation.code
+        };
+      }
+    }
+    
     return result;
   } catch (error) {
     logger.error('Import failed:', error);
@@ -128,6 +168,15 @@ export async function handleDataImport(event, payload) {
  * Handle data export request
  */
 export async function handleDataExport(event, payload) {
+  // Rate limiting
+  if (!importExportLimiter.isAllowed('export')) {
+    return {
+      success: false,
+      error: 'Too many export operations. Please wait and try again.',
+      code: 'RATE_LIMIT_EXCEEDED'
+    };
+  }
+
   const { filePath, data, options = {} } = payload || {};
 
   if (!filePath) {
