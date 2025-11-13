@@ -101,3 +101,65 @@
  * @property {string[]} 'font-src' - Font source policy
  * @property {string[]} 'connect-src' - Connection source policy
  */
+
+/**
+ * @typedef {Object} TrayMenuItem
+ * @property {string} id - Unique item ID
+ * @property {string} label - Menu item label
+ * @property {string} [type] - Menu item type (normal, separator, submenu, checkbox, radio)
+ * @property {string} [accelerator] - Keyboard accelerator
+ * @property {boolean} [enabled] - Whether item is enabled
+ * @property {boolean} [visible] - Whether item is visible
+ * @property {boolean} [checked] - Whether item is checked (for checkbox/radio)
+ * @property {TrayMenuItem[]} [submenu] - Submenu items
+ */
+
+/**
+ * @typedef {Object} ShortcutInfo
+ * @property {string} accelerator - Keyboard accelerator (e.g., "CommandOrControl+Shift+K")
+ * @property {string} description - Shortcut description
+ * @property {boolean} registered - Whether shortcut is currently registered
+ */
+
+/**
+ * @typedef {Object} ProgressOptions
+ * @property {number} [windowId] - Window ID (defaults to main window)
+ * @property {number} value - Progress value (0.0-1.0, or -1 for indeterminate)
+ * @property {'normal'|'paused'|'error'|'indeterminate'} [state] - Progress state (Windows only)
+ */
+
+/**
+ * @typedef {Object} NotificationOptions
+ * @property {string} title - Notification title
+ * @property {string} body - Notification body text
+ * @property {string} [icon] - Path to notification icon
+ * @property {boolean} [silent] - Whether to play sound
+ * @property {string} [tag] - Notification tag for replacement
+ * @property {NotificationAction[]} [actions] - Action buttons
+ * @property {number} [timeoutMs] - Auto-close timeout
+ */
+
+/**
+ * @typedef {Object} NotificationAction
+ * @property {string} type - Action type/id
+ * @property {string} text - Action button text
+ */
+
+/**
+ * @typedef {Object} NotificationInfo
+ * @property {string} id - Notification ID
+ * @property {string} title - Notification title
+ * @property {string} body - Notification body
+ * @property {string} timestamp - ISO timestamp
+ * @property {boolean} clicked - Whether notification was clicked
+ */
+
+/**
+ * @typedef {Object} DeepLinkData
+ * @property {string} url - Full URL received
+ * @property {string} protocol - Protocol scheme
+ * @property {string} host - URL host/action
+ * @property {string} path - URL path
+ * @property {Object<string, string>} params - Parsed query parameters
+ * @property {Object<string, string>} pathParams - Extracted path parameters
+ */
