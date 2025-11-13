@@ -310,6 +310,67 @@ const logAPI = {
 };
 
 /**
+ * File operations API
+ */
+const fileAPI = {
+  /**
+   * Process dropped files
+   * @param {Array<string>} filePaths - Array of file paths
+   * @param {Object} [options] - Validation options
+   * @returns {Promise<Object>} Result with valid/invalid files
+   */
+  drop: (filePaths, options) => ipcRenderer.invoke(IPC_CHANNELS.FILE_DROP, { filePaths, options }),
+
+  /**
+   * Start drag operation from app
+   * @param {string} filePath - File path to drag
+   * @param {string} [icon] - Optional drag icon path
+   * @returns {Promise<Object>} Result
+   */
+  dragStart: (filePath, icon) => ipcRenderer.invoke(IPC_CHANNELS.FILE_DRAG_START, { filePath, icon }),
+
+  /**
+   * Validate file path
+   * @param {string} filePath - Path to validate
+   * @param {Object} [options] - Validation options
+   * @returns {Promise<Object>} Result with metadata
+   */
+  validatePath: (filePath, options) => ipcRenderer.invoke(IPC_CHANNELS.FILE_VALIDATE_PATH, { filePath, options }),
+};
+
+/**
+ * Data management API (backup/restore)
+ */
+const dataAPI = {
+  /**
+   * Create a backup
+   * @param {Object} [options] - Backup options (type, includeDatabase)
+   * @returns {Promise<Object>} Result with backup info
+   */
+  createBackup: (options) => ipcRenderer.invoke(IPC_CHANNELS.DATA_CREATE_BACKUP, options),
+
+  /**
+   * List all backups
+   * @returns {Promise<Object>} Result with backups array
+   */
+  listBackups: () => ipcRenderer.invoke(IPC_CHANNELS.DATA_LIST_BACKUPS, {}),
+
+  /**
+   * Restore from backup
+   * @param {string} filename - Backup filename
+   * @returns {Promise<Object>} Result
+   */
+  restoreBackup: (filename) => ipcRenderer.invoke(IPC_CHANNELS.DATA_RESTORE_BACKUP, { filename }),
+
+  /**
+   * Delete a backup
+   * @param {string} filename - Backup filename
+   * @returns {Promise<Object>} Result
+   */
+  deleteBackup: (filename) => ipcRenderer.invoke(IPC_CHANNELS.DATA_DELETE_BACKUP, { filename }),
+};
+
+/**
  * Complete Electron API surface exposed to renderer
  */
 const electronAPI = {
@@ -321,12 +382,17 @@ const electronAPI = {
   system: systemAPI,
   events: eventsAPI,
   log: logAPI,
+  file: fileAPI,
+  data: dataAPI,
 
   // Legacy compatibility - will be deprecated
   setTitle: (title) => windowAPI.getState().then(() => title),
   getVersion: appAPI.getVersion,
   openFile: dialogAPI.openFile,
   onUpdateCounter: eventsAPI.onUpdateCounter,
+  
+  // Convenience method for accessing IPC directly (for hooks)
+  invoke: (channel, payload) => ipcRenderer.invoke(channel, payload),
 };
 
 /**
@@ -345,4 +411,6 @@ Object.freeze(appAPI);
 Object.freeze(systemAPI);
 Object.freeze(eventsAPI);
 Object.freeze(logAPI);
+Object.freeze(fileAPI);
+Object.freeze(dataAPI);
 
