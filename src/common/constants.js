@@ -111,3 +111,20 @@ export const PATHS = {
   TEMP: 'temp',
   LOGS: 'logs',
 };
+
+// Test Mode
+export const TEST_MODE = {
+  ENABLED: 'test',
+};
+
+// Freeze all constants to prevent modification
+Object.freeze(IPC_CHANNELS);
+Object.freeze(WINDOW_TYPES);
+Object.freeze(DEFAULT_WINDOW_CONFIG);
+Object.freeze(DEFAULT_WINDOW_CONFIG[WINDOW_TYPES.MAIN]);
+Object.freeze(DEFAULT_WINDOW_CONFIG[WINDOW_TYPES.SETTINGS]);
+Object.freeze(DEFAULT_WINDOW_CONFIG[WINDOW_TYPES.ABOUT]);
+Object.freeze(LOG_LEVELS);
+Object.freeze(ENV);
+Object.freeze(PATHS);
+Object.freeze(TEST_MODE);
