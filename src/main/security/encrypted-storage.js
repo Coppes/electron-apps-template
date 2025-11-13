@@ -19,6 +19,14 @@ const ENCRYPTED_PREFIX = '__ENCRYPTED__';
 let encryptionAvailable = null;
 
 /**
+ * Reset the encryption availability cache (for testing purposes)
+ * @private
+ */
+export function _resetEncryptionCache() {
+  encryptionAvailable = null;
+}
+
+/**
  * Check if encryption is available on the current platform
  * @returns {boolean} True if encryption is available
  */

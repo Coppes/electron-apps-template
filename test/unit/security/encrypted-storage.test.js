@@ -3,6 +3,47 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
+// Mock dependencies BEFORE importing the module
+vi.mock('electron', () => ({
+  safeStorage: {
+    isEncryptionAvailable: vi.fn(() => true),
+    encryptString: vi.fn((plaintext) => {
+      if (!plaintext) throw new Error('No plaintext provided');
+      return Buffer.from(plaintext, 'utf-8');
+    }),
+    decryptString: vi.fn((encrypted) => {
+      if (!encrypted) throw new Error('No encrypted data provided');
+      return encrypted.toString('utf-8');
+    }),
+  },
+}));
+
+vi.mock('electron-store', () => {
+  const storeData = new Map();
+  return {
+    default: vi.fn().mockImplementation(function() {
+      return {
+        get: (key) => storeData.get(key),
+        set: (key, value) => storeData.set(key, value),
+        delete: (key) => storeData.delete(key),
+        has: (key) => storeData.has(key),
+        clear: () => storeData.clear(),
+      };
+    }),
+  };
+});
+
+vi.mock('../../../src/main/logger.js', () => ({
+  default: {
+    info: vi.fn(),
+    debug: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
+  },
+}));
+
+// Now import the module to test
 import {
   isEncryptionAvailable,
   getEncryptionInfo,
@@ -12,47 +53,29 @@ import {
   retrieveAndDecrypt,
   deleteEncrypted,
   hasEncrypted,
-} from '../encrypted-storage.js';
-
-// Mock Electron's safeStorage
-const mockSafeStorage = {
-  isEncryptionAvailable: vi.fn(() => true),
-  encryptString: vi.fn((plaintext) => Buffer.from(plaintext, 'utf-8')),
-  decryptString: vi.fn((encrypted) => encrypted.toString('utf-8')),
-};
-
-// Mock electron-store
-const mockStore = new Map();
-const MockStore = vi.fn().mockImplementation(() => ({
-  get: (key) => mockStore.get(key),
-  set: (key, value) => mockStore.set(key, value),
-  delete: (key) => mockStore.delete(key),
-  has: (key) => mockStore.has(key),
-}));
-
-// Mock dependencies
-vi.mock('electron', () => ({
-  safeStorage: mockSafeStorage,
-}));
-
-vi.mock('electron-store', () => ({
-  default: MockStore,
-}));
-
-vi.mock('../../logger.js', () => ({
-  default: {
-    info: vi.fn(),
-    debug: vi.fn(),
-    error: vi.fn(),
-    warn: vi.fn(),
-  },
-}));
+  _resetEncryptionCache,
+} from '../../../src/main/security/encrypted-storage.js';
+import { safeStorage } from 'electron';
+import Store from 'electron-store';
 
 describe('Encrypted Storage', () => {
-  beforeEach(() => {
+  let storeInstance;
+
+  beforeEach(async () => {
     vi.clearAllMocks();
-    mockStore.clear();
-    mockSafeStorage.isEncryptionAvailable.mockReturnValue(true);
+    _resetEncryptionCache(); // Reset cache between tests
+    // Create a new store instance for each test
+    storeInstance = new Store();
+    // Reset mocks to default behavior
+    safeStorage.isEncryptionAvailable.mockReturnValue(true);
+    safeStorage.encryptString.mockImplementation((plaintext) => {
+      if (!plaintext) throw new Error('No plaintext provided');
+      return Buffer.from(plaintext, 'utf-8');
+    });
+    safeStorage.decryptString.mockImplementation((encrypted) => {
+      if (!encrypted) throw new Error('No encrypted data provided');
+      return encrypted.toString('utf-8');
+    });
   });
 
   afterEach(() => {
@@ -61,12 +84,12 @@ describe('Encrypted Storage', () => {
 
   describe('isEncryptionAvailable', () => {
     it('should return true when encryption is available', () => {
-      mockSafeStorage.isEncryptionAvailable.mockReturnValue(true);
+      safeStorage.isEncryptionAvailable.mockReturnValue(true);
       expect(isEncryptionAvailable()).toBe(true);
     });
 
     it('should return false when encryption is unavailable', () => {
-      mockSafeStorage.isEncryptionAvailable.mockReturnValue(false);
+      safeStorage.isEncryptionAvailable.mockReturnValue(false);
       expect(isEncryptionAvailable()).toBe(false);
     });
 
@@ -74,7 +97,7 @@ describe('Encrypted Storage', () => {
       isEncryptionAvailable();
       isEncryptionAvailable();
       // Should only call once (cached after first call)
-      expect(mockSafeStorage.isEncryptionAvailable).toHaveBeenCalledTimes(1);
+      expect(safeStorage.isEncryptionAvailable).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -108,7 +131,7 @@ describe('Encrypted Storage', () => {
     });
 
     it('should throw error when encryption is unavailable', () => {
-      mockSafeStorage.isEncryptionAvailable.mockReturnValue(false);
+      safeStorage.isEncryptionAvailable.mockReturnValue(false);
       expect(() => encryptValue('test')).toThrow('Encryption is not available');
     });
 
@@ -121,7 +144,7 @@ describe('Encrypted Storage', () => {
     });
 
     it('should handle encryption errors', () => {
-      mockSafeStorage.encryptString.mockImplementation(() => {
+      safeStorage.encryptString.mockImplementation(() => {
         throw new Error('Encryption failed');
       });
       expect(() => encryptValue('test')).toThrow('Encryption failed');
@@ -138,14 +161,14 @@ describe('Encrypted Storage', () => {
 
     it('should decrypt and parse JSON object', () => {
       const plaintext = JSON.stringify({ apiKey: 'secret123' });
-      mockSafeStorage.decryptString.mockReturnValue(plaintext);
+      safeStorage.decryptString.mockReturnValue(plaintext);
       const encrypted = Buffer.from(plaintext, 'utf-8').toString('base64');
       const decrypted = decryptValue(encrypted);
       expect(decrypted).toEqual({ apiKey: 'secret123' });
     });
 
     it('should throw error when encryption is unavailable', () => {
-      mockSafeStorage.isEncryptionAvailable.mockReturnValue(false);
+      safeStorage.isEncryptionAvailable.mockReturnValue(false);
       expect(() => decryptValue('test')).toThrow('Encryption is not available');
     });
 
@@ -154,7 +177,7 @@ describe('Encrypted Storage', () => {
     });
 
     it('should handle decryption errors', () => {
-      mockSafeStorage.decryptString.mockImplementation(() => {
+      safeStorage.decryptString.mockImplementation(() => {
         throw new Error('Decryption failed');
       });
       expect(() => decryptValue('test')).toThrow('Decryption failed');
@@ -168,7 +191,7 @@ describe('Encrypted Storage', () => {
       const result = encryptAndStore(key, value);
       
       expect(result).toEqual({ success: true });
-      expect(mockStore.has(`__ENCRYPTED__${key}`)).toBe(true);
+      expect(hasEncrypted(key)).toBe(true);
     });
 
     it('should store complex objects', () => {
@@ -177,7 +200,7 @@ describe('Encrypted Storage', () => {
       const result = encryptAndStore(key, value);
       
       expect(result).toEqual({ success: true });
-      expect(mockStore.has(`__ENCRYPTED__${key}`)).toBe(true);
+      expect(hasEncrypted(key)).toBe(true);
     });
 
     it('should throw error for invalid key', () => {
@@ -186,7 +209,7 @@ describe('Encrypted Storage', () => {
     });
 
     it('should throw error when encryption is unavailable', () => {
-      mockSafeStorage.isEncryptionAvailable.mockReturnValue(false);
+      safeStorage.isEncryptionAvailable.mockReturnValue(false);
       expect(() => encryptAndStore('key', 'value')).toThrow('Encryption is not available');
     });
   });
@@ -214,10 +237,10 @@ describe('Encrypted Storage', () => {
       const value = { username: 'user', password: 'pass123' };
       
       // Mock JSON serialization/deserialization
-      mockSafeStorage.encryptString.mockImplementation((plaintext) => 
+      safeStorage.encryptString.mockImplementation((plaintext) => 
         Buffer.from(plaintext, 'utf-8')
       );
-      mockSafeStorage.decryptString.mockImplementation((encrypted) => 
+      safeStorage.decryptString.mockImplementation((encrypted) => 
         encrypted.toString('utf-8')
       );
       
@@ -236,11 +259,11 @@ describe('Encrypted Storage', () => {
       const key = 'apiKey';
       encryptAndStore(key, 'secret123');
       
-      expect(mockStore.has(`__ENCRYPTED__${key}`)).toBe(true);
+      expect(hasEncrypted(key)).toBe(true);
       
       const result = deleteEncrypted(key);
       expect(result).toEqual({ success: true });
-      expect(mockStore.has(`__ENCRYPTED__${key}`)).toBe(false);
+      expect(hasEncrypted(key)).toBe(false);
     });
 
     it('should not throw error for non-existent key', () => {
