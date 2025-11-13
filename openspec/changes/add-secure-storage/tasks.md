@@ -171,12 +171,15 @@
 
 ### Task 4.3: End-to-end tests
 
-- [ ] Create `src/renderer/__tests__/secure-store.test.jsx`
-- [ ] Mock `window.api.secureStore` API
-- [ ] Test storing and retrieving values from renderer
-- [ ] Test handling unavailable encryption gracefully in UI
-- [ ] Test error messages are user-friendly
-- [ ] Validate: E2E tests pass
+- [x] Create `test/integration/secure-storage-e2e.test.js`
+- [x] Create `src/renderer/components/SecureStorageDemo.jsx` with full UI
+- [x] Create `src/renderer/components/SecureStorageDemo.test.jsx` with 9 test cases
+- [x] Test storing and retrieving values from renderer
+- [x] Test handling unavailable encryption gracefully in UI
+- [x] Test error messages are user-friendly
+- [x] Test full IPC flow from renderer to main process
+- [x] Test complex objects, unicode, and special characters
+- [x] Validate: E2E tests pass (80 renderer tests + 151 main tests = 231 total)
 
 ### Task 4.4: Manual testing
 
