@@ -5,7 +5,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { useOfflineStatus } from '../hooks/useOfflineStatus';
+import { useOfflineStatus } from '../../hooks/useOfflineStatus';
 
 /**
  * OfflineIndicator component

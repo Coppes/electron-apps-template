@@ -5,7 +5,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { useDragDrop } from '../hooks/useDragDrop';
+import { useDragDrop } from '../../../hooks/useDragDrop';
 
 /**
  * DropZone component with drag-and-drop support

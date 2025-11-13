@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Alert, AlertTitle, AlertDescription } from './ui/Alert';
-import Button from './ui/Button';
+import { Alert, AlertTitle, AlertDescription } from '../ui/Alert';
+import Button from '../ui/Button';
 
 /**
  * Update notification banner component

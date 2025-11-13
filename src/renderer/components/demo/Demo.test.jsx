@@ -1,7 +1,7 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import Demo from './Demo';
+import Demo from './LegacyDemo';
 
 describe('Demo Component', () => {
   beforeEach(() => {
