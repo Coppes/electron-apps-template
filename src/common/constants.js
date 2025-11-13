@@ -19,6 +19,13 @@ export const IPC_CHANNELS = {
   STORE_CLEAR: 'store:clear',
   STORE_HAS: 'store:has',
   
+  // Secure Store (Encrypted Storage)
+  SECURE_STORE_SET: 'secure-store:set',
+  SECURE_STORE_GET: 'secure-store:get',
+  SECURE_STORE_DELETE: 'secure-store:delete',
+  SECURE_STORE_HAS: 'secure-store:has',
+  SECURE_STORE_IS_AVAILABLE: 'secure-store:is-available',
+  
   // Dialog
   DIALOG_OPEN_FILE: 'dialog:open-file',
   DIALOG_SAVE_FILE: 'dialog:save-file',

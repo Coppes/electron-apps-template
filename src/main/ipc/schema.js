@@ -196,6 +196,57 @@ export const appSchema = {
 };
 
 /**
+ * Secure Store (Encrypted Storage) handlers
+ */
+export const secureStoreSchema = {
+  [IPC_CHANNELS.SECURE_STORE_SET]: {
+    input: {
+      key: { type: 'string', required: true },
+      value: { type: 'any', required: true },
+    },
+    output: {
+      success: { type: 'boolean', required: true },
+      error: { type: 'string', required: false },
+    },
+  },
+
+  [IPC_CHANNELS.SECURE_STORE_GET]: {
+    input: {
+      key: { type: 'string', required: true },
+    },
+    output: {
+      value: { type: 'any', required: false },
+    },
+  },
+
+  [IPC_CHANNELS.SECURE_STORE_DELETE]: {
+    input: {
+      key: { type: 'string', required: true },
+    },
+    output: {
+      success: { type: 'boolean', required: true },
+      error: { type: 'string', required: false },
+    },
+  },
+
+  [IPC_CHANNELS.SECURE_STORE_HAS]: {
+    input: {
+      key: { type: 'string', required: true },
+    },
+    output: {
+      exists: { type: 'boolean', required: true },
+    },
+  },
+
+  [IPC_CHANNELS.SECURE_STORE_IS_AVAILABLE]: {
+    input: {},
+    output: {
+      available: { type: 'boolean', required: true },
+    },
+  },
+};
+
+/**
  * System handlers
  */
 export const systemSchema = {
@@ -214,6 +265,7 @@ export const systemSchema = {
 export const ipcSchema = {
   ...windowSchema,
   ...storeSchema,
+  ...secureStoreSchema,
   ...dialogSchema,
   ...appSchema,
   ...systemSchema,
