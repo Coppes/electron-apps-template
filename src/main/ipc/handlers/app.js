@@ -3,6 +3,7 @@ import { logger } from '../../logger.js';
 import { updater } from '../../updater.js';
 import { createErrorResponse, createSuccessResponse } from '../bridge.js';
 import { IPC_CHANNELS } from '../../../common/constants.js';
+import { addRecentDocument, clearRecentDocuments } from '../../recent-docs.js';
 
 /**
  * App and system info IPC handlers
@@ -140,5 +141,41 @@ export function createAppHandlers() {
     [IPC_CHANNELS.SYSTEM_GET_PLATFORM]: getPlatformHandler(),
     [IPC_CHANNELS.APP_CHECK_FOR_UPDATES]: checkForUpdatesHandler(),
     [IPC_CHANNELS.APP_INSTALL_UPDATE]: installUpdateHandler(),
+    [IPC_CHANNELS.RECENT_DOCS_ADD]: addRecentDocHandler(),
+    [IPC_CHANNELS.RECENT_DOCS_CLEAR]: clearRecentDocsHandler(),
+  };
+}
+
+/**
+ * Add recent document handler
+ */
+function addRecentDocHandler() {
+  return async (event, { filePath }) => {
+    try {
+      if (!filePath || typeof filePath !== 'string') {
+        throw new Error('Invalid file path');
+      }
+
+      const success = addRecentDocument(filePath);
+      return createSuccessResponse({ success });
+    } catch (error) {
+      logger.error('Failed to add recent document', error);
+      return createErrorResponse(error.message, 'RECENT_DOC_ADD_FAILED');
+    }
+  };
+}
+
+/**
+ * Clear recent documents handler
+ */
+function clearRecentDocsHandler() {
+  return async () => {
+    try {
+      const success = clearRecentDocuments();
+      return createSuccessResponse({ success });
+    } catch (error) {
+      logger.error('Failed to clear recent documents', error);
+      return createErrorResponse(error.message, 'RECENT_DOCS_CLEAR_FAILED');
+    }
   };
 }
