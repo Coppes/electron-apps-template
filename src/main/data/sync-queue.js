@@ -160,7 +160,15 @@ export class SyncQueue {
     }
 
     this.processing = true;
-    logger.info('Starting queue processing');
+    const startTime = Date.now(); // Start profiling
+    const startMemory = process.memoryUsage();
+    
+    logger.info('Starting queue processing', {
+      memory: {
+        heapUsed: Math.round(startMemory.heapUsed / 1024 / 1024) + ' MB',
+        heapTotal: Math.round(startMemory.heapTotal / 1024 / 1024) + ' MB'
+      }
+    });
 
     try {
       const queue = this.getQueue();
@@ -240,11 +248,29 @@ export class SyncQueue {
       // Cleanup old synced operations
       await this.cleanup();
 
+      // Performance profiling
+      const endTime = Date.now();
+      const endMemory = process.memoryUsage();
+      const duration = endTime - startTime;
+      const memoryDelta = endMemory.heapUsed - startMemory.heapUsed;
+
       logger.info('Queue processing complete', {
         processed,
         failed,
-        remaining: this.getPendingCount()
+        remaining: this.getPendingCount(),
+        performance: {
+          duration: duration + 'ms',
+          memoryDelta: Math.round(memoryDelta / 1024 / 1024) + ' MB',
+          heapUsed: Math.round(endMemory.heapUsed / 1024 / 1024) + ' MB',
+          opsPerSecond: processed > 0 ? Math.round((processed / duration) * 1000) : 0
+        }
       });
+
+      // Trigger garbage collection if available (dev mode)
+      if (global.gc && memoryDelta > 10 * 1024 * 1024) { // >10MB increase
+        logger.debug('Triggering garbage collection');
+        global.gc();
+      }
 
       return {
         success: true,

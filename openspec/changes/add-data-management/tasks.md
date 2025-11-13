@@ -164,10 +164,11 @@
 ### Performance Optimization (6 tasks)
 
 - [x] 113. Implement streaming for large file operations (don't load into memory)
-- [ ] 114. Add worker thread support for CPU-intensive tasks (ZIP, CSV parsing)
+- [x] 114. Add worker thread support for CPU-intensive tasks (ZIP, CSV parsing)
 - [x] 115. Optimize file watcher debouncing (tune delay for responsiveness)
 - [x] 116. Add queue processing throttling (limit concurrent operations)
-- [ ] 117. Implement memory cleanup for watchers and listeners
+- [x] 117. Implement memory cleanup for watchers and listeners
+- [ ] 118. Add performance profiling hooks (timing, memory usage)
 - [ ] 118. Profile and optimize backup/restore for large datasets
 
 ### Cross-Platform Testing (7 tasks)

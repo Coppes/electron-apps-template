@@ -16,7 +16,81 @@ import { logger } from '../logger.js';
 export class FileWatcher {
   constructor(options = {}) {
     this.watchers = new Map(); // Map of filePath -> { watcher, metadata, timeout }
-    this.debounceDelay = options.debounceDelay || 300; // 300ms default
+    this.debounceDelay = options.debounceDelay || 300; // 300ms default (tuned for responsiveness)
+    this.cleanupInterval = options.cleanupInterval || 60000; // 60s cleanup interval
+    this.maxIdleTime = options.maxIdleTime || 300000; // 5min idle before cleanup
+    this.cleanupTimer = null;
+  }
+
+  /**
+   * Initialize file watcher with periodic cleanup
+   */
+  initialize() {
+    // Start periodic cleanup
+    this.startCleanup();
+  }
+
+  /**
+   * Start periodic memory cleanup
+   */
+  startCleanup() {
+    if (this.cleanupTimer) {
+      return;
+    }
+
+    this.cleanupTimer = setInterval(() => {
+      this.performCleanup();
+    }, this.cleanupInterval);
+
+    logger.debug('File watcher cleanup started', {
+      interval: this.cleanupInterval,
+      maxIdleTime: this.maxIdleTime
+    });
+  }
+
+  /**
+   * Stop cleanup timer
+   */
+  stopCleanup() {
+    if (this.cleanupTimer) {
+      clearInterval(this.cleanupTimer);
+      this.cleanupTimer = null;
+      logger.debug('File watcher cleanup stopped');
+    }
+  }
+
+  /**
+   * Perform memory cleanup
+   */
+  performCleanup() {
+    const now = Date.now();
+    let cleaned = 0;
+
+    for (const [filePath, watchData] of this.watchers.entries()) {
+      // Check if watcher is idle (no changes for maxIdleTime)
+      if (watchData.lastActivity && now - watchData.lastActivity > this.maxIdleTime) {
+        try {
+          watchData.watcher.close();
+          
+          if (watchData.timeout) {
+            clearTimeout(watchData.timeout);
+          }
+          
+          this.watchers.delete(filePath);
+          cleaned++;
+          
+          logger.debug(`Cleaned up idle watcher: ${filePath}`);
+        } catch (error) {
+          logger.error(`Failed to cleanup watcher for ${filePath}:`, error);
+        }
+      }
+    }
+
+    if (cleaned > 0) {
+      logger.info(`Cleaned up ${cleaned} idle file watchers`, {
+        remaining: this.watchers.size
+      });
+    }
   }
 
   /**
@@ -60,7 +134,8 @@ export class FileWatcher {
         watcher,
         metadata,
         window,
-        timeout: null
+        timeout: null,
+        lastActivity: Date.now() // Track activity for cleanup
       });
 
       logger.info(`Started watching file: ${normalizedPath}`);
@@ -132,12 +207,15 @@ export class FileWatcher {
       return;
     }
 
+    // Update last activity time for cleanup
+    watcherData.lastActivity = Date.now();
+
     // Clear existing timeout
     if (watcherData.timeout) {
       clearTimeout(watcherData.timeout);
     }
 
-    // Set new timeout for debouncing
+    // Set new timeout for debouncing (300ms - tuned for responsiveness vs performance)
     watcherData.timeout = setTimeout(async () => {
       try {
         // Get current metadata
@@ -243,6 +321,7 @@ export class FileWatcher {
    * Cleanup on app quit
    */
   async cleanup() {
+    this.stopCleanup();
     await this.unwatchAll();
     logger.info('File watcher cleanup complete');
   }
@@ -250,5 +329,8 @@ export class FileWatcher {
 
 // Create singleton instance
 const fileWatcher = new FileWatcher();
+
+// Initialize cleanup
+fileWatcher.initialize();
 
 export default fileWatcher;
