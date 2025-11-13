@@ -336,6 +336,31 @@ const fileAPI = {
    * @returns {Promise<Object>} Result with metadata
    */
   validatePath: (filePath, options) => ipcRenderer.invoke(IPC_CHANNELS.FILE_VALIDATE_PATH, { filePath, options }),
+
+  /**
+   * Start watching a file for changes
+   * @param {string} filePath - Path to watch
+   * @returns {Promise<Object>} Result
+   */
+  watchStart: (filePath) => ipcRenderer.invoke(IPC_CHANNELS.FILE_WATCH_START, { filePath }),
+
+  /**
+   * Stop watching a file
+   * @param {string} filePath - Path to stop watching
+   * @returns {Promise<Object>} Result
+   */
+  watchStop: (filePath) => ipcRenderer.invoke(IPC_CHANNELS.FILE_WATCH_STOP, { filePath }),
+
+  /**
+   * Listen for file change events
+   * @param {Function} callback - Callback function
+   * @returns {Function} Cleanup function
+   */
+  onFileChanged: (callback) => {
+    const listener = (event, data) => callback(data);
+    ipcRenderer.on(IPC_CHANNELS.FILE_CHANGED, listener);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.FILE_CHANGED, listener);
+  },
 };
 
 /**
@@ -368,6 +393,29 @@ const dataAPI = {
    * @returns {Promise<Object>} Result
    */
   deleteBackup: (filename) => ipcRenderer.invoke(IPC_CHANNELS.DATA_DELETE_BACKUP, { filename }),
+
+  /**
+   * Import data from file
+   * @param {string} filePath - Source file path
+   * @param {Object} [options] - Import options (format, etc.)
+   * @returns {Promise<Object>} Result with imported data
+   */
+  import: (filePath, options) => ipcRenderer.invoke(IPC_CHANNELS.DATA_IMPORT, { filePath, options }),
+
+  /**
+   * Export data to file
+   * @param {string} filePath - Destination file path
+   * @param {any} data - Data to export
+   * @param {Object} [options] - Export options (format, etc.)
+   * @returns {Promise<Object>} Result
+   */
+  export: (filePath, data, options) => ipcRenderer.invoke(IPC_CHANNELS.DATA_EXPORT, { filePath, data, options }),
+
+  /**
+   * List available import/export formats
+   * @returns {Promise<Object>} Result with formats array
+   */
+  listFormats: () => ipcRenderer.invoke(IPC_CHANNELS.DATA_LIST_FORMATS, {}),
 };
 
 /**

@@ -302,6 +302,29 @@ export const fileSchema = {
       error: { type: 'string', required: false },
     },
   },
+
+  [IPC_CHANNELS.FILE_WATCH_START]: {
+    input: {
+      filePath: { type: 'string', required: true },
+    },
+    output: {
+      success: { type: 'boolean', required: true },
+      path: { type: 'string', required: false },
+      metadata: { type: 'object', required: false },
+      error: { type: 'string', required: false },
+    },
+  },
+
+  [IPC_CHANNELS.FILE_WATCH_STOP]: {
+    input: {
+      filePath: { type: 'string', required: true },
+    },
+    output: {
+      success: { type: 'boolean', required: true },
+      path: { type: 'string', required: false },
+      error: { type: 'string', required: false },
+    },
+  },
 };
 
 /**
@@ -348,6 +371,44 @@ export const dataSchema = {
     output: {
       success: { type: 'boolean', required: true },
       deleted: { type: 'string', required: false },
+      error: { type: 'string', required: false },
+    },
+  },
+
+  [IPC_CHANNELS.DATA_IMPORT]: {
+    input: {
+      filePath: { type: 'string', required: true },
+      options: { type: 'object', required: false },
+    },
+    output: {
+      success: { type: 'boolean', required: true },
+      data: { type: 'any', required: false },
+      format: { type: 'string', required: false },
+      path: { type: 'string', required: false },
+      error: { type: 'string', required: false },
+    },
+  },
+
+  [IPC_CHANNELS.DATA_EXPORT]: {
+    input: {
+      filePath: { type: 'string', required: true },
+      data: { type: 'any', required: true },
+      options: { type: 'object', required: false },
+    },
+    output: {
+      success: { type: 'boolean', required: true },
+      path: { type: 'string', required: false },
+      format: { type: 'string', required: false },
+      size: { type: 'number', required: false },
+      error: { type: 'string', required: false },
+    },
+  },
+
+  [IPC_CHANNELS.DATA_LIST_FORMATS]: {
+    input: {},
+    output: {
+      success: { type: 'boolean', required: true },
+      formats: { type: 'array', required: true },
       error: { type: 'string', required: false },
     },
   },
