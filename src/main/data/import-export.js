@@ -5,10 +5,14 @@
 
 import path from 'path';
 import fs from 'fs/promises';
+import { createReadStream, createWriteStream } from 'fs';
 import { logger } from '../logger.js';
 import jsonHandler from './format-handlers/json-handler.js';
 import csvHandler from './format-handlers/csv-handler.js';
 import markdownHandler from './format-handlers/markdown-handler.js';
+
+// File size thresholds
+const STREAMING_THRESHOLD = 10 * 1024 * 1024; // 10MB - use streaming for files larger than this
 
 /**
  * ImportExportManager Class
@@ -96,8 +100,19 @@ export class ImportExportManager {
       // Export data
       const exported = await handler.export(data, handlerOptions);
 
-      // Write to file
-      await fs.writeFile(filePath, exported, 'utf8');
+      // Use streaming for large exports
+      if (exported.length > STREAMING_THRESHOLD && handler.exportStream) {
+        await new Promise((resolve, reject) => {
+          const writeStream = createWriteStream(filePath);
+          writeStream.on('finish', resolve);
+          writeStream.on('error', reject);
+          
+          handler.exportStream(data, handlerOptions, writeStream);
+        });
+      } else {
+        // Write to file directly for small files
+        await fs.writeFile(filePath, exported, 'utf8');
+      }
 
       logger.info(`Data exported to ${filePath} (${format})`);
 
@@ -156,11 +171,20 @@ export class ImportExportManager {
         };
       }
 
-      // Read file
-      const content = await fs.readFile(filePath, 'utf8');
-
-      // Import data
-      const data = await handler.import(content, handlerOptions);
+      // Use streaming for large files
+      let data;
+      if (stats.size > STREAMING_THRESHOLD && handler.importStream) {
+        data = await new Promise((resolve, reject) => {
+          const readStream = createReadStream(filePath, 'utf8');
+          handler.importStream(readStream, handlerOptions)
+            .then(resolve)
+            .catch(reject);
+        });
+      } else {
+        // Read file directly for small files
+        const content = await fs.readFile(filePath, 'utf8');
+        data = await handler.import(content, handlerOptions);
+      }
 
       logger.info(`Data imported from ${filePath} (${format})`);
 

@@ -1,17 +1,20 @@
 /**
  * Sync Queue
- * Offline-first synchronization queue with retry logic
+ * Manages offline operations with retry logic and exponential backoff
  */
 
 import Store from 'electron-store';
 import { logger } from '../logger.js';
 import connectivityManager from './connectivity-manager.js';
 
-const QUEUE_KEY = 'sync:queue';
+const QUEUE_KEY = 'syncQueue';
 const MAX_QUEUE_SIZE = 10000;
 const MAX_RETRIES = 5;
-const BASE_DELAY = 1000; // 1 second
-const MAX_DELAY = 60000; // 60 seconds
+const INITIAL_BACKOFF_MS = 1000; // 1 second
+const MAX_BACKOFF_MS = 32000; // 32 seconds
+const PURGE_AFTER_DAYS = 7;
+const BATCH_SIZE = 10; // Process max 10 operations at once
+const CONCURRENT_LIMIT = 3; // Max 3 concurrent sync operations
 
 /**
  * SyncQueue Class
@@ -164,65 +167,73 @@ export class SyncQueue {
       let processed = 0;
       let failed = 0;
 
-      // Process pending operations
-      for (const operation of queue) {
-        if (operation.status !== 'pending') {
-          continue;
-        }
-
-        // Check if should retry
-        if (operation.retries >= this.maxRetries) {
-          operation.status = 'failed';
-          operation.error = 'Max retries exceeded';
+      // Filter pending operations ready to process
+      const pendingOps = queue.filter(op => {
+        if (op.status !== 'pending') return false;
+        
+        // Skip if max retries exceeded
+        if (op.retries >= this.maxRetries) {
+          op.status = 'failed';
+          op.error = 'Max retries exceeded';
           failed++;
-          continue;
+          return false;
         }
+        
+        // Check backoff delay
+        if (op.lastAttempt) {
+          const delay = this.calculateBackoff(op.retries);
+          const timeSinceLastAttempt = Date.now() - op.lastAttempt;
+          if (timeSinceLastAttempt < delay) return false;
+        }
+        
+        return true;
+      });
 
-        // Calculate backoff delay
-        if (operation.lastAttempt) {
-          const delay = this.calculateBackoff(operation.retries);
-          const timeSinceLastAttempt = Date.now() - operation.lastAttempt;
+      // Process in batches with concurrency limit
+      for (let i = 0; i < pendingOps.length; i += BATCH_SIZE) {
+        const batch = pendingOps.slice(i, i + BATCH_SIZE);
+        
+        // Process batch with concurrency limit
+        for (let j = 0; j < batch.length; j += CONCURRENT_LIMIT) {
+          const chunk = batch.slice(j, j + CONCURRENT_LIMIT);
           
-          if (timeSinceLastAttempt < delay) {
-            continue; // Skip, not ready to retry yet
-          }
+          await Promise.all(chunk.map(async (operation) => {
+            try {
+              operation.lastAttempt = Date.now();
+              operation.retries++;
+
+              const result = await this.adapter.sync(operation);
+
+              if (result.success) {
+                operation.status = 'synced';
+                operation.syncedAt = Date.now();
+                processed++;
+                
+                logger.info('Operation synced', {
+                  id: operation.id,
+                  type: operation.type
+                });
+              } else {
+                operation.error = result.error;
+                
+                logger.warn('Operation sync failed', {
+                  id: operation.id,
+                  error: result.error,
+                  retries: operation.retries
+                });
+              }
+            } catch (error) {
+              operation.error = error.message;
+              
+              logger.error('Operation sync error:', {
+                id: operation.id,
+                error: error.message
+              });
+            }
+          }));
         }
-
-        // Try to sync operation
-        try {
-          operation.lastAttempt = Date.now();
-          operation.retries++;
-
-          const result = await this.adapter.sync(operation);
-
-          if (result.success) {
-            operation.status = 'synced';
-            operation.syncedAt = Date.now();
-            processed++;
-            
-            logger.info('Operation synced', {
-              id: operation.id,
-              type: operation.type
-            });
-          } else {
-            operation.error = result.error;
-            
-            logger.warn('Operation sync failed', {
-              id: operation.id,
-              error: result.error,
-              retries: operation.retries
-            });
-          }
-        } catch (error) {
-          operation.error = error.message;
-          
-          logger.error('Operation sync error:', {
-            id: operation.id,
-            error: error.message
-          });
-        }
-
-        // Save progress
+        
+        // Save progress after each batch
         this.saveQueue(queue);
       }
 
@@ -256,8 +267,8 @@ export class SyncQueue {
    * Calculate exponential backoff delay
    */
   calculateBackoff(retries) {
-    const delay = BASE_DELAY * Math.pow(2, retries);
-    return Math.min(delay, MAX_DELAY);
+    const delay = INITIAL_BACKOFF_MS * Math.pow(2, retries);
+    return Math.min(delay, MAX_BACKOFF_MS);
   }
 
   /**
@@ -294,7 +305,7 @@ export class SyncQueue {
    */
   async cleanup() {
     const queue = this.getQueue();
-    const cutoff = Date.now() - (7 * 24 * 60 * 60 * 1000); // 7 days
+    const cutoff = Date.now() - (PURGE_AFTER_DAYS * 24 * 60 * 60 * 1000);
 
     const filtered = queue.filter(op => {
       // Keep pending and failed operations

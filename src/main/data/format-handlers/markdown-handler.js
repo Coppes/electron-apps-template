@@ -4,6 +4,8 @@
  */
 
 import { marked } from 'marked';
+import { pipeline } from 'stream/promises';
+import { Transform } from 'stream';
 
 /**
  * Markdown Handler
@@ -69,6 +71,23 @@ export const markdownHandler = {
   },
 
   /**
+   * Export data to stream (for large datasets)
+   */
+  async exportStream(data, options = {}, writeStream) {
+    const markdown = await this.export(data, options);
+    
+    return new Promise((resolve, reject) => {
+      writeStream.write(markdown, (error) => {
+        if (error) reject(error);
+        else {
+          writeStream.end();
+          resolve();
+        }
+      });
+    });
+  },
+
+  /**
    * Import data from Markdown string
    */
   async import(content, options = {}) {
@@ -86,6 +105,25 @@ export const markdownHandler = {
     } catch (error) {
       throw new Error(`Invalid Markdown: ${error.message}`);
     }
+  },
+
+  /**
+   * Import data from stream (for large files)
+   */
+  async importStream(readStream, options = {}) {
+    const chunks = [];
+    
+    const collectTransform = new Transform({
+      transform(chunk, encoding, callback) {
+        chunks.push(chunk);
+        callback();
+      }
+    });
+
+    await pipeline(readStream, collectTransform);
+    
+    const content = Buffer.concat(chunks).toString('utf8');
+    return this.import(content, options);
   },
 
   /**

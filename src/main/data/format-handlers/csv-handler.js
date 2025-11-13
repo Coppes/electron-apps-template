@@ -5,6 +5,10 @@
 
 import { parse } from 'csv-parse/sync';
 import { stringify } from 'csv-stringify/sync';
+import { parse as parseStream } from 'csv-parse';
+import { stringify as stringifyStream } from 'csv-stringify';
+import { pipeline } from 'stream/promises';
+import { Transform } from 'stream';
 
 /**
  * CSV Handler
@@ -47,6 +51,34 @@ export const csvHandler = {
   },
 
   /**
+   * Export data to stream (for large datasets)
+   */
+  async exportStream(data, options = {}, writeStream) {
+    const {
+      headers = true,
+      delimiter = ',',
+      columns
+    } = options;
+
+    // Handle array of objects
+    if (!Array.isArray(data)) {
+      throw new Error('Stream export requires array of objects');
+    }
+
+    const stringifier = stringifyStream({
+      header: headers,
+      columns: columns || (data.length > 0 ? Object.keys(data[0]) : []),
+      delimiter
+    });
+
+    // Create a readable stream from array
+    const { Readable } = await import('stream');
+    const readable = Readable.from(data);
+
+    await pipeline(readable, stringifier, writeStream);
+  },
+
+  /**
    * Import data from CSV string
    */
   async import(content, options = {}) {
@@ -68,6 +100,37 @@ export const csvHandler = {
     } catch (error) {
       throw new Error(`Invalid CSV: ${error.message}`);
     }
+  },
+
+  /**
+   * Import data from stream (for large files)
+   */
+  async importStream(readStream, options = {}) {
+    const {
+      headers = true,
+      delimiter = ',',
+      skipEmptyLines = true
+    } = options;
+
+    const records = [];
+    const parser = parseStream({
+      columns: headers,
+      delimiter,
+      skip_empty_lines: skipEmptyLines,
+      trim: true
+    });
+
+    const collectTransform = new Transform({
+      objectMode: true,
+      transform(record, encoding, callback) {
+        records.push(record);
+        callback();
+      }
+    });
+
+    await pipeline(readStream, parser, collectTransform);
+    
+    return records;
   },
 
   /**
