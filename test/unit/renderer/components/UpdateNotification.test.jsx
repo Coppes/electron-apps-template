@@ -1,7 +1,7 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { UpdateNotification } from '../../../../src/renderer/components/UpdateNotification';
+import { UpdateNotification } from '../../../../src/renderer/components/shared/UpdateNotification';
 
 describe('UpdateNotification Component', () => {
   const mockUpdateInfo = {

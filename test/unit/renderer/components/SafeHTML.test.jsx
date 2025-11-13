@@ -1,7 +1,7 @@
 import React from 'react';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import SafeHTML from '../../../../src/renderer/components/SafeHTML';
+import SafeHTML from '../../../../src/renderer/components/shared/SafeHTML';
 
 describe('SafeHTML Component', () => {
   beforeEach(() => {

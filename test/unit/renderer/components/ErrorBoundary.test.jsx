@@ -2,7 +2,7 @@ import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import PropTypes from 'prop-types';
-import ErrorBoundary from '../../../../src/renderer/components/ErrorBoundary';
+import ErrorBoundary from '../../../../src/renderer/components/shared/ErrorBoundary';
 
 // Component that throws an error
 const ThrowError = ({ shouldThrow, errorMessage }) => {
