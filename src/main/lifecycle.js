@@ -14,6 +14,11 @@ import { createAppHandlers } from './ipc/handlers/app.js';
 import { secureStoreHandlers } from './ipc/handlers/secure-store.js';
 import { fileHandlers } from './ipc/handlers/files.js';
 import { dataHandlers } from './ipc/handlers/data.js';
+import { trayHandlers } from './ipc/handlers/tray.js';
+import { shortcutHandlers } from './ipc/handlers/shortcuts.js';
+import { notificationHandlers } from './ipc/handlers/notifications.js';
+import { trayManager } from './tray.js';
+import { shortcutManager } from './shortcuts.js';
 import connectivityManager from './data/connectivity-manager.js';
 import syncQueue from './data/sync-queue.js';
 import { config, loadEnvironmentOverrides } from './config.js';
@@ -69,7 +74,10 @@ class LifecycleManager {
       const mainWindow = windowManager.createWindow('main');
       logger.info('Main window created', { windowId: mainWindow.id });
 
-      // Step 8: Remove crash marker after successful startup
+      // Step 8: Initialize OS integration features
+      await this.initializeOSIntegration();
+
+      // Step 9: Remove crash marker after successful startup
       await this.removeCrashMarker();
 
       const duration = Date.now() - startTime;
@@ -95,10 +103,70 @@ class LifecycleManager {
       ...secureStoreHandlers,
       ...fileHandlers,
       ...dataHandlers,
+      ...trayHandlers,
+      ...shortcutHandlers,
+      ...notificationHandlers,
     };
 
     registerHandlers(ipcSchema, handlers);
     logger.info('IPC handlers registered');
+  }
+
+  /**
+   * Initialize OS integration features
+   */
+  async initializeOSIntegration() {
+    try {
+      // Initialize system tray
+      if (config.osIntegration?.tray?.enabled) {
+        const trayCreated = trayManager.createTray({
+          tooltip: app.getName(),
+          onClick: () => {
+            const mainWindow = windowManager.getWindowByType('main');
+            if (mainWindow) {
+              if (mainWindow.window.isVisible()) {
+                mainWindow.window.hide();
+              } else {
+                windowManager.focusWindow(mainWindow.id);
+              }
+            }
+          },
+        });
+
+        if (trayCreated) {
+          logger.info('System tray initialized');
+        }
+      }
+
+      // Register default global shortcuts
+      if (config.osIntegration?.shortcuts?.enabled) {
+        const defaults = config.osIntegration.shortcuts.defaults || {};
+        for (const [accelerator, action] of Object.entries(defaults)) {
+          const registered = shortcutManager.register(
+            accelerator,
+            () => {
+              logger.debug('Default shortcut triggered', { accelerator, action });
+              const mainWindow = windowManager.getWindowByType('main');
+              if (mainWindow) {
+                mainWindow.window.webContents.send('shortcut:triggered', {
+                  accelerator,
+                  action,
+                });
+              }
+            },
+            action
+          );
+
+          if (registered) {
+            logger.info('Default shortcut registered', { accelerator, action });
+          }
+        }
+      }
+
+      logger.info('OS integration initialized');
+    } catch (error) {
+      logger.error('Failed to initialize OS integration', error);
+    }
   }
 
   /**
@@ -114,19 +182,24 @@ class LifecycleManager {
     logger.info('Application shutdown initiated');
 
     try {
-      // Step 1: Cleanup data management services
+      // Step 1: Cleanup OS integration
+      shortcutManager.cleanup();
+      trayManager.destroy();
+      logger.debug('OS integration cleaned up');
+
+      // Step 2: Cleanup data management services
       connectivityManager.cleanup();
       logger.debug('Connectivity manager cleaned up');
 
-      // Step 2: Save all window states
+      // Step 3: Save all window states
       windowManager.saveAllStates();
       logger.debug('Window states saved');
 
-      // Step 3: Close all windows
+      // Step 4: Close all windows
       windowManager.closeAllWindows();
       logger.debug('All windows closed');
 
-      // Step 4: Flush logs
+      // Step 5: Flush logs
       await this.flushLogs();
 
       logger.info('Application shutdown completed gracefully');
@@ -276,23 +349,105 @@ class LifecycleManager {
    */
   handleDeepLink(url) {
     try {
+      // Validate URL length
+      if (url.length > 2048) {
+        logger.warn('Deep link URL too long', { length: url.length });
+        return;
+      }
+
       const parsedUrl = new URL(url);
-      logger.info('Processing deep link', {
-        protocol: parsedUrl.protocol,
-        host: parsedUrl.host,
-        pathname: parsedUrl.pathname,
-        search: parsedUrl.search,
+      
+      // Parse query parameters
+      const params = {};
+      parsedUrl.searchParams.forEach((value, key) => {
+        params[key] = value;
       });
 
-      // TODO: Route to appropriate view in renderer
-      // For now, just focus the main window
+      // Parse path segments
+      const pathSegments = parsedUrl.pathname.split('/').filter(Boolean);
+
+      // Create deep link data
+      /** @type {import('../common/types.js').DeepLinkData} */
+      const deepLinkData = {
+        url,
+        protocol: parsedUrl.protocol.replace(':', ''),
+        host: parsedUrl.host,
+        path: parsedUrl.pathname,
+        params,
+        pathParams: {},
+      };
+
+      // Route based on host/action
+      const route = this.matchRoute(parsedUrl.host, pathSegments, deepLinkData);
+
+      logger.info('Processing deep link', {
+        host: deepLinkData.host,
+        path: deepLinkData.path,
+        route,
+      });
+
+      // Focus main window
       const mainWindow = windowManager.getWindowByType('main');
       if (mainWindow) {
         windowManager.focusWindow(mainWindow.id);
+
+        // Send deep link data to renderer
+        mainWindow.window.webContents.send('deep-link:received', deepLinkData);
       }
     } catch (error) {
       logger.error('Failed to parse deep link', { url, error: error.message });
     }
+  }
+
+  /**
+   * Match deep link to a route
+   * @param {string} host - URL host/action
+   * @param {string[]} pathSegments - Path segments
+   * @param {Object} deepLinkData - Deep link data object
+   * @returns {string|null} Matched route
+   */
+  matchRoute(host, pathSegments, deepLinkData) {
+    // Define route patterns
+    const routes = {
+      'open': () => {
+        // electronapp://open?file=/path/to/file
+        if (deepLinkData.params.file) {
+          return 'open-file';
+        }
+        return 'unknown';
+      },
+      'settings': () => {
+        // electronapp://settings or electronapp://settings/account
+        if (pathSegments.length > 0) {
+          deepLinkData.pathParams.section = pathSegments[0];
+          return 'settings-section';
+        }
+        return 'settings';
+      },
+      'new': () => {
+        // electronapp://new or electronapp://new/document
+        if (pathSegments.length > 0) {
+          deepLinkData.pathParams.type = pathSegments[0];
+          return 'new-item';
+        }
+        return 'new';
+      },
+      'view': () => {
+        // electronapp://view/:id
+        if (pathSegments.length > 0) {
+          deepLinkData.pathParams.id = pathSegments[0];
+          return 'view-item';
+        }
+        return 'unknown';
+      },
+    };
+
+    const routeHandler = routes[host];
+    if (routeHandler) {
+      return routeHandler();
+    }
+
+    return 'unknown';
   }
 }
 

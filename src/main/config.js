@@ -96,6 +96,42 @@ export const config = {
     enabled: true,
   },
 
+  // OS Integration
+  osIntegration: {
+    // System tray
+    tray: {
+      enabled: true,
+      startMinimized: false,
+    },
+    
+    // Global shortcuts
+    shortcuts: {
+      enabled: true,
+      // Define default shortcuts
+      defaults: {
+        'CommandOrControl+Shift+K': 'quick-open',
+        'CommandOrControl+Shift+P': 'command-palette',
+      },
+    },
+    
+    // Progress indicator
+    progress: {
+      enabled: true,
+    },
+    
+    // Recent documents
+    recentDocuments: {
+      enabled: true,
+      trackAutomatically: true,
+    },
+    
+    // Native notifications
+    notifications: {
+      enabled: true,
+      sound: true,
+    },
+  },
+
   // Crash Recovery
   crashRecovery: {
     enabled: true,
