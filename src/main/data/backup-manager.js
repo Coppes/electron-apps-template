@@ -11,11 +11,15 @@ import { app } from 'electron';
 import { createHash } from 'crypto';
 import Store from 'electron-store';
 import { logger } from '../logger.js';
+import { getZipWorkerPool } from '../workers/worker-pool.js';
 
 const store = new Store();
 const BACKUP_METADATA_KEY = 'backup:history';
 const DEFAULT_BACKUP_DIR = path.join(app.getPath('userData'), 'backups');
 const MAX_BACKUPS = 10;
+
+// Use worker threads for backups larger than 5MB
+const WORKER_THRESHOLD = 5 * 1024 * 1024;
 
 /**
  * Backup Manager Class
@@ -47,7 +51,7 @@ export class BackupManager {
    * @returns {Promise<object>} Backup metadata
    */
   async createBackup(options = {}) {
-    const { type = 'manual', includeDatabase = true } = options;
+    const { type = 'manual', includeDatabase = true, useWorker = true } = options;
 
     try {
       await this.initialize();
@@ -67,7 +71,27 @@ export class BackupManager {
         includes: []
       };
 
-      // Create ZIP archive
+      // Collect files to backup
+      const filesToBackup = await this.collectFiles(includeDatabase, manifest);
+
+      // Estimate backup size
+      let estimatedSize = 0;
+      for (const file of filesToBackup) {
+        try {
+          const stats = await fs.stat(file.path);
+          estimatedSize += stats.size;
+        } catch (error) {
+          logger.warn(`Could not stat file ${file.path}:`, error);
+        }
+      }
+
+      // Use worker thread for large backups
+      if (useWorker && estimatedSize > WORKER_THRESHOLD) {
+        logger.info(`Using worker thread for large backup (${estimatedSize} bytes)`);
+        return this.createBackupWithWorker(backupPath, filesToBackup, manifest, backupFilename);
+      }
+
+      // Create ZIP archive in main thread (small backups)
       const output = createWriteStream(backupPath);
       const archive = archiver('zip', {
         zlib: { level: 9 } // Maximum compression
@@ -131,6 +155,91 @@ export class BackupManager {
       logger.error('Backup creation failed:', error);
       throw error;
     }
+  }
+
+  /**
+   * Create backup using worker thread
+   */
+  async createBackupWithWorker(backupPath, files, metadata, backupFilename) {
+    const workerPool = getZipWorkerPool();
+
+    try {
+      const result = await workerPool.execute({
+        operation: 'create',
+        outputPath: backupPath,
+        files,
+        metadata
+      });
+
+      // Save backup metadata
+      metadata.checksum = result.checksum;
+      metadata.size = result.size;
+      await this.addToHistory(backupFilename, metadata);
+
+      // Cleanup old backups
+      await this.cleanupOldBackups();
+
+      logger.info(`Backup created with worker: ${backupFilename} (${metadata.size} bytes)`);
+
+      return {
+        success: true,
+        backup: {
+          filename: backupFilename,
+          path: backupPath,
+          ...metadata
+        }
+      };
+    } catch (error) {
+      logger.error('Worker backup creation failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Collect files for backup
+   */
+  async collectFiles(includeDatabase, manifest) {
+    const files = [];
+
+    // Add electron-store
+    const storeData = store.store;
+    const storePath = path.join(this.backupDir, '.temp-store.json');
+    await fs.writeFile(storePath, JSON.stringify(storeData, null, 2));
+    files.push({ path: storePath, name: 'electron-store/config.json' });
+    manifest.includes.push('electron-store');
+
+    // Add database if present
+    if (includeDatabase) {
+      const dbPath = path.join(app.getPath('userData'), 'database.db');
+      try {
+        await fs.access(dbPath);
+        files.push({ path: dbPath, name: 'databases/database.db' });
+        manifest.includes.push('database');
+        logger.debug('Added database to backup');
+      } catch {
+        logger.debug('No database found, skipping');
+      }
+    }
+
+    // Add user files if configured
+    if (this.includeUserFiles) {
+      const userFilesDir = path.join(app.getPath('userData'), 'user-files');
+      try {
+        const userFiles = await fs.readdir(userFilesDir, { recursive: true });
+        for (const file of userFiles) {
+          const filePath = path.join(userFilesDir, file);
+          const stats = await fs.stat(filePath);
+          if (stats.isFile()) {
+            files.push({ path: filePath, name: `user-files/${file}` });
+          }
+        }
+        manifest.includes.push('user-files');
+      } catch {
+        logger.debug('No user files found, skipping');
+      }
+    }
+
+    return files;
   }
 
   /**

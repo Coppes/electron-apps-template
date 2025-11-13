@@ -9,6 +9,10 @@ import { parse as parseStream } from 'csv-parse';
 import { stringify as stringifyStream } from 'csv-stringify';
 import { pipeline } from 'stream/promises';
 import { Transform } from 'stream';
+import { getCsvWorkerPool } from '../workers/worker-pool.js';
+
+// Use worker threads for CSV files larger than 1MB
+const WORKER_THRESHOLD = 1 * 1024 * 1024;
 
 /**
  * CSV Handler
@@ -85,10 +89,23 @@ export const csvHandler = {
     const {
       headers = true,
       delimiter = ',',
-      skipEmptyLines = true
+      skipEmptyLines = true,
+      useWorker = true
     } = options;
 
     try {
+      // Use worker thread for large CSV files
+      if (useWorker && content.length > WORKER_THRESHOLD) {
+        const workerPool = getCsvWorkerPool();
+        const result = await workerPool.execute({
+          operation: 'parse',
+          content,
+          options: { headers, delimiter, skipEmptyLines }
+        });
+        return result.records;
+      }
+
+      // Parse in main thread for small files
       const records = parse(content, {
         columns: headers,
         delimiter,
