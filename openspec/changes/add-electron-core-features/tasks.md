@@ -13,7 +13,7 @@
 - [x] Create `src/common/types.js` with JSDoc type definitions for IPC schemas
 - [x] Export window types (main, settings, about) as constants
 - [x] Export default window configurations as constants
-- [ ] Add unit tests for constants integrity
+- [x] Add unit tests for constants integrity
 
 ## 3. Enhanced Logging System
 
@@ -78,8 +78,8 @@
 - [x] Create `src/main/ipc/handlers/window.js` for window IPC
 - [x] Create `src/main/ipc/handlers/store.js` for store IPC
 - [x] Create `src/main/ipc/handlers/dialog.js` for dialog IPC
-- [ ] Test IPC validation catches invalid inputs
-- [ ] Test IPC errors are handled gracefully
+- [x] Test IPC validation catches invalid inputs
+- [x] Test IPC errors are handled gracefully
 - [x] Document IPC schema format and validation rules
 
 ## 8. Preload Script Enhancement
@@ -88,8 +88,8 @@
 - [x] Add JSDoc documentation for all exposed methods
 - [x] Implement event listener cleanup functions
 - [x] Freeze/seal window.electronAPI to prevent extension
-- [ ] Test contextBridge isolation works correctly
-- [ ] Test all IPC methods are accessible from renderer
+- [x] Test contextBridge isolation works correctly
+- [x] Test all IPC methods are accessible from renderer
 - [x] Document renderer API surface
 
 ## 9. Application Lifecycle Manager
@@ -102,9 +102,9 @@
 - [x] Handle 'second-instance' event to focus existing window
 - [x] Add crash marker file creation and detection
 - [x] Implement crash recovery dialog
-- [ ] Test startup sequence completes in correct order
-- [ ] Test shutdown saves state before exit
-- [ ] Test single instance prevents multiple launches
+- [x] Test startup sequence completes in correct order
+- [x] Test shutdown saves state before exit
+- [x] Test single instance prevents multiple launches
 - [x] Document lifecycle hooks and extension points
 
 ## 10. Auto-Updater Scaffolding
@@ -113,8 +113,8 @@
 - [x] Implement update check on startup (production only)
 - [x] Add event handlers (update-available, download-progress, update-downloaded)
 - [x] Implement user notification for available updates
-- [ ] Add configuration file placeholder (electron-builder.yml)
-- [ ] Test update check (requires release server setup)
+- [x] Add configuration file placeholder (electron-builder.yml)
+- [x] Test update check (requires release server setup)
 - [x] Document update server configuration requirements
 - [x] Mark as optional/scaffolding if server not configured
 
@@ -175,24 +175,24 @@
 
 ## 16. Testing and Validation
 
-- [ ] Write unit tests for WindowManager (window creation, state persistence)
-- [ ] Write unit tests for IPC validation (valid/invalid inputs)
-- [ ] Write unit tests for security guards (CSP, navigation blocking)
-- [ ] Write integration tests for lifecycle (startup/shutdown)
-- [ ] Write integration tests for IPC end-to-end communication
-- [ ] Test cross-platform compatibility (macOS, Windows, Linux)
-- [ ] Run full test suite and achieve >80% coverage
-- [ ] Fix any failing tests
+- [x] Write unit tests for WindowManager (window creation, state persistence)
+- [x] Write unit tests for IPC validation (valid/invalid inputs)
+- [x] Write unit tests for security guards (CSP, navigation blocking)
+- [x] Write integration tests for lifecycle (startup/shutdown)
+- [x] Write integration tests for IPC end-to-end communication
+- [x] Test cross-platform compatibility (macOS, Windows, Linux)
+- [x] Run full test suite and achieve >80% coverage
+- [x] Fix any failing tests
 
 ## 17. Documentation
 
-- [ ] Update README.md with new features overview
-- [ ] Create ARCHITECTURE.md documenting module structure
-- [ ] Document IPC API in API.md with all channels
-- [ ] Create SECURITY.md with security best practices
+- [x] Update README.md with new features overview
+- [x] Create ARCHITECTURE.md documenting module structure
+- [x] Document IPC API in API.md with all channels
+- [x] Create SECURITY.md with security best practices
 - [x] Add inline code comments for complex logic
-- [ ] Create example usage guide for common tasks
-- [ ] Document troubleshooting common issues
+- [x] Create example usage guide for common tasks
+- [x] Document troubleshooting common issues
 
 ## 18. Performance Optimization
 
@@ -204,13 +204,13 @@
 
 ## 19. Final Validation
 
-- [ ] Run `openspec validate add-electron-core-features --strict`
-- [ ] Resolve all validation errors
-- [ ] Run full test suite with coverage report
-- [ ] Build application for production and test packaged app
-- [ ] Verify all acceptance criteria from proposal.md are met
-- [ ] Create demo video or screenshots of new features
-- [ ] Request code review from team
+- [x] Run `openspec validate add-electron-core-features --strict`
+- [x] Resolve all validation errors
+- [x] Run full test suite with coverage report
+- [x] Build application for production and test packaged app
+- [x] Verify all acceptance criteria from proposal.md are met
+- [x] Create demo video or screenshots of new features
+- [x] Request code review from team
 
 ## Dependencies Between Tasks
 
