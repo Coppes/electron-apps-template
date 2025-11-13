@@ -17,20 +17,19 @@ export default function SecureStorageDemo() {
 
   useEffect(() => {
     // Check if encryption is available on this platform
+    async function checkAvailability() {
+      try {
+        const available = await window.api.secureStore.isAvailable();
+        setIsAvailable(available);
+        if (!available) {
+          setStatus('⚠️ Encrypted storage is not available on this platform');
+        }
+      } catch (error) {
+        setStatus(`Error checking availability: ${error.message}`);
+      }
+    }
     checkAvailability();
   }, []);
-
-  const checkAvailability = async () => {
-    try {
-      const available = await window.api.secureStore.isAvailable();
-      setIsAvailable(available);
-      if (!available) {
-        setStatus('⚠️ Encrypted storage is not available on this platform');
-      }
-    } catch (error) {
-      setStatus(`Error checking availability: ${error.message}`);
-    }
-  };
 
   const handleStore = async () => {
     if (!key.trim() || !value.trim()) {
@@ -182,11 +181,11 @@ export default function SecureStorageDemo() {
           <li>Encryption keys are managed by the operating system</li>
           <li>Values are never logged or exposed in production</li>
           <li>Use for: API keys, auth tokens, credentials, secrets</li>
-          <li>Don't use for: Large files, frequently accessed data, non-sensitive data</li>
+          <li>Don&apos;t use for: Large files, frequently accessed data, non-sensitive data</li>
         </ul>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .secure-storage-demo {
           max-width: 600px;
           margin: 20px auto;

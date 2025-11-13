@@ -35,7 +35,7 @@ vi.mock('electron-store', () => {
 });
 
 vi.mock('../../../src/main/logger.js', () => ({
-  default: {
+  logger: {
     info: vi.fn(),
     debug: vi.fn(),
     error: vi.fn(),
