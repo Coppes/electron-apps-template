@@ -4,8 +4,11 @@ import HomePage from './components/pages/HomePage';
 import DemoPage from './components/pages/DemoPage';
 import SettingsPage from './components/pages/SettingsPage';
 import AboutPage from './components/pages/AboutPage';
+import BackupPage from './components/pages/BackupPage';
 import { UpdateNotification } from './components/UpdateNotification';
 import ErrorBoundary from './components/ErrorBoundary';
+import SyncQueueViewer from './components/SyncQueueViewer';
+import OfflineIndicator from './components/OfflineIndicator';
 
 function App() {
   const [updateInfo, setUpdateInfo] = useState(null);
@@ -72,6 +75,10 @@ function App() {
               return <HomePage />;
             case 'demo':
               return <DemoPage />;
+            case 'backups':
+              return <BackupPage />;
+            case 'sync':
+              return <SyncQueueViewer />;
             case 'settings':
               return <SettingsPage />;
             case 'about':
@@ -81,6 +88,8 @@ function App() {
           }
         }}
       </AppShell>
+      
+      <OfflineIndicator position="top-right" />
       
       {updateStatus && (
         <UpdateNotification

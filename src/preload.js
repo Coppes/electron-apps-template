@@ -144,6 +144,26 @@ const dialogAPI = {
   saveFile: (options, content) => ipcRenderer.invoke(IPC_CHANNELS.DIALOG_SAVE_FILE, { options, content }),
 
   /**
+   * Show open dialog (returns path only, no content read)
+   * @param {Object} [options] - Dialog options
+   * @returns {Promise<string|null>} Selected file path or null if canceled
+   */
+  showOpenDialog: async (options) => {
+    const result = await ipcRenderer.invoke(IPC_CHANNELS.DIALOG_OPEN_FILE, { options });
+    return result.canceled ? null : result.filePath;
+  },
+
+  /**
+   * Show save dialog (returns path only, no content write)
+   * @param {Object} [options] - Dialog options
+   * @returns {Promise<string|null>} Selected save path or null if canceled
+   */
+  showSaveDialog: async (options) => {
+    const result = await ipcRenderer.invoke(IPC_CHANNELS.DIALOG_SAVE_FILE, { options, content: '' });
+    return result.canceled ? null : result.filePath;
+  },
+
+  /**
    * Show message dialog
    * @param {Object} options - Dialog options (type, title, message, buttons, etc.)
    * @returns {Promise<Object>} Result with response index

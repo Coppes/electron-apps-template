@@ -57,6 +57,20 @@ const AppShell = ({ children }) => {
             🔧 Demo
           </Button>
           <Button
+            variant={currentPage === 'backups' ? 'default' : 'ghost'}
+            className="w-full justify-start"
+            onClick={() => setCurrentPage('backups')}
+          >
+            💾 Backups
+          </Button>
+          <Button
+            variant={currentPage === 'sync' ? 'default' : 'ghost'}
+            className="w-full justify-start"
+            onClick={() => setCurrentPage('sync')}
+          >
+            🔄 Sync Queue
+          </Button>
+          <Button
             variant={currentPage === 'settings' ? 'default' : 'ghost'}
             className="w-full justify-start"
             onClick={() => setCurrentPage('settings')}
