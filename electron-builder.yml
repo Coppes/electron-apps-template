@@ -1,0 +1,86 @@
+# Electron Builder Configuration
+# https://www.electron.build/configuration/configuration
+
+appId: com.example.electronapp
+productName: Electron App Template
+copyright: Copyright © 2025
+
+# Directories
+directories:
+  buildResources: build
+  output: dist
+
+# Build Configuration
+files:
+  - "!**/.vscode/*"
+  - "!src/*"
+  - "!electron.vite.config.{js,ts,mjs,cjs}"
+  - "!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}"
+  - "!{.env,.env.*,.npmrc,pnpm-lock.yaml}"
+  - "!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}"
+
+asarUnpack:
+  - resources/**
+
+# Auto-updater configuration
+publish:
+  provider: generic
+  url: https://example.com/releases
+  # For development/testing, use a local server or GitHub releases:
+  # provider: github
+  # owner: your-username
+  # repo: your-repo
+
+# macOS Configuration
+mac:
+  category: public.app-category.utilities
+  target:
+    - dmg
+    - zip
+  icon: build/icon.icns
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  entitlements: build/entitlements.mac.plist
+  entitlementsInherit: build/entitlements.mac.plist
+  notarize: false
+
+dmg:
+  contents:
+    - x: 130
+      y: 220
+    - x: 410
+      y: 220
+      type: link
+      path: /Applications
+  artifactName: ${productName}-${version}-${arch}.${ext}
+
+# Windows Configuration
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+        - ia32
+  icon: build/icon.ico
+  artifactName: ${productName}-Setup-${version}.${ext}
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  deleteAppDataOnUninstall: false
+  artifactName: ${productName}-Setup-${version}.${ext}
+
+# Linux Configuration
+linux:
+  target:
+    - AppImage
+    - deb
+    - rpm
+  category: Utility
+  icon: build/icon.png
+  artifactName: ${productName}-${version}-${arch}.${ext}
+
+# Update Configuration
+# To enable auto-updates, configure your release server and uncomment below:
+# electronUpdaterCompatibility: ">=5.0.0"
