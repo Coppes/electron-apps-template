@@ -416,6 +416,53 @@ const dataAPI = {
    * @returns {Promise<Object>} Result with formats array
    */
   listFormats: () => ipcRenderer.invoke(IPC_CHANNELS.DATA_LIST_FORMATS, {}),
+
+  /**
+   * Get connectivity status
+   * @returns {Promise<Object>} Result with online status
+   */
+  getConnectivityStatus: () => ipcRenderer.invoke(IPC_CHANNELS.CONNECTIVITY_STATUS, {}),
+
+  /**
+   * Listen for connectivity change events
+   * @param {Function} callback - Callback function
+   * @returns {Function} Cleanup function
+   */
+  onConnectivityChanged: (callback) => {
+    const listener = (event, data) => callback(data);
+    ipcRenderer.on(IPC_CHANNELS.CONNECTIVITY_STATUS, listener);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.CONNECTIVITY_STATUS, listener);
+  },
+
+  /**
+   * Add operation to sync queue
+   * @param {Object} operation - Operation to queue
+   * @returns {Promise<Object>} Result
+   */
+  syncQueueAdd: (operation) => ipcRenderer.invoke(IPC_CHANNELS.SYNC_QUEUE_ADD, { operation }),
+
+  /**
+   * Process sync queue
+   * @returns {Promise<Object>} Result with processed count
+   */
+  syncQueueProcess: () => ipcRenderer.invoke(IPC_CHANNELS.SYNC_QUEUE_PROCESS, {}),
+
+  /**
+   * Get sync queue status
+   * @returns {Promise<Object>} Result with queue statistics
+   */
+  syncQueueStatus: () => ipcRenderer.invoke(IPC_CHANNELS.SYNC_QUEUE_STATUS, {}),
+
+  /**
+   * Listen for sync status change events
+   * @param {Function} callback - Callback function
+   * @returns {Function} Cleanup function
+   */
+  onSyncStatusChanged: (callback) => {
+    const listener = (event, data) => callback(data);
+    ipcRenderer.on(IPC_CHANNELS.SYNC_STATUS_CHANGED, listener);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.SYNC_STATUS_CHANGED, listener);
+  },
 };
 
 /**
