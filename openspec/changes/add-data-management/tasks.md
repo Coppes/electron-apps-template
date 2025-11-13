@@ -73,30 +73,30 @@
 
 ### Connectivity Management (8 tasks)
 
-- [ ] 51. Create `src/main/data/connectivity-manager.js` with ConnectivityManager class
-- [ ] 52. Implement navigator.onLine monitoring with event listeners
-- [ ] 53. Add custom connectivity check (HTTP HEAD to reliable endpoint)
-- [ ] 54. Implement periodic connectivity polling (every 30s when status unclear)
-- [ ] 55. Create IPC event emitter for connectivity changes (ONLINE, OFFLINE)
-- [ ] 56. Create useOfflineStatus hook in `src/renderer/hooks/useOfflineStatus.js`
-- [ ] 57. Create OfflineIndicator component in `src/renderer/components/OfflineIndicator.jsx`
+- [x] 51. Create `src/main/data/connectivity-manager.js` with ConnectivityManager class
+- [x] 52. Implement navigator.onLine monitoring with event listeners
+- [x] 53. Add custom connectivity check (HTTP HEAD to reliable endpoint)
+- [x] 54. Implement periodic connectivity polling (every 30s when status unclear)
+- [x] 55. Create IPC event emitter for connectivity changes (ONLINE, OFFLINE)
+- [x] 56. Create useOfflineStatus hook in `src/renderer/hooks/useOfflineStatus.js`
+- [x] 57. Create OfflineIndicator component in `src/renderer/components/OfflineIndicator.jsx`
 - [ ] 58. Write tests for connectivity detection and state transitions
 
 ### Sync Queue Implementation (14 tasks)
 
-- [ ] 59. Create `src/main/data/sync-queue.js` with SyncQueue class
-- [ ] 60. Define operation schema (id, type, entity, data, status, retries, timestamp)
-- [ ] 61. Implement enqueue method (add operation, persist to electron-store)
-- [ ] 62. Implement process method (FIFO queue processing when online)
-- [ ] 63. Add retry logic with exponential backoff (max 5 attempts)
-- [ ] 64. Implement operation status tracking (pending, syncing, synced, failed)
-- [ ] 65. Create backend adapter interface (REST, GraphQL, WebSocket)
-- [ ] 66. Implement mock adapter for testing without backend
-- [ ] 67. Add conflict detection and resolution hooks
-- [ ] 68. Implement queue purge (remove synced operations > 7 days old)
-- [ ] 69. Add queue size limit (max 10,000 operations) with overflow handling
-- [ ] 70. Create IPC handlers for manual sync trigger and queue inspection
-- [ ] 71. Integrate sync queue with connectivity manager (auto-sync when online)
+- [x] 59. Create `src/main/data/sync-queue.js` with SyncQueue class
+- [x] 60. Define operation schema (id, type, entity, data, status, retries, timestamp)
+- [x] 61. Implement enqueue method (add operation, persist to electron-store)
+- [x] 62. Implement process method (FIFO queue processing when online)
+- [x] 63. Add retry logic with exponential backoff (max 5 attempts)
+- [x] 64. Implement operation status tracking (pending, syncing, synced, failed)
+- [x] 65. Create backend adapter interface (REST, GraphQL, WebSocket)
+- [x] 66. Implement mock adapter for testing without backend
+- [x] 67. Add conflict detection and resolution hooks
+- [x] 68. Implement queue purge (remove synced operations > 7 days old)
+- [x] 69. Add queue size limit (max 10,000 operations) with overflow handling
+- [x] 70. Create IPC handlers for manual sync trigger and queue inspection
+- [x] 71. Integrate sync queue with connectivity manager (auto-sync when online)
 - [ ] 72. Write tests for queue operations, retry logic, and conflict resolution
 
 ## Phase 4: UI Integration (Parallel)
