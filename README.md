@@ -13,6 +13,7 @@ A secure, scalable, and modern boilerplate template for creating desktop applica
   - Navigation guards for external links
   - Permission management system
   - Security audit logging
+  - Encrypted storage for sensitive data (OS-level encryption)
 
 - ✅ **Production-Ready Core Features**
   - Window state persistence and restoration

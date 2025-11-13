@@ -167,6 +167,155 @@ const hasTheme = await window.electronAPI.store.has('theme');
 
 ---
 
+### Encrypted Storage
+
+The secure store API provides OS-level encryption for sensitive data like API keys, tokens, and credentials. Uses Keychain (macOS), DPAPI (Windows), or libsecret (Linux).
+
+#### `secureStore.isAvailable()`
+
+Check if encrypted storage is available on the current platform.
+
+**Returns**: `Promise<boolean>`
+
+**Example**:
+
+```javascript
+const available = await window.electronAPI.secureStore.isAvailable();
+if (!available) {
+  console.warn('Encrypted storage not available');
+}
+```
+
+#### `secureStore.set(key, value)`
+
+Encrypt and store a sensitive value.
+
+**Parameters**:
+
+- `key` (string, required): Storage key
+- `value` (any, required): Value to encrypt and store (must be JSON-serializable)
+
+**Returns**: `Promise<{success: boolean, error?: string}>`
+
+**Example**:
+
+```javascript
+// Store API key
+await window.electronAPI.secureStore.set('apiKey', 'my-secret-key');
+
+// Store credentials object
+await window.electronAPI.secureStore.set('credentials', {
+  username: 'user@example.com',
+  token: 'abc123xyz'
+});
+```
+
+#### `secureStore.get(key)`
+
+Retrieve and decrypt a stored value.
+
+**Parameters**:
+
+- `key` (string, required): Storage key
+
+**Returns**: `Promise<any>` - The decrypted value or null if not found
+
+**Example**:
+
+```javascript
+const apiKey = await window.electronAPI.secureStore.get('apiKey');
+if (apiKey) {
+  console.log('API key retrieved');
+}
+
+const credentials = await window.electronAPI.secureStore.get('credentials');
+console.log('Username:', credentials?.username);
+```
+
+#### `secureStore.delete(key)`
+
+Delete an encrypted value from storage.
+
+**Parameters**:
+
+- `key` (string, required): Storage key to delete
+
+**Returns**: `Promise<{success: boolean, error?: string}>`
+
+**Example**:
+
+```javascript
+await window.electronAPI.secureStore.delete('apiKey');
+```
+
+#### `secureStore.has(key)`
+
+Check if an encrypted value exists in storage.
+
+**Parameters**:
+
+- `key` (string, required): Storage key to check
+
+**Returns**: `Promise<boolean>`
+
+**Example**:
+
+```javascript
+const hasApiKey = await window.electronAPI.secureStore.has('apiKey');
+if (hasApiKey) {
+  const key = await window.electronAPI.secureStore.get('apiKey');
+}
+```
+
+**Security Notes**:
+
+- Always check availability with `isAvailable()` before using
+- Use `secureStore` for sensitive data (API keys, tokens, passwords)
+- Use regular `store` for non-sensitive data (UI preferences, cache)
+- Encrypted data is tied to the current machine and user account
+- On Linux, requires `libsecret` to be installed
+
+**Complete Example**:
+
+```javascript
+async function saveApiKey(apiKey) {
+  try {
+    // Check if encryption is available
+    const available = await window.electronAPI.secureStore.isAvailable();
+    if (!available) {
+      throw new Error('Encrypted storage not available on this system');
+    }
+    
+    // Store the API key
+    const result = await window.electronAPI.secureStore.set('apiKey', apiKey);
+    if (result.success) {
+      console.log('API key saved securely');
+    } else {
+      console.error('Failed to save API key:', result.error);
+    }
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+}
+
+async function loadApiKey() {
+  try {
+    const apiKey = await window.electronAPI.secureStore.get('apiKey');
+    if (apiKey) {
+      return apiKey;
+    } else {
+      console.log('No API key found');
+      return null;
+    }
+  } catch (error) {
+    console.error('Failed to load API key:', error);
+    return null;
+  }
+}
+```
+
+---
+
 ### Dialogs
 
 #### `dialog.openFile(options)`
