@@ -9,7 +9,7 @@
     "build": "electron-vite build",
     "preview": "electron-vite preview",
     "lint": "eslint src --ext .js,.jsx",
-    "test": "vitest",
+    "test": "npm run test:unit",
     "test:main": "vitest --config vitest.config.main.js",
     "test:renderer": "vitest --config vitest.config.renderer.js",
     "test:unit": "vitest run --config vitest.config.main.js && vitest run --config vitest.config.renderer.js",
