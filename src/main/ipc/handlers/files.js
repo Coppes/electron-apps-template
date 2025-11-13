@@ -8,6 +8,7 @@ import fs from 'fs/promises';
 import { BrowserWindow } from 'electron';
 import { IPC_CHANNELS } from '../../../common/constants.js';
 import { logger } from '../../logger.js';
+import fileWatcher from '../../data/file-watcher.js';
 
 // Security configuration
 const ALLOWED_EXTENSIONS = [
@@ -241,11 +242,73 @@ export async function handleValidateFilePath(event, payload) {
   };
 }
 
+/**
+ * Handle file watch start request
+ */
+export async function handleFileWatchStart(event, payload) {
+  const { filePath } = payload;
+
+  if (!filePath) {
+    return {
+      success: false,
+      error: 'No file path provided'
+    };
+  }
+
+  try {
+    // Get the window that made the request
+    const window = BrowserWindow.fromWebContents(event.sender);
+    
+    if (!window) {
+      return {
+        success: false,
+        error: 'Could not find source window'
+      };
+    }
+
+    const result = await fileWatcher.watch(filePath, window);
+    return result;
+  } catch (error) {
+    logger.error('File watch start error:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}
+
+/**
+ * Handle file watch stop request
+ */
+export async function handleFileWatchStop(event, payload) {
+  const { filePath } = payload;
+
+  if (!filePath) {
+    return {
+      success: false,
+      error: 'No file path provided'
+    };
+  }
+
+  try {
+    const result = await fileWatcher.unwatch(filePath);
+    return result;
+  } catch (error) {
+    logger.error('File watch stop error:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}
+
 // Export handlers registry
 export const fileHandlers = {
   [IPC_CHANNELS.FILE_DROP]: handleFileDrop,
   [IPC_CHANNELS.FILE_DRAG_START]: handleDragStart,
-  [IPC_CHANNELS.FILE_VALIDATE_PATH]: handleValidateFilePath
+  [IPC_CHANNELS.FILE_VALIDATE_PATH]: handleValidateFilePath,
+  [IPC_CHANNELS.FILE_WATCH_START]: handleFileWatchStart,
+  [IPC_CHANNELS.FILE_WATCH_STOP]: handleFileWatchStop
 };
 
 export default fileHandlers;
