@@ -14,6 +14,8 @@ import { createAppHandlers } from './ipc/handlers/app.js';
 import { secureStoreHandlers } from './ipc/handlers/secure-store.js';
 import { fileHandlers } from './ipc/handlers/files.js';
 import { dataHandlers } from './ipc/handlers/data.js';
+import connectivityManager from './data/connectivity-manager.js';
+import syncQueue from './data/sync-queue.js';
 import { config, loadEnvironmentOverrides } from './config.js';
 
 /**
@@ -54,15 +56,20 @@ class LifecycleManager {
       // Step 4: Register IPC handlers
       await this.registerIPC();
 
-      // Step 5: Setup application menu
+      // Step 5: Initialize connectivity and sync managers
+      await connectivityManager.initialize();
+      await syncQueue.initialize();
+      logger.info('Data management services initialized');
+
+      // Step 6: Setup application menu
       setupMenu(windowManager);
       logger.info('Application menu initialized');
 
-      // Step 6: Create main window
+      // Step 7: Create main window
       const mainWindow = windowManager.createWindow('main');
       logger.info('Main window created', { windowId: mainWindow.id });
 
-      // Step 7: Remove crash marker after successful startup
+      // Step 8: Remove crash marker after successful startup
       await this.removeCrashMarker();
 
       const duration = Date.now() - startTime;
@@ -107,15 +114,19 @@ class LifecycleManager {
     logger.info('Application shutdown initiated');
 
     try {
-      // Step 1: Save all window states
+      // Step 1: Cleanup data management services
+      connectivityManager.cleanup();
+      logger.debug('Connectivity manager cleaned up');
+
+      // Step 2: Save all window states
       windowManager.saveAllStates();
       logger.debug('Window states saved');
 
-      // Step 2: Close all windows
+      // Step 3: Close all windows
       windowManager.closeAllWindows();
       logger.debug('All windows closed');
 
-      // Step 3: Flush logs
+      // Step 4: Flush logs
       await this.flushLogs();
 
       logger.info('Application shutdown completed gracefully');
