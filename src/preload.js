@@ -486,6 +486,230 @@ const dataAPI = {
 };
 
 /**
+ * System Tray API
+ */
+const trayAPI = {
+  /**
+   * Show tray icon
+   * @returns {Promise<Object>} Result
+   */
+  show: () => ipcRenderer.invoke(IPC_CHANNELS.TRAY_SHOW, {}),
+
+  /**
+   * Hide tray icon
+   * @returns {Promise<Object>} Result
+   */
+  hide: () => ipcRenderer.invoke(IPC_CHANNELS.TRAY_HIDE, {}),
+
+  /**
+   * Set tray icon
+   * @param {string} iconPath - Path to icon file
+   * @returns {Promise<Object>} Result
+   */
+  setIcon: (iconPath) => ipcRenderer.invoke(IPC_CHANNELS.TRAY_SET_ICON, { iconPath }),
+
+  /**
+   * Set tray tooltip
+   * @param {string} tooltip - Tooltip text
+   * @returns {Promise<Object>} Result
+   */
+  setTooltip: (tooltip) => ipcRenderer.invoke(IPC_CHANNELS.TRAY_SET_TOOLTIP, { tooltip }),
+
+  /**
+   * Set tray context menu
+   * @param {import('./common/types.js').TrayMenuItem[]} menuTemplate - Menu template
+   * @returns {Promise<Object>} Result
+   */
+  setMenu: (menuTemplate) => ipcRenderer.invoke(IPC_CHANNELS.TRAY_SET_MENU, { menuTemplate }),
+
+  /**
+   * Listen for tray menu item clicks
+   * @param {Function} callback - Callback function
+   * @returns {Function} Cleanup function
+   */
+  onMenuItemClick: (callback) => {
+    const listener = (event, data) => callback(data);
+    ipcRenderer.on(IPC_CHANNELS.TRAY_MENU_ITEM_CLICKED, listener);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.TRAY_MENU_ITEM_CLICKED, listener);
+  },
+};
+
+/**
+ * Global Shortcuts API
+ */
+const shortcutsAPI = {
+  /**
+   * Register a global shortcut
+   * @param {string} accelerator - Keyboard accelerator
+   * @param {string} [description] - Shortcut description
+   * @returns {Promise<Object>} Result
+   */
+  register: (accelerator, description) => 
+    ipcRenderer.invoke(IPC_CHANNELS.SHORTCUT_REGISTER, { accelerator, description }),
+
+  /**
+   * Unregister a global shortcut
+   * @param {string} accelerator - Keyboard accelerator
+   * @returns {Promise<Object>} Result
+   */
+  unregister: (accelerator) => 
+    ipcRenderer.invoke(IPC_CHANNELS.SHORTCUT_UNREGISTER, { accelerator }),
+
+  /**
+   * Unregister all global shortcuts
+   * @returns {Promise<Object>} Result
+   */
+  unregisterAll: () => 
+    ipcRenderer.invoke(IPC_CHANNELS.SHORTCUT_UNREGISTER_ALL, {}),
+
+  /**
+   * Check if shortcut is registered
+   * @param {string} accelerator - Keyboard accelerator
+   * @returns {Promise<boolean>} True if registered
+   */
+  isRegistered: (accelerator) => 
+    ipcRenderer.invoke(IPC_CHANNELS.SHORTCUT_IS_REGISTERED, { accelerator }).then(r => r.registered),
+
+  /**
+   * List all active shortcuts
+   * @returns {Promise<import('./common/types.js').ShortcutInfo[]>} Active shortcuts
+   */
+  listActive: () => 
+    ipcRenderer.invoke(IPC_CHANNELS.SHORTCUT_LIST_ACTIVE, {}).then(r => r.shortcuts),
+
+  /**
+   * Listen for shortcut triggers
+   * @param {Function} callback - Callback function
+   * @returns {Function} Cleanup function
+   */
+  onTriggered: (callback) => {
+    const listener = (event, data) => callback(data);
+    ipcRenderer.on(IPC_CHANNELS.SHORTCUT_TRIGGERED, listener);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.SHORTCUT_TRIGGERED, listener);
+  },
+};
+
+/**
+ * Progress Indicator API
+ */
+const progressAPI = {
+  /**
+   * Set progress indicator
+   * @param {number} value - Progress value (0.0-1.0 or -1 for indeterminate)
+   * @param {Object} [options] - Progress options
+   * @returns {Promise<Object>} Result
+   */
+  set: (value, options = {}) => 
+    ipcRenderer.invoke(IPC_CHANNELS.PROGRESS_SET, { value, ...options }),
+
+  /**
+   * Clear progress indicator
+   * @param {number} [windowId] - Window ID
+   * @returns {Promise<Object>} Result
+   */
+  clear: (windowId) => 
+    ipcRenderer.invoke(IPC_CHANNELS.PROGRESS_CLEAR, { windowId }),
+};
+
+/**
+ * Recent Documents API
+ */
+const recentDocsAPI = {
+  /**
+   * Add document to recent documents
+   * @param {string} filePath - Absolute path to document
+   * @returns {Promise<Object>} Result
+   */
+  add: (filePath) => 
+    ipcRenderer.invoke(IPC_CHANNELS.RECENT_DOCS_ADD, { filePath }),
+
+  /**
+   * Clear all recent documents
+   * @returns {Promise<Object>} Result
+   */
+  clear: () => 
+    ipcRenderer.invoke(IPC_CHANNELS.RECENT_DOCS_CLEAR, {}),
+};
+
+/**
+ * Native Notifications API
+ */
+const notificationsAPI = {
+  /**
+   * Show a native notification
+   * @param {import('./common/types.js').NotificationOptions} options - Notification options
+   * @returns {Promise<Object>} Result with notification ID
+   */
+  show: (options) => 
+    ipcRenderer.invoke(IPC_CHANNELS.NOTIFICATION_SHOW, options),
+
+  /**
+   * Close a notification
+   * @param {string} id - Notification ID
+   * @returns {Promise<Object>} Result
+   */
+  close: (id) => 
+    ipcRenderer.invoke(IPC_CHANNELS.NOTIFICATION_CLOSE, { id }),
+
+  /**
+   * Get notification history
+   * @param {number} [limit=50] - Maximum number of entries
+   * @returns {Promise<import('./common/types.js').NotificationInfo[]>} Notification history
+   */
+  getHistory: (limit = 50) => 
+    ipcRenderer.invoke(IPC_CHANNELS.NOTIFICATION_GET_HISTORY, { limit }).then(r => r.history),
+
+  /**
+   * Listen for notification clicks
+   * @param {Function} callback - Callback function
+   * @returns {Function} Cleanup function
+   */
+  onClicked: (callback) => {
+    const listener = (event, data) => callback(data);
+    ipcRenderer.on(IPC_CHANNELS.NOTIFICATION_CLICKED, listener);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.NOTIFICATION_CLICKED, listener);
+  },
+
+  /**
+   * Listen for notification action clicks
+   * @param {Function} callback - Callback function
+   * @returns {Function} Cleanup function
+   */
+  onActionClicked: (callback) => {
+    const listener = (event, data) => callback(data);
+    ipcRenderer.on(IPC_CHANNELS.NOTIFICATION_ACTION_CLICKED, listener);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.NOTIFICATION_ACTION_CLICKED, listener);
+  },
+
+  /**
+   * Listen for notification close events
+   * @param {Function} callback - Callback function
+   * @returns {Function} Cleanup function
+   */
+  onClosed: (callback) => {
+    const listener = (event, data) => callback(data);
+    ipcRenderer.on(IPC_CHANNELS.NOTIFICATION_CLOSED, listener);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.NOTIFICATION_CLOSED, listener);
+  },
+};
+
+/**
+ * Deep Linking API
+ */
+const deepLinkAPI = {
+  /**
+   * Listen for deep link events
+   * @param {Function} callback - Callback function
+   * @returns {Function} Cleanup function
+   */
+  onReceived: (callback) => {
+    const listener = (event, data) => callback(data);
+    ipcRenderer.on(IPC_CHANNELS.DEEP_LINK_RECEIVED, listener);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.DEEP_LINK_RECEIVED, listener);
+  },
+};
+
+/**
  * Complete Electron API surface exposed to renderer
  */
 const electronAPI = {
@@ -499,6 +723,12 @@ const electronAPI = {
   log: logAPI,
   file: fileAPI,
   data: dataAPI,
+  tray: trayAPI,
+  shortcuts: shortcutsAPI,
+  progress: progressAPI,
+  recentDocs: recentDocsAPI,
+  notifications: notificationsAPI,
+  deepLink: deepLinkAPI,
 
   // Legacy compatibility - will be deprecated
   setTitle: (title) => windowAPI.getState().then(() => title),
@@ -528,4 +758,10 @@ Object.freeze(eventsAPI);
 Object.freeze(logAPI);
 Object.freeze(fileAPI);
 Object.freeze(dataAPI);
+Object.freeze(trayAPI);
+Object.freeze(shortcutsAPI);
+Object.freeze(progressAPI);
+Object.freeze(recentDocsAPI);
+Object.freeze(notificationsAPI);
+Object.freeze(deepLinkAPI);
 
