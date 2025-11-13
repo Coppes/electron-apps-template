@@ -85,6 +85,46 @@ const storeAPI = {
 };
 
 /**
+ * Secure Store API - Encrypted storage for sensitive data
+ */
+const secureStoreAPI = {
+  /**
+   * Store an encrypted value
+   * @param {string} key - Storage key
+   * @param {*} value - Value to encrypt and store
+   * @returns {Promise<Object>} Result with success status
+   */
+  set: (key, value) => ipcRenderer.invoke(IPC_CHANNELS.SECURE_STORE_SET, { key, value }),
+
+  /**
+   * Retrieve and decrypt a value
+   * @param {string} key - Storage key
+   * @returns {Promise<*>} Decrypted value or null if not found
+   */
+  get: (key) => ipcRenderer.invoke(IPC_CHANNELS.SECURE_STORE_GET, { key }),
+
+  /**
+   * Delete an encrypted value
+   * @param {string} key - Storage key
+   * @returns {Promise<Object>} Result with success status
+   */
+  delete: (key) => ipcRenderer.invoke(IPC_CHANNELS.SECURE_STORE_DELETE, { key }),
+
+  /**
+   * Check if an encrypted value exists
+   * @param {string} key - Storage key
+   * @returns {Promise<boolean>} True if the key exists
+   */
+  has: (key) => ipcRenderer.invoke(IPC_CHANNELS.SECURE_STORE_HAS, { key }),
+
+  /**
+   * Check if encryption is available on this platform
+   * @returns {Promise<boolean>} True if encryption is available
+   */
+  isAvailable: () => ipcRenderer.invoke(IPC_CHANNELS.SECURE_STORE_IS_AVAILABLE, {}),
+};
+
+/**
  * Dialog API
  */
 const dialogAPI = {
@@ -275,6 +315,7 @@ const logAPI = {
 const electronAPI = {
   window: windowAPI,
   store: storeAPI,
+  secureStore: secureStoreAPI,
   dialog: dialogAPI,
   app: appAPI,
   system: systemAPI,
@@ -298,6 +339,7 @@ contextBridge.exposeInMainWorld('electronAPI', electronAPI);
 Object.freeze(electronAPI);
 Object.freeze(windowAPI);
 Object.freeze(storeAPI);
+Object.freeze(secureStoreAPI);
 Object.freeze(dialogAPI);
 Object.freeze(appAPI);
 Object.freeze(systemAPI);
