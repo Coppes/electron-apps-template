@@ -9,6 +9,7 @@ import DataManagementDemoPage from './components/pages/DataManagementDemoPage';
 import ConnectivityDemoPage from './components/pages/ConnectivityDemoPage';
 import IPCDemoPage from './components/pages/IPCDemoPage';
 import SecureStorageDemoPage from './components/pages/SecureStorageDemoPage';
+import OSIntegrationDemoPage from './pages/OSIntegrationDemoPage';
 import TestPage from './components/pages/TestPage';
 import { UpdateNotification } from './components/shared/UpdateNotification';
 import ErrorBoundary from './components/shared/ErrorBoundary';
@@ -88,6 +89,8 @@ function App() {
               return <IPCDemoPage />;
             case 'secure-storage-demo':
               return <SecureStorageDemoPage />;
+            case 'os-integration-demo':
+              return <OSIntegrationDemoPage />;
             case 'backups':
               return <BackupPage />;
             case 'sync':

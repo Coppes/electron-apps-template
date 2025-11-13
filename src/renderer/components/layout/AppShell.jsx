@@ -92,6 +92,13 @@ const AppShell = ({ children }) => {
               >
                 🔐 Secure Storage
               </Button>
+              <Button
+                variant={currentPage === 'os-integration-demo' ? 'default' : 'ghost'}
+                className="w-full justify-start"
+                onClick={() => setCurrentPage('os-integration-demo')}
+              >
+                💻 OS Integration
+              </Button>
             </div>
           </div>
 
