@@ -1,6 +1,6 @@
-import { IPC_CHANNELS } from '../../common/constants.js';
-import { shortcutManager } from '../shortcuts.js';
-import { windowManager } from '../window-manager.js';
+import { IPC_CHANNELS } from '../../../common/constants.js';
+import { shortcutManager } from '../../shortcuts.js';
+import { windowManager } from '../../window-manager.js';
 
 /**
  * Global Shortcuts IPC Handlers

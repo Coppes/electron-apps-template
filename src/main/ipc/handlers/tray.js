@@ -1,7 +1,7 @@
-import { IPC_CHANNELS } from '../../common/constants.js';
-import { trayManager } from '../tray.js';
-import { windowManager } from '../window-manager.js';
-import { logger } from '../logger.js';
+import { IPC_CHANNELS } from '../../../common/constants.js';
+import { trayManager } from '../../tray.js';
+import { windowManager } from '../../window-manager.js';
+import { logger } from '../../logger.js';
 import { app } from 'electron';
 
 /**

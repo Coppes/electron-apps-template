@@ -1,5 +1,5 @@
-import { IPC_CHANNELS } from '../../common/constants.js';
-import { notificationManager } from '../notifications.js';
+import { IPC_CHANNELS } from '../../../common/constants.js';
+import { notificationManager } from '../../notifications.js';
 import { existsSync } from 'fs';
 import { isAbsolute } from 'path';
 
