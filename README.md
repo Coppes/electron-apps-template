@@ -61,6 +61,14 @@ A secure, scalable, and modern boilerplate template for creating desktop applica
   - Native file dialog integration
   - Error boundaries for graceful failures
 
+- ✅ **Data Management** ([See full docs](docs/DATA_MANAGEMENT.md))
+  - Drag & drop file handling
+  - Backup & restore with ZIP compression
+  - Import/export (JSON, CSV, Markdown)
+  - File watching with change detection
+  - Offline mode with sync queue
+  - Worker threads for CPU-intensive tasks
+
 ## 📦 Installation
 
 ```bash
@@ -242,7 +250,96 @@ contextBridge.exposeInMainWorld('electronAPI', {
 const versions = await window.electronAPI.getVersion();
 ```
 
-## 📦 Building & Distribution
+## � Data Management APIs
+
+### Drag & Drop
+
+```jsx
+import { useDragDrop } from './hooks/useDragDrop';
+
+function MyComponent() {
+  const { isDragging, handleDrop } = useDragDrop({
+    onFileDrop: async (files) => {
+      console.log('Files dropped:', files);
+    }
+  });
+
+  return (
+    <div onDrop={handleDrop} className={isDragging ? 'opacity-50' : ''}>
+      Drop files here
+    </div>
+  );
+}
+```
+
+### Backup & Restore
+
+```javascript
+// Create backup
+const result = await window.electronAPI.data.createBackup({
+  includeSecureStorage: true
+});
+
+// List backups
+const backups = await window.electronAPI.data.listBackups();
+
+// Restore backup
+await window.electronAPI.data.restoreBackup({
+  filename: 'backup-2025-11-13.zip'
+});
+```
+
+### Import & Export
+
+```javascript
+// Export data as JSON
+await window.electronAPI.data.exportData({
+  path: '/path/to/export.json',
+  format: 'json',
+  data: myData
+});
+
+// Import data from CSV
+const result = await window.electronAPI.data.importData({
+  path: '/path/to/import.csv',
+  format: 'csv'
+});
+```
+
+### File Watching
+
+```javascript
+// Watch file for changes
+await window.electronAPI.files.watchFile('/path/to/file.txt');
+
+// Listen for changes
+window.electronAPI.files.onFileChanged((data) => {
+  console.log('File changed:', data.path, data.event);
+});
+
+// Stop watching
+await window.electronAPI.files.unwatchFile('/path/to/file.txt');
+```
+
+### Offline Mode & Sync
+
+```javascript
+// Check connectivity
+const status = await window.electronAPI.connectivity.getStatus();
+
+// Queue operation for sync
+await window.electronAPI.sync.enqueue({
+  type: 'update',
+  data: { id: 1, changes: {...} }
+});
+
+// View sync queue
+const queue = await window.electronAPI.sync.getQueueStatus();
+```
+
+See [Data Management Documentation](docs/DATA_MANAGEMENT.md) for complete API reference.
+
+## �📦 Building & Distribution
 
 The template uses Electron Forge with makers for multiple platforms:
 

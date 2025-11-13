@@ -302,6 +302,168 @@ npm test -- --no-coverage --reporter=verbose
 npm run build  # Verifica tamanho do bundle
 ```
 
+## Padrões de Gerenciamento de Dados
+
+### Arquitetura de Camadas
+
+O template segue uma arquitetura em camadas para gerenciamento de dados:
+
+```
+┌─────────────────────────────────────┐
+│   Renderer (React Components)       │  ← UI Layer
+├─────────────────────────────────────┤
+│   Hooks (useDragDrop, etc)          │  ← State Management
+├─────────────────────────────────────┤
+│   Preload (contextBridge APIs)      │  ← IPC Bridge
+├─────────────────────────────────────┤
+│   IPC Handlers (files.js, data.js)  │  ← Request Validation
+├─────────────────────────────────────┤
+│   Data Services (backup, import)    │  ← Business Logic
+├─────────────────────────────────────┤
+│   Storage (electron-store, fs)      │  ← Persistence Layer
+└─────────────────────────────────────┘
+```
+
+### Padrão: Operações de Arquivo
+
+1. **Validação de Segurança**: Sempre valide paths e conteúdo
+```javascript
+import { validateFilePath, sanitizeContent } from './security/data-security.js';
+
+async function handleFileOperation(filePath, content) {
+  // Validar path
+  const pathValidation = validateFilePath(filePath);
+  if (!pathValidation.valid) {
+    throw new Error(pathValidation.error);
+  }
+
+  // Sanitizar conteúdo
+  const clean = sanitizeContent(content);
+  
+  // Processar...
+}
+```
+
+2. **Rate Limiting**: Proteja contra abuso
+```javascript
+import { fileOperationLimiter } from './security/data-security.js';
+
+if (!fileOperationLimiter.isAllowed(userId)) {
+  throw new Error('RATE_LIMIT_EXCEEDED');
+}
+```
+
+3. **Worker Threads**: Para operações pesadas
+```javascript
+import { getZipWorkerPool } from './workers/worker-pool.js';
+
+const pool = getZipWorkerPool();
+const result = await pool.execute({
+  operation: 'create',
+  outputPath: zipPath,
+  files: filesToBackup
+});
+```
+
+### Padrão: Sync Queue Offline-First
+
+```javascript
+// 1. Enfileirar operação
+await syncQueue.enqueue({
+  type: 'update',
+  data: { id: 1, changes: {...} }
+});
+
+// 2. Processar quando online
+connectivityManager.addListener((isOnline) => {
+  if (isOnline) {
+    syncQueue.process();
+  }
+});
+
+// 3. Monitorar progresso
+const status = syncQueue.getStatus();
+console.log(`${status.synced}/${status.total} synced`);
+```
+
+### Padrão: Streaming para Arquivos Grandes
+
+```javascript
+// Import/Export com streaming (>10MB)
+import { createReadStream } from 'fs';
+
+if (fileSize > 10 * 1024 * 1024) {
+  // Usar streaming
+  const stream = createReadStream(filePath);
+  const data = await handler.importStream(stream, options);
+} else {
+  // Leitura direta
+  const content = await fs.readFile(filePath, 'utf8');
+  const data = await handler.import(content, options);
+}
+```
+
+### Padrão: Cleanup de Recursos
+
+```javascript
+// Sempre limpe watchers e listeners
+class MyManager {
+  cleanup() {
+    // Parar timers
+    if (this.pollTimer) {
+      clearInterval(this.pollTimer);
+    }
+    
+    // Limpar listeners
+    this.listeners.clear();
+    
+    // Fechar watchers
+    for (const watcher of this.watchers.values()) {
+      watcher.close();
+    }
+    
+    logger.info('Cleanup complete');
+  }
+}
+
+// Registrar no lifecycle
+app.on('before-quit', async () => {
+  await myManager.cleanup();
+});
+```
+
+### Performance Best Practices
+
+1. **Batch Processing**: Processe operações em lotes
+```javascript
+const BATCH_SIZE = 10;
+for (let i = 0; i < items.length; i += BATCH_SIZE) {
+  const batch = items.slice(i, i + BATCH_SIZE);
+  await processBatch(batch);
+}
+```
+
+2. **Concurrency Limiting**: Limite operações simultâneas
+```javascript
+const CONCURRENT_LIMIT = 3;
+for (let j = 0; j < batch.length; j += CONCURRENT_LIMIT) {
+  const chunk = batch.slice(j, j + CONCURRENT_LIMIT);
+  await Promise.all(chunk.map(item => processItem(item)));
+}
+```
+
+3. **Memory Profiling**: Monitore uso de memória
+```javascript
+const startMemory = process.memoryUsage();
+// ... operação pesada ...
+const endMemory = process.memoryUsage();
+const delta = endMemory.heapUsed - startMemory.heapUsed;
+
+if (delta > 10 * 1024 * 1024 && global.gc) {
+  global.gc(); // Trigger GC se >10MB
+}
+```
+
 ## Recursos Adicionais
 
 - [Documentação Electron](https://www.electronjs.org/docs)
