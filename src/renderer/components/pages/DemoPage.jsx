@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui
 import Button from '../ui/Button';
 import Textarea from '../ui/Textarea';
 import Separator from '../ui/Separator';
+import SecureStorageDemo from '../SecureStorageDemo';
 
 const DemoPage = () => {
   const [fileContent, setFileContent] = useState('');
@@ -179,6 +180,19 @@ const DemoPage = () => {
                 </p>
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Secure Storage Demo */}
+        <Card>
+          <CardHeader>
+            <CardTitle>🔐 Secure Storage</CardTitle>
+            <CardDescription>
+              Securely store sensitive data using OS-level encryption
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <SecureStorageDemo />
           </CardContent>
         </Card>
       </div>
