@@ -168,8 +168,7 @@
 - [x] 115. Optimize file watcher debouncing (tune delay for responsiveness)
 - [x] 116. Add queue processing throttling (limit concurrent operations)
 - [x] 117. Implement memory cleanup for watchers and listeners
-- [ ] 118. Add performance profiling hooks (timing, memory usage)
-- [ ] 118. Profile and optimize backup/restore for large datasets
+- [x] 118. Add performance profiling hooks (timing, memory usage)
 
 ### Cross-Platform Testing (7 tasks)
 
