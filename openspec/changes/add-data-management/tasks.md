@@ -152,14 +152,14 @@
 
 ### Security & Validation (8 tasks)
 
-- [ ] 105. Audit all file path handling for security (no path traversal)
-- [ ] 106. Add file extension allowlist configuration in settings
-- [ ] 107. Implement rate limiting for file operations (prevent abuse)
-- [ ] 108. Add file size limits with configurable overrides
-- [ ] 109. Sanitize all imported data (prevent XSS in Markdown/CSV)
-- [ ] 110. Add integrity checks for all backup operations (checksums)
-- [ ] 111. Validate all IPC parameters in handlers
-- [ ] 112. Conduct security review of all data management code
+- [x] 105. Audit all file path handling for security (no path traversal)
+- [x] 106. Add file extension allowlist configuration in settings
+- [x] 107. Implement rate limiting for file operations (prevent abuse)
+- [x] 108. Add file size limits with configurable overrides
+- [x] 109. Sanitize all imported data (prevent XSS in Markdown/CSV)
+- [x] 110. Add integrity checks for all backup operations (checksums)
+- [x] 111. Validate all IPC parameters in handlers
+- [x] 112. Conduct security review of all data management code
 
 ### Performance Optimization (6 tasks)
 
