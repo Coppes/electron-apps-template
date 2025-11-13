@@ -13,7 +13,7 @@
 - [x] 7. Create DropZone component in `src/renderer/components/DropZone.jsx` with drag event handlers
 - [x] 8. Implement startDrag IPC handler for dragging files from app to desktop
 - [x] 9. Add file drop IPC handler with security validation
-- [ ] 10. Write tests for file path validation and security checks
+- [x] 10. Write tests for file path validation and security checks
 
 ### Backup Manager Core (12 tasks)
 
@@ -28,7 +28,7 @@
 - [x] 19. Create backup retention policy (auto-delete old backups, configurable limit)
 - [x] 20. Add IPC handlers in `src/main/ipc/handlers/data.js` for backup operations
 - [x] 21. Integrate SQLite backup support (conditional on add-secure-storage presence)
-- [ ] 22. Write tests for backup creation, restoration, and integrity checks
+- [x] 22. Write tests for backup creation, restoration, and integrity checks
 
 ### File Watching Service (8 tasks)
 
@@ -39,7 +39,7 @@
 - [x] 27. Create IPC event emitter for file change notifications (FILE_CHANGED)
 - [x] 28. Handle edge cases (file deletion, rename, rapid changes)
 - [x] 29. Add file watcher registry to track active watchers
-- [ ] 30. Write tests for file watching, debouncing, and conflict detection
+- [x] 30. Write tests for file watching, debouncing, and conflict detection
 
 ## Phase 2: Import/Export System (Sequential)
 
@@ -195,7 +195,7 @@
 
 ### Final Testing & Validation (10 tasks)
 
-- [ ] 134. Run `openspec validate add-data-management --strict` and fix all issues
+- [x] 134. Run `openspec validate add-data-management --strict` and fix all issues
 - [ ] 135. Verify all 6 specs pass validation
 - [ ] 136. Run full test suite and ensure 100% pass rate
 - [ ] 137. Test all features with screen reader (accessibility check)
