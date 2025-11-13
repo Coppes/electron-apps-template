@@ -26,6 +26,34 @@ export const IPC_CHANNELS = {
   SECURE_STORE_HAS: 'secure-store:has',
   SECURE_STORE_IS_AVAILABLE: 'secure-store:is-available',
   
+  // File Operations (Drag and Drop)
+  FILE_DROP: 'file:drop',
+  FILE_DRAG_START: 'file:drag-start',
+  FILE_VALIDATE_PATH: 'file:validate-path',
+  
+  // Data Management (Backup/Restore)
+  DATA_CREATE_BACKUP: 'data:create-backup',
+  DATA_LIST_BACKUPS: 'data:list-backups',
+  DATA_RESTORE_BACKUP: 'data:restore-backup',
+  DATA_DELETE_BACKUP: 'data:delete-backup',
+  
+  // Data Management (Import/Export)
+  DATA_IMPORT: 'data:import',
+  DATA_EXPORT: 'data:export',
+  DATA_LIST_FORMATS: 'data:list-formats',
+  
+  // File Watching
+  FILE_WATCH_START: 'file:watch-start',
+  FILE_WATCH_STOP: 'file:watch-stop',
+  FILE_CHANGED: 'file:changed',
+  
+  // Connectivity & Sync
+  CONNECTIVITY_STATUS: 'connectivity:status',
+  SYNC_QUEUE_ADD: 'sync:queue-add',
+  SYNC_QUEUE_PROCESS: 'sync:queue-process',
+  SYNC_QUEUE_STATUS: 'sync:queue-status',
+  SYNC_STATUS_CHANGED: 'sync:status-changed',
+  
   // Dialog
   DIALOG_OPEN_FILE: 'dialog:open-file',
   DIALOG_SAVE_FILE: 'dialog:save-file',
