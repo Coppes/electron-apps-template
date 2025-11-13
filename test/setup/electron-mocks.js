@@ -83,6 +83,7 @@ export const mockWebContents = {
 
 // Mock app
 export const mockApp = {
+  isPackaged: false,
   getVersion: vi.fn(() => '1.0.0'),
   getName: vi.fn(() => 'Test App'),
   getPath: vi.fn((name) => `/mock/path/${name}`),
