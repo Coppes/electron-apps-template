@@ -182,14 +182,14 @@
 
 ### Documentation & Examples (8 tasks)
 
-- [ ] 126. Document drag-drop API in README (useDragDrop hook, DropZone component)
-- [ ] 127. Document backup/restore workflow in user guide
-- [ ] 128. Document import/export formats and schema requirements
-- [ ] 129. Document file watching behavior and conflict resolution
-- [ ] 130. Document offline mode and sync queue architecture
-- [ ] 131. Add code examples for each data management feature
+- [x] 126. Document drag-drop API in README (useDragDrop hook, DropZone component)
+- [x] 127. Document backup/restore workflow in user guide
+- [x] 128. Document import/export formats and schema requirements
+- [x] 129. Document file watching behavior and conflict resolution
+- [x] 130. Document offline mode and sync queue architecture
+- [x] 131. Add code examples for each data management feature
 - [ ] 132. Create video demo showcasing all features
-- [ ] 133. Update DEVELOPMENT.md with data management patterns
+- [x] 133. Update DEVELOPMENT.md with data management patterns
 
 ## Phase 6: Validation & Refinement (Sequential)
 
