@@ -2,6 +2,7 @@ import { BrowserWindow } from 'electron';
 import { logger } from '../../logger.js';
 import { createErrorResponse, createSuccessResponse } from '../bridge.js';
 import { IPC_CHANNELS } from '../../../common/constants.js';
+import { setProgress, clearProgress } from '../../progress.js';
 
 /**
  * Window management IPC handlers
@@ -134,5 +135,37 @@ export function createWindowHandlers(windowManager) {
     [IPC_CHANNELS.WINDOW_MINIMIZE]: minimizeWindowHandler(),
     [IPC_CHANNELS.WINDOW_MAXIMIZE]: maximizeWindowHandler(),
     [IPC_CHANNELS.WINDOW_GET_STATE]: getWindowStateHandler(windowManager),
+    [IPC_CHANNELS.PROGRESS_SET]: progressSetHandler(),
+    [IPC_CHANNELS.PROGRESS_CLEAR]: progressClearHandler(),
+  };
+}
+
+/**
+ * Set progress handler
+ */
+function progressSetHandler() {
+  return async (event, { value, windowId, state }) => {
+    try {
+      const success = setProgress(value, { windowId, state });
+      return createSuccessResponse({ success });
+    } catch (error) {
+      logger.error('Failed to set progress', error);
+      return createErrorResponse(error.message, 'PROGRESS_SET_FAILED');
+    }
+  };
+}
+
+/**
+ * Clear progress handler
+ */
+function progressClearHandler() {
+  return async (event, { windowId } = {}) => {
+    try {
+      const success = clearProgress(windowId);
+      return createSuccessResponse({ success });
+    } catch (error) {
+      logger.error('Failed to clear progress', error);
+      return createErrorResponse(error.message, 'PROGRESS_CLEAR_FAILED');
+    }
   };
 }
