@@ -1,0 +1,346 @@
+/**
+ * Backup Manager
+ * Handles backup and restore operations for application data
+ */
+
+import path from 'path';
+import fs from 'fs/promises';
+import { createWriteStream, createReadStream } from 'fs';
+import archiver from 'archiver';
+import { app } from 'electron';
+import { createHash } from 'crypto';
+import Store from 'electron-store';
+import { logger } from '../logger.js';
+
+const store = new Store();
+const BACKUP_METADATA_KEY = 'backup:history';
+const DEFAULT_BACKUP_DIR = path.join(app.getPath('userData'), 'backups');
+const MAX_BACKUPS = 10;
+
+/**
+ * Backup Manager Class
+ * Manages backup creation, restoration, and history
+ */
+export class BackupManager {
+  constructor(options = {}) {
+    this.backupDir = options.backupDir || DEFAULT_BACKUP_DIR;
+    this.maxBackups = options.maxBackups || MAX_BACKUPS;
+    this.includeUserFiles = options.includeUserFiles || false;
+  }
+
+  /**
+   * Initialize backup directory
+   */
+  async initialize() {
+    try {
+      await fs.mkdir(this.backupDir, { recursive: true });
+      logger.info(`Backup directory initialized: ${this.backupDir}`);
+    } catch (error) {
+      logger.error('Failed to initialize backup directory:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create a backup
+   * @param {object} options - Backup options
+   * @returns {Promise<object>} Backup metadata
+   */
+  async createBackup(options = {}) {
+    const { type = 'manual', includeDatabase = true } = options;
+
+    try {
+      await this.initialize();
+
+      const timestamp = new Date().toISOString().replace(/:/g, '-').split('.')[0];
+      const backupFilename = `backup-${timestamp}.zip`;
+      const backupPath = path.join(this.backupDir, backupFilename);
+
+      logger.info(`Creating ${type} backup: ${backupFilename}`);
+
+      // Create manifest
+      const manifest = {
+        version: app.getVersion(),
+        type,
+        timestamp: new Date().toISOString(),
+        platform: process.platform,
+        includes: []
+      };
+
+      // Create ZIP archive
+      const output = createWriteStream(backupPath);
+      const archive = archiver('zip', {
+        zlib: { level: 9 } // Maximum compression
+      });
+
+      return new Promise((resolve, reject) => {
+        output.on('close', async () => {
+          try {
+            // Calculate checksum
+            const checksum = await this.calculateChecksum(backupPath);
+            manifest.checksum = checksum;
+            manifest.size = archive.pointer();
+
+            // Save backup metadata
+            await this.addToHistory(backupFilename, manifest);
+
+            // Cleanup old backups
+            await this.cleanupOldBackups();
+
+            logger.info(`Backup created successfully: ${backupFilename} (${manifest.size} bytes)`);
+
+            resolve({
+              success: true,
+              backup: {
+                filename: backupFilename,
+                path: backupPath,
+                ...manifest
+              }
+            });
+          } catch (error) {
+            reject(error);
+          }
+        });
+
+        archive.on('error', (error) => {
+          logger.error('Archive error:', error);
+          reject(error);
+        });
+
+        archive.pipe(output);
+
+        // Add electron-store data
+        this.addStoreData(archive, manifest);
+
+        // Add database if present and requested
+        if (includeDatabase) {
+          this.addDatabaseData(archive, manifest);
+        }
+
+        // Add user files if configured
+        if (this.includeUserFiles) {
+          this.addUserFiles(archive, manifest);
+        }
+
+        // Add manifest
+        archive.append(JSON.stringify(manifest, null, 2), { name: 'manifest.json' });
+
+        archive.finalize();
+      });
+    } catch (error) {
+      logger.error('Backup creation failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Add electron-store data to archive
+   */
+  addStoreData(archive, manifest) {
+    try {
+      const storeData = store.store;
+      archive.append(JSON.stringify(storeData, null, 2), {
+        name: 'electron-store/config.json'
+      });
+      manifest.includes.push('electron-store');
+      logger.debug('Added electron-store data to backup');
+    } catch (error) {
+      logger.error('Failed to add store data:', error);
+    }
+  }
+
+  /**
+   * Add database data to archive (conditional on add-secure-storage)
+   */
+  async addDatabaseData(archive, manifest) {
+    try {
+      // Check if database file exists
+      const dbPath = path.join(app.getPath('userData'), 'database.db');
+      
+      try {
+        await fs.access(dbPath);
+        archive.file(dbPath, { name: 'databases/database.db' });
+        manifest.includes.push('database');
+        logger.debug('Added database to backup');
+      } catch {
+        // Database doesn't exist, skip
+        logger.debug('No database found, skipping');
+      }
+    } catch (error) {
+      logger.error('Failed to add database:', error);
+    }
+  }
+
+  /**
+   * Add user files to archive (optional)
+   */
+  async addUserFiles(archive, manifest) {
+    try {
+      const userFilesDir = path.join(app.getPath('userData'), 'user-files');
+      
+      try {
+        await fs.access(userFilesDir);
+        archive.directory(userFilesDir, 'user-files');
+        manifest.includes.push('user-files');
+        logger.debug('Added user files to backup');
+      } catch {
+        // User files don't exist, skip
+        logger.debug('No user files found, skipping');
+      }
+    } catch (error) {
+      logger.error('Failed to add user files:', error);
+    }
+  }
+
+  /**
+   * Calculate file checksum (SHA-256)
+   */
+  calculateChecksum(filePath) {
+    return new Promise((resolve, reject) => {
+      const hash = createHash('sha256');
+      const stream = createReadStream(filePath);
+
+      stream.on('data', (data) => hash.update(data));
+      stream.on('end', () => resolve(hash.digest('hex')));
+      stream.on('error', reject);
+    });
+  }
+
+  /**
+   * List all available backups
+   */
+  async listBackups() {
+    try {
+      const history = store.get(BACKUP_METADATA_KEY, []);
+      
+      // Verify backups still exist
+      const validBackups = [];
+      for (const backup of history) {
+        const backupPath = path.join(this.backupDir, backup.filename);
+        try {
+          await fs.access(backupPath);
+          validBackups.push(backup);
+        } catch {
+          logger.warn(`Backup file missing: ${backup.filename}`);
+        }
+      }
+
+      // Update history if backups were removed
+      if (validBackups.length !== history.length) {
+        store.set(BACKUP_METADATA_KEY, validBackups);
+      }
+
+      return {
+        success: true,
+        backups: validBackups,
+        total: validBackups.length
+      };
+    } catch (error) {
+      logger.error('Failed to list backups:', error);
+      return {
+        success: false,
+        error: error.message,
+        backups: []
+      };
+    }
+  }
+
+  /**
+   * Delete a backup
+   */
+  async deleteBackup(filename) {
+    try {
+      const backupPath = path.join(this.backupDir, filename);
+      
+      // Delete file
+      await fs.unlink(backupPath);
+
+      // Remove from history
+      const history = store.get(BACKUP_METADATA_KEY, []);
+      const updatedHistory = history.filter(b => b.filename !== filename);
+      store.set(BACKUP_METADATA_KEY, updatedHistory);
+
+      logger.info(`Backup deleted: ${filename}`);
+
+      return {
+        success: true,
+        deleted: filename
+      };
+    } catch (error) {
+      logger.error(`Failed to delete backup ${filename}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Restore from backup
+   */
+  async restoreBackup(filename) {
+    try {
+      const backupPath = path.join(this.backupDir, filename);
+
+      // Verify backup exists
+      await fs.access(backupPath);
+
+      // TODO: Implement extraction and restoration
+      // This is a placeholder - full implementation requires:
+      // 1. Extract ZIP to temp directory
+      // 2. Verify manifest and checksum
+      // 3. Stop app operations
+      // 4. Replace current data with backup data
+      // 5. Restart app
+
+      logger.info(`Restore backup: ${filename} (not yet fully implemented)`);
+
+      return {
+        success: true,
+        message: 'Restore functionality coming soon',
+        backup: filename
+      };
+    } catch (error) {
+      logger.error(`Failed to restore backup ${filename}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Add backup to history
+   */
+  async addToHistory(filename, manifest) {
+    const history = store.get(BACKUP_METADATA_KEY, []);
+    history.unshift({
+      filename,
+      ...manifest
+    });
+    store.set(BACKUP_METADATA_KEY, history);
+  }
+
+  /**
+   * Cleanup old backups
+   */
+  async cleanupOldBackups() {
+    try {
+      const history = store.get(BACKUP_METADATA_KEY, []);
+
+      if (history.length > this.maxBackups) {
+        const toDelete = history.slice(this.maxBackups);
+        
+        for (const backup of toDelete) {
+          try {
+            await this.deleteBackup(backup.filename);
+            logger.info(`Cleaned up old backup: ${backup.filename}`);
+          } catch (error) {
+            logger.warn(`Failed to cleanup backup ${backup.filename}:`, error);
+          }
+        }
+      }
+    } catch (error) {
+      logger.error('Cleanup failed:', error);
+    }
+  }
+}
+
+// Create singleton instance
+const backupManager = new BackupManager();
+
+export default backupManager;
