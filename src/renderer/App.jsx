@@ -5,10 +5,15 @@ import DemoPage from './components/pages/DemoPage';
 import SettingsPage from './components/pages/SettingsPage';
 import AboutPage from './components/pages/AboutPage';
 import BackupPage from './components/pages/BackupPage';
-import { UpdateNotification } from './components/UpdateNotification';
-import ErrorBoundary from './components/ErrorBoundary';
-import SyncQueueViewer from './components/SyncQueueViewer';
-import OfflineIndicator from './components/OfflineIndicator';
+import DataManagementDemoPage from './components/pages/DataManagementDemoPage';
+import ConnectivityDemoPage from './components/pages/ConnectivityDemoPage';
+import IPCDemoPage from './components/pages/IPCDemoPage';
+import SecureStorageDemoPage from './components/pages/SecureStorageDemoPage';
+import TestPage from './components/pages/TestPage';
+import { UpdateNotification } from './components/shared/UpdateNotification';
+import ErrorBoundary from './components/shared/ErrorBoundary';
+import SyncQueueViewer from './components/features/data-management/SyncQueueViewer';
+import OfflineIndicator from './components/shared/OfflineIndicator';
 
 function App() {
   const [updateInfo, setUpdateInfo] = useState(null);
@@ -75,10 +80,20 @@ function App() {
               return <HomePage />;
             case 'demo':
               return <DemoPage />;
+            case 'data-management-demo':
+              return <DataManagementDemoPage />;
+            case 'connectivity-demo':
+              return <ConnectivityDemoPage />;
+            case 'ipc-demo':
+              return <IPCDemoPage />;
+            case 'secure-storage-demo':
+              return <SecureStorageDemoPage />;
             case 'backups':
               return <BackupPage />;
             case 'sync':
               return <SyncQueueViewer />;
+            case 'test':
+              return <TestPage />;
             case 'settings':
               return <SettingsPage />;
             case 'about':

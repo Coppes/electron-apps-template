@@ -8,6 +8,7 @@ const AppShell = ({ children }) => {
   const [sidebarWidth, setSidebarWidth] = useState(250);
   const [isResizing, setIsResizing] = useState(false);
   const [currentPage, setCurrentPage] = useState('home');
+  const isDevelopment = process.env.NODE_ENV === 'development';
 
   const handleMouseDown = () => {
     setIsResizing(true);
@@ -41,7 +42,7 @@ const AppShell = ({ children }) => {
           <h2 className="text-lg font-semibold">Electron App</h2>
         </div>
 
-        <nav className="flex-1 p-4 space-y-2">
+        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
           <Button
             variant={currentPage === 'home' ? 'default' : 'ghost'}
             className="w-full justify-start"
@@ -49,41 +50,114 @@ const AppShell = ({ children }) => {
           >
             🏠 Home
           </Button>
-          <Button
-            variant={currentPage === 'demo' ? 'default' : 'ghost'}
-            className="w-full justify-start"
-            onClick={() => setCurrentPage('demo')}
-          >
-            🔧 Demo
-          </Button>
-          <Button
-            variant={currentPage === 'backups' ? 'default' : 'ghost'}
-            className="w-full justify-start"
-            onClick={() => setCurrentPage('backups')}
-          >
-            💾 Backups
-          </Button>
-          <Button
-            variant={currentPage === 'sync' ? 'default' : 'ghost'}
-            className="w-full justify-start"
-            onClick={() => setCurrentPage('sync')}
-          >
-            🔄 Sync Queue
-          </Button>
-          <Button
-            variant={currentPage === 'settings' ? 'default' : 'ghost'}
-            className="w-full justify-start"
-            onClick={() => setCurrentPage('settings')}
-          >
-            ⚙️ Settings
-          </Button>
-          <Button
-            variant={currentPage === 'about' ? 'default' : 'ghost'}
-            className="w-full justify-start"
-            onClick={() => setCurrentPage('about')}
-          >
-            ℹ️ About
-          </Button>
+          
+          {/* Demos Section */}
+          <div className="pt-4 pb-2">
+            <div className="text-xs font-semibold text-muted-foreground uppercase px-3 pb-2">
+              Demos
+            </div>
+            <div className="space-y-1">
+              <Button
+                variant={currentPage === 'demo' ? 'default' : 'ghost'}
+                className="w-full justify-start"
+                onClick={() => setCurrentPage('demo')}
+              >
+                🔧 Legacy Demo
+              </Button>
+              <Button
+                variant={currentPage === 'data-management-demo' ? 'default' : 'ghost'}
+                className="w-full justify-start"
+                onClick={() => setCurrentPage('data-management-demo')}
+              >
+                💾 Data Management
+              </Button>
+              <Button
+                variant={currentPage === 'connectivity-demo' ? 'default' : 'ghost'}
+                className="w-full justify-start"
+                onClick={() => setCurrentPage('connectivity-demo')}
+              >
+                🌐 Connectivity
+              </Button>
+              <Button
+                variant={currentPage === 'ipc-demo' ? 'default' : 'ghost'}
+                className="w-full justify-start"
+                onClick={() => setCurrentPage('ipc-demo')}
+              >
+                🔌 IPC
+              </Button>
+              <Button
+                variant={currentPage === 'secure-storage-demo' ? 'default' : 'ghost'}
+                className="w-full justify-start"
+                onClick={() => setCurrentPage('secure-storage-demo')}
+              >
+                🔐 Secure Storage
+              </Button>
+            </div>
+          </div>
+
+          {/* Data Section */}
+          <div className="pt-2 pb-2">
+            <div className="text-xs font-semibold text-muted-foreground uppercase px-3 pb-2">
+              Data
+            </div>
+            <div className="space-y-1">
+              <Button
+                variant={currentPage === 'backups' ? 'default' : 'ghost'}
+                className="w-full justify-start"
+                onClick={() => setCurrentPage('backups')}
+              >
+                💾 Backups
+              </Button>
+              <Button
+                variant={currentPage === 'sync' ? 'default' : 'ghost'}
+                className="w-full justify-start"
+                onClick={() => setCurrentPage('sync')}
+              >
+                🔄 Sync Queue
+              </Button>
+            </div>
+          </div>
+
+          {/* Settings Section */}
+          <div className="pt-2 pb-2">
+            <div className="text-xs font-semibold text-muted-foreground uppercase px-3 pb-2">
+              Settings
+            </div>
+            <div className="space-y-1">
+              <Button
+                variant={currentPage === 'settings' ? 'default' : 'ghost'}
+                className="w-full justify-start"
+                onClick={() => setCurrentPage('settings')}
+              >
+                ⚙️ Settings
+              </Button>
+              <Button
+                variant={currentPage === 'about' ? 'default' : 'ghost'}
+                className="w-full justify-start"
+                onClick={() => setCurrentPage('about')}
+              >
+                ℹ️ About
+              </Button>
+            </div>
+          </div>
+
+          {/* Development Section */}
+          {isDevelopment && (
+            <div className="pt-2 pb-2">
+              <div className="text-xs font-semibold text-muted-foreground uppercase px-3 pb-2">
+                Development
+              </div>
+              <div className="space-y-1">
+                <Button
+                  variant={currentPage === 'test' ? 'default' : 'ghost'}
+                  className="w-full justify-start"
+                  onClick={() => setCurrentPage('test')}
+                >
+                  🧪 Test Playground
+                </Button>
+              </div>
+            </div>
+          )}
         </nav>
       </aside>
 

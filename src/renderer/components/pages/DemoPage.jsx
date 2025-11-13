@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui
 import Button from '../ui/Button';
 import Textarea from '../ui/Textarea';
 import Separator from '../ui/Separator';
-import SecureStorageDemo from '../SecureStorageDemo';
+import SecureStorageDemo from '../features/secure-storage/SecureStorageDemo';
 
 const DemoPage = () => {
   const [fileContent, setFileContent] = useState('');
