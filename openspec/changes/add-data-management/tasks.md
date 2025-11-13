@@ -103,24 +103,24 @@
 
 ### Backup UI (8 tasks)
 
-- [ ] 73. Create BackupPage component in `src/renderer/components/pages/BackupPage.jsx`
-- [ ] 74. Add backup list view (show history, size, date, type)
-- [ ] 75. Add "Create Backup" button with progress indicator
-- [ ] 76. Add "Restore Backup" button with file picker and confirmation dialog
-- [ ] 77. Add "Delete Backup" button with confirmation
-- [ ] 78. Display backup retention settings (max backups, auto-delete old)
+- [x] 73. Create BackupPage component in `src/renderer/components/pages/BackupPage.jsx`
+- [x] 74. Add backup list view (show history, size, date, type)
+- [x] 75. Add "Create Backup" button with progress indicator
+- [x] 76. Add "Restore Backup" button with file picker and confirmation dialog
+- [x] 77. Add "Delete Backup" button with confirmation
+- [x] 78. Display backup retention settings (max backups, auto-delete old)
 - [ ] 79. Add automatic backup schedule configuration (daily, weekly, never)
-- [ ] 80. Integrate BackupPage into app navigation
+- [x] 80. Integrate BackupPage into app navigation
 
 ### Import/Export UI (7 tasks)
 
 - [ ] 81. Add "Import Data" option to settings menu
-- [ ] 82. Create import dialog with format selection and file picker
+- [x] 82. Create import dialog with format selection and file picker
 - [ ] 83. Add "Export Data" option to settings menu
-- [ ] 84. Create export dialog with format selection and save location picker
-- [ ] 85. Add progress indicator for long import/export operations
-- [ ] 86. Display import/export results (success, errors, records processed)
-- [ ] 87. Add validation error display with user-friendly messages
+- [x] 84. Create export dialog with format selection and save location picker
+- [x] 85. Add progress indicator for long import/export operations
+- [x] 86. Display import/export results (success, errors, records processed)
+- [x] 87. Add validation error display with user-friendly messages
 
 ### Drag-Drop UI (6 tasks)
 
@@ -133,7 +133,7 @@
 
 ### File Watching UI (5 tasks)
 
-- [ ] 94. Create file conflict dialog component (Reload, Keep, Diff options)
+- [x] 94. Create file conflict dialog component (Reload, Keep, Diff options)
 - [ ] 95. Add non-blocking notification when file changes externally
 - [ ] 96. Implement auto-reload option in settings (bypass dialog)
 - [ ] 97. Add file watch status indicator (show which files are being watched)
@@ -141,12 +141,12 @@
 
 ### Offline/Sync UI (6 tasks)
 
-- [ ] 99. Integrate OfflineIndicator into StatusBar (if add-ux-shell-features present)
+- [x] 99. Integrate OfflineIndicator into StatusBar (if add-ux-shell-features present)
 - [ ] 100. Add sync status indicator (syncing, synced, errors)
-- [ ] 101. Create sync queue viewer in developer tools (show pending operations)
-- [ ] 102. Add manual sync trigger button in settings
-- [ ] 103. Display sync errors with retry option
-- [ ] 104. Add conflict resolution dialog (server wins, local wins, manual merge)
+- [x] 101. Create sync queue viewer in developer tools (show pending operations)
+- [x] 102. Add manual sync trigger button in settings
+- [x] 103. Display sync errors with retry option
+- [x] 104. Add conflict resolution dialog (server wins, local wins, manual merge)
 
 ## Phase 5: Integration & Polish (Sequential)
 
