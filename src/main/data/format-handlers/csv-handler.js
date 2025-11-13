@@ -9,7 +9,7 @@ import { parse as parseStream } from 'csv-parse';
 import { stringify as stringifyStream } from 'csv-stringify';
 import { pipeline } from 'stream/promises';
 import { Transform } from 'stream';
-import { getCsvWorkerPool } from '../workers/worker-pool.js';
+import { getCsvWorkerPool } from '../../workers/worker-pool.js';
 
 // Use worker threads for CSV files larger than 1MB
 const WORKER_THRESHOLD = 1 * 1024 * 1024;

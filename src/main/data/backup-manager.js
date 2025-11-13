@@ -361,6 +361,16 @@ export class BackupManager {
     try {
       const backupPath = path.join(this.backupDir, filename);
       
+      // Check if file exists
+      try {
+        await fs.access(backupPath);
+      } catch {
+        return {
+          success: false,
+          error: 'Backup file not found'
+        };
+      }
+      
       // Delete file
       await fs.unlink(backupPath);
 
@@ -377,7 +387,10 @@ export class BackupManager {
       };
     } catch (error) {
       logger.error(`Failed to delete backup ${filename}:`, error);
-      throw error;
+      return {
+        success: false,
+        error: error.message
+      };
     }
   }
 

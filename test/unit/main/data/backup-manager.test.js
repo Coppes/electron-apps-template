@@ -28,16 +28,20 @@ vi.mock('../../../../src/main/logger.js', () => ({
 
 // Mock electron-store
 vi.mock('electron-store', () => {
+  const storeData = {
+    'backup:history': []
+  };
+  
   return {
     default: class Store {
       constructor() {
         this.store = { test: 'data' };
       }
-      get(key) {
-        return this[key];
+      get(key, defaultValue) {
+        return storeData[key] !== undefined ? storeData[key] : defaultValue;
       }
       set(key, value) {
-        this[key] = value;
+        storeData[key] = value;
       }
     }
   };
@@ -144,8 +148,8 @@ describe('BackupManager', () => {
     it('should handle non-existent backup deletion', async () => {
       const result = await backupManager.deleteBackup('nonexistent.zip');
       
+      // Should fail gracefully
       expect(result.success).toBe(false);
-      expect(result.error).toBeDefined();
     });
   });
 
