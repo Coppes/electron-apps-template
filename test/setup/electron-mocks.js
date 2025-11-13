@@ -277,6 +277,41 @@ export const mockElectronAPI = {
     clear: vi.fn(() => Promise.resolve({ success: true })),
   },
 
+  // Secure Store API
+  secureStore: {
+    get: vi.fn((_key) => Promise.resolve(null)),
+    set: vi.fn((_key, _value) => Promise.resolve({ success: true })),
+    delete: vi.fn((_key) => Promise.resolve({ success: true })),
+    has: vi.fn((_key) => Promise.resolve(false)),
+    isAvailable: vi.fn(() => Promise.resolve(true)),
+  },
+
+  // File API
+  file: {
+    validatePath: vi.fn((_path) => Promise.resolve({ success: true, valid: true })),
+  },
+
+  // Data API
+  data: {
+    createBackup: vi.fn((_options) => Promise.resolve({ success: true, filename: 'backup.json' })),
+    listBackups: vi.fn(() => Promise.resolve({ success: true, backups: [] })),
+    restoreBackup: vi.fn((_options) => Promise.resolve({ success: true })),
+    deleteBackup: vi.fn((_options) => Promise.resolve({ success: true })),
+    validateBackup: vi.fn((_options) => Promise.resolve({ success: true, valid: true })),
+    exportData: vi.fn((_options) => Promise.resolve({ success: true, path: '/mock/export.json' })),
+    importData: vi.fn((_options) => Promise.resolve({ success: true })),
+    watchPath: vi.fn((_options) => Promise.resolve({ success: true })),
+    unwatchPath: vi.fn((_options) => Promise.resolve({ success: true })),
+    getSyncStats: vi.fn(() => Promise.resolve({ pending: 0, synced: 0, failed: 0 })),
+    triggerSync: vi.fn(() => Promise.resolve({ success: true })),
+    clearSyncQueue: vi.fn(() => Promise.resolve({ success: true })),
+  },
+
+  // System API
+  system: {
+    getPlatform: vi.fn(() => Promise.resolve({ platform: 'darwin', arch: 'x64' })),
+  },
+
   // App API
   app: {
     getVersion: vi.fn(() => Promise.resolve({ 
@@ -315,6 +350,73 @@ export const mockElectronAPI = {
   update: {
     check: vi.fn(() => Promise.resolve({ success: true })),
     quitAndInstall: vi.fn(() => Promise.resolve({ success: true })),
+  },
+
+  // Tray API
+  tray: {
+    show: vi.fn(() => Promise.resolve({ success: true })),
+    hide: vi.fn(() => Promise.resolve({ success: true })),
+    setIcon: vi.fn((_iconPath) => Promise.resolve({ success: true })),
+    setTooltip: vi.fn((_tooltip) => Promise.resolve({ success: true })),
+    setMenu: vi.fn((_menuTemplate) => Promise.resolve({ success: true })),
+    onMenuItemClick: vi.fn((_callback) => {
+      return () => {};
+    }),
+  },
+
+  // Shortcuts API
+  shortcuts: {
+    register: vi.fn((_accelerator, _description) => Promise.resolve({ success: true })),
+    unregister: vi.fn((_accelerator) => Promise.resolve({ success: true })),
+    unregisterAll: vi.fn(() => Promise.resolve({ success: true })),
+    isRegistered: vi.fn((_accelerator) => Promise.resolve(false)),
+    listActive: vi.fn(() => Promise.resolve([])),
+    onTriggered: vi.fn((_callback) => {
+      return () => {};
+    }),
+  },
+
+  // Progress API
+  progress: {
+    set: vi.fn((_value, _options) => Promise.resolve({ success: true })),
+    clear: vi.fn((_windowId) => Promise.resolve({ success: true })),
+  },
+
+  // Recent Documents API
+  recentDocs: {
+    add: vi.fn((_filePath) => Promise.resolve({ success: true })),
+    clear: vi.fn(() => Promise.resolve({ success: true })),
+  },
+
+  // Notifications API
+  notifications: {
+    show: vi.fn((_options) => Promise.resolve({ success: true, id: 'notif_123' })),
+    close: vi.fn((_id) => Promise.resolve({ success: true })),
+    getHistory: vi.fn((_limit) => Promise.resolve([])),
+    onClicked: vi.fn((_callback) => {
+      return () => {};
+    }),
+    onActionClicked: vi.fn((_callback) => {
+      return () => {};
+    }),
+    onClosed: vi.fn((_callback) => {
+      return () => {};
+    }),
+  },
+
+  // Deep Link API
+  deepLink: {
+    onReceived: vi.fn((_callback) => {
+      return () => {};
+    }),
+  },
+
+  // Log API
+  log: {
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
   },
   
   // Backward compatibility methods (deprecated, to be removed)
