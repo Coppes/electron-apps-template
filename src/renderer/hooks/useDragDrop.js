@@ -1,0 +1,178 @@
+/**
+ * useDragDrop Hook
+ * Custom React hook for handling drag-and-drop operations
+ */
+
+import { useState, useCallback, useEffect } from 'react';
+
+/**
+ * Hook for handling drag-and-drop file operations
+ * @param {object} options - Configuration options
+ * @param {function} options.onDrop - Callback when files are dropped
+ * @param {function} options.onError - Callback when error occurs
+ * @param {boolean} options.multiple - Allow multiple files (default: true)
+ * @param {Array<string>} options.accept - Accepted file extensions
+ * @returns {object} Drag and drop state and handlers
+ */
+export function useDragDrop(options = {}) {
+  const {
+    onDrop,
+    onError,
+    multiple = true,
+    accept = []
+  } = options;
+
+  const [isDragging, setIsDragging] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  // eslint-disable-next-line no-unused-vars
+  const [dragCounter, setDragCounter] = useState(0);
+
+  // Handle drag enter
+  const handleDragEnter = useCallback((event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    setDragCounter(prev => prev + 1);
+    
+    if (event.dataTransfer.items && event.dataTransfer.items.length > 0) {
+      setIsDragging(true);
+    }
+  }, []);
+
+  // Handle drag leave
+  const handleDragLeave = useCallback((event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    setDragCounter(prev => {
+      const newCount = prev - 1;
+      if (newCount === 0) {
+        setIsDragging(false);
+      }
+      return newCount;
+    });
+  }, []);
+
+  // Handle drag over
+  const handleDragOver = useCallback((event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    // Set drop effect
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'copy';
+    }
+  }, []);
+
+  // Handle drop
+  const handleDrop = useCallback(async (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    setIsDragging(false);
+    setDragCounter(0);
+    setIsProcessing(true);
+
+    try {
+      // Extract files from drop event
+      const files = Array.from(event.dataTransfer.files);
+      
+      // Check multiple files constraint
+      if (!multiple && files.length > 1) {
+        if (onError) {
+          onError(new Error('Only one file is allowed'));
+        }
+        return;
+      }
+
+      // Extract file paths
+      const filePaths = files.map(file => file.path);
+
+      // Call IPC to validate and process files
+      const result = await window.api.invoke('file:drop', {
+        filePaths,
+        options: {
+          allowedExtensions: accept.length > 0 ? accept : undefined
+        }
+      });
+
+      if (result.success) {
+        // Call onDrop with valid files
+        if (onDrop) {
+          onDrop(result.validFiles, result);
+        }
+
+        // Report invalid files if any
+        if (result.invalid > 0 && onError) {
+          const errors = result.invalidFiles
+            .map(f => `${f.path}: ${f.error}`)
+            .join(', ');
+          onError(new Error(`Invalid files: ${errors}`));
+        }
+      } else {
+        if (onError) {
+          onError(new Error(result.error || 'File drop failed'));
+        }
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Drop error:', error);
+      if (onError) {
+        onError(error);
+      }
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [multiple, accept, onDrop, onError]);
+
+  // Handle drag from app to desktop
+  const startDrag = useCallback(async (filePath, icon) => {
+    try {
+      const result = await window.api.invoke('file:drag-start', {
+        filePath,
+        icon
+      });
+
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+
+      return result;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Drag start error:', error);
+      if (onError) {
+        onError(error);
+      }
+      throw error;
+    }
+  }, [onError]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      setDragCounter(0);
+      setIsDragging(false);
+      setIsProcessing(false);
+    };
+  }, []);
+
+  return {
+    // State
+    isDragging,
+    isProcessing,
+    
+    // Event handlers for drop zone
+    dragHandlers: {
+      onDragEnter: handleDragEnter,
+      onDragLeave: handleDragLeave,
+      onDragOver: handleDragOver,
+      onDrop: handleDrop
+    },
+    
+    // Function to initiate drag from app
+    startDrag
+  };
+}
+
+export default useDragDrop;
