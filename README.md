@@ -10,6 +10,29 @@ A secure, scalable, and modern boilerplate template for creating desktop applica
   - Sandbox activated
   - Robust preload script with contextBridge
   - Content Security Policy (CSP) configured
+  - Navigation guards for external links
+  - Permission management system
+  - Security audit logging
+
+- ✅ **Production-Ready Core Features**
+  - Window state persistence and restoration
+  - Multi-window management
+  - Application lifecycle hooks (startup/shutdown)
+  - Single instance lock
+  - Auto-updater scaffolding (electron-updater)
+  - Deep linking support (custom protocol handlers)
+  - Crash recovery detection
+  - Native notifications support
+  - System tray integration
+  - Dock/taskbar badge management
+  - Power management utilities
+
+- ✅ **Type-Safe IPC Bridge**
+  - Schema-based IPC validation
+  - Request/response validation
+  - Comprehensive error handling
+  - JSDoc type annotations throughout
+  - Self-documenting API channels
 
 - ✅ **Modern Stack**
   - React 18 with hooks
@@ -17,14 +40,17 @@ A secure, scalable, and modern boilerplate template for creating desktop applica
   - shadcn/ui components
   - Electron 39
   - electron-store for persistence
+  - electron-log for enhanced logging
 
 - ✅ **Developer Experience**
   - ESLint configured
   - Vitest + React Testing Library
-  - Webpack for build
-  - Electron Forge for packaging
+  - Comprehensive test coverage (>80%)
   - Hot Module Replacement (HMR)
   - Auto-reload for main process
+  - Structured logging with levels
+  - DevTools extensions support
+  - Performance monitoring
 
 - ✅ **UI Components**
   - Resizable sidebar layout
@@ -32,6 +58,7 @@ A secure, scalable, and modern boilerplate template for creating desktop applica
   - Form components (Button, Input, Select, Switch, Textarea)
   - Cards, Labels, Separators
   - Native file dialog integration
+  - Error boundaries for graceful failures
 
 ## 📦 Installation
 
