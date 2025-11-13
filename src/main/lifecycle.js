@@ -11,6 +11,7 @@ import { createWindowHandlers } from './ipc/handlers/window.js';
 import { createStoreHandlers } from './ipc/handlers/store.js';
 import { createDialogHandlers } from './ipc/handlers/dialog.js';
 import { createAppHandlers } from './ipc/handlers/app.js';
+import { secureStoreHandlers } from './ipc/handlers/secure-store.js';
 import { config, loadEnvironmentOverrides } from './config.js';
 
 /**
@@ -82,6 +83,7 @@ class LifecycleManager {
       ...createStoreHandlers(),
       ...createDialogHandlers(),
       ...createAppHandlers(),
+      ...secureStoreHandlers,
     };
 
     registerHandlers(ipcSchema, handlers);
