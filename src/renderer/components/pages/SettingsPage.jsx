@@ -1,53 +1,67 @@
-import React from 'react';
-import { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
-import Label from '../ui/Label';
-import Switch from '../ui/Switch';
-import Select from '../ui/Select';
-import Separator from '../ui/Separator';
+import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useTab } from '../../hooks/useTab';
 import Button from '../ui/Button';
+import Switch from '../ui/Switch';
+import Label from '../ui/Label';
+import Select from '../ui/Select';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
 import { cn } from '../../utils/cn';
 
 const SettingsPage = () => {
+  const [theme, setTheme] = useState('dark');
   const [settings, setSettings] = useState({
-    theme: 'system',
+    theme: 'dark',
     notifications: true,
     autoStart: false,
-    language: 'pt-BR',
+    language: 'en',
   });
-
+  const { t, i18n } = useTranslation('settings');
+  const { openTab } = useTab();
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
 
-  // Load settings on mount
   useEffect(() => {
     const loadSettings = async () => {
+      // Load local theme
+      const savedTheme = localStorage.getItem('theme') || 'dark';
+      setTheme(savedTheme);
+
+      // Load electron store settings
       if (window.electronAPI?.store) {
-        const savedSettings = await window.electronAPI.store.get('settings');
-        if (savedSettings) {
-          setSettings(savedSettings);
+        try {
+          const saved = await window.electronAPI.store.get('settings');
+          if (saved) {
+            setSettings(prev => ({ ...prev, ...saved }));
+            // Sync language if saved
+            if (saved.language && saved.language !== i18n.language) {
+              i18n.changeLanguage(saved.language);
+            }
+          }
+        } catch (e) {
+          console.error("Failed to load settings", e);
         }
       }
     };
     loadSettings();
-  }, []);
+  }, [i18n]);
 
-  const handleSaveSettings = async () => {
-    setIsSaving(true);
-    setSaveMessage('');
+  const toggleTheme = () => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+    document.documentElement.classList.toggle('dark');
+    updateSetting('theme', newTheme);
+  };
 
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
+    updateSetting('language', lng);
+    // Persist via IPC if needed for main process
     try {
-      if (window.electronAPI?.store) {
-        await window.electronAPI.store.set('settings', settings);
-        setSaveMessage('✓ Settings saved successfully!');
-      } else {
-        setSaveMessage('⚠ Store API not available');
-      }
-    } catch (error) {
-      setSaveMessage(`✗ Error saving: ${error.message}`);
-    } finally {
-      setIsSaving(false);
-      setTimeout(() => setSaveMessage(''), 3000);
+      window.electronAPI.ipc.invoke('i18n:set-language', { language: lng });
+    } catch (e) {
+      console.error("Failed to sync language to main", e);
     }
   };
 
@@ -58,128 +72,138 @@ const SettingsPage = () => {
     }));
   };
 
+  const handleSaveSettings = async () => {
+    setIsSaving(true);
+    setSaveMessage('');
+
+    try {
+      if (window.electronAPI?.store) {
+        await window.electronAPI.store.set('settings', settings);
+        setSaveMessage('✓ Settings saved successfully!');
+      } else {
+        // Fallback for demo/dev without electron API
+        console.warn('Store API not available');
+        setSaveMessage('✓ Settings saved (local session only)');
+      }
+    } catch (error) {
+      setSaveMessage(`✗ Error saving: ${error.message}`);
+    } finally {
+      setIsSaving(false);
+      setTimeout(() => setSaveMessage(''), 3000);
+    }
+  };
+
   return (
-    <div className="p-8 max-w-4xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Settings</h1>
-        <p className="text-muted-foreground mt-2">
-          Manage your application preferences
-        </p>
+    <div className="p-6 max-w-4xl mx-auto space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">{t('title', 'Settings')}</h1>
+        <Button onClick={handleSaveSettings} disabled={isSaving}>
+          {isSaving ? 'Saving...' : 'Save All Settings'}
+        </Button>
       </div>
 
-      <div className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Appearance</CardTitle>
-            <CardDescription>
-              Customize how the application looks
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Theme</Label>
-                <p className="text-sm text-muted-foreground">
-                  Select your preferred color theme
-                </p>
-              </div>
-              <Select
-                value={settings.theme}
-                onChange={(e) => updateSetting('theme', e.target.value)}
-                className="w-32"
-              >
-                <option value="light">Light</option>
-                <option value="dark">Dark</option>
-                <option value="system">System</option>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Notifications</CardTitle>
-            <CardDescription>
-              Configure notification preferences
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Enable Notifications</Label>
-                <p className="text-sm text-muted-foreground">
-                  Receive desktop notifications
-                </p>
-              </div>
-              <Switch
-                checked={settings.notifications}
-                onCheckedChange={(checked) => updateSetting('notifications', checked)}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>System</CardTitle>
-            <CardDescription>
-              System and startup settings
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Auto Start</Label>
-                <p className="text-sm text-muted-foreground">
-                  Launch app on system startup
-                </p>
-              </div>
-              <Switch
-                checked={settings.autoStart}
-                onCheckedChange={(checked) => updateSetting('autoStart', checked)}
-              />
-            </div>
-
-            <Separator />
-
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Language</Label>
-                <p className="text-sm text-muted-foreground">
-                  Select your preferred language
-                </p>
-              </div>
-              <Select
-                value={settings.language}
-                onChange={(e) => updateSetting('language', e.target.value)}
-                className="w-32"
-              >
-                <option value="en-US">English</option>
-                <option value="pt-BR">Português</option>
-                <option value="es-ES">Español</option>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="flex items-center justify-between">
-          <div>
-            {saveMessage && (
-              <span className={cn(
-                'text-sm',
-                saveMessage.startsWith('✓') && 'text-green-600',
-                saveMessage.startsWith('✗') && 'text-red-600',
-                saveMessage.startsWith('⚠') && 'text-yellow-600'
-              )}>
-                {saveMessage}
-              </span>
-            )}
-          </div>
-          <Button onClick={handleSaveSettings} disabled={isSaving}>
-            {isSaving ? 'Saving...' : 'Save Settings'}
-          </Button>
+      {saveMessage && (
+        <div className={cn(
+          'p-3 rounded text-sm font-medium',
+          saveMessage.startsWith('✓') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+        )}>
+          {saveMessage}
         </div>
-      </div>
+      )}
+
+      {/* Appearance */}
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('appearance.title', 'Appearance')}</CardTitle>
+          <CardDescription>{t('appearance.description', 'Customize the look and feel.')}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <span>{t('appearance.theme', 'Theme')}</span>
+            <Button onClick={toggleTheme} variant="outline">
+              {theme === 'dark' ? '🌙 Dark' : '☀️ Light'}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Language */}
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('language.title', 'Language')}</CardTitle>
+          <CardDescription>{t('language.description', 'Select display language.')}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-2">
+            <Button
+              variant={settings.language === 'en' ? 'default' : 'outline'}
+              onClick={() => changeLanguage('en')}
+            >
+              English
+            </Button>
+            <Button
+              variant={settings.language === 'pt-BR' ? 'default' : 'outline'}
+              onClick={() => changeLanguage('pt-BR')}
+            >
+              Português (Brasil)
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Shortcuts */}
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('shortcuts.title', 'Keyboard Shortcuts')}</CardTitle>
+          <CardDescription>{t('shortcuts.description', 'View registered keyboard shortcuts.')}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button onClick={() => openTab({ id: 'shortcuts', title: 'Shortcuts', type: 'page' })}>
+            View Shortcuts
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* System */}
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('system.title', 'System')}</CardTitle>
+          <CardDescription>{t('system.description', 'System configurations.')}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label>Notifications</Label>
+              <div className="text-sm text-muted-foreground">Enable desktop notifications</div>
+            </div>
+            <Switch
+              checked={settings.notifications}
+              onCheckedChange={(checked) => updateSetting('notifications', checked)}
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label>Auto Start</Label>
+              <div className="text-sm text-muted-foreground">Launch on system startup</div>
+            </div>
+            <Switch
+              checked={settings.autoStart}
+              onCheckedChange={(checked) => updateSetting('autoStart', checked)}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* About */}
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('about.title', 'About')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">Version 1.0.0</p>
+        </CardContent>
+      </Card>
     </div>
   );
 };

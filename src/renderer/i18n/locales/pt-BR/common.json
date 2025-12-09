@@ -1,0 +1,28 @@
+{
+  "app_name": "App Electron",
+  "welcome": "Bem-vindo",
+  "version": "Versão",
+  "status": {
+    "online": "Online",
+    "offline": "Offline",
+    "connecting": "Conectando..."
+  },
+  "actions": {
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "close": "Fechar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "confirm": "Confirmar",
+    "back": "Voltar",
+    "next": "Próximo",
+    "finish": "Concluir"
+  },
+  "nav": {
+    "home": "Início",
+    "demos": "Demos",
+    "settings": "Configurações",
+    "about": "Sobre",
+    "development": "Desenvolvimento"
+  }
+}

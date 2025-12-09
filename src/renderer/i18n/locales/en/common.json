@@ -1,0 +1,28 @@
+{
+  "app_name": "Electron App",
+  "welcome": "Welcome",
+  "version": "Version",
+  "status": {
+    "online": "Online",
+    "offline": "Offline",
+    "connecting": "Connecting..."
+  },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "delete": "Delete",
+    "edit": "Edit",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Finish"
+  },
+  "nav": {
+    "home": "Home",
+    "demos": "Demos",
+    "settings": "Settings",
+    "about": "About",
+    "development": "Development"
+  }
+}

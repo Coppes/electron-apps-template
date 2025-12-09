@@ -87,9 +87,9 @@ export class WindowManager {
    */
   getPreloadPath() {
     if (app.isPackaged) {
-      return join(__dirname, '../preload/index.mjs');
+      return join(__dirname, '../preload/index.cjs');
     } else {
-      return join(process.cwd(), 'out/preload/index.mjs');
+      return join(process.cwd(), 'out/preload/index.cjs');
     }
   }
 
@@ -98,7 +98,14 @@ export class WindowManager {
    * @param {BrowserWindow} window - Window instance
    * @param {string} _type - Window type (unused, reserved for future use)
    */
-  loadContent(window, _type) {
+  loadContent(window, type) {
+    if (type === WINDOW_TYPES.SPLASH) {
+      const splashPath = join(__dirname, '../../renderer/splash.html');
+      window.loadFile(splashPath);
+      logger.debug(`Splash window loaded file: ${splashPath}`);
+      return;
+    }
+
     const devMode = isDevelopment();
 
     if (devMode) {

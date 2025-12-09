@@ -462,6 +462,27 @@ export const dataSchema = {
 };
 
 /**
+ * i18n handlers
+ */
+export const i18nSchema = {
+  [IPC_CHANNELS.I18N_SET_LANGUAGE]: {
+    input: {
+      language: { type: 'string', required: true },
+    },
+    output: {
+      success: { type: 'boolean', required: true },
+    },
+  },
+
+  [IPC_CHANNELS.I18N_GET_LANGUAGE]: {
+    input: {},
+    output: {
+      language: { type: 'string', required: true },
+    },
+  },
+};
+
+/**
  * Combined schema export
  */
 export const ipcSchema = {
@@ -472,5 +493,7 @@ export const ipcSchema = {
   ...appSchema,
   ...systemSchema,
   ...fileSchema,
+  ...fileSchema,
   ...dataSchema,
+  ...i18nSchema,
 };

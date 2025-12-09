@@ -17,6 +17,7 @@ import { dataHandlers } from './ipc/handlers/data.js';
 import { trayHandlers } from './ipc/handlers/tray.js';
 import { shortcutHandlers } from './ipc/handlers/shortcuts.js';
 import { notificationHandlers } from './ipc/handlers/notifications.js';
+import { i18nHandlers } from './ipc/handlers/i18n.js';
 import { trayManager } from './tray.js';
 import { shortcutManager } from './shortcuts.js';
 import connectivityManager from './data/connectivity-manager.js';
@@ -46,6 +47,10 @@ class LifecycleManager {
     const startTime = Date.now();
 
     try {
+      // Step 0: Create and show splash screen
+      const splashWindow = windowManager.createWindow('splash');
+      logger.info('Splash screen shown');
+
       // Step 1: Load environment overrides
       const overrides = loadEnvironmentOverrides();
       if (Object.keys(overrides).length > 0) {
@@ -70,9 +75,29 @@ class LifecycleManager {
       setupMenu(windowManager);
       logger.info('Application menu initialized');
 
-      // Step 7: Create main window
-      const mainWindow = windowManager.createWindow('main');
+      // Step 7: Create main window (hidden initially)
+      const mainWindow = windowManager.createWindow('main', { show: false });
       logger.info('Main window created', { windowId: mainWindow.id });
+
+      // Wait for main window to load
+      await new Promise((resolve) => {
+        if (mainWindow.webContents.isLoading()) {
+          mainWindow.webContents.once('did-finish-load', resolve);
+        } else {
+          resolve();
+        }
+      });
+
+      // Ensure minimum splash time
+      const elapsed = Date.now() - startTime;
+      const MIN_SPLASH_TIME = 1500;
+      if (elapsed < MIN_SPLASH_TIME) {
+        await new Promise(r => setTimeout(r, MIN_SPLASH_TIME - elapsed));
+      }
+
+      // Show main window and close splash
+      mainWindow.show();
+      windowManager.closeWindow(splashWindow.id);
 
       // Step 8: Initialize OS integration features
       await this.initializeOSIntegration();
@@ -94,7 +119,7 @@ class LifecycleManager {
   async registerIPC() {
     // Register log handlers (don't need schema validation)
     registerLogHandlers();
-    
+
     const handlers = {
       ...createWindowHandlers(windowManager),
       ...createStoreHandlers(),
@@ -105,7 +130,9 @@ class LifecycleManager {
       ...dataHandlers,
       ...trayHandlers,
       ...shortcutHandlers,
+      ...shortcutHandlers,
       ...notificationHandlers,
+      ...i18nHandlers,
     };
 
     registerHandlers(ipcSchema, handlers);
@@ -291,16 +318,16 @@ class LifecycleManager {
   async checkCrashRecovery() {
     try {
       const exists = await fs.access(this.crashMarkerPath).then(() => true).catch(() => false);
-      
+
       if (exists) {
         const data = await fs.readFile(this.crashMarkerPath, 'utf-8');
         const crashInfo = JSON.parse(data);
-        
+
         logger.warn('Previous session crashed', crashInfo);
-        
+
         // TODO: Show recovery dialog to user
         // For now, just log and continue
-        
+
         // Remove the crash marker
         await this.removeCrashMarker();
       }
@@ -356,7 +383,7 @@ class LifecycleManager {
       }
 
       const parsedUrl = new URL(url);
-      
+
       // Parse query parameters
       const params = {};
       parsedUrl.searchParams.forEach((value, key) => {

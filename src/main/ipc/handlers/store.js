@@ -3,7 +3,7 @@ import { logger } from '../../logger.js';
 import { createErrorResponse, createSuccessResponse } from '../bridge.js';
 import { IPC_CHANNELS } from '../../../common/constants.js';
 
-const store = new Store();
+export const store = new Store();
 
 /**
  * Store IPC handlers

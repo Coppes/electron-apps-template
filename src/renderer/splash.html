@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Electron App</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #0d0d0d; /* Dark theme bg */
+      color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      width: 100vw;
+      user-select: none;
+      -webkit-app-region: drag;
+    }
+
+    .container {
+      text-align: center;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    .logo-circle {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+      font-size: 32px;
+      font-weight: bold;
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 600;
+      margin: 0 0 8px;
+      letter-spacing: -0.5px;
+    }
+
+    p {
+      color: #a1a1aa;
+      font-size: 14px;
+      margin: 0;
+    }
+
+    .loader {
+      margin-top: 32px;
+      width: 200px;
+      height: 4px;
+      background: #27272a;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .loader-bar {
+      width: 100%;
+      height: 100%;
+      background: #3b82f6;
+      transform: translateX(-100%);
+      animation: load 2s ease-in-out infinite;
+    }
+
+    @keyframes load {
+      0% { transform: translateX(-100%); }
+      50% { transform: translateX(0); }
+      100% { transform: translateX(100%); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo-circle">E</div>
+    <h1>Electron App</h1>
+    <p>Initializing...</p>
+    <div class="loader">
+      <div class="loader-bar"></div>
+    </div>
+  </div>
+</body>
+</html>

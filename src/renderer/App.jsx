@@ -15,6 +15,13 @@ import { UpdateNotification } from './components/shared/UpdateNotification';
 import ErrorBoundary from './components/shared/ErrorBoundary';
 import SyncQueueViewer from './components/features/data-management/SyncQueueViewer';
 import OfflineIndicator from './components/shared/OfflineIndicator';
+import { StatusBarProvider } from './contexts/StatusBarContext';
+import { ShortcutProvider } from './contexts/ShortcutContext';
+import { CommandProvider } from './contexts/CommandContext';
+import { TabProvider, useTabContext } from './contexts/TabContext';
+import CommandPalette from './components/CommandPalette';
+import PageManager from './components/PageManager';
+import Onboarding from './components/Onboarding';
 
 function App() {
   const [updateInfo, setUpdateInfo] = useState(null);
@@ -74,50 +81,31 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <AppShell>
-        {(currentPage) => {
-          switch (currentPage) {
-            case 'home':
-              return <HomePage />;
-            case 'demo':
-              return <DemoPage />;
-            case 'data-management-demo':
-              return <DataManagementDemoPage />;
-            case 'connectivity-demo':
-              return <ConnectivityDemoPage />;
-            case 'ipc-demo':
-              return <IPCDemoPage />;
-            case 'secure-storage-demo':
-              return <SecureStorageDemoPage />;
-            case 'os-integration-demo':
-              return <OSIntegrationDemoPage />;
-            case 'backups':
-              return <BackupPage />;
-            case 'sync':
-              return <SyncQueueViewer />;
-            case 'test':
-              return <TestPage />;
-            case 'settings':
-              return <SettingsPage />;
-            case 'about':
-              return <AboutPage />;
-            default:
-              return <HomePage />;
-          }
-        }}
-      </AppShell>
-      
-      <OfflineIndicator position="top-right" />
-      
-      {updateStatus && (
-        <UpdateNotification
-          updateInfo={updateInfo}
-          status={updateStatus}
-          progress={updateProgress}
-          onInstall={handleInstall}
-          onDismiss={handleDismiss}
-        />
-      )}
+      <ShortcutProvider>
+        <CommandProvider>
+          <TabProvider>
+            <StatusBarProvider>
+              <AppShell>
+                <PageManager />
+              </AppShell>
+
+              <CommandPalette />
+              <Onboarding />
+              <OfflineIndicator position="top-right" />
+
+              {updateStatus && (
+                <UpdateNotification
+                  updateInfo={updateInfo}
+                  status={updateStatus}
+                  progress={updateProgress}
+                  onInstall={handleInstall}
+                  onDismiss={handleDismiss}
+                />
+              )}
+            </StatusBarProvider>
+          </TabProvider>
+        </CommandProvider>
+      </ShortcutProvider>
     </ErrorBoundary>
   );
 }

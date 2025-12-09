@@ -11,55 +11,55 @@ export const IPC_CHANNELS = {
   WINDOW_MAXIMIZE: 'window:maximize',
   WINDOW_FOCUS: 'window:focus',
   WINDOW_GET_STATE: 'window:get-state',
-  
+
   // Store/Persistence
   STORE_GET: 'store:get',
   STORE_SET: 'store:set',
   STORE_DELETE: 'store:delete',
   STORE_CLEAR: 'store:clear',
   STORE_HAS: 'store:has',
-  
+
   // Secure Store (Encrypted Storage)
   SECURE_STORE_SET: 'secure-store:set',
   SECURE_STORE_GET: 'secure-store:get',
   SECURE_STORE_DELETE: 'secure-store:delete',
   SECURE_STORE_HAS: 'secure-store:has',
   SECURE_STORE_IS_AVAILABLE: 'secure-store:is-available',
-  
+
   // File Operations (Drag and Drop)
   FILE_DROP: 'file:drop',
   FILE_DRAG_START: 'file:drag-start',
   FILE_VALIDATE_PATH: 'file:validate-path',
-  
+
   // Data Management (Backup/Restore)
   DATA_CREATE_BACKUP: 'data:create-backup',
   DATA_LIST_BACKUPS: 'data:list-backups',
   DATA_RESTORE_BACKUP: 'data:restore-backup',
   DATA_DELETE_BACKUP: 'data:delete-backup',
-  
+
   // Data Management (Import/Export)
   DATA_IMPORT: 'data:import',
   DATA_EXPORT: 'data:export',
   DATA_LIST_FORMATS: 'data:list-formats',
-  
+
   // File Watching
   FILE_WATCH_START: 'file:watch-start',
   FILE_WATCH_STOP: 'file:watch-stop',
   FILE_CHANGED: 'file:changed',
-  
+
   // Connectivity & Sync
   CONNECTIVITY_STATUS: 'connectivity:status',
   SYNC_QUEUE_ADD: 'sync:queue-add',
   SYNC_QUEUE_PROCESS: 'sync:queue-process',
   SYNC_QUEUE_STATUS: 'sync:queue-status',
   SYNC_STATUS_CHANGED: 'sync:status-changed',
-  
+
   // Dialog
   DIALOG_OPEN_FILE: 'dialog:open-file',
   DIALOG_SAVE_FILE: 'dialog:save-file',
   DIALOG_MESSAGE: 'dialog:message',
   DIALOG_ERROR: 'dialog:error',
-  
+
   // App Info
   APP_GET_VERSION: 'app:get-version',
   APP_GET_PATH: 'app:get-path',
@@ -67,23 +67,23 @@ export const IPC_CHANNELS = {
   APP_RELAUNCH: 'app:relaunch',
   APP_CHECK_FOR_UPDATES: 'app:check-for-updates',
   APP_INSTALL_UPDATE: 'app:install-update',
-  
+
   // System
   SYSTEM_GET_PLATFORM: 'system:get-platform',
-  
+
   // Events (main to renderer)
   COUNTER_UPDATED: 'counter-updated',
   UPDATE_AVAILABLE: 'update:available',
   UPDATE_DOWNLOADED: 'update:downloaded',
   UPDATE_ERROR: 'update:error',
   UPDATE_PROGRESS: 'update:progress',
-  
+
   // Logging
   LOG_DEBUG: 'log:debug',
   LOG_INFO: 'log:info',
   LOG_WARN: 'log:warn',
   LOG_ERROR: 'log:error',
-  
+
   // System Tray
   TRAY_SHOW: 'tray:show',
   TRAY_HIDE: 'tray:hide',
@@ -92,7 +92,7 @@ export const IPC_CHANNELS = {
   TRAY_SET_MENU: 'tray:set-menu',
   TRAY_CLICKED: 'tray:clicked',
   TRAY_MENU_ITEM_CLICKED: 'tray:menu-item-clicked',
-  
+
   // Global Shortcuts
   SHORTCUT_REGISTER: 'shortcut:register',
   SHORTCUT_UNREGISTER: 'shortcut:unregister',
@@ -100,15 +100,15 @@ export const IPC_CHANNELS = {
   SHORTCUT_IS_REGISTERED: 'shortcut:is-registered',
   SHORTCUT_LIST_ACTIVE: 'shortcut:list-active',
   SHORTCUT_TRIGGERED: 'shortcut:triggered',
-  
+
   // Progress Indicator
   PROGRESS_SET: 'progress:set',
   PROGRESS_CLEAR: 'progress:clear',
-  
+
   // Recent Documents
   RECENT_DOCS_ADD: 'recent-docs:add',
   RECENT_DOCS_CLEAR: 'recent-docs:clear',
-  
+
   // Native Notifications
   NOTIFICATION_SHOW: 'notification:show',
   NOTIFICATION_CLOSE: 'notification:close',
@@ -116,7 +116,11 @@ export const IPC_CHANNELS = {
   NOTIFICATION_CLICKED: 'notification:clicked',
   NOTIFICATION_ACTION_CLICKED: 'notification:action-clicked',
   NOTIFICATION_CLOSED: 'notification:closed',
-  
+
+  // i18n
+  I18N_SET_LANGUAGE: 'i18n:set-language',
+  I18N_GET_LANGUAGE: 'i18n:get-language',
+
   // Deep Linking (Enhanced Protocol Handler)
   DEEP_LINK_RECEIVED: 'deep-link:received',
 };
@@ -126,6 +130,7 @@ export const WINDOW_TYPES = {
   MAIN: 'main',
   SETTINGS: 'settings',
   ABOUT: 'about',
+  SPLASH: 'splash',
 };
 
 // Default Window Configurations
@@ -154,6 +159,20 @@ export const DEFAULT_WINDOW_CONFIG = {
     maxHeight: 350,
     title: 'About',
     resizable: false,
+  },
+  [WINDOW_TYPES.SPLASH]: {
+    width: 300,
+    height: 300,
+    frame: false,
+    transparent: true,
+    resizable: false,
+    movable: false,
+    minimizable: false,
+    maximizable: false,
+    alwaysOnTop: true,
+    center: true,
+    title: 'Splash',
+    skipTaskbar: true,
   },
 };
 
