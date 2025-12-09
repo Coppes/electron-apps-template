@@ -1,0 +1,6 @@
+- [x] Localize strict sandbox violation in `src/main/window-manager.js`
+- [x] Create reproduction test case (or verification step) confirming sandbox is false
+- [x] Modify `src/main/window-manager.js` to enable sandbox
+- [x] Verify application startup and IPC functionality with sandbox enabled
+- [x] Run full test suite `npm run test`
+- [x] Update `openspec/project.md` if any new constraints are discovered (none expected)
