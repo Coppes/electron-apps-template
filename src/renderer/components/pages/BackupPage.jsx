@@ -62,7 +62,7 @@ export default function BackupPage() {
 
       await window.electronAPI.data.restoreBackup({ filename });
       setSuccess(`Backup restored successfully: ${filename}`);
-      
+
       // Reload app data after restore
       setTimeout(() => {
         window.location.reload();
@@ -261,7 +261,7 @@ function BackupRow({ backup, onRestore, onDelete, disabled, formatDate, formatFi
 BackupRow.propTypes = {
   backup: PropTypes.shape({
     filename: PropTypes.string.isRequired,
-    timestamp: PropTypes.number.isRequired,
+    timestamp: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     size: PropTypes.number.isRequired,
     includeSecureStorage: PropTypes.bool,
   }).isRequired,
