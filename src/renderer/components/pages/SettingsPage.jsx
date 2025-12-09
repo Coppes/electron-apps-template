@@ -59,7 +59,7 @@ const SettingsPage = () => {
     updateSetting('language', lng);
     // Persist via IPC if needed for main process
     try {
-      window.electronAPI.ipc.invoke('i18n:set-language', { language: lng });
+      window.electronAPI.invoke('i18n:set-language', { language: lng });
     } catch (e) {
       console.error("Failed to sync language to main", e);
     }
@@ -158,7 +158,7 @@ const SettingsPage = () => {
           <CardDescription>{t('shortcuts.description', 'View and customize keyboard shortcuts.')}</CardDescription>
         </CardHeader>
         <CardContent>
-          <Button onClick={() => openTab({ id: 'shortcuts', title: 'Shortcuts', type: 'page' })}>
+          <Button onClick={() => openTab({ id: 'shortcuts', title: 'Shortcuts', type: 'shortcuts' })}>
             View Shortcuts
           </Button>
         </CardContent>

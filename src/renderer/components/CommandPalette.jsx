@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Command } from 'cmdk';
 import { Search, Command as CommandIcon } from 'lucide-react';
 import { useCommandContext } from '../contexts/CommandContext';
@@ -41,6 +42,8 @@ const CommandPalette = () => {
 
 
 
+  const { t } = useTranslation('common');
+
   if (!isOpen) return null;
 
   return (
@@ -53,14 +56,14 @@ const CommandPalette = () => {
           <div className="flex items-center border-b px-3" cmdk-input-wrapper="">
             <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
             <Command.Input
-              placeholder="Type a command or search..."
+              placeholder={t('command.placeholder', 'Type a command or search...')}
               className="flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
               autoFocus
             />
           </div>
           <Command.List className="max-h-[300px] overflow-y-auto overflow-x-hidden p-2">
             <Command.Empty className="py-6 text-center text-sm text-muted-foreground">
-              No results found.
+              {t('command.no_results', 'No results found.')}
             </Command.Empty>
 
             {Object.entries(groupedCommands).map(([group, groupCommands]) => (
