@@ -19,12 +19,14 @@ export default function DataManagementDemo() {
 
   useEffect(() => {
     loadBackups();
-    
+
     // Listen for file change events
-    const cleanup = window.electronAPI?.events?.onFileChange?.((event) => {
-      setFileEvents(prev => [...prev, { ...event, timestamp: new Date().toISOString() }].slice(-10));
+    const cleanup = window.electronAPI?.file?.onFileChanged?.((event) => {
+      // Event format might vary, standardizing here
+      const eventData = typeof event === 'string' ? { path: event, type: 'changed' } : event;
+      setFileEvents(prev => [...prev, { ...eventData, timestamp: new Date().toISOString() }].slice(-10));
     });
-    
+
     return () => cleanup?.();
   }, []);
 
@@ -73,11 +75,20 @@ export default function DataManagementDemo() {
     try {
       setLoading(true);
       setMessage(null);
-      const result = await window.electronAPI.data.exportData({
-        data: exportData,
-        format: 'json',
+      // 1. Choose location
+      const filePath = await window.electronAPI.dialog.showSaveDialog({
+        defaultPath: 'export.json',
+        filters: [{ name: 'JSON', extensions: ['json'] }]
       });
-      setMessage({ type: 'success', text: `Data exported to: ${result.path}` });
+
+      if (filePath) {
+        const result = await window.electronAPI.data.export(filePath, exportData);
+        if (result.success) {
+          setMessage({ type: 'success', text: `Data exported to: ${filePath}` });
+        } else {
+          throw new Error(result.error || 'Export failed');
+        }
+      }
     } catch (error) {
       setMessage({ type: 'error', text: `Failed to export: ${error.message}` });
     } finally {
@@ -89,16 +100,19 @@ export default function DataManagementDemo() {
     try {
       setLoading(true);
       setMessage(null);
-      const result = await window.electronAPI.dialog.openFile({
+      const filePath = await window.electronAPI.dialog.showOpenDialog({
         title: 'Import Data',
         filters: [{ name: 'JSON Files', extensions: ['json'] }],
+        properties: ['openFile']
       });
-      
-      if (!result.canceled && result.filePaths[0]) {
-        await window.electronAPI.data.importData({
-          path: result.filePaths[0],
-        });
-        setMessage({ type: 'success', text: `Data imported successfully` });
+
+      if (filePath) {
+        const result = await window.electronAPI.data.import(filePath);
+        if (result.success) {
+          setMessage({ type: 'success', text: `Data imported successfully` });
+        } else {
+          throw new Error(result.error || 'Import failed');
+        }
       }
     } catch (error) {
       setMessage({ type: 'error', text: `Failed to import: ${error.message}` });
@@ -111,14 +125,15 @@ export default function DataManagementDemo() {
     try {
       setLoading(true);
       setMessage(null);
-      const result = await window.electronAPI.dialog.openFolder({
+      const filePath = await window.electronAPI.dialog.showOpenDialog({
         title: 'Select Folder to Watch',
+        properties: ['openDirectory']
       });
-      
-      if (!result.canceled && result.filePaths[0]) {
-        await window.electronAPI.data.watchPath({ path: result.filePaths[0] });
-        setWatchedPath(result.filePaths[0]);
-        setMessage({ type: 'success', text: `Watching: ${result.filePaths[0]}` });
+
+      if (filePath) {
+        await window.electronAPI.file.watchStart(filePath);
+        setWatchedPath(filePath);
+        setMessage({ type: 'success', text: `Watching: ${filePath}` });
       }
     } catch (error) {
       setMessage({ type: 'error', text: `Failed to watch folder: ${error.message}` });
@@ -130,7 +145,7 @@ export default function DataManagementDemo() {
   const handleUnwatchFolder = async () => {
     try {
       if (!watchedPath) return;
-      await window.electronAPI.data.unwatchPath({ path: watchedPath });
+      await window.electronAPI.file.watchStop(watchedPath);
       setWatchedPath('');
       setFileEvents([]);
       setMessage({ type: 'success', text: 'Stopped watching folder' });
@@ -167,11 +182,10 @@ export default function DataManagementDemo() {
 
       {/* Status Message */}
       {message && (
-        <div className={`p-3 rounded ${
-          message.type === 'error' ? 'bg-red-100 text-red-800' :
-          message.type === 'success' ? 'bg-green-100 text-green-800' :
-          'bg-blue-100 text-blue-800'
-        }`}>
+        <div className={`p-3 rounded ${message.type === 'error' ? 'bg-red-100 text-red-800' :
+            message.type === 'success' ? 'bg-green-100 text-green-800' :
+              'bg-blue-100 text-blue-800'
+          }`}>
           {message.text}
         </div>
       )}
@@ -322,8 +336,8 @@ export default function DataManagementDemo() {
           </CardHeader>
           <CardContent>
             <DropZone
-              onFileDrop={handleFileDrop}
-              accept=".txt,.json,.md"
+              onDrop={handleFileDrop}
+              accept={['.txt', '.json', '.md']}
               multiple
             />
           </CardContent>

@@ -31,9 +31,9 @@ export function useDragDrop(options = {}) {
   const handleDragEnter = useCallback((event) => {
     event.preventDefault();
     event.stopPropagation();
-    
+
     setDragCounter(prev => prev + 1);
-    
+
     if (event.dataTransfer.items && event.dataTransfer.items.length > 0) {
       setIsDragging(true);
     }
@@ -43,7 +43,7 @@ export function useDragDrop(options = {}) {
   const handleDragLeave = useCallback((event) => {
     event.preventDefault();
     event.stopPropagation();
-    
+
     setDragCounter(prev => {
       const newCount = prev - 1;
       if (newCount === 0) {
@@ -57,7 +57,7 @@ export function useDragDrop(options = {}) {
   const handleDragOver = useCallback((event) => {
     event.preventDefault();
     event.stopPropagation();
-    
+
     // Set drop effect
     if (event.dataTransfer) {
       event.dataTransfer.dropEffect = 'copy';
@@ -68,7 +68,7 @@ export function useDragDrop(options = {}) {
   const handleDrop = useCallback(async (event) => {
     event.preventDefault();
     event.stopPropagation();
-    
+
     setIsDragging(false);
     setDragCounter(0);
     setIsProcessing(true);
@@ -76,7 +76,7 @@ export function useDragDrop(options = {}) {
     try {
       // Extract files from drop event
       const files = Array.from(event.dataTransfer.files);
-      
+
       // Check multiple files constraint
       if (!multiple && files.length > 1) {
         if (onError) {
@@ -85,14 +85,28 @@ export function useDragDrop(options = {}) {
         return;
       }
 
-      // Extract file paths
-      const filePaths = files.map(file => file.path);
+      // Extract file paths and filter out non-file drops (web elements)
+      const filePaths = files
+        .map(file => file.path)
+        .filter(path => !!path);
+
+      if (filePaths.length === 0) {
+        // Not a file drop (e.g. text selection)
+        setIsProcessing(false);
+        return;
+      }
+
+      // Encode accept as array if it is a string
+      const acceptArray = Array.isArray(accept)
+        ? accept
+        : (typeof accept === 'string' ? accept.split(',').map(s => s.trim()) : []);
 
       // Call IPC to validate and process files
-      const result = await window.api.invoke('file:drop', {
+      // use electronAPI.file.drop if available, or invoke directly
+      const result = await window.electronAPI.invoke('file:drop', {
         filePaths,
         options: {
-          allowedExtensions: accept.length > 0 ? accept : undefined
+          allowedExtensions: acceptArray.length > 0 ? acceptArray : undefined
         }
       });
 
@@ -128,7 +142,7 @@ export function useDragDrop(options = {}) {
   // Handle drag from app to desktop
   const startDrag = useCallback(async (filePath, icon) => {
     try {
-      const result = await window.api.invoke('file:drag-start', {
+      const result = await window.electronAPI.invoke('file:drag-start', {
         filePath,
         icon
       });
@@ -161,7 +175,7 @@ export function useDragDrop(options = {}) {
     // State
     isDragging,
     isProcessing,
-    
+
     // Event handlers for drop zone
     dragHandlers: {
       onDragEnter: handleDragEnter,
@@ -169,7 +183,7 @@ export function useDragDrop(options = {}) {
       onDragOver: handleDragOver,
       onDrop: handleDrop
     },
-    
+
     // Function to initiate drag from app
     startDrag
   };

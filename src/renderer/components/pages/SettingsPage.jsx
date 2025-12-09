@@ -195,6 +195,93 @@ const SettingsPage = () => {
         </CardContent>
       </Card>
 
+      {/* Data Management */}
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('data.title', 'Data Management')}</CardTitle>
+          <CardDescription>{t('data.description', 'Manage your application data.')}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={async () => {
+                try {
+                  // 1. Select file
+                  const filePath = await window.electronAPI.dialog.showOpenDialog({
+                    filters: [
+                      { name: 'Data', extensions: ['json', 'csv'] },
+                      { name: 'All Files', extensions: ['*'] }
+                    ],
+                    properties: ['openFile']
+                  });
+
+                  if (!filePath) return;
+
+                  // 2. Import data
+                  setSaveMessage('⏳ Importing data...');
+                  const result = await window.electronAPI.data.import(filePath);
+
+                  if (result.success) {
+                    setSaveMessage(`✓ Imported ${result.count} records successfully!`);
+                  } else {
+                    setSaveMessage(`✗ Import failed: ${result.error}`);
+                  }
+                } catch (error) {
+                  console.error('Import error:', error);
+                  setSaveMessage(`✗ Import error: ${error.message}`);
+                }
+              }}
+            >
+              Import Data
+            </Button>
+            <Button
+              variant="outline"
+              onClick={async () => {
+                try {
+                  // 1. Get all store data to export (or specific subsets)
+                  // For this demo, we can export specific keys or rely on the main process handler 
+                  // to gather data if 'data' param is omitted/handled there?
+                  // The error log said 'data' is required.
+                  // Let's assume we want to export 'settings' for now as a test.
+                  const dataToExport = {
+                    settings: await window.electronAPI.store.get('settings'),
+                    // Add other data as needed
+                  };
+
+                  // 2. Select save location
+                  const filePath = await window.electronAPI.dialog.showSaveDialog({
+                    defaultPath: 'export.json',
+                    filters: [
+                      { name: 'JSON', extensions: ['json'] },
+                      { name: 'CSV', extensions: ['csv'] }
+                    ]
+                  });
+
+                  if (!filePath) return;
+
+                  // 3. Export data
+                  setSaveMessage('⏳ Exporting data...');
+                  // We pass the data to export. 
+                  const result = await window.electronAPI.data.export(filePath, dataToExport);
+
+                  if (result.success) {
+                    setSaveMessage(`✓ Exported to ${result.filePath}`);
+                  } else {
+                    setSaveMessage(`✗ Export failed: ${result.error}`);
+                  }
+                } catch (error) {
+                  console.error('Export error:', error);
+                  setSaveMessage(`✗ Export error: ${error.message}`);
+                }
+              }}
+            >
+              Export Data
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* About */}
       <Card>
         <CardHeader>

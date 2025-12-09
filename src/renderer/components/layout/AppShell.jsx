@@ -10,6 +10,7 @@ import { useNavigationCommands } from '../../hooks/useNavigationCommands';
 import { useTabCommands } from '../../hooks/useTabCommands';
 import { useLanguageStatus } from '../../hooks/useLanguageStatus';
 import { isDevelopment } from '../../utils/is-dev';
+import { useStatusBar } from '../../hooks/useStatusBar';
 
 const AppShell = ({ children }) => {
   const [sidebarWidth, setSidebarWidth] = useState(250);
@@ -21,6 +22,14 @@ const AppShell = ({ children }) => {
   useNavigationCommands();
   useTabCommands();
   useLanguageStatus();
+
+  // File Watcher Notification
+  const { update: updateNotification } = useStatusBar({
+    id: 'file-watcher-notification',
+    position: 'right',
+    priority: 1000, // High priority to be visible
+    content: null,
+  });
 
   const handleMouseDown = (e) => {
     e.preventDefault();
@@ -83,6 +92,36 @@ const AppShell = ({ children }) => {
       if (cleanupMenuListener) cleanupMenuListener();
     };
   }, [openTab, t, tabs, activeTabId, closeTab]);
+
+  // Listen for file changes
+  useEffect(() => {
+    let cleanupFileListener;
+    if (window.electronAPI?.file?.onFileChanged) {
+      cleanupFileListener = window.electronAPI.file.onFileChanged((data) => {
+        // data can be { filePath, event } or just filePath depending on implementation
+        // Assuming data object or string
+        const path = typeof data === 'string' ? data : data.filePath;
+
+        updateNotification({
+          content: (
+            <div className="flex items-center gap-2 px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 rounded animate-pulse">
+              <span className="text-xs font-medium">⚠️ File Changed: {path.split(/[/\\]/).pop()}</span>
+            </div>
+          )
+        });
+
+        // Clear after 5 seconds
+        const timer = setTimeout(() => {
+          updateNotification({ content: null });
+        }, 5000);
+
+        return () => clearTimeout(timer);
+      });
+    }
+    return () => {
+      if (cleanupFileListener) cleanupFileListener();
+    };
+  }, [updateNotification]);
 
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden">

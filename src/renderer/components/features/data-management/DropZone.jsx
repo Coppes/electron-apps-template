@@ -121,9 +121,9 @@ export function DropZone({
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 {multiple ? 'or click to select files' : 'or click to select a file'}
               </p>
-              {accept.length > 0 && (
+              {(Array.isArray(accept) ? accept : []).length > 0 && (
                 <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">
-                  Accepted: {accept.join(', ')}
+                  Accepted: {(Array.isArray(accept) ? accept : [accept]).join(', ')}
                 </p>
               )}
             </>
@@ -138,7 +138,10 @@ DropZone.propTypes = {
   onDrop: PropTypes.func,
   onError: PropTypes.func,
   multiple: PropTypes.bool,
-  accept: PropTypes.arrayOf(PropTypes.string),
+  accept: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.string),
+    PropTypes.string // Allow string but handle it
+  ]),
   children: PropTypes.node,
   className: PropTypes.string,
   activeClassName: PropTypes.string,
