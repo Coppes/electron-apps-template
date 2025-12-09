@@ -6,7 +6,7 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     setupFiles: './test/setup/vitest.setup.main.js',
-    include: ['test/unit/main/**/*.test.js', 'test/unit/security/**/*.test.js', 'src/main/**/*.test.js'],
+    include: ['test/unit/main/**/*.test.js', 'test/unit/security/**/*.test.js', 'test/integration/**/*.test.js', 'src/main/**/*.test.js'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],

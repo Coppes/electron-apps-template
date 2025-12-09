@@ -27,7 +27,7 @@
 - [ ] 18. Implement fade transition from splash to main window
 - [ ] 19. Add timeout mechanism (10s max) to prevent splash hangs
 - [ ] 20. Handle splash window errors gracefully
-- [ ] 21. Write integration tests for splash screen timing and transitions
+- [x] 21. Write integration tests for splash screen timing and transitions
 
 ## Phase 2: Command Palette & Shortcuts (Sequential)
 

@@ -31,7 +31,7 @@ import { config, loadEnvironmentOverrides } from './config.js';
  * Handles ordered initialization, graceful shutdown, single instance lock, and crash recovery
  */
 
-class LifecycleManager {
+export class LifecycleManager {
   constructor() {
     this.isShuttingDown = false;
     this.crashMarkerPath = join(app.getPath('userData'), '.crash-marker');
