@@ -22,6 +22,7 @@ import { trayManager } from './tray.js';
 import { shortcutManager } from './shortcuts.js';
 import connectivityManager from './data/connectivity-manager.js';
 import syncQueue from './data/sync-queue.js';
+import { splashManager } from './splash.js';
 import { config, loadEnvironmentOverrides } from './config.js';
 
 /**
@@ -48,7 +49,7 @@ class LifecycleManager {
 
     try {
       // Step 0: Create and show splash screen
-      const splashWindow = windowManager.createWindow('splash');
+      splashManager.show();
       logger.info('Splash screen shown');
 
       // Step 1: Load environment overrides
@@ -79,14 +80,17 @@ class LifecycleManager {
       const mainWindow = windowManager.createWindow('main', { show: false });
       logger.info('Main window created', { windowId: mainWindow.id });
 
-      // Wait for main window to load
-      await new Promise((resolve) => {
-        if (mainWindow.webContents.isLoading()) {
-          mainWindow.webContents.once('did-finish-load', resolve);
-        } else {
-          resolve();
-        }
-      });
+      // Wait for main window to load with timeout
+      await Promise.race([
+        new Promise((resolve) => {
+          if (mainWindow.webContents.isLoading()) {
+            mainWindow.webContents.once('did-finish-load', resolve);
+          } else {
+            resolve();
+          }
+        }),
+        new Promise(resolve => setTimeout(resolve, 10000)) // 10s safety timeout
+      ]);
 
       // Ensure minimum splash time
       const elapsed = Date.now() - startTime;
@@ -97,7 +101,7 @@ class LifecycleManager {
 
       // Show main window and close splash
       mainWindow.show();
-      windowManager.closeWindow(splashWindow.id);
+      await splashManager.fadeOut();
 
       // Step 8: Initialize OS integration features
       await this.initializeOSIntegration();

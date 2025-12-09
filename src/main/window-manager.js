@@ -100,9 +100,15 @@ export class WindowManager {
    */
   loadContent(window, type) {
     if (type === WINDOW_TYPES.SPLASH) {
-      const splashPath = join(__dirname, '../../renderer/splash.html');
-      window.loadFile(splashPath);
-      logger.debug(`Splash window loaded file: ${splashPath}`);
+      if (isDevelopment()) {
+        const url = 'http://localhost:5173/static/splash.html';
+        window.loadURL(url);
+        logger.debug(`Splash window loaded URL: ${url}`);
+      } else {
+        const splashPath = join(__dirname, '../../renderer/static/splash.html');
+        window.loadFile(splashPath);
+        logger.debug(`Splash window loaded file: ${splashPath}`);
+      }
       return;
     }
 
