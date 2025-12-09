@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 
-const TabContext = createContext({
+export const TabContext = createContext({
   tabs: [],
   activeTabId: null,
   addTab: () => { },

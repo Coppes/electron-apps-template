@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 
-const CommandContext = createContext({
+export const CommandContext = createContext({
   commands: [],
   registerCommand: () => { },
   unregisterCommand: () => { },

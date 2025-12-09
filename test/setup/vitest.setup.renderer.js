@@ -8,6 +8,28 @@ if (typeof window !== 'undefined') {
 }
 global.window.electronAPI = mockElectronAPI;
 
+// Mock ResizeObserver
+global.ResizeObserver = class ResizeObserver {
+  observe() { }
+  unobserve() { }
+  disconnect() { }
+};
+window.ResizeObserver = global.ResizeObserver;
+
+// Mock PointerEvent
+global.PointerEvent = class PointerEvent extends Event {
+  constructor(type, props) {
+    super(type, props);
+    Object.assign(this, props);
+  }
+};
+window.PointerEvent = global.PointerEvent;
+
+// Mock scrollIntoView
+window.HTMLElement.prototype.scrollIntoView = vi.fn();
+window.HTMLElement.prototype.releasePointerCapture = vi.fn();
+window.HTMLElement.prototype.hasPointerCapture = vi.fn();
+
 // Restore mock before each test
 beforeEach(() => {
   if (typeof window !== 'undefined') {
