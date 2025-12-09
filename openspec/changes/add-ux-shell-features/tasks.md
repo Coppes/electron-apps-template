@@ -3,22 +3,22 @@
 ## Phase 1: Foundation & Infrastructure (Parallel)
 
 ### Internationalization Setup (8 tasks)
-- [ ] 1. Install react-i18next and i18next dependencies
-- [ ] 2. Create i18n directory structure (`src/renderer/i18n/locales/{en,pt-BR}`)
-- [ ] 3. Initialize i18next in `src/renderer/i18n/index.js` with namespaces and fallback
-- [ ] 4. Create translation files: common.json, settings.json, errors.json, onboarding.json for EN
-- [ ] 5. Create translation files: common.json, settings.json, errors.json, onboarding.json for PT-BR
-- [ ] 6. Integrate i18n provider in `src/renderer/index.js`
-- [ ] 7. Create IPC handler for language switching in `src/main/ipc/handlers/i18n.js`
-- [ ] 8. Write unit tests for i18n initialization, language switching, and fallback behavior
+- [x] 1. Install react-i18next and i18next dependencies
+- [x] 2. Create i18n directory structure (`src/renderer/i18n/locales/{en,pt-BR}`)
+- [x] 3. Initialize i18next in `src/renderer/i18n/index.js` with namespaces and fallback
+- [x] 4. Create translation files: common.json, settings.json, errors.json, onboarding.json for EN
+- [x] 5. Create translation files: common.json, settings.json, errors.json, onboarding.json for PT-BR
+- [x] 6. Integrate i18n provider in `src/renderer/index.js`
+- [x] 7. Create IPC handler for language switching in `src/main/ipc/handlers/i18n.js`
+- [x] 8. Write unit tests for i18n initialization, language switching, and fallback behavior
 
 ### Status Bar Component (6 tasks)
-- [ ] 9. Create StatusBarContext with item registration API (`src/renderer/contexts/StatusBarContext.jsx`)
-- [ ] 10. Create StatusBar component with left/center/right slots (`src/renderer/components/StatusBar.jsx`)
-- [ ] 11. Create useStatusBar hook for registering items (`src/renderer/hooks/useStatusBar.js`)
-- [ ] 12. Integrate StatusBar in AppShell (fixed bottom position)
-- [ ] 13. Add default status items (version, connection status)
-- [ ] 14. Write tests for StatusBar item registration, positioning, and priority
+- [x] 9. Create StatusBarContext with item registration API (`src/renderer/contexts/StatusBarContext.jsx`)
+- [x] 10. Create StatusBar component with left/center/right slots (`src/renderer/components/StatusBar.jsx`)
+- [x] 11. Create useStatusBar hook for registering items (`src/renderer/hooks/useStatusBar.js`)
+- [x] 12. Integrate StatusBar in AppShell (fixed bottom position)
+- [x] 13. Add default status items (version, connection status)
+- [x] 14. Write tests for StatusBar item registration, positioning, and priority
 
 ### Splash Screen (7 tasks)
 - [ ] 15. Create static splash.html with inline CSS and app logo (`src/renderer/static/splash.html`)
@@ -44,32 +44,32 @@
 - [ ] 31. Write tests for shortcut registration, conflicts, persistence, and resolution
 
 ### Command Palette (12 tasks)
-- [ ] 32. Install @radix-ui/react-command (cmdk) if not already available via shadcn
-- [ ] 33. Create CommandContext with action registry API (`src/renderer/contexts/CommandContext.jsx`)
-- [ ] 34. Create useRegisterCommand hook for components to register actions (`src/renderer/hooks/useRegisterCommand.js`)
-- [ ] 35. Create CommandPalette component using shadcn Command (`src/renderer/components/CommandPalette.jsx`)
-- [ ] 36. Implement fuzzy search for command filtering
-- [ ] 37. Add command categories and grouping in palette UI
-- [ ] 38. Register default commands (navigation, settings, help, window operations)
-- [ ] 39. Integrate Ctrl/Cmd+K shortcut to open command palette
-- [ ] 40. Add command execution tracking in status bar
-- [ ] 41. Add keyboard navigation (arrows, enter, escape)
-- [ ] 42. Integrate command palette with existing navigation system
-- [ ] 43. Write tests for command registration, search, execution, and keyboard navigation
+- [x] 32. Install @radix-ui/react-command (cmdk) if not already available via shadcn
+- [x] 33. Create CommandContext with action registry API (`src/renderer/contexts/CommandContext.jsx`)
+- [x] 34. Create useRegisterCommand hook for components to register actions (`src/renderer/hooks/useRegisterCommand.js`)
+- [x] 35. Create CommandPalette component using shadcn Command (`src/renderer/components/CommandPalette.jsx`)
+- [x] 36. Implement fuzzy search for command filtering
+- [x] 37. Add command categories and grouping in palette UI
+- [x] 38. Register default commands (navigation, settings, help, window operations)
+- [x] 39. Integrate Ctrl/Cmd+K shortcut to open command palette
+- [x] 40. Add command execution tracking in status bar
+- [x] 41. Add keyboard navigation (arrows, enter, escape)
+- [x] 42. Integrate command palette with existing navigation system
+- [x] 43. Write tests for command registration, search, execution, and keyboard navigation
 
 ## Phase 3: Tabbed Interface (Sequential)
 
 ### Tab System Core (10 tasks)
-- [ ] 44. Create TabContext with tab manager service (`src/renderer/contexts/TabContext.jsx`)
-- [ ] 45. Define tab data structure (id, type, title, icon, closeable, state)
-- [ ] 46. Implement tab persistence in electron-store (save/restore tab collection)
-- [ ] 47. Create TabBar component with tab rendering and controls (`src/renderer/components/TabBar.jsx`)
-- [ ] 48. Create TabContent component with strategy pattern for tab types (`src/renderer/components/TabContent.jsx`)
-- [ ] 49. Create useTab hook for tab operations (open, close, switch, update) (`src/renderer/hooks/useTab.js`)
-- [ ] 50. Install @radix-ui/react-tabs if not already available
-- [ ] 51. Implement tab switching with keyboard shortcuts (Ctrl+Tab, Ctrl+Shift+Tab)
-- [ ] 52. Add tab close button with unsaved changes warning
-- [ ] 53. Write tests for tab lifecycle (create, switch, close, persist, restore)
+- [x] 44. Create TabContext with tab manager service (`src/renderer/contexts/TabContext.jsx`)
+- [x] 45. Define tab data structure (id, type, title, icon, closeable, state)
+- [x] 46. Implement tab persistence in electron-store (save/restore tab collection)
+- [x] 47. Create TabBar component with tab rendering and controls (`src/renderer/components/TabBar.jsx`)
+- [x] 48. Create TabContent component with strategy pattern for tab types (`src/renderer/components/TabContent.jsx`)
+- [x] 49. Create useTab hook for tab operations (open, close, switch, update) (`src/renderer/hooks/useTab.js`)
+- [x] 50. Install @radix-ui/react-tabs if not already available
+- [x] 51. Implement tab switching with keyboard shortcuts (Ctrl+Tab, Ctrl+Shift+Tab)
+- [x] 52. Add tab close button with unsaved changes warning
+- [x] 53. Write tests for tab lifecycle (create, switch, close, persist, restore)
 
 ### Tab Integration (8 tasks)
 - [ ] 54. Update AppShell to render TabBar above content area
