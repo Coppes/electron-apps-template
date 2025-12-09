@@ -13,7 +13,20 @@ const CommandPalette = () => {
     keys: 'Ctrl+Shift+P', // Or Cmd+Shift+P depending on platform logic in shortcut context
     action: toggle,
     description: 'Toggle Command Palette',
+    allowInInput: true,
   });
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isOpen) {
+        e.stopPropagation();
+        setIsOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, setIsOpen]);
 
   // Group commands by group
   const groupedCommands = commands.reduce((acc, command) => {
@@ -26,18 +39,7 @@ const CommandPalette = () => {
   // Handle closing on Escape is handled by Dialog props usually, but cmdk handles it if wrapped properly?
   // cmdk Dialog handles opening logic
 
-  useEffect(() => {
-    const down = (e) => {
-      // Toggle on Ctrl+K or Cmd+K
-      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        toggle();
-      }
-    };
 
-    document.addEventListener('keydown', down);
-    return () => document.removeEventListener('keydown', down);
-  }, [toggle]);
 
   if (!isOpen) return null;
 

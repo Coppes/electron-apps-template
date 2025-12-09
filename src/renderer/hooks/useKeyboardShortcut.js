@@ -9,11 +9,11 @@ import { useShortcutContext } from '../contexts/ShortcutContext';
  * @param {Function} options.action - Action to perform
  * @param {string} [options.description] - Description for UI
  */
-export function useKeyboardShortcut({ id, keys, action, description }) {
+export function useKeyboardShortcut({ id, keys, action, description, allowInInput = false }) {
   const { registerShortcut, unregisterShortcut } = useShortcutContext();
 
   useEffect(() => {
-    registerShortcut({ id, keys, action, description });
+    registerShortcut({ id, keys, action, description, allowInInput });
     return () => unregisterShortcut(id);
-  }, [id, keys, action, description, registerShortcut, unregisterShortcut]);
+  }, [id, keys, action, description, allowInInput, registerShortcut, unregisterShortcut]);
 }

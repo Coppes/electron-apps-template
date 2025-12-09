@@ -1,1 +1,23 @@
-{}
+{
+  "title": "Configurações",
+  "appearance": {
+    "title": "Aparência",
+    "description": "Personalize a aparência.",
+    "theme": "Tema"
+  },
+  "language": {
+    "title": "Idioma",
+    "description": "Selecione o idioma de exibição."
+  },
+  "shortcuts": {
+    "title": "Atalhos de Teclado",
+    "description": "Visualize e personalize atalhos de teclado."
+  },
+  "system": {
+    "title": "Sistema",
+    "description": "Configurações do sistema."
+  },
+  "about": {
+    "title": "Sobre"
+  }
+}

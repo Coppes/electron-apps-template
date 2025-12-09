@@ -32,16 +32,16 @@
 ## Phase 2: Command Palette & Shortcuts (Sequential)
 
 ### Keyboard Shortcuts Management (10 tasks)
-- [ ] 22. Create ShortcutRegistry with default shortcuts mapping (`src/renderer/contexts/ShortcutContext.jsx`)
-- [ ] 23. Implement shortcut persistence in electron-store (load/save overrides)
-- [ ] 24. Create useKeyboardShortcut hook with conflict detection (`src/renderer/hooks/useKeyboardShortcut.js`)
-- [ ] 25. Create IPC handler for shortcut management in `src/main/ipc/handlers/shortcuts.js`
-- [ ] 26. Create KeyboardShortcutsPage component with shortcut list and editor (`src/renderer/components/pages/KeyboardShortcutsPage.jsx`)
-- [ ] 27. Implement shortcut conflict detection and warning UI
-- [ ] 28. Add blacklist for system shortcuts (Cmd+Q, Cmd+W, etc.)
-- [ ] 29. Integrate KeyboardShortcutsPage into settings navigation
-- [ ] 30. Add reset to defaults functionality
-- [ ] 31. Write tests for shortcut registration, conflicts, persistence, and resolution
+- [x] 22. Create ShortcutRegistry with default shortcuts mapping (`src/renderer/contexts/ShortcutContext.jsx`)
+- [x] 23. Implement shortcut persistence in electron-store (load/save overrides)
+- [x] 24. Create useKeyboardShortcut hook with conflict detection (`src/renderer/hooks/useKeyboardShortcut.js`)
+- [x] 25. Create IPC handler for shortcut management (Integrated via generic store handled in `Window Manager`)
+- [x] 26. Create KeyboardShortcutsPage component with shortcut list and editor (`src/renderer/components/pages/KeyboardShortcutsPage.jsx`)
+- [x] 27. Implement shortcut conflict detection and warning UI
+- [x] 28. Add blacklist for system shortcuts (Cmd+Q, Cmd+W, etc.) (Validation in UI recorder)
+- [x] 29. Integrate KeyboardShortcutsPage into settings navigation
+- [x] 30. Add reset to defaults functionality
+- [x] 31. Write tests for shortcut registration, conflicts, persistence, and resolution
 
 ### Command Palette (12 tasks)
 - [x] 32. Install @radix-ui/react-command (cmdk) if not already available via shadcn

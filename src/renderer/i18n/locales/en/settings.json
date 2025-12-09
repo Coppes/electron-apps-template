@@ -1,1 +1,23 @@
-{}
+{
+  "title": "Settings",
+  "appearance": {
+    "title": "Appearance",
+    "description": "Customize the look and feel.",
+    "theme": "Theme"
+  },
+  "language": {
+    "title": "Language",
+    "description": "Select display language."
+  },
+  "shortcuts": {
+    "title": "Keyboard Shortcuts",
+    "description": "View and customize keyboard shortcuts."
+  },
+  "system": {
+    "title": "System",
+    "description": "System configurations."
+  },
+  "about": {
+    "title": "About"
+  }
+}

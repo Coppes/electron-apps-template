@@ -155,7 +155,7 @@ const SettingsPage = () => {
       <Card>
         <CardHeader>
           <CardTitle>{t('shortcuts.title', 'Keyboard Shortcuts')}</CardTitle>
-          <CardDescription>{t('shortcuts.description', 'View registered keyboard shortcuts.')}</CardDescription>
+          <CardDescription>{t('shortcuts.description', 'View and customize keyboard shortcuts.')}</CardDescription>
         </CardHeader>
         <CardContent>
           <Button onClick={() => openTab({ id: 'shortcuts', title: 'Shortcuts', type: 'page' })}>
