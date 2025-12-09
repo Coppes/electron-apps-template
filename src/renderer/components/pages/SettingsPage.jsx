@@ -35,7 +35,14 @@ const SettingsPage = () => {
             setSettings(prev => ({ ...prev, ...saved }));
             // Sync language if saved
             if (saved.language && saved.language !== i18n.language) {
-              i18n.changeLanguage(saved.language);
+              try {
+                if (window.electronAPI.i18n) {
+                  await window.electronAPI.i18n.changeLanguage(saved.language);
+                }
+              } catch (error) {
+                console.error('Failed to save language:', error);
+              }
+              await i18n.changeLanguage(saved.language);
             }
           }
         } catch (e) {

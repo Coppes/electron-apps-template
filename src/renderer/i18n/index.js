@@ -43,4 +43,8 @@ i18n
     },
   });
 
+// Add a helper to change language that also updates the store if needed
+// This is used by the App component to sync with the main process
+i18n.changeLanguageInternal = i18n.changeLanguage;
+
 export default i18n;

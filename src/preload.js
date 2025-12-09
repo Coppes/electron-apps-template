@@ -737,6 +737,24 @@ const deepLinkAPI = {
 };
 
 /**
+ * I18n API
+ */
+const i18nAPI = {
+  /**
+   * Set application language
+   * @param {string} language - Language code (e.g. 'en', 'pt-BR')
+   * @returns {Promise<Object>} Result
+   */
+  changeLanguage: (language) => ipcRenderer.invoke(IPC_CHANNELS.I18N_SET_LANGUAGE, { language }),
+
+  /**
+   * Get current application language
+   * @returns {Promise<Object>} Result with language
+   */
+  getLanguage: () => ipcRenderer.invoke(IPC_CHANNELS.I18N_GET_LANGUAGE, {}),
+};
+
+/**
  * Complete Electron API surface exposed to renderer
  */
 const electronAPI = {
@@ -756,6 +774,7 @@ const electronAPI = {
   recentDocs: recentDocsAPI,
   notifications: notificationsAPI,
   deepLink: deepLinkAPI,
+  i18n: i18nAPI,
 
   // Legacy compatibility - will be deprecated
   setTitle: (title) => windowAPI.getState().then(() => title),
@@ -791,4 +810,5 @@ Object.freeze(progressAPI);
 Object.freeze(recentDocsAPI);
 Object.freeze(notificationsAPI);
 Object.freeze(deepLinkAPI);
+Object.freeze(i18nAPI);
 

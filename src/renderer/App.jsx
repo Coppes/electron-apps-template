@@ -13,10 +13,29 @@ import CommandPalette from './components/CommandPalette';
 import TabContent from './components/TabContent';
 import Onboarding from './components/Onboarding';
 
+import i18n from './i18n';
+
 function App() {
   const [updateInfo, setUpdateInfo] = useState(null);
   const [updateStatus, setUpdateStatus] = useState(null);
   const [updateProgress, setUpdateProgress] = useState(null);
+
+  useEffect(() => {
+    // Initialize language from store
+    const initLanguage = async () => {
+      try {
+        const result = await window.electronAPI.i18n.getLanguage();
+        if (result.success && result.language) {
+          // Update local i18n instance
+          await i18n.changeLanguage(result.language);
+          console.log('Language initialized to:', result.language);
+        }
+      } catch (error) {
+        console.error('Failed to initialize language:', error);
+      }
+    };
+    initLanguage();
+  }, []);
 
   useEffect(() => {
     // Listen for update available
