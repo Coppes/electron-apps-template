@@ -6,6 +6,7 @@ import Button from '../ui/Button';
 import StatusBar from '../StatusBar';
 import TabBar from '../TabBar';
 import { useTab } from '../../hooks/useTab';
+import { useNavigationCommands } from '../../hooks/useNavigationCommands';
 import { isDevelopment } from '../../utils/is-dev';
 
 const AppShell = ({ children }) => {
@@ -13,6 +14,9 @@ const AppShell = ({ children }) => {
   const [isResizing, setIsResizing] = useState(false);
   const { openTab, activeTabId } = useTab();
   const { t } = useTranslation('common');
+
+  // Register Global Navigation Commands
+  useNavigationCommands();
 
   const handleMouseDown = (e) => {
     e.preventDefault();
@@ -47,8 +51,11 @@ const AppShell = ({ children }) => {
   }, [isResizing]);
 
   // Helper handling tab opening
-  const nav = (id, title) => {
-    openTab({ id, title, type: 'page' });
+  const nav = (id, title, typeOverride) => {
+    // If we want singleton behavior, use fixed ID.
+    // If ID matches, it switches.
+    const type = typeOverride || id;
+    openTab({ id, title, type });
   };
 
   return (
@@ -201,7 +208,7 @@ const AppShell = ({ children }) => {
         {/* Main Content Area with Tabs */}
         <div className="flex flex-col flex-1 overflow-hidden min-w-0">
           <TabBar />
-          <main className="flex-1 overflow-auto">
+          <main className="flex-1 relative overflow-hidden">
             {children}
           </main>
         </div>

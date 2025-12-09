@@ -50,6 +50,20 @@ export const TabProvider = ({ children }) => {
     setTabs((prev) => prev.map((t) => (t.id === id ? { ...t, ...updates } : t)));
   }, []);
 
+  const closeAllTabs = useCallback(() => {
+    setTabs([{ id: 'home', title: 'Home', type: 'page', data: {} }]);
+    setActiveTabId('home');
+  }, []);
+
+  const closeOtherTabs = useCallback((keepId) => {
+    setTabs((prev) => {
+      const keep = prev.find(t => t.id === keepId);
+      if (!keep) return prev;
+      return [keep];
+    });
+    setActiveTabId(keepId);
+  }, []);
+
   return (
     <TabContext.Provider
       value={{
@@ -59,6 +73,8 @@ export const TabProvider = ({ children }) => {
         closeTab,
         setActiveTab: setActiveTabId,
         updateTab,
+        closeAllTabs,
+        closeOtherTabs,
       }}
     >
       {children}
