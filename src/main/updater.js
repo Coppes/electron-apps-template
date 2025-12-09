@@ -2,6 +2,7 @@ import { BrowserWindow } from 'electron';
 import { IPC_CHANNELS } from '../common/constants.js';
 import { logger } from './logger.js';
 import { config } from './config.js';
+import { notificationManager } from './notifications.js';
 
 /**
  * Auto-updater scaffolding
@@ -68,6 +69,13 @@ class Updater {
         releaseDate: info.releaseDate,
       });
 
+      // Notify user via native notification
+      notificationManager.showNotification({
+        title: 'Update Available',
+        body: `A new version (${info.version}) is available. It will be downloaded in the background.`,
+        icon: 'update',
+      }).catch(err => logger.warn('Failed to show update notification', err));
+
       // Notify all renderer processes
       const allWindows = BrowserWindow.getAllWindows();
       allWindows.forEach(win => {
@@ -87,7 +95,7 @@ class Updater {
 
     this.autoUpdater.on('error', (error) => {
       logger.error('Auto-updater error', error);
-      
+
       // Notify renderer of error
       const allWindows = BrowserWindow.getAllWindows();
       allWindows.forEach(win => {
@@ -122,6 +130,14 @@ class Updater {
         version: info.version,
         releaseDate: info.releaseDate,
       });
+
+      // Notify user update is ready
+      notificationManager.showNotification({
+        title: 'Update Ready',
+        body: `Version ${info.version} has been downloaded. Click to restart and install.`,
+        timeoutMs: 0, // Keep until clicked
+        actions: [{ type: 'button', text: 'Install Now' }]
+      }).catch(err => logger.warn('Failed to show update downloaded notification', err));
 
       // Notify renderer that update is ready to install
       const allWindows = BrowserWindow.getAllWindows();
@@ -180,7 +196,7 @@ class Updater {
       logger.warn('Cannot install update - updater not initialized');
       return;
     }
-    
+
     logger.info('Quitting and installing update...');
     this.autoUpdater.quitAndInstall(false, true);
   }
@@ -199,7 +215,7 @@ class Updater {
     }
 
     const intervalMs = intervalMinutes * 60 * 1000;
-    
+
     this.updateCheckInterval = setInterval(() => {
       this.checkForUpdates();
     }, intervalMs);

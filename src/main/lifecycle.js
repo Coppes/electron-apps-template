@@ -23,6 +23,7 @@ import { shortcutManager } from './shortcuts.js';
 import connectivityManager from './data/connectivity-manager.js';
 import syncQueue from './data/sync-queue.js';
 import { splashManager } from './splash.js';
+import { notificationManager } from './notifications.js';
 import { config, loadEnvironmentOverrides } from './config.js';
 
 /**
@@ -330,6 +331,14 @@ class LifecycleManager {
         logger.warn('Previous session crashed', crashInfo);
 
         // TODO: Show recovery dialog to user
+        // Show recovery notification
+        notificationManager.showNotification({
+          title: 'App Recovered',
+          body: 'The application has recovered from an unexpected shutdown.',
+          urgency: 'critical',
+          timeoutMs: 0,
+        }).catch(err => logger.warn('Failed to show recovery notification', err));
+
         // For now, just log and continue
 
         // Remove the crash marker

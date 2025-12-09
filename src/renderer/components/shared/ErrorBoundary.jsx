@@ -71,13 +71,13 @@ class ErrorBoundary extends React.Component {
       return (
         <div className="min-h-screen flex items-center justify-center p-4 bg-background">
           <div className="max-w-2xl w-full">
-            <Alert variant="destructive">
+            <Alert variant="error">
               <AlertTitle className="text-lg font-semibold mb-2">
                 Something went wrong
               </AlertTitle>
               <AlertDescription>
                 <p className="mb-4">
-                  An unexpected error occurred in the application. This error has been logged 
+                  An unexpected error occurred in the application. This error has been logged
                   and you can try to recover using one of the options below.
                 </p>
 

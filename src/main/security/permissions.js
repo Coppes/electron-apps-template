@@ -13,6 +13,7 @@ import { logPermissionRequest } from './audit-log.js';
  * @type {Set<string>}
  */
 const DEFAULT_ALLOWED_PERMISSIONS = new Set([
+  'notifications',
   // Add permissions your app needs here
   // Examples: 'media', 'notifications', 'geolocation', 'openExternal'
 ]);
@@ -36,7 +37,7 @@ const DENIED_PERMISSIONS = new Set([
  * @param {string} permission - Permission type
  * @returns {boolean}
  */
-function isPermissionAllowed(permission) {
+export function isPermissionAllowed(permission) {
   // Check if explicitly denied
   if (DENIED_PERMISSIONS.has(permission)) {
     return false;
@@ -73,7 +74,7 @@ function getPermissionDisplayName(permission) {
  */
 async function showPermissionDialog(permission, origin) {
   const permissionName = getPermissionDisplayName(permission);
-  
+
   const result = await dialog.showMessageBox({
     type: 'question',
     buttons: ['Allow', 'Deny'],
@@ -93,7 +94,7 @@ async function showPermissionDialog(permission, origin) {
 export function setupPermissionHandler(session) {
   session.setPermissionRequestHandler(async (webContents, permission, callback, details) => {
     const origin = details.requestingUrl || 'unknown';
-    
+
     logger.info('Permission requested', {
       permission,
       origin,
@@ -106,7 +107,7 @@ export function setupPermissionHandler(session) {
         permission,
         origin,
       });
-      
+
       // Log to security audit
       logPermissionRequest({
         windowId: webContents.id,
@@ -114,7 +115,7 @@ export function setupPermissionHandler(session) {
         origin,
         granted: false,
       });
-      
+
       callback(false);
       return;
     }
@@ -122,13 +123,13 @@ export function setupPermissionHandler(session) {
     // Prompt user for permission
     try {
       const granted = await showPermissionDialog(permission, origin);
-      
+
       logger.info('Permission decision made', {
         permission,
         origin,
         granted,
       });
-      
+
       // Log to security audit
       logPermissionRequest({
         windowId: webContents.id,
@@ -136,7 +137,7 @@ export function setupPermissionHandler(session) {
         origin,
         granted,
       });
-      
+
       callback(granted);
     } catch (error) {
       logger.error('Error handling permission request', {
@@ -144,7 +145,7 @@ export function setupPermissionHandler(session) {
         origin,
         error: error.message,
       });
-      
+
       // Log to security audit
       logPermissionRequest({
         windowId: webContents.id,
@@ -152,7 +153,7 @@ export function setupPermissionHandler(session) {
         origin,
         granted: false,
       });
-      
+
       callback(false); // Deny on error
     }
   });
@@ -174,14 +175,14 @@ export function setupPermissionCheckHandler(session) {
 
     // Only allow if permission is in allowed list
     const allowed = isPermissionAllowed(permission);
-    
+
     if (!allowed) {
       logger.debug('Permission check denied', {
         permission,
         origin: requestingOrigin,
       });
     }
-    
+
     return allowed;
   });
 
@@ -230,6 +231,6 @@ export function setupAllPermissionHandlers(session) {
   setupPermissionHandler(session);
   setupPermissionCheckHandler(session);
   setupDevicePermissionHandler(session);
-  
+
   logger.info('All permission handlers configured');
 }

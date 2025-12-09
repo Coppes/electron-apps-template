@@ -2,6 +2,7 @@ import { Notification } from 'electron';
 import { logger } from './logger.js';
 import { windowManager } from './window-manager.js';
 import { IPC_CHANNELS } from '../common/constants.js';
+import { isPermissionAllowed } from './security/permissions.js';
 
 /**
  * Native OS Notifications Manager
@@ -10,10 +11,10 @@ class NotificationManager {
   constructor() {
     /** @type {Map<string, {notification: Notification, options: Object}>} */
     this.activeNotifications = new Map();
-    
+
     /** @type {import('../common/types.js').NotificationInfo[]} */
     this.history = [];
-    
+
     this.maxHistorySize = 50;
     this.rateLimitWindow = 60000; // 1 minute
     this.maxNotificationsPerWindow = 10;
@@ -30,6 +31,12 @@ class NotificationManager {
       // Validate options
       if (!options.title || !options.body) {
         throw new Error('Title and body are required');
+      }
+
+      // Check permission
+      if (!isPermissionAllowed('notifications')) {
+        logger.warn('Notification denied by policy');
+        throw new Error('Notification permission denied');
       }
 
       // Check rate limiting
@@ -259,7 +266,7 @@ class NotificationManager {
    */
   checkRateLimit() {
     const now = Date.now();
-    
+
     // Remove old timestamps
     this.notificationTimestamps = this.notificationTimestamps.filter(
       ts => now - ts < this.rateLimitWindow
@@ -281,7 +288,7 @@ class NotificationManager {
    */
   addToHistory(entry) {
     this.history.push(entry);
-    
+
     // Trim history if too large
     if (this.history.length > this.maxHistorySize) {
       this.history = this.history.slice(-this.maxHistorySize);

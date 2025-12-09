@@ -691,7 +691,7 @@ const notificationsAPI = {
    * @param {Function} callback - Callback function
    * @returns {Function} Cleanup function
    */
-  onClicked: (callback) => {
+  onClick: (callback) => {
     const listener = (event, data) => callback(data);
     ipcRenderer.on(IPC_CHANNELS.NOTIFICATION_CLICKED, listener);
     return () => ipcRenderer.removeListener(IPC_CHANNELS.NOTIFICATION_CLICKED, listener);
@@ -702,7 +702,7 @@ const notificationsAPI = {
    * @param {Function} callback - Callback function
    * @returns {Function} Cleanup function
    */
-  onActionClicked: (callback) => {
+  onAction: (callback) => {
     const listener = (event, data) => callback(data);
     ipcRenderer.on(IPC_CHANNELS.NOTIFICATION_ACTION_CLICKED, listener);
     return () => ipcRenderer.removeListener(IPC_CHANNELS.NOTIFICATION_ACTION_CLICKED, listener);
@@ -713,7 +713,7 @@ const notificationsAPI = {
    * @param {Function} callback - Callback function
    * @returns {Function} Cleanup function
    */
-  onClosed: (callback) => {
+  onClose: (callback) => {
     const listener = (event, data) => callback(data);
     ipcRenderer.on(IPC_CHANNELS.NOTIFICATION_CLOSED, listener);
     return () => ipcRenderer.removeListener(IPC_CHANNELS.NOTIFICATION_CLOSED, listener);

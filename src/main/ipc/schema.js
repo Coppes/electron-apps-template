@@ -462,6 +462,50 @@ export const dataSchema = {
 };
 
 /**
+ * Notification handlers
+ */
+export const notificationSchema = {
+  [IPC_CHANNELS.NOTIFICATION_SHOW]: {
+    input: {
+      title: { type: 'string', required: true },
+      body: { type: 'string', required: true },
+      // Optional fields
+      icon: { type: 'string', required: false },
+      silent: { type: 'boolean', required: false },
+      urgency: { type: 'string', required: false },
+      timeoutType: { type: 'string', required: false },
+      timeoutMs: { type: 'number', required: false },
+      actions: { type: 'array', required: false },
+    },
+    output: {
+      success: { type: 'boolean', required: true },
+      id: { type: 'string', required: false },
+      error: { type: 'string', required: false },
+    },
+  },
+
+  [IPC_CHANNELS.NOTIFICATION_CLOSE]: {
+    input: {
+      id: { type: 'string', required: true },
+    },
+    output: {
+      success: { type: 'boolean', required: true },
+      error: { type: 'string', required: false },
+    },
+  },
+
+  [IPC_CHANNELS.NOTIFICATION_GET_HISTORY]: {
+    input: {
+      limit: { type: 'number', required: false },
+    },
+    output: {
+      history: { type: 'array', required: true },
+      error: { type: 'string', required: false },
+    },
+  },
+};
+
+/**
  * i18n handlers
  */
 export const i18nSchema = {
@@ -493,7 +537,7 @@ export const ipcSchema = {
   ...appSchema,
   ...systemSchema,
   ...fileSchema,
-  ...fileSchema,
   ...dataSchema,
+  ...notificationSchema,
   ...i18nSchema,
 };

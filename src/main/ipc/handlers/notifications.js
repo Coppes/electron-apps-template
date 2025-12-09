@@ -13,7 +13,7 @@ import { isAbsolute } from 'path';
  */
 export function createNotificationHandlers() {
   return {
-    [IPC_CHANNELS.NOTIFICATION_SHOW]: async (options) => {
+    [IPC_CHANNELS.NOTIFICATION_SHOW]: async (event, options) => {
       // Validate options
       if (!options || typeof options !== 'object') {
         throw new Error('Invalid notification options');
@@ -35,7 +35,7 @@ export function createNotificationHandlers() {
       return { success: true, id };
     },
 
-    [IPC_CHANNELS.NOTIFICATION_CLOSE]: async ({ id }) => {
+    [IPC_CHANNELS.NOTIFICATION_CLOSE]: async (event, { id }) => {
       if (!id || typeof id !== 'string') {
         throw new Error('Invalid notification ID');
       }
@@ -44,7 +44,7 @@ export function createNotificationHandlers() {
       return { success };
     },
 
-    [IPC_CHANNELS.NOTIFICATION_GET_HISTORY]: async ({ limit }) => {
+    [IPC_CHANNELS.NOTIFICATION_GET_HISTORY]: async (event, { limit }) => {
       const limitNum = limit && typeof limit === 'number' ? limit : 50;
       const history = notificationManager.getHistory(limitNum);
       return { history };

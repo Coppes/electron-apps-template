@@ -67,6 +67,7 @@ export const config = {
     strictNavigation: isProduction(),
     allowedOrigins: isDevelopment() ? ['http://localhost:5173', 'http://localhost:5174'] : [],
     allowedPermissions: new Set([
+      'notifications',
       // Add permissions your app needs here
       // Examples: 'notifications', 'media', 'geolocation'
     ]),
