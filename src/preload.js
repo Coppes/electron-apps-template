@@ -290,6 +290,33 @@ const eventsAPI = {
     ipcRenderer.on(IPC_CHANNELS.UPDATE_ERROR, listener);
     return () => ipcRenderer.removeListener(IPC_CHANNELS.UPDATE_ERROR, listener);
   },
+
+  /**
+   * Listen for menu actions (new tab, command palette, etc.)
+   * @param {Function} callback - Callback function receiving (action, data)
+   * @returns {Function} Cleanup function
+   */
+  onMenuAction: (callback) => {
+    // We listen to specific channels and normalize them
+    const listeners = [];
+
+    const add = (channel, action) => {
+      const listener = (event, data) => callback(action, data);
+      ipcRenderer.on(channel, listener);
+      listeners.push({ channel, listener });
+    };
+
+    add('menu:new-tab', 'new-tab');
+    add('menu:command-palette', 'command-palette');
+    add('menu:show-onboarding', 'show-onboarding');
+    add('menu:close-tab', 'close-tab');
+
+    return () => {
+      listeners.forEach(({ channel, listener }) =>
+        ipcRenderer.removeListener(channel, listener)
+      );
+    };
+  },
 };
 
 /**
@@ -544,7 +571,7 @@ const shortcutsAPI = {
    * @param {string} [description] - Shortcut description
    * @returns {Promise<Object>} Result
    */
-  register: (accelerator, description) => 
+  register: (accelerator, description) =>
     ipcRenderer.invoke(IPC_CHANNELS.SHORTCUT_REGISTER, { accelerator, description }),
 
   /**
@@ -552,14 +579,14 @@ const shortcutsAPI = {
    * @param {string} accelerator - Keyboard accelerator
    * @returns {Promise<Object>} Result
    */
-  unregister: (accelerator) => 
+  unregister: (accelerator) =>
     ipcRenderer.invoke(IPC_CHANNELS.SHORTCUT_UNREGISTER, { accelerator }),
 
   /**
    * Unregister all global shortcuts
    * @returns {Promise<Object>} Result
    */
-  unregisterAll: () => 
+  unregisterAll: () =>
     ipcRenderer.invoke(IPC_CHANNELS.SHORTCUT_UNREGISTER_ALL, {}),
 
   /**
@@ -567,14 +594,14 @@ const shortcutsAPI = {
    * @param {string} accelerator - Keyboard accelerator
    * @returns {Promise<boolean>} True if registered
    */
-  isRegistered: (accelerator) => 
+  isRegistered: (accelerator) =>
     ipcRenderer.invoke(IPC_CHANNELS.SHORTCUT_IS_REGISTERED, { accelerator }).then(r => r.registered),
 
   /**
    * List all active shortcuts
    * @returns {Promise<import('./common/types.js').ShortcutInfo[]>} Active shortcuts
    */
-  listActive: () => 
+  listActive: () =>
     ipcRenderer.invoke(IPC_CHANNELS.SHORTCUT_LIST_ACTIVE, {}).then(r => r.shortcuts),
 
   /**
@@ -599,7 +626,7 @@ const progressAPI = {
    * @param {Object} [options] - Progress options
    * @returns {Promise<Object>} Result
    */
-  set: (value, options = {}) => 
+  set: (value, options = {}) =>
     ipcRenderer.invoke(IPC_CHANNELS.PROGRESS_SET, { value, ...options }),
 
   /**
@@ -607,7 +634,7 @@ const progressAPI = {
    * @param {number} [windowId] - Window ID
    * @returns {Promise<Object>} Result
    */
-  clear: (windowId) => 
+  clear: (windowId) =>
     ipcRenderer.invoke(IPC_CHANNELS.PROGRESS_CLEAR, { windowId }),
 };
 
@@ -620,14 +647,14 @@ const recentDocsAPI = {
    * @param {string} filePath - Absolute path to document
    * @returns {Promise<Object>} Result
    */
-  add: (filePath) => 
+  add: (filePath) =>
     ipcRenderer.invoke(IPC_CHANNELS.RECENT_DOCS_ADD, { filePath }),
 
   /**
    * Clear all recent documents
    * @returns {Promise<Object>} Result
    */
-  clear: () => 
+  clear: () =>
     ipcRenderer.invoke(IPC_CHANNELS.RECENT_DOCS_CLEAR, {}),
 };
 
@@ -640,7 +667,7 @@ const notificationsAPI = {
    * @param {import('./common/types.js').NotificationOptions} options - Notification options
    * @returns {Promise<Object>} Result with notification ID
    */
-  show: (options) => 
+  show: (options) =>
     ipcRenderer.invoke(IPC_CHANNELS.NOTIFICATION_SHOW, options),
 
   /**
@@ -648,7 +675,7 @@ const notificationsAPI = {
    * @param {string} id - Notification ID
    * @returns {Promise<Object>} Result
    */
-  close: (id) => 
+  close: (id) =>
     ipcRenderer.invoke(IPC_CHANNELS.NOTIFICATION_CLOSE, { id }),
 
   /**
@@ -656,7 +683,7 @@ const notificationsAPI = {
    * @param {number} [limit=50] - Maximum number of entries
    * @returns {Promise<import('./common/types.js').NotificationInfo[]>} Notification history
    */
-  getHistory: (limit = 50) => 
+  getHistory: (limit = 50) =>
     ipcRenderer.invoke(IPC_CHANNELS.NOTIFICATION_GET_HISTORY, { limit }).then(r => r.history),
 
   /**
@@ -735,7 +762,7 @@ const electronAPI = {
   getVersion: appAPI.getVersion,
   openFile: dialogAPI.openFile,
   onUpdateCounter: eventsAPI.onUpdateCounter,
-  
+
   // Convenience method for accessing IPC directly (for hooks)
   invoke: (channel, payload) => ipcRenderer.invoke(channel, payload),
 };

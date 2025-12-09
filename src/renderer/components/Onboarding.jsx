@@ -31,12 +31,22 @@ const Onboarding = () => {
       setStep(0);
     };
 
-    // Attempt to add a custom event listener if the app supports it, 
-    // or rely on props/context. For now, we will add a global event listener for simplicity
-    // if the architecture supports it, otherwise we might need a context.
-    // Given the constraints, we'll stick to the store check and self-management for now.
     window.addEventListener('open-onboarding', handleManualTrigger);
-    return () => window.removeEventListener('open-onboarding', handleManualTrigger);
+
+    // Listen for menu actions (IPC)
+    let cleanupMenuListener;
+    if (window.electronAPI?.events?.onMenuAction) {
+      cleanupMenuListener = window.electronAPI.events.onMenuAction((action) => {
+        if (action === 'show-onboarding') {
+          handleManualTrigger();
+        }
+      });
+    }
+
+    return () => {
+      window.removeEventListener('open-onboarding', handleManualTrigger);
+      if (cleanupMenuListener) cleanupMenuListener();
+    };
   }, []);
 
   const handleComplete = async () => {
@@ -48,6 +58,22 @@ const Onboarding = () => {
       setIsOpen(false); // Close anyway
     }
   };
+
+  const [platform, setPlatform] = useState('unknown');
+
+  useEffect(() => {
+    const getPlatform = async () => {
+      try {
+        const p = await window.electronAPI.system.getPlatform();
+        setPlatform(p.platform);
+      } catch (e) {
+        console.error('Failed to get platform', e);
+      }
+    };
+    getPlatform();
+  }, []);
+
+  const modKey = platform === 'darwin' ? 'Cmd' : 'Ctrl';
 
   const steps = [
     {
@@ -70,7 +96,7 @@ const Onboarding = () => {
     },
     {
       title: t('steps.shortcuts.title', 'Keyboard Shortcuts'),
-      description: t('steps.shortcuts.description', 'Boost your productivity with built-in shortcuts and command palette.'),
+      description: t('steps.shortcuts.description', 'Boost your productivity with built-in shortcuts ({{mod}}+K) and command palette ({{mod}}+Shift+P).', { mod: modKey }),
       icon: <Keyboard className="w-16 h-16 text-white" />,
       gradient: "from-pink-500 to-rose-500"
     },

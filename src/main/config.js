@@ -103,7 +103,7 @@ export const config = {
       enabled: true,
       startMinimized: false,
     },
-    
+
     // Global shortcuts
     shortcuts: {
       enabled: true,
@@ -113,18 +113,18 @@ export const config = {
         'CommandOrControl+Shift+P': 'command-palette',
       },
     },
-    
+
     // Progress indicator
     progress: {
       enabled: true,
     },
-    
+
     // Recent documents
     recentDocuments: {
       enabled: true,
       trackAutomatically: true,
     },
-    
+
     // Native notifications
     notifications: {
       enabled: true,
@@ -143,8 +143,15 @@ export const config = {
     dsn: process.env.SENTRY_DSN || '',
     environment: getEnvironment(),
     sampleRate: 1.0,
-    attachScreenshot: false,
     attachStacktrace: true,
+  },
+
+  // Feature Flags
+  features: {
+    tabs: true,
+    splashScreen: true,
+    commandPalette: true,
+    onboarding: true,
   },
 
   // Paths (will be resolved at runtime)

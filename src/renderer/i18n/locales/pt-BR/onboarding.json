@@ -14,7 +14,7 @@
     },
     "shortcuts": {
       "title": "Atalhos de Teclado",
-      "description": "Aumente sua produtividade com atalhos integrados e paleta de comandos."
+      "description": "Aumente sua produtividade com atalhos integrados ({{mod}}+K) e paleta de comandos ({{mod}}+Shift+P)."
     }
   },
   "buttons": {

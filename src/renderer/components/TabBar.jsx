@@ -1,7 +1,7 @@
 import React from 'react';
 import * as Tabs from '@radix-ui/react-tabs';
 import * as ContextMenu from '@radix-ui/react-context-menu';
-import { X, Home, Settings, Info, Box } from 'lucide-react';
+import { X, Home, Settings, Info, Box, Plus } from 'lucide-react';
 import { useTabContext } from '../contexts/TabContext';
 import { useStatusBar } from '../hooks/useStatusBar';
 import { useRegisterCommand } from '../hooks/useRegisterCommand';
@@ -125,6 +125,13 @@ const TabBar = () => {
             </ContextMenu.Portal>
           </ContextMenu.Root>
         ))}
+        <button
+          className="flex items-center justify-center px-3 py-2 text-muted-foreground hover:bg-muted/60 hover:text-foreground transition-colors border-r border-border/50"
+          onClick={newTabAction}
+          title="New Tab (Ctrl+T)"
+        >
+          <Plus className="w-4 h-4" />
+        </button>
       </div>
     </div>
   );

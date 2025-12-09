@@ -23,7 +23,7 @@ export const windowSchema = {
 
   [IPC_CHANNELS.WINDOW_CLOSE]: {
     input: {
-      windowId: { type: 'number', required: true },
+      windowId: { type: 'number', required: false },
     },
     output: {
       success: { type: 'boolean', required: true },

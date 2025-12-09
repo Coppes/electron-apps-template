@@ -175,7 +175,7 @@ class LifecycleManager {
               logger.debug('Default shortcut triggered', { accelerator, action });
               const mainWindow = windowManager.getWindowByType('main');
               if (mainWindow) {
-                mainWindow.window.webContents.send('shortcut:triggered', {
+                mainWindow.webContents.send('shortcut:triggered', {
                   accelerator,
                   action,
                 });

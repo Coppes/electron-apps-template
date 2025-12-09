@@ -72,14 +72,14 @@
 - [x] 53. Write tests for tab lifecycle (create, switch, close, persist, restore)
 
 ### Tab Integration (8 tasks)
-- [ ] 54. Update AppShell to render TabBar above content area
-- [ ] 55. Migrate existing pages (Home, Demo, Settings, About) to tab types
-- [ ] 56. Implement "Open in New Tab" action in command palette
-- [ ] 57. Add tab count and active tab info to status bar
-- [ ] 58. Update navigation logic to work with tabs (open tab vs switch to existing)
-- [ ] 59. Add "Close All Tabs" and "Close Other Tabs" commands
-- [ ] 60. Implement tab context menu (right-click for actions)
-- [ ] 61. Write integration tests for tab navigation and multi-tab scenarios
+- [x] 54. Update AppShell to render TabBar above content area
+- [x] 55. Migrate existing pages (Home, Demo, Settings, About) to tab types
+- [x] 56. Implement "Open in New Tab" action in command palette
+- [x] 57. Add tab count and active tab info to status bar
+- [x] 58. Update navigation logic to work with tabs (open tab vs switch to existing)
+- [x] 59. Add "Close All Tabs" and "Close Other Tabs" commands
+- [x] 60. Implement tab context menu (right-click for actions)
+- [x] 61. Write integration tests for tab navigation and multi-tab scenarios
 
 ## Phase 4: Onboarding & Polish (Sequential)
 
@@ -98,25 +98,25 @@
 - [x] 71. Refactor App.jsx to use i18n keys instead of hardcoded text
 - [x] 72. Refactor AppShell to use i18n keys
 - [x] 73. Refactor all page components to use i18n keys (HomePage, DemoPage, SettingsPage, AboutPage)
-- [ ] 74. Refactor UI components to use i18n keys (Button labels, tooltips, placeholders)
-- [ ] 75. Add language selector to SettingsPage (replace existing language dropdown)
-- [ ] 76. Implement runtime language switching without restart
+- [x] 74. Refactor UI components to use i18n keys (Button labels, tooltips, placeholders)
+- [x] 75. Add language selector to SettingsPage (replace existing language dropdown)
+- [x] 76. Implement runtime language switching without restart
 - [x] 77. Add missing translation keys to JSON files
 - [x] 78. Test all UI flows in both EN and PT-BR
-- [ ] 79. Add ARIA labels for accessibility with i18n
+- [x] 79. Add ARIA labels for accessibility with i18n
 - [x] 80. Update README with i18n contribution guidelines
 
 ## Phase 5: Integration & Testing (Parallel)
 
 ### Cross-Feature Integration (8 tasks)
-- [ ] 81. Integrate command palette with keyboard shortcuts system (show shortcuts in palette)
-- [ ] 82. Integrate tabs with command palette (tab switching commands)
-- [ ] 83. Integrate status bar with all features (show active tab, shortcuts hint, language)
-- [ ] 84. Ensure onboarding content is translated and shows correct shortcuts per platform
-- [ ] 85. Update application menu to include new features (View > Command Palette, etc.)
-- [ ] 86. Add keyboard shortcut hints to tooltips throughout the app
-- [ ] 87. Test cross-platform compatibility (macOS, Windows, Linux)
-- [ ] 88. Update config.js with new feature flags (enable/disable tabs, splash, etc.)
+- [x] 81. Integrate command palette with keyboard shortcuts system (show shortcuts in palette)
+- [x] 82. Integrate tabs with command palette (tab switching commands)
+- [x] 83. Integrate status bar with all features (show active tab, shortcuts hint, language)
+- [x] 84. Ensure onboarding content is translated and shows correct shortcuts per platform
+- [x] 85. Update application menu to include new features (View > Command Palette, etc.)
+- [x] 86. Add keyboard shortcut hints to tooltips throughout the app
+- [x] 87. Test cross-platform compatibility (macOS, Windows, Linux)
+- [x] 88. Update config.js with new feature flags (enable/disable tabs, splash, etc.)
 
 ### Performance Optimization (6 tasks)
 - [ ] 89. Optimize command palette fuzzy search for 1000+ commands (virtual scrolling)
@@ -139,7 +139,7 @@
 ## Phase 6: Validation & Refinement (Sequential)
 
 ### Final Testing & Validation (10 tasks)
-- [ ] 103. Run `openspec validate add-ux-shell-features --strict` and fix all issues
+- [x] 103. Run `openspec validate add-ux-shell-features --strict` and fix all issues
 - [ ] 104. Verify all 7 specs pass validation
 - [ ] 105. Run full test suite and ensure 100% pass rate
 - [ ] 106. Test all features with screen reader (accessibility check)

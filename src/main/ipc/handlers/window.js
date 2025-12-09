@@ -31,9 +31,19 @@ export function createWindowHandler(windowManager) {
  * @param {WindowManager} windowManager - Window manager instance
  */
 export function closeWindowHandler(windowManager) {
-  return async (event, { windowId }) => {
+  return async (event, { windowId } = {}) => {
     try {
-      const success = windowManager.closeWindow(windowId);
+      let id = windowId;
+      if (!id) {
+        const window = BrowserWindow.fromWebContents(event.sender);
+        if (window) id = window.id;
+      }
+
+      if (!id) {
+        return createErrorResponse('Window not found', 'WINDOW_NOT_FOUND');
+      }
+
+      const success = windowManager.closeWindow(id);
       return createSuccessResponse({ closed: success });
     } catch (error) {
       logger.error('Failed to close window', error);

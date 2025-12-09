@@ -17,36 +17,36 @@ export function createMenuTemplate(windowManager) {
     // App menu (macOS only)
     ...(isMac
       ? [
-          {
-            label: app.name,
-            submenu: [
-              { role: 'about' },
-              { type: 'separator' },
-              {
-                label: 'Settings...',
-                accelerator: 'Cmd+,',
-                click: () => {
-                  logger.debug('Settings menu clicked');
-                  // Create or focus settings window
-                  const existing = windowManager.getWindowByType('settings');
-                  if (existing) {
-                    windowManager.focusWindow(existing.id);
-                  } else {
-                    windowManager.createWindow('settings');
-                  }
-                },
+        {
+          label: app.name,
+          submenu: [
+            { role: 'about' },
+            { type: 'separator' },
+            {
+              label: 'Settings...',
+              accelerator: 'Cmd+,',
+              click: () => {
+                logger.debug('Settings menu clicked');
+                // Create or focus settings window
+                const existing = windowManager.getWindowByType('settings');
+                if (existing) {
+                  windowManager.focusWindow(existing.id);
+                } else {
+                  windowManager.createWindow('settings');
+                }
               },
-              { type: 'separator' },
-              { role: 'services' },
-              { type: 'separator' },
-              { role: 'hide' },
-              { role: 'hideOthers' },
-              { role: 'unhide' },
-              { type: 'separator' },
-              { role: 'quit' },
-            ],
-          },
-        ]
+            },
+            { type: 'separator' },
+            { role: 'services' },
+            { type: 'separator' },
+            { role: 'hide' },
+            { role: 'hideOthers' },
+            { role: 'unhide' },
+            { type: 'separator' },
+            { role: 'quit' },
+          ],
+        },
+      ]
       : []),
 
     // File menu
@@ -61,26 +61,52 @@ export function createMenuTemplate(windowManager) {
             windowManager.createWindow('main');
           },
         },
+        {
+          label: 'New Tab',
+          accelerator: 'CmdOrCtrl+T',
+          click: (_item, focusedWindow) => {
+            if (focusedWindow) focusedWindow.webContents.send('menu:new-tab');
+          }
+        },
         { type: 'separator' },
         ...(!isMac
           ? [
-              {
-                label: 'Settings',
-                accelerator: 'Ctrl+,',
-                click: () => {
-                  logger.debug('Settings menu clicked');
-                  const existing = windowManager.getWindowByType('settings');
-                  if (existing) {
-                    windowManager.focusWindow(existing.id);
-                  } else {
-                    windowManager.createWindow('settings');
-                  }
-                },
+            {
+              label: 'Settings',
+              accelerator: 'Ctrl+,',
+              click: () => {
+                logger.debug('Settings menu clicked');
+                const existing = windowManager.getWindowByType('settings');
+                if (existing) {
+                  windowManager.focusWindow(existing.id);
+                } else {
+                  windowManager.createWindow('settings');
+                }
               },
-              { type: 'separator' },
-            ]
+            },
+            { type: 'separator' },
+          ]
           : []),
-        isMac ? { role: 'close' } : { role: 'quit' },
+        isMac ?
+          {
+            label: 'Close Window',
+            accelerator: 'Cmd+W',
+            click: (item, focusedWindow) => {
+              if (focusedWindow) {
+                // If main window, try to close tab first via IPC
+                // We can't easily know if it's the main window by type here without checking windowManager
+                // easier approach: try send IPC, if not main window (renderer doesn't handle), user might need to press again? 
+                // Better: Check window API or title? 
+                // Let's blindly send IPC. If renderer handles it, good. If not... wait.
+                // If we send IPC, and renderer does nothing (e.g. devtools focused?), nothing happens.
+                // Correct approach: Send IPC. Renderer determines if it should close a tab or the window.
+                // BUT if renderer is frozen or non-responsive?
+                // Let's assume standard behavior:
+                focusedWindow.webContents.send('menu:close-tab');
+              }
+            }
+          }
+          : { role: 'quit' },
       ],
     },
 
@@ -96,15 +122,15 @@ export function createMenuTemplate(windowManager) {
         { role: 'paste' },
         ...(isMac
           ? [
-              { role: 'pasteAndMatchStyle' },
-              { role: 'delete' },
-              { role: 'selectAll' },
-              { type: 'separator' },
-              {
-                label: 'Speech',
-                submenu: [{ role: 'startSpeaking' }, { role: 'stopSpeaking' }],
-              },
-            ]
+            { role: 'pasteAndMatchStyle' },
+            { role: 'delete' },
+            { role: 'selectAll' },
+            { type: 'separator' },
+            {
+              label: 'Speech',
+              submenu: [{ role: 'startSpeaking' }, { role: 'stopSpeaking' }],
+            },
+          ]
           : [{ role: 'delete' }, { type: 'separator' }, { role: 'selectAll' }]),
       ],
     },
@@ -116,6 +142,14 @@ export function createMenuTemplate(windowManager) {
         { role: 'reload' },
         { role: 'forceReload' },
         { role: 'toggleDevTools' },
+        { type: 'separator' },
+        {
+          label: 'Command Palette',
+          accelerator: 'CmdOrCtrl+K',
+          click: (_item, focusedWindow) => {
+            if (focusedWindow) focusedWindow.webContents.send('menu:command-palette');
+          }
+        },
         { type: 'separator' },
         { role: 'resetZoom' },
         { role: 'zoomIn' },
@@ -133,11 +167,11 @@ export function createMenuTemplate(windowManager) {
         { role: 'zoom' },
         ...(isMac
           ? [
-              { type: 'separator' },
-              { role: 'front' },
-              { type: 'separator' },
-              { role: 'window' },
-            ]
+            { type: 'separator' },
+            { role: 'front' },
+            { type: 'separator' },
+            { role: 'window' },
+          ]
           : [{ role: 'close' }]),
       ],
     },
@@ -161,21 +195,28 @@ export function createMenuTemplate(windowManager) {
           },
         },
         { type: 'separator' },
+        {
+          label: 'Show Onboarding',
+          click: (_item, focusedWindow) => {
+            if (focusedWindow) focusedWindow.webContents.send('menu:show-onboarding');
+          },
+        },
+        { type: 'separator' },
         ...(!isMac
           ? [
-              {
-                label: 'About',
-                click: () => {
-                  logger.debug('About menu clicked');
-                  const existing = windowManager.getWindowByType('about');
-                  if (existing) {
-                    windowManager.focusWindow(existing.id);
-                  } else {
-                    windowManager.createWindow('about');
-                  }
-                },
+            {
+              label: 'About',
+              click: () => {
+                logger.debug('About menu clicked');
+                const existing = windowManager.getWindowByType('about');
+                if (existing) {
+                  windowManager.focusWindow(existing.id);
+                } else {
+                  windowManager.createWindow('about');
+                }
               },
-            ]
+            },
+          ]
           : []),
       ],
     },

@@ -26,7 +26,32 @@ const CommandPalette = () => {
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+
+    // Listen for menu actions (IPC)
+    let cleanupMenuListener;
+    if (window.electronAPI?.events?.onMenuAction) {
+      cleanupMenuListener = window.electronAPI.events.onMenuAction((action) => {
+        if (action === 'command-palette') {
+          setIsOpen(true);
+        }
+      });
+    }
+
+    // Listen for global shortcuts (IPC)
+    let cleanupShortcutListener;
+    if (window.electronAPI?.shortcuts?.onTriggered) {
+      cleanupShortcutListener = window.electronAPI.shortcuts.onTriggered(({ action }) => {
+        if (action === 'command-palette') {
+          setIsOpen(prev => !prev);
+        }
+      });
+    }
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      if (cleanupMenuListener) cleanupMenuListener();
+      if (cleanupShortcutListener) cleanupShortcutListener();
+    };
   }, [isOpen, setIsOpen]);
 
   // Group commands by group
@@ -71,6 +96,7 @@ const CommandPalette = () => {
                 {groupCommands.map((command) => (
                   <Command.Item
                     key={command.id}
+                    value={command.label} // Important for cmdk selection
                     onSelect={() => {
                       command.action();
                       setIsOpen(false);

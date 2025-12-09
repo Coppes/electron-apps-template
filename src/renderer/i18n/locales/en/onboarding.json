@@ -14,7 +14,7 @@
     },
     "shortcuts": {
       "title": "Keyboard Shortcuts",
-      "description": "Boost your productivity with built-in shortcuts and command palette."
+      "description": "Boost your productivity with built-in shortcuts ({{mod}}+K) and command palette ({{mod}}+Shift+P)."
     }
   },
   "buttons": {

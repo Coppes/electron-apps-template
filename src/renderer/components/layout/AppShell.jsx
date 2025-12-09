@@ -7,16 +7,20 @@ import StatusBar from '../StatusBar';
 import TabBar from '../TabBar';
 import { useTab } from '../../hooks/useTab';
 import { useNavigationCommands } from '../../hooks/useNavigationCommands';
+import { useTabCommands } from '../../hooks/useTabCommands';
+import { useLanguageStatus } from '../../hooks/useLanguageStatus';
 import { isDevelopment } from '../../utils/is-dev';
 
 const AppShell = ({ children }) => {
   const [sidebarWidth, setSidebarWidth] = useState(250);
   const [isResizing, setIsResizing] = useState(false);
-  const { openTab, activeTabId } = useTab();
+  const { openTab, activeTabId, tabs, closeTab } = useTab();
   const { t } = useTranslation('common');
 
   // Register Global Navigation Commands
   useNavigationCommands();
+  useTabCommands();
+  useLanguageStatus();
 
   const handleMouseDown = (e) => {
     e.preventDefault();
@@ -57,6 +61,28 @@ const AppShell = ({ children }) => {
     const type = typeOverride || id;
     openTab({ id, title, type });
   };
+
+  // Listen for menu actions (IPC)
+  useEffect(() => {
+    let cleanupMenuListener;
+    if (window.electronAPI?.events?.onMenuAction) {
+      cleanupMenuListener = window.electronAPI.events.onMenuAction((action) => {
+        if (action === 'new-tab') {
+          openTab({ id: `tab-${Date.now()}`, title: t('nav.new_tab', 'New Tab'), type: 'page' });
+        }
+        if (action === 'close-tab') {
+          if (tabs.length > 1) {
+            closeTab(activeTabId);
+          } else {
+            window.electronAPI.window.close();
+          }
+        }
+      });
+    }
+    return () => {
+      if (cleanupMenuListener) cleanupMenuListener();
+    };
+  }, [openTab, t, tabs, activeTabId, closeTab]);
 
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden">
