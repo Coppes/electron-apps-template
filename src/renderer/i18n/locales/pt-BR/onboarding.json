@@ -1,1 +1,26 @@
-{}
+{
+  "steps": {
+    "welcome": {
+      "title": "Bem-vindo ao Electron App",
+      "description": "Um template poderoso, seguro e moderno para seu próximo projeto."
+    },
+    "security": {
+      "title": "Seguro por Padrão",
+      "description": "Construído com isolamento de contexto, sandbox ativado e CSP rigoroso."
+    },
+    "features": {
+      "title": "Rico em Recursos",
+      "description": "Inclui abas, paleta de comandos, internacionalização e muito mais."
+    },
+    "shortcuts": {
+      "title": "Atalhos de Teclado",
+      "description": "Aumente sua produtividade com atalhos integrados e paleta de comandos."
+    }
+  },
+  "buttons": {
+    "skip": "Pular",
+    "back": "Voltar",
+    "next": "Próximo",
+    "finish": "Começar"
+  }
+}

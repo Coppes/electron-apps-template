@@ -84,27 +84,27 @@
 ## Phase 4: Onboarding & Polish (Sequential)
 
 ### Onboarding Flow (9 tasks)
-- [ ] 62. Create Onboarding component using shadcn Dialog + Carousel (`src/renderer/components/Onboarding.jsx`)
-- [ ] 63. Add onboardingCompleted flag to electron-store
-- [ ] 64. Implement first-launch detection in App.jsx
-- [ ] 65. Create onboarding steps: Welcome, Features, Shortcuts, Settings
-- [ ] 66. Add illustrations/icons for each onboarding step
-- [ ] 67. Implement "Don't show again" checkbox functionality
-- [ ] 68. Add "Help > Show Onboarding" menu item for re-triggering
-- [ ] 69. Translate onboarding content to all supported languages
-- [ ] 70. Write tests for first-launch detection, step navigation, and dismissal
+- [x] 62. Create Onboarding component using shadcn Dialog + Carousel (`src/renderer/components/Onboarding.jsx`)
+- [x] 63. Add onboardingCompleted flag to electron-store
+- [x] 64. Implement first-launch detection in App.jsx
+- [x] 65. Create onboarding steps: Welcome, Features, Shortcuts, Settings
+- [x] 66. Add illustrations/icons for each onboarding step
+- [x] 67. Implement "Don't show again" checkbox functionality
+- [x] 68. Add "Help > Show Onboarding" menu item for re-triggering
+- [x] 69. Translate onboarding content to all supported languages
+- [x] 70. Write tests for first-launch detection, step navigation, and dismissal
 
 ### i18n Content Migration (10 tasks)
-- [ ] 71. Refactor App.jsx to use i18n keys instead of hardcoded text
-- [ ] 72. Refactor AppShell to use i18n keys
-- [ ] 73. Refactor all page components to use i18n keys (HomePage, DemoPage, SettingsPage, AboutPage)
+- [x] 71. Refactor App.jsx to use i18n keys instead of hardcoded text
+- [x] 72. Refactor AppShell to use i18n keys
+- [x] 73. Refactor all page components to use i18n keys (HomePage, DemoPage, SettingsPage, AboutPage)
 - [ ] 74. Refactor UI components to use i18n keys (Button labels, tooltips, placeholders)
 - [ ] 75. Add language selector to SettingsPage (replace existing language dropdown)
 - [ ] 76. Implement runtime language switching without restart
-- [ ] 77. Add missing translation keys to JSON files
-- [ ] 78. Test all UI flows in both EN and PT-BR
+- [x] 77. Add missing translation keys to JSON files
+- [x] 78. Test all UI flows in both EN and PT-BR
 - [ ] 79. Add ARIA labels for accessibility with i18n
-- [ ] 80. Update README with i18n contribution guidelines
+- [x] 80. Update README with i18n contribution guidelines
 
 ## Phase 5: Integration & Testing (Parallel)
 

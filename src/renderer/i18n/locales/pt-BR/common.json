@@ -19,10 +19,95 @@
     "finish": "Concluir"
   },
   "nav": {
+    "title": "App Electron",
     "home": "Início",
-    "demos": "Demos",
-    "settings": "Configurações",
-    "about": "Sobre",
-    "development": "Desenvolvimento"
+    "sections": {
+      "demos": "Demos",
+      "data": "Dados",
+      "settings": "Configurações",
+      "development": "Desenvolvimento"
+    },
+    "items": {
+      "legacy_demo": "Demo Legado",
+      "data_mgmt": "Ger. Dados",
+      "connectivity": "Conectividade",
+      "ipc": "IPC",
+      "secure_storage": "Arm. Seguro",
+      "os_integration": "Int. OS",
+      "backups": "Backups",
+      "sync_queue": "Fila de Sync",
+      "settings": "Configurações",
+      "about": "Sobre",
+      "test_playground": "Playground de Teste"
+    }
+  },
+  "home": {
+    "title": "Bem-vindo ao Electron Apps Template",
+    "subtitle": "Um boilerplate seguro, escalável e moderno para aplicações desktop",
+    "cards": {
+      "security": {
+        "title": "Segurança Primeiro",
+        "description": "Construído com as melhores práticas em mente",
+        "features": {
+          "context": "Isolamento de contexto ativado",
+          "node": "Integração Node desativada no renderer",
+          "ipc": "IPC seguro via contextBridge",
+          "csp": "Política de Segurança de Conteúdo configurada"
+        }
+      },
+      "stack": {
+        "title": "Stack Moderna",
+        "description": "Ferramentas e tecnologias mais recentes",
+        "features": {
+          "electron": "Electron mais recente",
+          "react": "React 18 com hooks",
+          "tailwind": "Tailwind CSS para estilo",
+          "shadcn": "Biblioteca de componentes shadcn/ui"
+        }
+      },
+      "ui": {
+        "title": "UI Bonita",
+        "description": "Componentes pré-configurados prontos para uso",
+        "features": {
+          "layout": "Layout com barra lateral redimensionável",
+          "pages": "Múltiplos modelos de página",
+          "forms": "Componentes de formulário (Input, Select, Switch)",
+          "components": "Cards, Botões e mais"
+        }
+      },
+      "storage": {
+        "title": "Armazenamento Persistente",
+        "description": "Salve preferências do usuário facilmente",
+        "features": {
+          "store": "Integração electron-store",
+          "settings": "Persistência de configurações",
+          "cross": "Armazenamento multiplataforma",
+          "api": "API chave-valor simples"
+        }
+      },
+      "start": {
+        "title": "Começando",
+        "description": "Explore os recursos do modelo",
+        "text": "Navegue pela barra lateral para explorar diferentes seções:",
+        "demo": {
+          "title": "Demo",
+          "description": "Experimente o abridor de arquivos nativo e veja o IPC em ação"
+        },
+        "settings": {
+          "title": "Configurações",
+          "description": "Configure preferências com armazenamento persistente"
+        },
+        "about": {
+          "title": "Sobre",
+          "description": "Veja informações da versão e detalhes do sistema"
+        }
+      }
+    },
+    "ready": {
+      "title": "Pronto para Construir?",
+      "text": "Este modelo está pronto para desenvolvimento. Comece a personalizar componentes, adicione seus recursos e construa aplicações desktop incríveis.",
+      "docs": "Ver Documentação",
+      "github": "Repositório GitHub"
+    }
   }
 }

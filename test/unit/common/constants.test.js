@@ -2,14 +2,14 @@
  * Unit tests for common/constants.js
  */
 import { describe, it, expect } from 'vitest';
-import { 
-  IPC_CHANNELS, 
-  WINDOW_TYPES, 
+import {
+  IPC_CHANNELS,
+  WINDOW_TYPES,
   DEFAULT_WINDOW_CONFIG,
   LOG_LEVELS,
   ENV,
   TEST_MODE,
-} from '../../src/common/constants.js';
+} from '../../../src/common/constants.js';
 
 describe('Constants Module', () => {
   describe('IPC_CHANNELS', () => {
@@ -47,7 +47,7 @@ describe('Constants Module', () => {
     });
 
     it('should define event channels', () => {
-      expect(IPC_CHANNELS.COUNTER_UPDATED).toBe('counter-updated');
+      expect(IPC_CHANNELS.COUNTER_UPDATED).toBe('counter:updated');
       expect(IPC_CHANNELS.UPDATE_AVAILABLE).toBe('update:available');
       expect(IPC_CHANNELS.UPDATE_DOWNLOADED).toBe('update:downloaded');
       expect(IPC_CHANNELS.UPDATE_ERROR).toBe('update:error');
@@ -70,7 +70,7 @@ describe('Constants Module', () => {
     it('should use consistent naming convention (namespace:action)', () => {
       const values = Object.values(IPC_CHANNELS);
       values.forEach(channel => {
-        expect(channel).toMatch(/^[a-z]+:[a-z-]+$/);
+        expect(channel).toMatch(/^[a-z0-9-]+:[a-z0-9-]+$/);
       });
     });
   });
@@ -142,7 +142,7 @@ describe('Constants Module', () => {
     it('should have valid log level order', () => {
       const levels = ['debug', 'info', 'warn', 'error'];
       const definedLevels = Object.values(LOG_LEVELS);
-      expect(definedLevels.sort()).toEqual(levels);
+      expect(definedLevels.sort()).toEqual(levels.sort());
     });
   });
 

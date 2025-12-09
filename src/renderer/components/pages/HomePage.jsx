@@ -1,82 +1,85 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
 import Button from '../ui/Button';
 
 const HomePage = () => {
+  const { t } = useTranslation('common');
+
   return (
     <div className="p-8 max-w-6xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">Welcome to Electron Apps Template</h1>
+        <h1 className="text-4xl font-bold mb-2">{t('home.title')}</h1>
         <p className="text-xl text-muted-foreground">
-          A secure, scalable, and modern boilerplate for desktop applications
+          {t('home.subtitle')}
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <Card>
           <CardHeader>
-            <CardTitle>🔒 Security First</CardTitle>
+            <CardTitle>🔒 {t('home.cards.security.title')}</CardTitle>
             <CardDescription>
-              Built with best practices in mind
+              {t('home.cards.security.description')}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2 text-sm">
-              <li>✓ Context isolation enabled</li>
-              <li>✓ Node integration disabled in renderer</li>
-              <li>✓ Secure IPC via contextBridge</li>
-              <li>✓ Content Security Policy configured</li>
+              <li>✓ {t('home.cards.security.features.context')}</li>
+              <li>✓ {t('home.cards.security.features.node')}</li>
+              <li>✓ {t('home.cards.security.features.ipc')}</li>
+              <li>✓ {t('home.cards.security.features.csp')}</li>
             </ul>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>⚡ Modern Stack</CardTitle>
+            <CardTitle>⚡ {t('home.cards.stack.title')}</CardTitle>
             <CardDescription>
-              Latest tools and technologies
+              {t('home.cards.stack.description')}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2 text-sm">
-              <li>✓ Electron {window.navigator.userAgent.match(/Electron\/([^\s]+)/)?.[1] || 'latest'}</li>
-              <li>✓ React 18 with hooks</li>
-              <li>✓ Tailwind CSS for styling</li>
-              <li>✓ shadcn/ui component library</li>
+              <li>✓ {t('home.cards.stack.features.electron').replace('latest', window.navigator.userAgent.match(/Electron\/([^\s]+)/)?.[1] || 'latest')}</li>
+              <li>✓ {t('home.cards.stack.features.react')}</li>
+              <li>✓ {t('home.cards.stack.features.tailwind')}</li>
+              <li>✓ {t('home.cards.stack.features.shadcn')}</li>
             </ul>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>🎨 Beautiful UI</CardTitle>
+            <CardTitle>🎨 {t('home.cards.ui.title')}</CardTitle>
             <CardDescription>
-              Pre-configured components ready to use
+              {t('home.cards.ui.description')}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2 text-sm">
-              <li>✓ Resizable sidebar layout</li>
-              <li>✓ Multiple page templates</li>
-              <li>✓ Form components (Input, Select, Switch)</li>
-              <li>✓ Cards, Buttons, and more</li>
+              <li>✓ {t('home.cards.ui.features.layout')}</li>
+              <li>✓ {t('home.cards.ui.features.pages')}</li>
+              <li>✓ {t('home.cards.ui.features.forms')}</li>
+              <li>✓ {t('home.cards.ui.features.components')}</li>
             </ul>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>💾 Persistent Storage</CardTitle>
+            <CardTitle>💾 {t('home.cards.storage.title')}</CardTitle>
             <CardDescription>
-              Save user preferences easily
+              {t('home.cards.storage.description')}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2 text-sm">
-              <li>✓ electron-store integration</li>
-              <li>✓ Settings persistence</li>
-              <li>✓ Cross-platform storage</li>
-              <li>✓ Simple key-value API</li>
+              <li>✓ {t('home.cards.storage.features.store')}</li>
+              <li>✓ {t('home.cards.storage.features.settings')}</li>
+              <li>✓ {t('home.cards.storage.features.cross')}</li>
+              <li>✓ {t('home.cards.storage.features.api')}</li>
             </ul>
           </CardContent>
         </Card>
@@ -84,33 +87,33 @@ const HomePage = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>🚀 Getting Started</CardTitle>
+          <CardTitle>🚀 {t('home.cards.start.title')}</CardTitle>
           <CardDescription>
-            Explore the template features
+            {t('home.cards.start.description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Navigate through the sidebar to explore different sections:
+              {t('home.cards.start.text')}
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="flex flex-col">
-                <span className="font-medium text-sm mb-1">🔧 Demo</span>
+                <span className="font-medium text-sm mb-1">🔧 {t('home.cards.start.demo.title')}</span>
                 <span className="text-xs text-muted-foreground">
-                  Try the native file opener and see IPC in action
+                  {t('home.cards.start.demo.description')}
                 </span>
               </div>
               <div className="flex flex-col">
-                <span className="font-medium text-sm mb-1">⚙️ Settings</span>
+                <span className="font-medium text-sm mb-1">⚙️ {t('home.cards.start.settings.title')}</span>
                 <span className="text-xs text-muted-foreground">
-                  Configure preferences with persistent storage
+                  {t('home.cards.start.settings.description')}
                 </span>
               </div>
               <div className="flex flex-col">
-                <span className="font-medium text-sm mb-1">ℹ️ About</span>
+                <span className="font-medium text-sm mb-1">ℹ️ {t('home.cards.start.about.title')}</span>
                 <span className="text-xs text-muted-foreground">
-                  View version info and system details
+                  {t('home.cards.start.about.description')}
                 </span>
               </div>
             </div>
@@ -119,13 +122,13 @@ const HomePage = () => {
       </Card>
 
       <div className="mt-8 p-6 bg-muted rounded-lg">
-        <h3 className="font-semibold mb-2">Ready to Build?</h3>
+        <h3 className="font-semibold mb-2">{t('home.ready.title')}</h3>
         <p className="text-sm text-muted-foreground mb-4">
-          This template is ready for development. Start customizing components, add your features, and build amazing desktop applications.
+          {t('home.ready.text')}
         </p>
         <div className="flex gap-3">
-          <Button>View Documentation</Button>
-          <Button variant="outline">GitHub Repository</Button>
+          <Button>{t('home.ready.docs')}</Button>
+          <Button variant="outline">{t('home.ready.github')}</Button>
         </div>
       </div>
     </div>

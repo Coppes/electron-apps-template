@@ -7,14 +7,14 @@ describe('App Component', () => {
   it('deve renderizar o componente App sem erros', () => {
     render(<App />);
 
-    expect(screen.getByText(/Welcome to Electron Apps Template/i)).toBeInTheDocument();
+    expect(screen.getByText(/home.title/i)).toBeInTheDocument();
   });
 
   it('deve exibir o header com título', () => {
     render(<App />);
 
     const heading = screen.getByRole('heading', {
-      name: /Welcome to Electron Apps Template/i,
+      name: /home.title/i,
     });
     expect(heading).toBeInTheDocument();
   });
@@ -22,31 +22,33 @@ describe('App Component', () => {
   it('deve exibir características da aplicação', () => {
     render(<App />);
 
-    expect(screen.getByText(/Context isolation enabled/i)).toBeInTheDocument();
-    expect(screen.getByText(/Node integration disabled/i)).toBeInTheDocument();
-    expect(screen.getByText(/shadcn\/ui component library/i)).toBeInTheDocument();
+    expect(screen.getByText(/home.cards.security.features.context/i)).toBeInTheDocument();
+    expect(screen.getByText(/home.cards.security.features.node/i)).toBeInTheDocument();
+    expect(screen.getByText(/home.cards.stack.features.shadcn/i)).toBeInTheDocument();
   });
 
   it('deve mostrar botões de navegação', () => {
     render(<App />);
 
-    const homeButtons = screen.getAllByText(/🏠 Home/i);
+    // Since we mock t(key) => key, and AppShell uses 🏠 {t('nav.home')}
+    // The output will be "🏠 nav.home"
+    const homeButtons = screen.getAllByText(/nav.home/i);
     expect(homeButtons.length).toBeGreaterThan(0);
-    
-    const demoButtons = screen.getAllByText(/🔧 Demo/i);
+
+    const demoButtons = screen.getAllByText(/nav.items.legacy_demo/i);
     expect(demoButtons.length).toBeGreaterThan(0);
-    
-    const settingsButtons = screen.getAllByText(/⚙️ Settings/i);
+
+    const settingsButtons = screen.getAllByText(/nav.items.settings/i);
     expect(settingsButtons.length).toBeGreaterThan(0);
-    
-    const aboutButtons = screen.getAllByText(/ℹ️ About/i);
+
+    const aboutButtons = screen.getAllByText(/nav.items.about/i);
     expect(aboutButtons.length).toBeGreaterThan(0);
   });
 
   it('deve renderizar a página inicial por padrão', () => {
     render(<App />);
 
-    const heading = screen.getByText(/Welcome to Electron Apps Template/i);
+    const heading = screen.getByText(/home.title/i);
     expect(heading).toBeInTheDocument();
   });
 });

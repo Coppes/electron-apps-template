@@ -1,1 +1,26 @@
-{}
+{
+  "steps": {
+    "welcome": {
+      "title": "Welcome to Electron App",
+      "description": "A powerful, secure, and modern template for your next project."
+    },
+    "security": {
+      "title": "Secure by Default",
+      "description": "Built with context isolation, sandbox enabled, and strict CSP."
+    },
+    "features": {
+      "title": "Feature Rich",
+      "description": "Includes Tabs, Command Palette, i18n, and more out of the box."
+    },
+    "shortcuts": {
+      "title": "Keyboard Shortcuts",
+      "description": "Boost your productivity with built-in shortcuts and command palette."
+    }
+  },
+  "buttons": {
+    "skip": "Skip",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Get Started"
+  }
+}

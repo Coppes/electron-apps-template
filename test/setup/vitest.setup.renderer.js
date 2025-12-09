@@ -8,6 +8,21 @@ if (typeof window !== 'undefined') {
 }
 global.window.electronAPI = mockElectronAPI;
 
+// Mock react-i18next
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key) => key,
+    i18n: {
+      changeLanguage: vi.fn(),
+      language: 'en',
+    },
+  }),
+  initReactI18next: {
+    type: '3rdParty',
+    init: vi.fn(),
+  },
+}));
+
 // Mock ResizeObserver
 global.ResizeObserver = class ResizeObserver {
   observe() { }

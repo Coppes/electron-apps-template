@@ -72,7 +72,7 @@ export const IPC_CHANNELS = {
   SYSTEM_GET_PLATFORM: 'system:get-platform',
 
   // Events (main to renderer)
-  COUNTER_UPDATED: 'counter-updated',
+  COUNTER_UPDATED: 'counter:updated',
   UPDATE_AVAILABLE: 'update:available',
   UPDATE_DOWNLOADED: 'update:downloaded',
   UPDATE_ERROR: 'update:error',
@@ -163,6 +163,8 @@ export const DEFAULT_WINDOW_CONFIG = {
   [WINDOW_TYPES.SPLASH]: {
     width: 300,
     height: 300,
+    minWidth: 300,
+    minHeight: 300,
     frame: false,
     transparent: true,
     resizable: false,

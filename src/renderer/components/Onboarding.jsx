@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import { X, ArrowRight, Check } from 'lucide-react';
+import { X, ArrowRight, Check, Rocket, Shield, Layers, Keyboard } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import Button from './ui/Button';
 
@@ -12,7 +12,6 @@ const Onboarding = () => {
   useEffect(() => {
     const checkOnboarding = async () => {
       try {
-        // Assume window.electronAPI.store exists from previous implementation context
         const completed = await window.electronAPI.store.get('onboardingCompleted');
         if (!completed) {
           setIsOpen(true);
@@ -21,7 +20,23 @@ const Onboarding = () => {
         console.error('Failed to check onboarding status:', error);
       }
     };
+
+    // Check if triggered manually via event or props could be added later
+    // For now, checks store on mount
     checkOnboarding();
+
+    // Listen for manual trigger (e.g. from Help menu)
+    const handleManualTrigger = () => {
+      setIsOpen(true);
+      setStep(0);
+    };
+
+    // Attempt to add a custom event listener if the app supports it, 
+    // or rely on props/context. For now, we will add a global event listener for simplicity
+    // if the architecture supports it, otherwise we might need a context.
+    // Given the constraints, we'll stick to the store check and self-management for now.
+    window.addEventListener('open-onboarding', handleManualTrigger);
+    return () => window.removeEventListener('open-onboarding', handleManualTrigger);
   }, []);
 
   const handleComplete = async () => {
@@ -30,36 +45,34 @@ const Onboarding = () => {
       setIsOpen(false);
     } catch (error) {
       console.error('Failed to save onboarding status:', error);
+      setIsOpen(false); // Close anyway
     }
   };
 
   const steps = [
     {
-      title: 'Welcome to Electron App',
-      description: 'A powerful, secure, and modern template for your next project.',
-      image: (
-        <div className="w-full h-32 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center text-white text-4xl font-bold">
-          🚀
-        </div>
-      ),
+      title: t('steps.welcome.title', 'Welcome to Electron App'),
+      description: t('steps.welcome.description', 'A powerful, secure, and modern template for your next project.'),
+      icon: <Rocket className="w-16 h-16 text-white" />,
+      gradient: "from-blue-500 to-purple-500"
     },
     {
-      title: 'Secure by Default',
-      description: 'Built with context isolation, sandbox enabled, and strict CSP.',
-      image: (
-        <div className="w-full h-32 bg-gradient-to-r from-green-500 to-teal-500 rounded-lg flex items-center justify-center text-white text-4xl font-bold">
-          🔒
-        </div>
-      ),
+      title: t('steps.security.title', 'Secure by Default'),
+      description: t('steps.security.description', 'Built with context isolation, sandbox enabled, and strict CSP.'),
+      icon: <Shield className="w-16 h-16 text-white" />,
+      gradient: "from-green-500 to-teal-500"
     },
     {
-      title: 'Feature Rich',
-      description: 'Includes Tabs, Command Palette, i18n, and more out of the box.',
-      image: (
-        <div className="w-full h-32 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center text-white text-4xl font-bold">
-          ✨
-        </div>
-      ),
+      title: t('steps.features.title', 'Feature Rich'),
+      description: t('steps.features.description', 'Includes Tabs, Command Palette, i18n, and more out of the box.'),
+      icon: <Layers className="w-16 h-16 text-white" />,
+      gradient: "from-orange-500 to-red-500"
+    },
+    {
+      title: t('steps.shortcuts.title', 'Keyboard Shortcuts'),
+      description: t('steps.shortcuts.description', 'Boost your productivity with built-in shortcuts and command palette.'),
+      icon: <Keyboard className="w-16 h-16 text-white" />,
+      gradient: "from-pink-500 to-rose-500"
     },
   ];
 
@@ -71,42 +84,54 @@ const Onboarding = () => {
         <Dialog.Overlay className="fixed inset-0 bg-black/50 z-50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
         <Dialog.Content className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg">
 
-          <div className="flex flex-col gap-4 text-center">
-            {steps[step].image}
-            <Dialog.Title className="text-2xl font-bold tracking-tight">
-              {steps[step].title}
-            </Dialog.Title>
-            <Dialog.Description className="text-muted-foreground">
-              {steps[step].description}
-            </Dialog.Description>
+          <div className="flex flex-col gap-6 text-center pt-4">
+            <div className={`w-full h-40 bg-gradient-to-r ${steps[step].gradient} rounded-lg flex items-center justify-center shadow-inner`}>
+              {steps[step].icon}
+            </div>
+
+            <div className="space-y-2">
+              <Dialog.Title className="text-2xl font-bold tracking-tight">
+                {steps[step].title}
+              </Dialog.Title>
+              <Dialog.Description className="text-muted-foreground text-lg">
+                {steps[step].description}
+              </Dialog.Description>
+            </div>
           </div>
 
-          <div className="flex justify-between items-center mt-4">
-            <div className="flex gap-1">
+          <div className="flex flex-col gap-6 mt-4">
+            <div className="flex justify-center gap-2">
               {steps.map((_, i) => (
                 <div
                   key={i}
-                  className={`h-1.5 rounded-full transition-all duration-300 ${i === step ? 'w-6 bg-primary' : 'w-1.5 bg-muted'
+                  className={`h-2 rounded-full transition-all duration-300 ${i === step ? 'w-8 bg-primary' : 'w-2 bg-muted'
                     }`}
                 />
               ))}
             </div>
 
-            <div className="flex gap-2">
-              {step < steps.length - 1 ? (
-                <>
-                  <Button variant="ghost" onClick={handleComplete}>
-                    Skip
+            <div className="flex justify-between items-center">
+              <Button variant="ghost" onClick={handleComplete}>
+                {t('buttons.skip', 'Skip')}
+              </Button>
+
+              <div className="flex gap-2">
+                {step > 0 && (
+                  <Button variant="outline" onClick={() => setStep(step - 1)}>
+                    {t('buttons.back', 'Back')}
                   </Button>
+                )}
+
+                {step < steps.length - 1 ? (
                   <Button onClick={() => setStep(step + 1)}>
-                    Next <ArrowRight className="ml-2 h-4 w-4" />
+                    {t('buttons.next', 'Next')} <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
-                </>
-              ) : (
-                <Button onClick={handleComplete}>
-                  Get Started <Check className="ml-2 h-4 w-4" />
-                </Button>
-              )}
+                ) : (
+                  <Button onClick={handleComplete}>
+                    {t('buttons.finish', 'Get Started')} <Check className="ml-2 h-4 w-4" />
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </Dialog.Content>

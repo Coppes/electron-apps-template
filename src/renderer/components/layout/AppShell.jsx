@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils/cn.js';
 import Button from '../ui/Button';
 import StatusBar from '../StatusBar';
@@ -11,6 +12,7 @@ const AppShell = ({ children }) => {
   const [sidebarWidth, setSidebarWidth] = useState(250);
   const [isResizing, setIsResizing] = useState(false);
   const { openTab, activeTabId } = useTab();
+  const { t } = useTranslation('common');
 
   const handleMouseDown = (e) => {
     e.preventDefault();
@@ -58,65 +60,65 @@ const AppShell = ({ children }) => {
           className="flex flex-col border-r border-border bg-card"
         >
           <div className="p-4 border-b border-border">
-            <h2 className="text-lg font-semibold">Electron App</h2>
+            <h2 className="text-lg font-semibold">{t('nav.title')}</h2>
           </div>
 
           <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
             <Button
               variant={activeTabId === 'home' ? 'default' : 'ghost'}
               className="w-full justify-start"
-              onClick={() => nav('home', 'Home')}
+              onClick={() => nav('home', t('nav.home'))}
             >
-              🏠 Home
+              🏠 {t('nav.home')}
             </Button>
 
             {/* Demos Section */}
             <div className="pt-4 pb-2">
               <div className="text-xs font-semibold text-muted-foreground uppercase px-3 pb-2">
-                Demos
+                {t('nav.sections.demos')}
               </div>
               <div className="space-y-1">
                 <Button
                   variant={activeTabId === 'demo' ? 'default' : 'ghost'}
                   className="w-full justify-start"
-                  onClick={() => nav('demo', 'Legacy Demo')}
+                  onClick={() => nav('demo', t('nav.items.legacy_demo'))}
                 >
-                  🔧 Legacy Demo
+                  🔧 {t('nav.items.legacy_demo')}
                 </Button>
                 <Button
                   variant={activeTabId === 'data-management-demo' ? 'default' : 'ghost'}
                   className="w-full justify-start"
-                  onClick={() => nav('data-management-demo', 'Data Mgmt')}
+                  onClick={() => nav('data-management-demo', t('nav.items.data_mgmt'))}
                 >
-                  💾 Data Management
+                  💾 {t('nav.items.data_mgmt')}
                 </Button>
                 <Button
                   variant={activeTabId === 'connectivity-demo' ? 'default' : 'ghost'}
                   className="w-full justify-start"
-                  onClick={() => nav('connectivity-demo', 'Connectivity')}
+                  onClick={() => nav('connectivity-demo', t('nav.items.connectivity'))}
                 >
-                  🌐 Connectivity
+                  🌐 {t('nav.items.connectivity')}
                 </Button>
                 <Button
                   variant={activeTabId === 'ipc-demo' ? 'default' : 'ghost'}
                   className="w-full justify-start"
-                  onClick={() => nav('ipc-demo', 'IPC')}
+                  onClick={() => nav('ipc-demo', t('nav.items.ipc'))}
                 >
-                  🔌 IPC
+                  🔌 {t('nav.items.ipc')}
                 </Button>
                 <Button
                   variant={activeTabId === 'secure-storage-demo' ? 'default' : 'ghost'}
                   className="w-full justify-start"
-                  onClick={() => nav('secure-storage-demo', 'Secure Storage')}
+                  onClick={() => nav('secure-storage-demo', t('nav.items.secure_storage'))}
                 >
-                  🔐 Secure Storage
+                  🔐 {t('nav.items.secure_storage')}
                 </Button>
                 <Button
                   variant={activeTabId === 'os-integration-demo' ? 'default' : 'ghost'}
                   className="w-full justify-start"
-                  onClick={() => nav('os-integration-demo', 'OS Integration')}
+                  onClick={() => nav('os-integration-demo', t('nav.items.os_integration'))}
                 >
-                  💻 OS Integration
+                  💻 {t('nav.items.os_integration')}
                 </Button>
               </div>
             </div>
@@ -124,22 +126,22 @@ const AppShell = ({ children }) => {
             {/* Data Section */}
             <div className="pt-2 pb-2">
               <div className="text-xs font-semibold text-muted-foreground uppercase px-3 pb-2">
-                Data
+                {t('nav.sections.data')}
               </div>
               <div className="space-y-1">
                 <Button
                   variant={activeTabId === 'backups' ? 'default' : 'ghost'}
                   className="w-full justify-start"
-                  onClick={() => nav('backups', 'Backups')}
+                  onClick={() => nav('backups', t('nav.items.backups'))}
                 >
-                  💾 Backups
+                  💾 {t('nav.items.backups')}
                 </Button>
                 <Button
                   variant={activeTabId === 'sync' ? 'default' : 'ghost'}
                   className="w-full justify-start"
-                  onClick={() => nav('sync', 'Sync Queue')}
+                  onClick={() => nav('sync', t('nav.items.sync_queue'))}
                 >
-                  🔄 Sync Queue
+                  🔄 {t('nav.items.sync_queue')}
                 </Button>
               </div>
             </div>
@@ -147,22 +149,22 @@ const AppShell = ({ children }) => {
             {/* Settings Section */}
             <div className="pt-2 pb-2">
               <div className="text-xs font-semibold text-muted-foreground uppercase px-3 pb-2">
-                Settings
+                {t('nav.sections.settings')}
               </div>
               <div className="space-y-1">
                 <Button
                   variant={activeTabId === 'settings' ? 'default' : 'ghost'}
                   className="w-full justify-start"
-                  onClick={() => nav('settings', 'Settings')}
+                  onClick={() => nav('settings', t('nav.items.settings'))}
                 >
-                  ⚙️ Settings
+                  ⚙️ {t('nav.items.settings')}
                 </Button>
                 <Button
                   variant={activeTabId === 'about' ? 'default' : 'ghost'}
                   className="w-full justify-start"
-                  onClick={() => nav('about', 'About')}
+                  onClick={() => nav('about', t('nav.items.about'))}
                 >
-                  ℹ️ About
+                  ℹ️ {t('nav.items.about')}
                 </Button>
               </div>
             </div>
@@ -171,15 +173,15 @@ const AppShell = ({ children }) => {
             {isDevelopment && (
               <div className="pt-2 pb-2">
                 <div className="text-xs font-semibold text-muted-foreground uppercase px-3 pb-2">
-                  Development
+                  {t('nav.sections.development')}
                 </div>
                 <div className="space-y-1">
                   <Button
                     variant={activeTabId === 'test' ? 'default' : 'ghost'}
                     className="w-full justify-start"
-                    onClick={() => nav('test', 'Test Playground')}
+                    onClick={() => nav('test', t('nav.items.test_playground'))}
                   >
-                    🧪 Test Playground
+                    🧪 {t('nav.items.test_playground')}
                   </Button>
                 </div>
               </div>

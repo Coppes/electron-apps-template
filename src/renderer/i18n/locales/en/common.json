@@ -19,10 +19,95 @@
     "finish": "Finish"
   },
   "nav": {
+    "title": "Electron App",
     "home": "Home",
-    "demos": "Demos",
-    "settings": "Settings",
-    "about": "About",
-    "development": "Development"
+    "sections": {
+      "demos": "Demos",
+      "data": "Data",
+      "settings": "Settings",
+      "development": "Development"
+    },
+    "items": {
+      "legacy_demo": "Legacy Demo",
+      "data_mgmt": "Data Mgmt",
+      "connectivity": "Connectivity",
+      "ipc": "IPC",
+      "secure_storage": "Secure Storage",
+      "os_integration": "OS Integration",
+      "backups": "Backups",
+      "sync_queue": "Sync Queue",
+      "settings": "Settings",
+      "about": "About",
+      "test_playground": "Test Playground"
+    }
+  },
+  "home": {
+    "title": "Welcome to Electron Apps Template",
+    "subtitle": "A secure, scalable, and modern boilerplate for desktop applications",
+    "cards": {
+      "security": {
+        "title": "Security First",
+        "description": "Built with best practices in mind",
+        "features": {
+          "context": "Context isolation enabled",
+          "node": "Node integration disabled in renderer",
+          "ipc": "Secure IPC via contextBridge",
+          "csp": "Content Security Policy configured"
+        }
+      },
+      "stack": {
+        "title": "Modern Stack",
+        "description": "Latest tools and technologies",
+        "features": {
+          "electron": "Electron latest",
+          "react": "React 18 with hooks",
+          "tailwind": "Tailwind CSS for styling",
+          "shadcn": "shadcn/ui component library"
+        }
+      },
+      "ui": {
+        "title": "Beautiful UI",
+        "description": "Pre-configured components ready to use",
+        "features": {
+          "layout": "Resizable sidebar layout",
+          "pages": "Multiple page templates",
+          "forms": "Form components (Input, Select, Switch)",
+          "components": "Cards, Buttons, and more"
+        }
+      },
+      "storage": {
+        "title": "Persistent Storage",
+        "description": "Save user preferences easily",
+        "features": {
+          "store": "electron-store integration",
+          "settings": "Settings persistence",
+          "cross": "Cross-platform storage",
+          "api": "Simple key-value API"
+        }
+      },
+      "start": {
+        "title": "Getting Started",
+        "description": "Explore the template features",
+        "text": "Navigate through the sidebar to explore different sections:",
+        "demo": {
+          "title": "Demo",
+          "description": "Try the native file opener and see IPC in action"
+        },
+        "settings": {
+          "title": "Settings",
+          "description": "Configure preferences with persistent storage"
+        },
+        "about": {
+          "title": "About",
+          "description": "View version info and system details"
+        }
+      }
+    },
+    "ready": {
+      "title": "Ready to Build?",
+      "text": "This template is ready for development. Start customizing components, add your features, and build amazing desktop applications.",
+      "docs": "View Documentation",
+      "github": "GitHub Repository"
+    }
   }
 }
