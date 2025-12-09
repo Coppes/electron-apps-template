@@ -50,7 +50,7 @@ export class WindowManager {
         contextIsolation: true,
         nodeIntegration: false,
         enableRemoteModule: false,
-        sandbox: false,
+        sandbox: true,
         preload: this.getPreloadPath(),
         ...customOptions.webPreferences,
       },
@@ -178,7 +178,7 @@ export class WindowManager {
    */
   restoreState(type) {
     const state = this.store.get(`windowState.${type}`);
-    
+
     if (!state) {
       logger.debug(`No saved state found for window type: ${type}`);
       return null;
@@ -202,7 +202,7 @@ export class WindowManager {
    */
   isVisibleOnDisplay(bounds) {
     const displays = screen.getAllDisplays();
-    
+
     return displays.some(display => {
       const displayBounds = display.bounds;
       // Check if window is at least partially visible on this display
@@ -284,7 +284,7 @@ export class WindowManager {
   closeAllWindows() {
     logger.info('Closing all windows');
     const windowIds = Array.from(this.windows.keys());
-    
+
     windowIds.forEach(windowId => {
       this.closeWindow(windowId);
     });
@@ -296,7 +296,7 @@ export class WindowManager {
   saveAllStates() {
     logger.info('Saving state for all windows');
     const windowIds = Array.from(this.windows.keys());
-    
+
     windowIds.forEach(windowId => {
       this.saveState(windowId);
     });
