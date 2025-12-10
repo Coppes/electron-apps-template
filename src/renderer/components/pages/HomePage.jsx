@@ -3,175 +3,132 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
 import Button from '../ui/Button';
 import DropZone from '../features/data-management/DropZone';
+import { useTab } from '../../hooks/useTab';
 
 const HomePage = () => {
   const { t } = useTranslation('common');
   const [droppedFiles, setDroppedFiles] = useState([]);
+  const { openTab } = useTab();
 
-  const handleDrop = (files) => {
+  const handleDrop = async (files) => {
     setDroppedFiles(files);
     console.log('Dropped files:', files);
+
+    // Auto-import logic could go here, or just showing them
+    for (const file of files) {
+      if (file.path) {
+        // Example: check extension and import if supported
+        if (file.path.endsWith('.json') || file.path.endsWith('.csv')) {
+          try {
+            // We could automatically trigger import here or just notify
+            console.log('File supported for import:', file.path);
+          } catch (e) {
+            console.error('Import check failed', e);
+          }
+        }
+      }
+    }
   };
 
   const handleDragError = (error) => {
     console.error('Drag and drop error:', error);
   };
 
+  const handleOpenFile = async () => {
+    try {
+      const filePath = await window.electronAPI.dialog.showOpenDialog({
+        properties: ['openFile']
+      });
+      if (filePath) {
+        console.log('Selected file:', filePath);
+        // Handle file opening logic
+      }
+    } catch (error) {
+      console.error('Open file error:', error);
+    }
+  };
+
   return (
-    <DropZone
-      onDrop={handleDrop}
-      onError={handleDragError}
-      className="min-h-screen"
-      activeClassName="ring-2 ring-primary ring-offset-2 bg-primary/5"
-    >
-      <div className="p-8 max-w-6xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">{t('home.title')}</h1>
-          <p className="text-xl text-muted-foreground">
-            {t('home.subtitle')}
-          </p>
+    <div className="min-h-screen bg-background p-8 flex flex-col items-center justify-center">
+      <div className="w-full max-w-4xl space-y-8">
+        <div className="text-center space-y-2">
+          <h1 className="text-4xl font-bold tracking-tight">{t('app.name', 'Electron App')}</h1>
+          <p className="text-xl text-muted-foreground">{t('app.subtitle', 'Start Hub')}</p>
         </div>
+
+        <DropZone
+          onDrop={handleDrop}
+          onError={handleDragError}
+          className="w-full"
+          activeClassName="ring-4 ring-primary ring-opacity-50 bg-accent"
+        >
+          <Card className="border-dashed border-2 min-h-[300px] flex flex-col items-center justify-center cursor-pointer hover:bg-accent/50 transition-colors">
+            <CardContent className="flex flex-col items-center space-y-4 p-8 text-center">
+              <div className="p-4 rounded-full bg-primary/10 text-primary mb-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="17 8 12 3 7 8" />
+                  <line x1="12" x2="12" y1="3" y2="15" />
+                </svg>
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-2xl font-semibold">Drop files to open</h3>
+                <p className="text-muted-foreground max-w-sm">
+                  Drag and drop files here to import data or open projects.
+                </p>
+              </div>
+              <div className="flex gap-4 mt-4">
+                <Button onClick={(e) => { e.stopPropagation(); handleOpenFile(); }}>
+                  Open File...
+                </Button>
+                <Button variant="outline" onClick={(e) => { e.stopPropagation(); openTab({ id: 'settings', title: 'Settings', type: 'settings' }); }}>
+                  Settings
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </DropZone>
 
         {droppedFiles.length > 0 && (
-          <div className="mb-8 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-            <h3 className="font-semibold text-green-800 dark:text-green-200 mb-2">Files Dropped!</h3>
-            <ul className="list-disc list-inside text-sm text-green-700 dark:text-green-300">
-              {droppedFiles.map((file, index) => (
-                <li key={index}>{file.path} ({Math.round(file.size / 1024)} KB)</li>
-              ))}
-            </ul>
-            <Button
-              variant="outline"
-              size="sm"
-              className="mt-2"
-              onClick={(e) => {
-                e.stopPropagation();
-                setDroppedFiles([]);
-              }}
-            >
-              Clear
-            </Button>
-          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Activity</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {droppedFiles.map((file, idx) => (
+                  <div key={idx} className="flex items-center justify-between p-3 bg-muted rounded-md">
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">📄</span>
+                      <div className="flex flex-col">
+                        <span className="font-medium">{file.name}</span>
+                        <span className="text-xs text-muted-foreground">{file.path}</span>
+                      </div>
+                    </div>
+                    <span className="text-xs text-muted-foreground">Just now</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <Card>
-            <CardHeader>
-              <CardTitle>🔒 {t('home.cards.security.title')}</CardTitle>
-              <CardDescription>
-                {t('home.cards.security.description')}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2 text-sm">
-                <li>✓ {t('home.cards.security.features.context')}</li>
-                <li>✓ {t('home.cards.security.features.node')}</li>
-                <li>✓ {t('home.cards.security.features.ipc')}</li>
-                <li>✓ {t('home.cards.security.features.csp')}</li>
-              </ul>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>⚡ {t('home.cards.stack.title')}</CardTitle>
-              <CardDescription>
-                {t('home.cards.stack.description')}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2 text-sm">
-                <li>✓ {t('home.cards.stack.features.electron').replace('latest', window.navigator.userAgent.match(/Electron\/([^\s]+)/)?.[1] || 'latest')}</li>
-                <li>✓ {t('home.cards.stack.features.react')}</li>
-                <li>✓ {t('home.cards.stack.features.tailwind')}</li>
-                <li>✓ {t('home.cards.stack.features.shadcn')}</li>
-              </ul>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>🎨 {t('home.cards.ui.title')}</CardTitle>
-              <CardDescription>
-                {t('home.cards.ui.description')}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2 text-sm">
-                <li>✓ {t('home.cards.ui.features.layouts', 'Responsive Layouts')}</li>
-                <li>✓ {t('home.cards.ui.features.pages')}</li>
-                <li>✓ {t('home.cards.ui.features.forms')}</li>
-                <li>✓ {t('home.cards.ui.features.components')}</li>
-              </ul>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>💾 {t('home.cards.storage.title')}</CardTitle>
-              <CardDescription>
-                {t('home.cards.storage.description')}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2 text-sm">
-                <li>✓ {t('home.cards.storage.features.store')}</li>
-                <li>✓ {t('home.cards.storage.features.settings')}</li>
-                <li>✓ {t('home.cards.storage.features.cross')}</li>
-                <li>✓ {t('home.cards.storage.features.api')}</li>
-              </ul>
-            </CardContent>
-          </Card>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>🚀 {t('home.cards.start.title')}</CardTitle>
-            <CardDescription>
-              {t('home.cards.start.description')}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                {t('home.cards.start.text')}
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="flex flex-col">
-                  <span className="font-medium text-sm mb-1">🔧 {t('home.cards.start.demo.title')}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {t('home.cards.start.demo.description')}
-                  </span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="font-medium text-sm mb-1">⚙️ {t('home.cards.start.settings.title')}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {t('home.cards.start.settings.description')}
-                  </span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="font-medium text-sm mb-1">ℹ️ {t('home.cards.start.about.title')}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {t('home.cards.start.about.description')}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="mt-8 p-6 bg-muted rounded-lg">
-          <h3 className="font-semibold mb-2">{t('home.ready.title')}</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            {t('home.ready.text')}
-          </p>
-          <div className="flex gap-3">
-            <Button>{t('home.ready.docs')}</Button>
-            <Button variant="outline">{t('home.ready.github')}</Button>
-          </div>
+        <div className="grid grid-cols-3 gap-4">
+          <Button variant="ghost" className="h-24 flex flex-col gap-2" onClick={() => openTab({ id: 'backup', title: 'Backups', type: 'backup' })}>
+            <span className="text-2xl">💾</span>
+            Backups
+          </Button>
+          <Button variant="ghost" className="h-24 flex flex-col gap-2" onClick={() => openTab({ id: 'settings', title: 'Settings', type: 'settings' })}>
+            <span className="text-2xl">⚙️</span>
+            Settings
+          </Button>
+          <Button variant="ghost" className="h-24 flex flex-col gap-2" onClick={() => window.open('https://github.com', '_blank')}>
+            <span className="text-2xl">📚</span>
+            Docs
+          </Button>
         </div>
       </div>
-    </DropZone>
+    </div>
   );
 };
 
