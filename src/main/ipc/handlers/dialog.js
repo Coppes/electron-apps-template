@@ -3,6 +3,7 @@ import fs from 'fs/promises';
 import { logger } from '../../logger.js';
 import { createErrorResponse, createSuccessResponse } from '../bridge.js';
 import { IPC_CHANNELS } from '../../../common/constants.js';
+import { addRecentDocument } from '../../recent-docs.js';
 
 /**
  * Dialog IPC handlers
@@ -15,7 +16,7 @@ export function openFileDialogHandler() {
   return async (event, { options = {} } = {}) => {
     try {
       const window = BrowserWindow.fromWebContents(event.sender);
-      
+
       const defaultOptions = {
         properties: ['openFile'],
         filters: [
@@ -36,6 +37,10 @@ export function openFileDialogHandler() {
       try {
         const filePath = result.filePaths[0];
         const content = await fs.readFile(filePath, 'utf-8');
+
+        // Add to recent documents
+        addRecentDocument(filePath);
+
         return {
           canceled: false,
           filePath,
@@ -80,6 +85,10 @@ export function saveFileDialogHandler() {
 
       try {
         await fs.writeFile(result.filePath, content, 'utf-8');
+
+        // Add to recent documents
+        addRecentDocument(result.filePath);
+
         return {
           canceled: false,
           filePath: result.filePath,

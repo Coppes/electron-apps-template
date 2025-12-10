@@ -128,10 +128,10 @@
 
 ### 9. Recent Documents Integration
 
-- [ ] Integrate with file dialog handlers (automatically track on open/save)
-- [ ] Add "Recent Files" submenu to application File menu
-- [ ] Implement click handling to open recent documents
-- [ ] Add "Clear Recent Documents" option in settings
+- [x] Integrate with file dialog handlers (automatically track on open/save)
+- [x] Add "Recent Files" submenu to application File menu
+- [x] Implement click handling to open recent documents
+- [x] Add "Clear Recent Documents" option in settings
 - [ ] Test automatic tracking on file operations
 - [ ] Test recent files menu in application UI
 - [x] Document privacy considerations and configuration
@@ -193,7 +193,7 @@
 - [x] Add notification tag support for replacement
 - [x] Implement content sanitization (escape HTML)
 - [x] Add icon path validation (local files only)
-- [ ] Test notifications display on macOS
+- [x] Test notifications display on macOS
 - [ ] Test notifications display on Windows
 - [ ] Test notification click focuses app
 - [ ] Test action buttons on supported platforms

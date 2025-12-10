@@ -82,6 +82,17 @@ export function createMenuTemplate(windowManager) {
           }
         },
         { type: 'separator' },
+        {
+          label: 'Open Recent',
+          role: 'recentDocuments',
+          submenu: [
+            {
+              label: 'Clear Recent',
+              role: 'clearRecentDocuments',
+            },
+          ],
+        },
+        { type: 'separator' },
         ...(!isMac
           ? [
             {

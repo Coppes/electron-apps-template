@@ -24,6 +24,7 @@ import connectivityManager from './data/connectivity-manager.js';
 import syncQueue from './data/sync-queue.js';
 import { splashManager } from './splash.js';
 import { notificationManager } from './notifications.js';
+import { addRecentDocument } from './recent-docs.js';
 import { config, loadEnvironmentOverrides } from './config.js';
 
 /**
@@ -196,6 +197,9 @@ export class LifecycleManager {
       }
 
       logger.info('OS integration initialized');
+
+      // Setup file handling (open-file)
+      this.setupFileHandling();
     } catch (error) {
       logger.error('Failed to initialize OS integration', error);
     }
@@ -275,9 +279,35 @@ export class LifecycleManager {
       });
 
       // Focus the main window
+      // Focus the main window
       const mainWindow = windowManager.getWindowByType('main');
       if (mainWindow) {
+        if (mainWindow.window.isMinimized()) mainWindow.window.restore();
         windowManager.focusWindow(mainWindow.id);
+
+        // Check for file path in args (simple heuristic)
+        // Skip first arg (executable) and flags
+        const possibleFile = commandLine.slice(1).find(arg =>
+          arg && !arg.startsWith('-') && !arg.startsWith('electronapp://')
+        );
+
+        if (possibleFile) {
+          // Read and send file
+          try {
+            const exists = await fs.access(possibleFile).then(() => true).catch(() => false);
+            if (exists) {
+              const content = await fs.readFile(possibleFile, 'utf-8');
+              mainWindow.webContents.send('file:opened', {
+                filePath: possibleFile,
+                content
+              });
+              addRecentDocument(possibleFile);
+              logger.info('Opened file from second instance', { filePath: possibleFile });
+            }
+          } catch (error) {
+            logger.error('Failed to open file from second instance', error);
+          }
+        }
       }
     });
 
@@ -437,6 +467,36 @@ export class LifecycleManager {
     } catch (error) {
       logger.error('Failed to parse deep link', { url, error: error.message });
     }
+  }
+
+  /**
+   * Setup file handling (macOS open-file, etc.)
+   */
+  setupFileHandling() {
+    app.on('open-file', async (event, path) => {
+      event.preventDefault();
+      logger.info('Opening file from OS', { path });
+
+      const mainWindow = windowManager.getWindowByType('main');
+      if (mainWindow) {
+        if (mainWindow.window.isMinimized()) mainWindow.window.restore();
+        windowManager.focusWindow(mainWindow.id);
+
+        try {
+          const content = await fs.readFile(path, 'utf-8');
+          mainWindow.webContents.send('file:opened', { filePath: path, content });
+          addRecentDocument(path);
+        } catch (error) {
+          logger.error('Failed to read opened file', { path, error });
+        }
+      } else {
+        // Store for when window is ready? 
+        // For now, simplify. If no window, we might need to handle on ready.
+        // But mostly open-file happens when app is running or launching.
+        // If launching, window creation will follow.
+        // TODO: Handle startup file open
+      }
+    });
   }
 
   /**

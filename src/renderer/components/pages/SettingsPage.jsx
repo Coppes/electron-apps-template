@@ -208,7 +208,7 @@ const SettingsPage = () => {
           <CardTitle>{t('data.title', 'Data Management')}</CardTitle>
           <CardDescription>{t('data.description', 'Manage your application data.')}</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <div className="flex gap-2">
             <Button
               variant="outline"
@@ -286,20 +286,41 @@ const SettingsPage = () => {
               Export Data
             </Button>
           </div>
-        </CardContent>
-      </Card>
 
-      {/* About */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('about.title', 'About')}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">Version 1.0.0</p>
-        </CardContent>
-      </Card>
-    </div>
-  );
+          <div className="pt-4 border-t flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label>Recent Documents</Label>
+              <div className="text-sm text-muted-foreground">Clear local history of opened files</div>
+            </div>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={async () => {
+                try {
+                  await window.electronAPI.recentDocs.clear();
+                  setSaveMessage('✓ Recent documents cleared');
+                  setTimeout(() => setSaveMessage(''), 3000);
+                } catch (error) {
+                  console.error('Failed to clear recent docs:', error);
+                  setSaveMessage('✗ Failed to clear recent documents');
+                }
+              }}
+            >
+              Clear History
+            </Button>
+          </div>
+
+          {/* About */}
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('about.title', 'About')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">Version 1.0.0</p>
+            </CardContent>
+          </Card>
+        </div>
+        );
 };
 
-export default SettingsPage;
+        export default SettingsPage;
