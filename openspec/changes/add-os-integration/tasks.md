@@ -238,9 +238,9 @@
 - [x] Create tray icon assets in appropriate sizes:
   - macOS: icon-Template.png and icon-Template@2x.png (monochrome)
   - Windows/Linux: icon-16.png, icon-32.png, icon-64.png (colored)
-- [ ] Add badge overlay icons for notification indicators
-- [ ] Test icons display correctly on all platforms
-- [ ] Test icons adapt to dark/light mode on macOS
+- [x] Add badge overlay icons for notification indicators
+- [x] Test icons display correctly on all platforms
+- [x] Test icons adapt to dark/light mode on macOS
 - [x] Document icon specifications and guidelines
 
 ### 18. Notification Icons

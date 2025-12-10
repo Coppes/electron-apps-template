@@ -85,6 +85,8 @@ export const IPC_CHANNELS = {
   LOG_ERROR: 'log:error',
 
   // System Tray
+  TRAY_CREATE: 'tray:create',
+  TRAY_DESTROY: 'tray:destroy',
   TRAY_SHOW: 'tray:show',
   TRAY_HIDE: 'tray:hide',
   TRAY_SET_ICON: 'tray:set-icon',

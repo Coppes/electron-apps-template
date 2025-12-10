@@ -528,6 +528,18 @@ const dataAPI = {
  */
 const trayAPI = {
   /**
+   * Create tray icon
+   * @returns {Promise<Object>} Result
+   */
+  create: () => ipcRenderer.invoke(IPC_CHANNELS.TRAY_CREATE, {}),
+
+  /**
+   * Destroy tray icon
+   * @returns {Promise<Object>} Result
+   */
+  destroy: () => ipcRenderer.invoke(IPC_CHANNELS.TRAY_DESTROY, {}),
+
+  /**
    * Show tray icon
    * @returns {Promise<Object>} Result
    */
@@ -558,7 +570,7 @@ const trayAPI = {
    * @param {import('./common/types.js').TrayMenuItem[]} menuTemplate - Menu template
    * @returns {Promise<Object>} Result
    */
-  setMenu: (menuTemplate) => ipcRenderer.invoke(IPC_CHANNELS.TRAY_SET_MENU, { menuTemplate }),
+  setContextMenu: (menuTemplate) => ipcRenderer.invoke(IPC_CHANNELS.TRAY_SET_MENU, { menuTemplate }),
 
   /**
    * Listen for tray menu item clicks

@@ -156,9 +156,9 @@ export class LifecycleManager {
           tooltip: app.getName(),
           onClick: () => {
             const mainWindow = windowManager.getWindowByType('main');
-            if (mainWindow) {
-              if (mainWindow.window.isVisible()) {
-                mainWindow.window.hide();
+            if (mainWindow && !mainWindow.isDestroyed()) {
+              if (mainWindow.isVisible()) {
+                mainWindow.hide();
               } else {
                 windowManager.focusWindow(mainWindow.id);
               }
@@ -272,13 +272,13 @@ export class LifecycleManager {
     }
 
     // Handle second instance attempt
-    app.on('second-instance', (event, commandLine, workingDirectory) => {
+    // Handle second instance attempt
+    app.on('second-instance', async (event, commandLine, workingDirectory) => {
       logger.info('Second instance attempt detected', {
         commandLine,
         workingDirectory,
       });
 
-      // Focus the main window
       // Focus the main window
       const mainWindow = windowManager.getWindowByType('main');
       if (mainWindow) {

@@ -14,6 +14,16 @@ import { app } from 'electron';
  */
 export function createTrayHandlers() {
   return {
+    [IPC_CHANNELS.TRAY_CREATE]: async () => {
+      const success = trayManager.createTray();
+      return { success };
+    },
+
+    [IPC_CHANNELS.TRAY_DESTROY]: async () => {
+      trayManager.destroy();
+      return { success: true };
+    },
+
     [IPC_CHANNELS.TRAY_SHOW]: async () => {
       const success = trayManager.show();
       return { success };
@@ -24,7 +34,7 @@ export function createTrayHandlers() {
       return { success };
     },
 
-    [IPC_CHANNELS.TRAY_SET_ICON]: async ({ iconPath }) => {
+    [IPC_CHANNELS.TRAY_SET_ICON]: async (_, { iconPath }) => {
       if (!iconPath || typeof iconPath !== 'string') {
         throw new Error('Invalid icon path');
       }
@@ -33,7 +43,7 @@ export function createTrayHandlers() {
       return { success };
     },
 
-    [IPC_CHANNELS.TRAY_SET_TOOLTIP]: async ({ tooltip }) => {
+    [IPC_CHANNELS.TRAY_SET_TOOLTIP]: async (_, { tooltip }) => {
       if (!tooltip || typeof tooltip !== 'string') {
         throw new Error('Invalid tooltip');
       }
@@ -42,7 +52,7 @@ export function createTrayHandlers() {
       return { success };
     },
 
-    [IPC_CHANNELS.TRAY_SET_MENU]: async ({ menuTemplate }) => {
+    [IPC_CHANNELS.TRAY_SET_MENU]: async (_, { menuTemplate }) => {
       if (!Array.isArray(menuTemplate)) {
         throw new Error('Invalid menu template');
       }
@@ -98,7 +108,7 @@ function processMenuTemplate(template) {
  */
 function handleMenuItemClick(itemId) {
   logger.debug('Tray menu item clicked', { itemId });
-  
+
   // Send event to all renderer processes
   const windows = windowManager.getAllWindows();
   windows.forEach((win) => {

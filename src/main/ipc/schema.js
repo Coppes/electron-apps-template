@@ -463,6 +463,73 @@ export const dataSchema = {
 };
 
 /**
+ * Tray handlers
+ */
+export const traySchema = {
+  [IPC_CHANNELS.TRAY_CREATE]: {
+    input: {},
+    output: {
+      success: { type: 'boolean', required: true },
+      error: { type: 'string', required: false },
+    },
+  },
+
+  [IPC_CHANNELS.TRAY_DESTROY]: {
+    input: {},
+    output: {
+      success: { type: 'boolean', required: true },
+      error: { type: 'string', required: false },
+    },
+  },
+
+  [IPC_CHANNELS.TRAY_SHOW]: {
+    input: {},
+    output: {
+      success: { type: 'boolean', required: true },
+      error: { type: 'string', required: false },
+    },
+  },
+
+  [IPC_CHANNELS.TRAY_HIDE]: {
+    input: {},
+    output: {
+      success: { type: 'boolean', required: true },
+      error: { type: 'string', required: false },
+    },
+  },
+
+  [IPC_CHANNELS.TRAY_SET_ICON]: {
+    input: {
+      iconPath: { type: 'string', required: true },
+    },
+    output: {
+      success: { type: 'boolean', required: true },
+      error: { type: 'string', required: false },
+    },
+  },
+
+  [IPC_CHANNELS.TRAY_SET_TOOLTIP]: {
+    input: {
+      tooltip: { type: 'string', required: true },
+    },
+    output: {
+      success: { type: 'boolean', required: true },
+      error: { type: 'string', required: false },
+    },
+  },
+
+  [IPC_CHANNELS.TRAY_SET_MENU]: {
+    input: {
+      menuTemplate: { type: 'array', required: true },
+    },
+    output: {
+      success: { type: 'boolean', required: true },
+      error: { type: 'string', required: false },
+    },
+  },
+};
+
+/**
  * Notification handlers
  */
 export const notificationSchema = {
@@ -539,6 +606,7 @@ export const ipcSchema = {
   ...systemSchema,
   ...fileSchema,
   ...dataSchema,
+  ...traySchema,
   ...notificationSchema,
   ...i18nSchema,
 };

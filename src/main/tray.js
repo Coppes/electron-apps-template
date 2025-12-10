@@ -1,5 +1,6 @@
 import { app, Tray, Menu, nativeImage } from 'electron';
 import { join } from 'path';
+import fs from 'fs';
 import { logger } from './logger.js';
 import { isMacOS, isWindows } from '../common/constants.js';
 
@@ -29,10 +30,27 @@ class TrayManager {
 
     try {
       const iconPath = this.getTrayIconPath();
-      const icon = nativeImage.createFromPath(iconPath);
+
+      // Verify file exists
+      if (!fs.existsSync(iconPath)) {
+        logger.error('Tray icon file not found', { iconPath });
+        return false;
+      }
+
+      let icon = nativeImage.createFromPath(iconPath);
 
       if (icon.isEmpty()) {
-        logger.error('Failed to load tray icon', { iconPath });
+        logger.warn('nativeImage.createFromPath returned empty, trying createFromBuffer', { iconPath });
+        try {
+          const buffer = fs.readFileSync(iconPath);
+          icon = nativeImage.createFromBuffer(buffer);
+        } catch (error) {
+          logger.error('Failed to read icon file buffer', { error });
+        }
+      }
+
+      if (icon.isEmpty()) {
+        logger.error('Failed to load tray icon (empty)', { iconPath });
         return false;
       }
 
