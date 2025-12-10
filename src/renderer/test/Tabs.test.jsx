@@ -48,7 +48,9 @@ describe('Tab System Integration', () => {
 
   it('renders Home tab by default', async () => {
     render(<TestApp />);
-    expect(screen.getByText('Home Content')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Home Content')).toBeInTheDocument();
+    });
     expect(screen.getByTestId('active-tab')).toHaveTextContent('home');
   });
 
@@ -62,7 +64,7 @@ describe('Tab System Integration', () => {
       expect(screen.getByText('Settings Content')).toBeInTheDocument();
     });
     expect(screen.getByTestId('active-tab')).toHaveTextContent('settings');
-    expect(screen.queryByText('Home Content')).not.toBeVisible(); // Hidden
+    expect(screen.queryByText('Home Content')).not.toBeInTheDocument(); // Unmounted
   });
 
   it('can handle multiple tabs of same type', async () => {
@@ -72,7 +74,8 @@ describe('Tab System Integration', () => {
     fireEvent.click(screen.getByText('Open Demo 2'));
 
     await waitFor(() => {
-      expect(screen.getAllByText('Demo Content')).toHaveLength(2); // Two instances existing
+      // With lazy loading/unmounting, only the active tab should be in the DOM
+      expect(screen.getAllByText('Demo Content')).toHaveLength(1);
     });
     expect(screen.getByTestId('active-tab')).toHaveTextContent('demo-2');
   });

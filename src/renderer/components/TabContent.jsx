@@ -52,6 +52,13 @@ const TabContent = () => {
     <div className="flex-1 overflow-hidden relative h-full">
       {tabs.map((tab) => {
         const isActive = tab.id === activeTabId;
+
+        // Performance Optimization: Unmount inactive tabs
+        // This saves memory and DOM nodes, but resets state (scroll, inputs) when switching back.
+        // For a desktop-class app, we might want to keep *some* recent ones, but correct behavior
+        // for "lazy loading" usually implies unmounting or never mounting.
+        if (!isActive) return null;
+
         return (
           <div
             key={tab.id}
@@ -59,12 +66,9 @@ const TabContent = () => {
               "absolute inset-0 w-full h-full overflow-auto bg-background transition-opacity duration-200",
               isActive ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none hidden"
             )}
-          // 'hidden' class is added when inactive to prevent interaction and remove from accessibility tree,
-          // but we might want to keep it in DOM if we want state preservation.
-          // If 'hidden' (display: none) is used, scroll position is usually lost unless we use visibility: hidden.
-          // Using display: none is safer for performance but loses scroll.
-          // Let's use display: none for now as per Shadcn tabs usually do, OR keep it mounted.
-          // Code implies standard "Tabs" behavior.
+          // Note: Since we return null above for !isActive, the className logic for hidden/opacity-0
+          // is technically redundant but kept for transition structure if we ever revert to
+          // mounting but hiding.
           >
             <Suspense fallback={<div className="p-10 text-center">Loading...</div>}>
               {renderTabContent(tab)}
