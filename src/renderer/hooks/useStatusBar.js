@@ -37,7 +37,7 @@ export function useStatusBar(item) {
           updateItem(itemIdRef.current, pendingUpdateRef.current);
           pendingUpdateRef.current = null;
         }
-      }, 1000);
+      }, 100);
     } else {
       // Merge pending updates
       pendingUpdateRef.current = { ...(pendingUpdateRef.current || {}), ...updates };

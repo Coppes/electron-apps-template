@@ -60,12 +60,12 @@ describe('CommandPalette', () => {
 
   it('should not render when isOpen is false', () => {
     renderWithContext(<CommandPalette />, { ...defaultContextValue, isOpen: false });
-    expect(screen.queryByPlaceholderText(/Type a command/i)).not.toBeInTheDocument();
+    expect(screen.queryByPlaceholderText('command.placeholder')).not.toBeInTheDocument();
   });
 
   it('should render when isOpen is true', () => {
     renderWithContext(<CommandPalette />);
-    expect(screen.getByPlaceholderText(/Type a command/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('command.placeholder')).toBeInTheDocument();
   });
 
   it('should display commands grouped by category', () => {
@@ -97,7 +97,9 @@ describe('CommandPalette', () => {
 
     // We can try to click the backdrop. 
     // Since we don't have a test-id, we 'll assume the first child of root is the backdrop
-    const backdrop = screen.getByPlaceholderText(/Type a command/i).closest('.fixed');
+    // We can try to click the backdrop. 
+    // Since we don't have a test-id, we 'll assume the first child of root is the backdrop
+    const backdrop = screen.getByPlaceholderText('command.placeholder').closest('.fixed');
     fireEvent.click(backdrop);
 
     expect(mockSetIsOpen).toHaveBeenCalledWith(false);

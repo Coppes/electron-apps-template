@@ -125,7 +125,7 @@ export const mockIpcRenderer = {
   send: vi.fn(),
   on: vi.fn((_channel, _callback) => {
     // Return a cleanup function
-    return () => {};
+    return () => { };
   }),
   once: vi.fn(),
   off: vi.fn(),
@@ -214,6 +214,13 @@ export const mockScreen = {
   on: vi.fn(),
 };
 
+// Mock safeStorage
+export const mockSafeStorage = {
+  isEncryptionAvailable: vi.fn(() => true),
+  encryptString: vi.fn((str) => Buffer.from(str)),
+  decryptString: vi.fn((buf) => buf.toString()),
+};
+
 // Complete Electron mock object
 export const mockElectron = {
   app: mockApp,
@@ -226,7 +233,9 @@ export const mockElectron = {
   Menu: mockMenu,
   Tray,
   Notification,
+  Notification,
   screen: mockScreen,
+  safeStorage: mockSafeStorage,
 };
 
 // ============================================================================
@@ -240,7 +249,7 @@ export const mockElectronAPI = {
     close: vi.fn((_windowId) => Promise.resolve({ success: true })),
     minimize: vi.fn(() => Promise.resolve({ success: true })),
     maximize: vi.fn(() => Promise.resolve({ success: true, maximized: true })),
-    getState: vi.fn(() => Promise.resolve({ 
+    getState: vi.fn(() => Promise.resolve({
       success: true,
       isMaximized: false,
       isVisible: true,
@@ -250,21 +259,21 @@ export const mockElectronAPI = {
 
   // Dialog API
   dialog: {
-    openFile: vi.fn((_options) => Promise.resolve({ 
-      canceled: false, 
-      filePath: '/mock/file.txt', 
-      content: 'mock content' 
+    openFile: vi.fn((_options) => Promise.resolve({
+      canceled: false,
+      filePath: '/mock/file.txt',
+      content: 'mock content'
     })),
-    saveFile: vi.fn((_options, _content) => Promise.resolve({ 
-      canceled: false, 
-      filePath: '/mock/save.txt' 
+    saveFile: vi.fn((_options, _content) => Promise.resolve({
+      canceled: false,
+      filePath: '/mock/save.txt'
     })),
-    message: vi.fn((_options) => Promise.resolve({ 
-      success: true, 
-      response: 0 
+    message: vi.fn((_options) => Promise.resolve({
+      success: true,
+      response: 0
     })),
-    error: vi.fn((_options) => Promise.resolve({ 
-      success: true 
+    error: vi.fn((_options) => Promise.resolve({
+      success: true
     })),
   },
 
@@ -314,7 +323,7 @@ export const mockElectronAPI = {
 
   // App API
   app: {
-    getVersion: vi.fn(() => Promise.resolve({ 
+    getVersion: vi.fn(() => Promise.resolve({
       app: '1.0.0',
       electron: '28.0.0',
       chrome: '120.0.0',
@@ -330,19 +339,19 @@ export const mockElectronAPI = {
   events: {
     onUpdateAvailable: vi.fn((_callback) => {
       // Return cleanup function
-      return () => {};
+      return () => { };
     }),
     onUpdateDownloaded: vi.fn((_callback) => {
       // Return cleanup function
-      return () => {};
+      return () => { };
     }),
     onUpdateProgress: vi.fn((_callback) => {
       // Return cleanup function
-      return () => {};
+      return () => { };
     }),
     onUpdateError: vi.fn((_callback) => {
       // Return cleanup function
-      return () => {};
+      return () => { };
     }),
   },
 
@@ -360,7 +369,7 @@ export const mockElectronAPI = {
     setTooltip: vi.fn((_tooltip) => Promise.resolve({ success: true })),
     setMenu: vi.fn((_menuTemplate) => Promise.resolve({ success: true })),
     onMenuItemClick: vi.fn((_callback) => {
-      return () => {};
+      return () => { };
     }),
   },
 
@@ -372,7 +381,7 @@ export const mockElectronAPI = {
     isRegistered: vi.fn((_accelerator) => Promise.resolve(false)),
     listActive: vi.fn(() => Promise.resolve([])),
     onTriggered: vi.fn((_callback) => {
-      return () => {};
+      return () => { };
     }),
   },
 
@@ -394,20 +403,20 @@ export const mockElectronAPI = {
     close: vi.fn((_id) => Promise.resolve({ success: true })),
     getHistory: vi.fn((_limit) => Promise.resolve([])),
     onClicked: vi.fn((_callback) => {
-      return () => {};
+      return () => { };
     }),
     onActionClicked: vi.fn((_callback) => {
-      return () => {};
+      return () => { };
     }),
     onClosed: vi.fn((_callback) => {
-      return () => {};
+      return () => { };
     }),
   },
 
   // Deep Link API
   deepLink: {
     onReceived: vi.fn((_callback) => {
-      return () => {};
+      return () => { };
     }),
   },
 
@@ -418,7 +427,7 @@ export const mockElectronAPI = {
     warn: vi.fn(),
     error: vi.fn(),
   },
-  
+
   // Backward compatibility methods (deprecated, to be removed)
   setTitle: vi.fn(() => Promise.resolve()),
   openFile: vi.fn(() => Promise.resolve({ canceled: false, filePath: '/mock/file.txt', content: 'mock content' })),

@@ -211,8 +211,7 @@ describe('Lifecycle Manager Integration', () => {
       expect(splashManager.fadeOut).toHaveBeenCalled();
 
       expect(logger.info).toHaveBeenCalledWith(
-        expect.stringContaining('startup completed'),
-        expect.anything()
+        expect.stringContaining('startup completed')
       );
     });
 

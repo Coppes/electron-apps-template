@@ -8,13 +8,24 @@ import { Globe } from 'lucide-react';
  */
 export function useLanguageStatus() {
   const { i18n } = useTranslation();
+  const [currentLang, setCurrentLang] = React.useState(i18n.language);
+
+  React.useEffect(() => {
+    const handleLanguageChanged = (lng) => {
+      setCurrentLang(lng);
+    };
+    i18n.on('languageChanged', handleLanguageChanged);
+    return () => {
+      i18n.off('languageChanged', handleLanguageChanged);
+    };
+  }, [i18n]);
 
   const languageItem = React.useMemo(() => ({
     id: 'language',
     content: (
       <div className="flex items-center gap-1.5" title="Current Language">
         <Globe className="w-3 h-3" />
-        <span>{i18n.language === 'pt-BR' ? 'PT-BR' : 'EN'}</span>
+        <span>{currentLang?.startsWith('pt') ? 'PT-BR' : 'EN'}</span>
       </div>
     ),
     position: 'right',
@@ -23,7 +34,7 @@ export function useLanguageStatus() {
     // Looking at StatusBar.jsx might clarify. Usually Right side items sort by priority.
     // Let's assume lower priority = closer to edge or vice versa. 
     // Tabs is 10. Let's try 20 to see where it lands.
-  }), [i18n.language]);
+  }), [currentLang]);
 
   useStatusBar(languageItem);
 }

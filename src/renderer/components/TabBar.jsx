@@ -6,18 +6,20 @@ import { useTabContext } from '../contexts/TabContext';
 import { useStatusBar } from '../hooks/useStatusBar';
 import { useRegisterCommand } from '../hooks/useRegisterCommand';
 import { useKeyboardShortcut } from '../hooks/useKeyboardShortcut';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../utils/cn.js';
 
 const TabBar = () => {
   const { tabs, activeTabId, setActiveTab, closeTab, closeAllTabs, closeOtherTabs, addTab } = useTabContext();
+  const { t } = useTranslation('common');
 
   // Memoize status bar content to prevent infinite updates
   const statusBarItem = React.useMemo(() => ({
     id: 'tab-count',
-    content: <span className="text-xs text-muted-foreground">Tabs: {tabs.length}</span>,
+    content: <span className="text-xs text-muted-foreground">{t('status.tabs', { count: tabs.length })}</span>,
     position: 'right',
     priority: 10
-  }), [tabs.length]);
+  }), [tabs.length, t]);
 
   // Update Status Bar
   useStatusBar(statusBarItem);

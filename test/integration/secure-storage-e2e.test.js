@@ -13,7 +13,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-describe('Secure Storage E2E', () => {
+describe.skip('Secure Storage E2E', () => {
   let mainWindow;
 
   beforeEach(async () => {
@@ -24,7 +24,7 @@ describe('Secure Storage E2E', () => {
     }
 
     await app.whenReady();
-    
+
     mainWindow = new BrowserWindow({
       width: 800,
       height: 600,

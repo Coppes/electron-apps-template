@@ -21,12 +21,12 @@
 - [x] 14. Write tests for StatusBar item registration, positioning, and priority
 
 ### Splash Screen (7 tasks)
-- [ ] 15. Create static splash.html with inline CSS and app logo (`src/renderer/static/splash.html`)
-- [ ] 16. Implement splash window creation in `src/main/splash.js`
-- [ ] 17. Update lifecycle.js to show splash before main window
-- [ ] 18. Implement fade transition from splash to main window
-- [ ] 19. Add timeout mechanism (10s max) to prevent splash hangs
-- [ ] 20. Handle splash window errors gracefully
+- [x] 15. Create static splash.html with inline CSS and app logo (`src/renderer/static/splash.html`)
+- [x] 16. Implement splash window creation in `src/main/splash.js`
+- [x] 17. Update lifecycle.js to show splash before main window
+- [x] 18. Implement fade transition from splash to main window
+- [x] 19. Add timeout mechanism (10s max) to prevent splash hangs
+- [x] 20. Handle splash window errors gracefully
 - [x] 21. Write integration tests for splash screen timing and transitions
 
 ## Phase 2: Command Palette & Shortcuts (Sequential)

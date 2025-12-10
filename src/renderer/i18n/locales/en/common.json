@@ -5,7 +5,9 @@
   "status": {
     "online": "Online",
     "offline": "Offline",
-    "connecting": "Connecting..."
+    "connecting": "Connecting...",
+    "tabs_one": "{{count}} Tab",
+    "tabs_other": "{{count}} Tabs"
   },
   "actions": {
     "save": "Save",

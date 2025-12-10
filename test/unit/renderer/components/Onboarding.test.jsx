@@ -18,6 +18,18 @@ window.electronAPI = {
 describe('Onboarding', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    window.electronAPI = {
+      store: {
+        get: mockStoreGet,
+        set: mockStoreSet,
+      },
+      system: {
+        getPlatform: vi.fn().mockResolvedValue({ platform: 'darwin' }),
+      },
+      events: {
+        onMenuAction: vi.fn(() => () => { }),
+      }
+    };
   });
 
   it('should not render if onboarding is already completed', async () => {
@@ -40,7 +52,7 @@ describe('Onboarding', () => {
       expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
 
-    expect(screen.getByText('Welcome to Electron App')).toBeInTheDocument();
+    expect(screen.getByText('steps.welcome.title')).toBeInTheDocument();
   });
 
   it('should navigate through steps', async () => {
@@ -50,13 +62,13 @@ describe('Onboarding', () => {
     await waitFor(() => screen.getByRole('dialog'));
 
     // Step 1: Welcome
-    expect(screen.getByText('Welcome to Electron App')).toBeInTheDocument();
+    expect(screen.getByText('steps.welcome.title')).toBeInTheDocument();
 
     // Click Next
-    fireEvent.click(screen.getByText('Next'));
+    fireEvent.click(screen.getByText('buttons.next'));
 
     // Step 2: Security
-    expect(screen.getByText('Secure by Default')).toBeInTheDocument();
+    expect(screen.getByText('steps.security.title')).toBeInTheDocument();
   });
 
   it('should complete onboarding when "Get Started" is clicked', async () => {
@@ -66,11 +78,11 @@ describe('Onboarding', () => {
     await waitFor(() => screen.getByRole('dialog'));
 
     // Navigate to last step (0 -> 1 -> 2 -> 3)
-    fireEvent.click(screen.getByText('Next')); // to 1
-    fireEvent.click(screen.getByText('Next')); // to 2
-    fireEvent.click(screen.getByText('Next')); // to 3 (Shortcuts)
+    fireEvent.click(screen.getByText('buttons.next')); // to 1
+    fireEvent.click(screen.getByText('buttons.next')); // to 2
+    fireEvent.click(screen.getByText('buttons.next')); // to 3 (Shortcuts)
 
-    const finishButton = screen.getByText('Get Started');
+    const finishButton = screen.getByText('buttons.finish');
     fireEvent.click(finishButton);
 
     await waitFor(() => {
@@ -84,7 +96,7 @@ describe('Onboarding', () => {
 
     await waitFor(() => screen.getByRole('dialog'));
 
-    const skipButton = screen.getByText('Skip');
+    const skipButton = screen.getByText('buttons.skip');
     fireEvent.click(skipButton);
 
     await waitFor(() => {
