@@ -15,10 +15,15 @@ import Onboarding from './components/Onboarding';
 
 import i18n from './i18n';
 
+import { useDataMenu } from './hooks/useDataMenu';
+
 function App() {
   const [updateInfo, setUpdateInfo] = useState(null);
   const [updateStatus, setUpdateStatus] = useState(null);
   const [updateProgress, setUpdateProgress] = useState(null);
+
+  // Initialize data menu handlers
+  useDataMenu();
 
   useEffect(() => {
     // Initialize language from store

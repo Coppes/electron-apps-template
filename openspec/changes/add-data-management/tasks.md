@@ -54,20 +54,20 @@
 - [x] 37. Implement MarkdownHandler in `format-handlers/markdown-handler.js` (optional)
 - [x] 38. Add format handler registry to ImportExportManager
 - [x] 39. Implement auto-detection logic (determine format from file extension/content)
-- [ ] 40. Write tests for each format handler (export, import, validate)
+- [x] 40. Write tests for each format handler (export, import, validate)
 
 ### Import/Export Features (10 tasks)
 
 - [x] 41. Implement export method in ImportExportManager (select handler, transform, write)
 - [x] 42. Implement import method in ImportExportManager (validate, parse, transform)
 - [x] 43. Add schema validation using JSON Schema (validate imported data structure)
-- [ ] 44. Implement transformation pipeline for format conversion (CSV→JSON, etc.)
+- [x] 44. Implement transformation pipeline for format conversion (CSV→JSON, etc.)
 - [x] 45. Add file size validation (default max 100MB, configurable)
 - [x] 46. Implement error handling and user-friendly error messages
 - [x] 47. Add IPC handlers for import/export operations in data.js
-- [ ] 48. Create export presets (e.g., "Export All Settings", "Export Documents")
-- [ ] 49. Add progress reporting for large file operations
-- [ ] 50. Write integration tests for import/export round-trips
+- [x] 48. Create export presets (e.g., "Export All Settings", "Export Documents")
+- [x] 49. Add progress reporting for large file operations
+- [x] 50. Write integration tests for import/export round-trips
 
 ## Phase 3: Offline Mode & Sync Queue (Sequential)
 
@@ -80,7 +80,7 @@
 - [x] 55. Create IPC event emitter for connectivity changes (ONLINE, OFFLINE)
 - [x] 56. Create useOfflineStatus hook in `src/renderer/hooks/useOfflineStatus.js`
 - [x] 57. Create OfflineIndicator component in `src/renderer/components/OfflineIndicator.jsx`
-- [ ] 58. Write tests for connectivity detection and state transitions
+- [x] 58. Write tests for connectivity detection and state transitions
 
 ### Sync Queue Implementation (14 tasks)
 
@@ -97,7 +97,7 @@
 - [x] 69. Add queue size limit (max 10,000 operations) with overflow handling
 - [x] 70. Create IPC handlers for manual sync trigger and queue inspection
 - [x] 71. Integrate sync queue with connectivity manager (auto-sync when online)
-- [ ] 72. Write tests for queue operations, retry logic, and conflict resolution
+- [x] 72. Write tests for queue operations, retry logic, and conflict resolution
 
 ## Phase 4: UI Integration (Parallel)
 
@@ -114,9 +114,9 @@
 
 ### Import/Export UI (7 tasks)
 
-- [ ] 81. Add "Import Data" option to settings menu
+- [x] 81. Add "Import Data" option to settings menu
 - [x] 82. Create import dialog with format selection and file picker
-- [ ] 83. Add "Export Data" option to settings menu
+- [x] 83. Add "Export Data" option to settings menu
 - [x] 84. Create export dialog with format selection and save location picker
 - [x] 85. Add progress indicator for long import/export operations
 - [x] 86. Display import/export results (success, errors, records processed)

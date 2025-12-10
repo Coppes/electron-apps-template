@@ -9,8 +9,8 @@ import importExportManager from '../../data/import-export.js';
 import connectivityManager from '../../data/connectivity-manager.js';
 import syncQueue from '../../data/sync-queue.js';
 import { logger } from '../../logger.js';
-import { 
-  backupLimiter, 
+import {
+  backupLimiter,
   importExportLimiter,
   validateImportData
 } from '../../security/data-security.js';
@@ -137,14 +137,14 @@ export async function handleDataImport(event, payload) {
   try {
     logger.info(`Importing data from: ${filePath}`);
     const result = await importExportManager.import(filePath, options);
-    
+
     // Validate imported data
     if (result.success && result.data) {
       const validation = validateImportData(result.data, {
         maxRecords: options.maxRecords || 10000,
         maxStringLength: options.maxStringLength || 1000000
       });
-      
+
       if (!validation.valid) {
         return {
           success: false,
@@ -153,7 +153,7 @@ export async function handleDataImport(event, payload) {
         };
       }
     }
-    
+
     return result;
   } catch (error) {
     logger.error('Import failed:', error);
@@ -177,7 +177,7 @@ export async function handleDataExport(event, payload) {
     };
   }
 
-  const { filePath, data, options = {} } = payload || {};
+  const { filePath, data, preset, options = {} } = payload || {};
 
   if (!filePath) {
     return {
@@ -186,10 +186,26 @@ export async function handleDataExport(event, payload) {
     };
   }
 
+  // If preset is provided, use exportPreset
+  if (preset) {
+    try {
+      logger.info(`Exporting preset '${preset}' to: ${filePath}`);
+      const result = await importExportManager.exportPreset(filePath, preset, options);
+      return result;
+    } catch (error) {
+      logger.error(`Export preset '${preset}' failed:`, error);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  // Otherwise perform standard export
   if (data === undefined) {
     return {
       success: false,
-      error: 'Data is required'
+      error: 'Data is required (or specify a preset)'
     };
   }
 

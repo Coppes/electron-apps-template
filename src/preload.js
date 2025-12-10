@@ -310,6 +310,8 @@ const eventsAPI = {
     add('menu:command-palette', 'command-palette');
     add('menu:show-onboarding', 'show-onboarding');
     add('menu:close-tab', 'close-tab');
+    add('menu:data-import', 'data-import');
+    add('menu:data-export', 'data-export');
 
     return () => {
       listeners.forEach(({ channel, listener }) =>
@@ -457,6 +459,15 @@ const dataAPI = {
    * @returns {Promise<Object>} Result
    */
   export: (filePath, data, options) => ipcRenderer.invoke(IPC_CHANNELS.DATA_EXPORT, { filePath, data, options }),
+
+  /**
+   * Export data using a preset
+   * @param {string} filePath - Destination file path
+   * @param {string} preset - Preset name
+   * @param {Object} [options] - Export options
+   * @returns {Promise<Object>} Result
+   */
+  exportPreset: (filePath, preset, options) => ipcRenderer.invoke(IPC_CHANNELS.DATA_EXPORT, { filePath, preset, options }),
 
   /**
    * List available import/export formats

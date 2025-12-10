@@ -69,6 +69,19 @@ export function createMenuTemplate(windowManager) {
           }
         },
         { type: 'separator' },
+        {
+          label: 'Import Data...',
+          click: (_item, focusedWindow) => {
+            if (focusedWindow) focusedWindow.webContents.send('menu:data-import');
+          }
+        },
+        {
+          label: 'Export Data...',
+          click: (_item, focusedWindow) => {
+            if (focusedWindow) focusedWindow.webContents.send('menu:data-export');
+          }
+        },
+        { type: 'separator' },
         ...(!isMac
           ? [
             {

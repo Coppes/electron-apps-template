@@ -392,7 +392,8 @@ export const dataSchema = {
   [IPC_CHANNELS.DATA_EXPORT]: {
     input: {
       filePath: { type: 'string', required: true },
-      data: { type: 'any', required: true },
+      data: { type: 'any', required: false },
+      preset: { type: 'string', required: false },
       options: { type: 'object', required: false },
     },
     output: {
