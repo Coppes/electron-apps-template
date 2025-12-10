@@ -124,9 +124,9 @@
 
 ### Drag-Drop UI (6 tasks)
 
-- [ ] 88. Integrate DropZone component into HomePage or relevant pages
-- [ ] 89. Add visual feedback for drag-over state (highlight, border change)
-- [ ] 90. Display dropped file information (name, size, type)
+- [x] 88. Integrate DropZone component into HomePage or relevant pages
+- [x] 89. Add visual feedback for drag-over state (highlight, border change)
+- [x] 90. Display dropped file information (name, size, type)
 - [ ] 91. Add "Export as File" context menu option with drag-to-desktop hint
 - [ ] 92. Implement drag preview icon customization
 - [ ] 93. Add drag-drop examples to Demo page
