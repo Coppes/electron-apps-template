@@ -31,6 +31,7 @@ export class SplashManager {
       movable: true,
       skipTaskbar: true,
       center: true,
+      backgroundColor: '#1E1E1E', // Dark background
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true,

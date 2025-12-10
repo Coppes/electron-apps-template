@@ -123,17 +123,17 @@
 - [x] 90. Implement tab content lazy loading (unmount inactive tabs)
 - [x] 91. Throttle status bar item updates (max 1/sec)
 - [x] 92. Lazy load i18n translation namespaces
-- [ ] 93. Measure and optimize splash screen timing (target < 200ms)
-- [ ] 94. Profile memory usage of all new features (target < 50MB overhead)
+- [x] 93. Measure and optimize splash screen timing (target < 200ms)
+- [x] 94. Profile memory usage of all new features (target < 50MB overhead)
 
 ### Documentation & Examples (8 tasks)
-- [ ] 95. Document command palette API in README (how to register commands)
-- [ ] 96. Document tab system API in README (how to create custom tab types)
-- [ ] 97. Document status bar API in README (how to add status items)
-- [ ] 98. Document keyboard shortcuts customization in user guide
-- [ ] 99. Document i18n contribution workflow (how to add new languages)
-- [ ] 100. Add code examples for each new hook (useRegisterCommand, useTab, etc.)
-- [ ] 101. Update DEVELOPMENT.md with new architecture patterns
+- [x] 95. Document command palette API in README (how to register commands)
+- [x] 96. Document tab system API in README (how to create custom tab types)
+- [x] 97. Document status bar API in README (how to add status items)
+- [x] 98. Document keyboard shortcuts customization in user guide
+- [x] 99. Document i18n contribution workflow (how to add new languages)
+- [x] 100. Add code examples for each new hook (useRegisterCommand, useTab, etc.)
+- [x] 101. Update DEVELOPMENT.md with new architecture patterns
 - [ ] 102. Create video demo showcasing all new features
 
 ## Phase 6: Validation & Refinement (Sequential)

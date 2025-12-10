@@ -228,6 +228,74 @@ Application information:
 - Node.js version
 - App version (from IPC)
 
+
+## 🖥 Application Shell
+
+The template features a robust application shell with modern UX patterns.
+
+### ⌘ Command Palette
+Quickly access commands and navigate the app. Open with `Cmd+K` (macOS) or `Ctrl+K` (Windows/Linux).
+
+- **Features**: Fuzzy search, categorization, keyboard navigation.
+- **Registration**: Use the `useRegisterCommand` hook.
+
+```javascript
+useRegisterCommand({
+  id: 'my-command',
+  name: 'Do Something',
+  section: 'Actions',
+  action: () => console.log('Done!'),
+  shortcut: 'Cmd+Shift+D'
+});
+```
+
+### 📑 Tab System
+Multi-tab interface for parallel workflows.
+
+- **Features**: Lazy loading (inactive tabs unmounted), drag & drop reordering, persistence.
+- **Usage**:
+
+```javascript
+const { addTab } = useTabContext();
+addTab({ id: 'doc-1', type: 'document', title: 'My Document' });
+```
+
+### 📟 Status Bar
+Context-aware status bar at the bottom of the window.
+
+- **Features**: Priority-based positioning (left, center, right), throttled updates.
+- **Usage**:
+
+```javascript
+useStatusBar({
+  id: 'clock',
+  position: 'right',
+  priority: 100,
+  content: <span>12:00 PM</span>
+});
+```
+
+### ⌨️ Keyboard Shortcuts
+Centralized shortcut management with conflict detection.
+
+- **Customize**: Users can remap shortcuts in Settings > Keyboard Shortcuts.
+- **Usage**:
+
+```javascript
+useKeyboardShortcut('Cmd+S', () => saveFile());
+```
+
+### 🌐 Internationalization (i18n)
+Full support for multiple languages with lazy loading.
+
+- **Features**: Namespaces, persistent language selection, English/Portuguese included.
+- **Usage**:
+
+```javascript
+const { t } = useTranslation('common');
+return <button>{t('actions.save')}</button>;
+```
+
 ## 🔧 IPC Communication
 
 The template demonstrates secure IPC patterns:
@@ -402,83 +470,5 @@ For detailed testing documentation, see [TESTING.md](./TESTING.md).
 ## 📄 License
 
 ISC
-});
-```
 
-### IPC Communication
-Toda comunicação entre renderer e main é feita via IPC handlers seguindo as best practices do Electron.
 
-## 🎨 shadcn/ui + Tailwind
-
-O template vem com:
-- ✅ Tailwind CSS totalmente configurado
-- ✅ Variáveis CSS do shadcn/ui (dark/light mode)
-- ✅ Componentes Button e Input de exemplo
-- ✅ Sistema de theme pronto para uso
-
-### Adicionar Novos Componentes
-
-Para adicionar componentes do shadcn/ui:
-
-```bash
-# O componente já pode ser importado e customizado
-# Exemplo em src/renderer/components/ui/
-```
-
-## 🧪 Testes
-
-O template usa **Vitest** + **React Testing Library**:
-
-```javascript
-import { render, screen } from '@testing-library/react';
-import App from './App';
-
-describe('App', () => {
-  it('deve renderizar', () => {
-    render(<App />);
-    expect(screen.getByText(/Electron/)).toBeInTheDocument();
-  });
-});
-```
-
-Execute com `npm test`.
-
-## 📝 Versões
-
-- Node.js: 18+
-- npm: 9+
-- Electron: 32.0.0
-- React: 18.3.1
-- Tailwind: 3.4.3
-- Vitest: 1.6.0
-
-## 🔧 Configuração
-
-### tailwind.config.js
-Configurado com suporte a tema dark/light usando variáveis CSS.
-
-### .eslintrc.json
-ESLint configurado para React com suporte a React Hooks.
-
-### vitest.config.js
-Vitest configurado para ambiente jsdom com suporte a React.
-
-## 📚 Recursos
-
-- [Documentação do Electron](https://www.electronjs.org/docs)
-- [Documentação do React](https://react.dev)
-- [Documentação do Tailwind](https://tailwindcss.com)
-- [shadcn/ui](https://ui.shadcn.com)
-- [Vitest](https://vitest.dev)
-
-## 📄 Licença
-
-MIT
-
-## 👨‍💻 Contribuições
-
-Contribuições são bem-vindas! Sinta-se livre para abrir issues e pull requests.
-
----
-
-**Desenvolvido com ❤️ para criar aplicações desktop seguras e escaláveis.**
