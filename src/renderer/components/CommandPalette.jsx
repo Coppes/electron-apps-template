@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Command } from 'cmdk';
-import { Search, Command as CommandIcon } from 'lucide-react';
+import { MagnifyingGlass, Command as CommandIcon } from '@phosphor-icons/react';
 import { useCommandContext } from '../contexts/CommandContext';
 import { useKeyboardShortcut } from '../hooks/useKeyboardShortcut';
 
@@ -78,8 +78,9 @@ const CommandPalette = () => {
         onClick={(e) => e.stopPropagation()}
       >
         <Command className="flex h-full w-full flex-col overflow-hidden rounded-xl bg-popover text-popover-foreground">
+          {/* eslint-disable-next-line react/no-unknown-property */}
           <div className="flex items-center border-b px-3" cmdk-input-wrapper="">
-            <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+            <MagnifyingGlass className="mr-2 h-4 w-4 shrink-0 opacity-50" />
             <Command.Input
               placeholder={t('command.placeholder', 'Type a command or search...')}
               className="flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"

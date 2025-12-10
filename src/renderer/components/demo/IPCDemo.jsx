@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Monitor, Cards, Chat, Lock, FloppyDisk } from '@phosphor-icons/react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
@@ -29,26 +30,31 @@ export default function IPCDemo() {
   };
 
   const sections = [
-    { id: 'app', label: '🖥️ App APIs' },
-    { id: 'window', label: '🪟 Window APIs' },
-    { id: 'dialog', label: '💬 Dialog APIs' },
-    { id: 'storage', label: '🔐 Storage APIs' },
-    { id: 'data', label: '💾 Data APIs' },
+    { id: 'app', label: 'App APIs', icon: Monitor },
+    { id: 'window', label: 'Window APIs', icon: Cards },
+    { id: 'dialog', label: 'Dialog APIs', icon: Chat },
+    { id: 'storage', label: 'Storage APIs', icon: Lock },
+    { id: 'data', label: 'Data APIs', icon: FloppyDisk },
   ];
 
   return (
     <div className="space-y-4">
       {/* Section Navigation */}
       <div className="flex gap-2 border-b border-border pb-2 flex-wrap">
-        {sections.map(section => (
-          <Button
-            key={section.id}
-            variant={activeSection === section.id ? 'default' : 'ghost'}
-            onClick={() => setActiveSection(section.id)}
-          >
-            {section.label}
-          </Button>
-        ))}
+        {sections.map(section => {
+          const Icon = section.icon;
+          return (
+            <Button
+              key={section.id}
+              variant={activeSection === section.id ? 'default' : 'ghost'}
+              className="gap-2"
+              onClick={() => setActiveSection(section.id)}
+            >
+              <Icon className="w-4 h-4" />
+              {section.label}
+            </Button>
+          );
+        })}
       </div>
 
       {/* Result Display */}

@@ -7,12 +7,13 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { LockKey, Warning, XCircle, CheckCircle, Info } from '@phosphor-icons/react';
 
 export default function SecureStorageDemo() {
   const [key, setKey] = useState('');
   const [value, setValue] = useState('');
   const [retrievedValue, setRetrievedValue] = useState('');
-  const [status, setStatus] = useState('');
+  const [status, setStatus] = useState(null);
   const [isAvailable, setIsAvailable] = useState(false);
 
   useEffect(() => {
@@ -22,10 +23,10 @@ export default function SecureStorageDemo() {
         const available = await window.api.secureStore.isAvailable();
         setIsAvailable(available);
         if (!available) {
-          setStatus('⚠️ Encrypted storage is not available on this platform');
+          setStatus({ type: 'warning', message: 'Encrypted storage is not available on this platform' });
         }
       } catch (error) {
-        setStatus(`Error checking availability: ${error.message}`);
+        setStatus({ type: 'error', message: `Error checking availability: ${error.message}` });
       }
     }
     checkAvailability();
@@ -33,22 +34,22 @@ export default function SecureStorageDemo() {
 
   const handleStore = async () => {
     if (!key.trim() || !value.trim()) {
-      setStatus('❌ Please enter both key and value');
+      setStatus({ type: 'error', message: 'Please enter both key and value' });
       return;
     }
 
     try {
       await window.api.secureStore.set(key, value);
-      setStatus(`✅ Successfully stored "${key}"`);
+      setStatus({ type: 'success', message: `Successfully stored "${key}"` });
       setValue(''); // Clear value for security
     } catch (error) {
-      setStatus(`❌ Error storing: ${error.message}`);
+      setStatus({ type: 'error', message: `Error storing: ${error.message}` });
     }
   };
 
   const handleRetrieve = async () => {
     if (!key.trim()) {
-      setStatus('❌ Please enter a key');
+      setStatus({ type: 'error', message: 'Please enter a key' });
       return;
     }
 
@@ -56,52 +57,58 @@ export default function SecureStorageDemo() {
       const result = await window.api.secureStore.get(key);
       if (result !== null) {
         setRetrievedValue(result);
-        setStatus(`✅ Retrieved value for "${key}"`);
+        setStatus({ type: 'success', message: `Retrieved value for "${key}"` });
       } else {
         setRetrievedValue('');
-        setStatus(`ℹ️ No value found for "${key}"`);
+        setStatus({ type: 'info', message: `No value found for "${key}"` });
       }
     } catch (error) {
-      setStatus(`❌ Error retrieving: ${error.message}`);
+      setStatus({ type: 'error', message: `Error retrieving: ${error.message}` });
       setRetrievedValue('');
     }
   };
 
   const handleDelete = async () => {
     if (!key.trim()) {
-      setStatus('❌ Please enter a key');
+      setStatus({ type: 'error', message: 'Please enter a key' });
       return;
     }
 
     try {
       await window.api.secureStore.delete(key);
-      setStatus(`✅ Deleted "${key}"`);
+      setStatus({ type: 'success', message: `Deleted "${key}"` });
       setRetrievedValue('');
     } catch (error) {
-      setStatus(`❌ Error deleting: ${error.message}`);
+      setStatus({ type: 'error', message: `Error deleting: ${error.message}` });
     }
   };
 
   const handleCheck = async () => {
     if (!key.trim()) {
-      setStatus('❌ Please enter a key');
+      setStatus({ type: 'error', message: 'Please enter a key' });
       return;
     }
 
     try {
       const exists = await window.api.secureStore.has(key);
-      setStatus(exists ? `✅ "${key}" exists` : `ℹ️ "${key}" does not exist`);
+      setStatus({ type: 'success', message: exists ? `"${key}" exists` : `"${key}" does not exist` });
     } catch (error) {
-      setStatus(`❌ Error checking: ${error.message}`);
+      setStatus({ type: 'error', message: `Error checking: ${error.message}` });
     }
   };
 
   if (!isAvailable) {
     return (
       <div className="secure-storage-demo">
-        <h2>🔐 Secure Storage Demo</h2>
+        <h2 className="flex items-center gap-2">
+          <LockKey className="w-6 h-6 text-primary" />
+          Secure Storage Demo
+        </h2>
         <div className="status-message warning">
-          ⚠️ Encrypted storage is not available on this platform.
+          <div className="flex items-center gap-2 mb-2">
+            <Warning className="w-5 h-5" />
+            <span>Encrypted storage is not available on this platform.</span>
+          </div>
           <p>Encryption requires:</p>
           <ul>
             <li>macOS: Keychain access</li>
@@ -115,8 +122,11 @@ export default function SecureStorageDemo() {
 
   return (
     <div className="secure-storage-demo">
-      <h2>🔐 Secure Storage Demo</h2>
-      
+      <h2 className="flex items-center gap-2">
+        <LockKey className="w-6 h-6 text-primary" />
+        Secure Storage Demo
+      </h2>
+
       <div className="info-box">
         <p>
           This demo shows how to securely store sensitive data like API keys,
@@ -169,13 +179,22 @@ export default function SecureStorageDemo() {
       )}
 
       {status && (
-        <div className={`status-message ${status.startsWith('❌') ? 'error' : status.startsWith('✅') ? 'success' : 'info'}`}>
-          {status}
+        <div className={`status-message ${status.type}`}>
+          <div className="flex items-center gap-2">
+            {status.type === 'error' && <XCircle className="w-5 h-5 flex-shrink-0" />}
+            {status.type === 'success' && <CheckCircle className="w-5 h-5 flex-shrink-0" />}
+            {status.type === 'warning' && <Warning className="w-5 h-5 flex-shrink-0" />}
+            {status.type === 'info' && <Info className="w-5 h-5 flex-shrink-0" />}
+            <span>{status.message}</span>
+          </div>
         </div>
       )}
 
       <div className="security-notes">
-        <h3>🔒 Security Notes:</h3>
+        <h3 className="flex items-center gap-2">
+          <LockKey className="w-4 h-4" />
+          Security Notes:
+        </h3>
         <ul>
           <li>Data is encrypted using OS-level encryption (Keychain/DPAPI/libsecret)</li>
           <li>Encryption keys are managed by the operating system</li>

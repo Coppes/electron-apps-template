@@ -11,6 +11,19 @@ import { useTabCommands } from '../../hooks/useTabCommands';
 import { useLanguageStatus } from '../../hooks/useLanguageStatus';
 import { isDevelopment } from '../../utils/is-dev';
 import { useStatusBar } from '../../hooks/useStatusBar';
+import {
+  House,
+  Wrench,
+  FloppyDisk,
+  Globe,
+  Plug,
+  Lock,
+  Laptop,
+  ArrowsClockwise,
+  Gear,
+  Info,
+  Flask
+} from '@phosphor-icons/react';
 
 const AppShell = ({ children }) => {
   const [sidebarWidth, setSidebarWidth] = useState(250);
@@ -126,7 +139,6 @@ const AppShell = ({ children }) => {
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden">
       <div className="flex flex-1 overflow-hidden" onMouseMove={handleMouseMove} onMouseUp={handleMouseUp}>
-        {/* Sidebar */}
         <aside
           style={{ width: `${sidebarWidth}px` }}
           className="flex flex-col border-r border-border bg-card"
@@ -138,10 +150,11 @@ const AppShell = ({ children }) => {
           <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
             <Button
               variant={activeTabId === 'home' ? 'default' : 'ghost'}
-              className="w-full justify-start"
+              className="w-full justify-start gap-2"
               onClick={() => nav('home', t('nav.home'))}
             >
-              🏠 {t('nav.home')}
+              <House className="w-4 h-4" />
+              {t('nav.home')}
             </Button>
 
             {/* Demos Section */}
@@ -152,45 +165,51 @@ const AppShell = ({ children }) => {
               <div className="space-y-1">
                 <Button
                   variant={activeTabId === 'demo' ? 'default' : 'ghost'}
-                  className="w-full justify-start"
+                  className="w-full justify-start gap-2"
                   onClick={() => nav('demo', t('nav.items.legacy_demo'))}
                 >
-                  🔧 {t('nav.items.legacy_demo')}
+                  <Wrench className="w-4 h-4" />
+                  {t('nav.items.legacy_demo')}
                 </Button>
                 <Button
                   variant={activeTabId === 'data-management-demo' ? 'default' : 'ghost'}
-                  className="w-full justify-start"
+                  className="w-full justify-start gap-2"
                   onClick={() => nav('data-management-demo', t('nav.items.data_mgmt'))}
                 >
-                  💾 {t('nav.items.data_mgmt')}
+                  <FloppyDisk className="w-4 h-4" />
+                  {t('nav.items.data_mgmt')}
                 </Button>
                 <Button
                   variant={activeTabId === 'connectivity-demo' ? 'default' : 'ghost'}
-                  className="w-full justify-start"
+                  className="w-full justify-start gap-2"
                   onClick={() => nav('connectivity-demo', t('nav.items.connectivity'))}
                 >
-                  🌐 {t('nav.items.connectivity')}
+                  <Globe className="w-4 h-4" />
+                  {t('nav.items.connectivity')}
                 </Button>
                 <Button
                   variant={activeTabId === 'ipc-demo' ? 'default' : 'ghost'}
-                  className="w-full justify-start"
+                  className="w-full justify-start gap-2"
                   onClick={() => nav('ipc-demo', t('nav.items.ipc'))}
                 >
-                  🔌 {t('nav.items.ipc')}
+                  <Plug className="w-4 h-4" />
+                  {t('nav.items.ipc')}
                 </Button>
                 <Button
                   variant={activeTabId === 'secure-storage-demo' ? 'default' : 'ghost'}
-                  className="w-full justify-start"
+                  className="w-full justify-start gap-2"
                   onClick={() => nav('secure-storage-demo', t('nav.items.secure_storage'))}
                 >
-                  🔐 {t('nav.items.secure_storage')}
+                  <Lock className="w-4 h-4" />
+                  {t('nav.items.secure_storage')}
                 </Button>
                 <Button
                   variant={activeTabId === 'os-integration-demo' ? 'default' : 'ghost'}
-                  className="w-full justify-start"
+                  className="w-full justify-start gap-2"
                   onClick={() => nav('os-integration-demo', t('nav.items.os_integration'))}
                 >
-                  💻 {t('nav.items.os_integration')}
+                  <Laptop className="w-4 h-4" />
+                  {t('nav.items.os_integration')}
                 </Button>
               </div>
             </div>
@@ -203,17 +222,19 @@ const AppShell = ({ children }) => {
               <div className="space-y-1">
                 <Button
                   variant={activeTabId === 'backups' ? 'default' : 'ghost'}
-                  className="w-full justify-start"
+                  className="w-full justify-start gap-2"
                   onClick={() => nav('backups', t('nav.items.backups'))}
                 >
-                  💾 {t('nav.items.backups')}
+                  <FloppyDisk className="w-4 h-4" />
+                  {t('nav.items.backups')}
                 </Button>
                 <Button
                   variant={activeTabId === 'sync' ? 'default' : 'ghost'}
-                  className="w-full justify-start"
+                  className="w-full justify-start gap-2"
                   onClick={() => nav('sync', t('nav.items.sync_queue'))}
                 >
-                  🔄 {t('nav.items.sync_queue')}
+                  <ArrowsClockwise className="w-4 h-4" />
+                  {t('nav.items.sync_queue')}
                 </Button>
               </div>
             </div>
@@ -226,17 +247,19 @@ const AppShell = ({ children }) => {
               <div className="space-y-1">
                 <Button
                   variant={activeTabId === 'settings' ? 'default' : 'ghost'}
-                  className="w-full justify-start"
+                  className="w-full justify-start gap-2"
                   onClick={() => nav('settings', t('nav.items.settings'))}
                 >
-                  ⚙️ {t('nav.items.settings')}
+                  <Gear className="w-4 h-4" />
+                  {t('nav.items.settings')}
                 </Button>
                 <Button
                   variant={activeTabId === 'about' ? 'default' : 'ghost'}
-                  className="w-full justify-start"
+                  className="w-full justify-start gap-2"
                   onClick={() => nav('about', t('nav.items.about'))}
                 >
-                  ℹ️ {t('nav.items.about')}
+                  <Info className="w-4 h-4" />
+                  {t('nav.items.about')}
                 </Button>
               </div>
             </div>
@@ -250,10 +273,11 @@ const AppShell = ({ children }) => {
                 <div className="space-y-1">
                   <Button
                     variant={activeTabId === 'test' ? 'default' : 'ghost'}
-                    className="w-full justify-start"
+                    className="w-full justify-start gap-2"
                     onClick={() => nav('test', t('nav.items.test_playground'))}
                   >
-                    🧪 {t('nav.items.test_playground')}
+                    <Flask className="w-4 h-4" />
+                    {t('nav.items.test_playground')}
                   </Button>
                 </div>
               </div>

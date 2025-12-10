@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useStatusBar } from './useStatusBar';
-import { Globe } from 'lucide-react';
+import { Globe } from '@phosphor-icons/react';
 
 /**
  * Updates the status bar with the current language.

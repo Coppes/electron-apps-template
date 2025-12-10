@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Command, Check, X, AlertCircle, Trash2 } from 'react-feather';
+import { Command, Check, X, WarningCircle, Trash } from '@phosphor-icons/react';
 
 /**
  * ShortcutsDemo Component
@@ -36,7 +36,7 @@ export default function ShortcutsDemo() {
     try {
       const label = newLabel.trim() || newShortcut;
       await window.electronAPI.shortcuts.register(newShortcut, label);
-      
+
       setShortcuts([...shortcuts, { accelerator: newShortcut, label }]);
       setStatus(`Registered: ${newShortcut}`);
       setNewShortcut('');
@@ -74,8 +74,8 @@ export default function ShortcutsDemo() {
 
     try {
       const isAvailable = await window.electronAPI.shortcuts.isRegistered(newShortcut);
-      setStatus(isAvailable ? 
-        `${newShortcut} is already registered` : 
+      setStatus(isAvailable ?
+        `${newShortcut} is already registered` :
         `${newShortcut} is available`
       );
     } catch (error) {
@@ -101,7 +101,7 @@ export default function ShortcutsDemo() {
       {/* Status */}
       {status && (
         <div className="p-3 bg-blue-50 border border-blue-200 rounded flex items-start gap-2">
-          <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <WarningCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <p className="text-sm text-blue-800">{status}</p>
         </div>
       )}
@@ -109,7 +109,7 @@ export default function ShortcutsDemo() {
       {/* Register New Shortcut */}
       <div className="border border-gray-200 rounded-lg p-4">
         <h3 className="font-semibold mb-3">Register New Shortcut</h3>
-        
+
         <div className="space-y-3">
           <div>
             <label className="block text-sm font-medium mb-1">Accelerator</label>
@@ -175,7 +175,7 @@ export default function ShortcutsDemo() {
               onClick={unregisterAll}
               className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 flex items-center gap-1"
             >
-              <Trash2 className="w-3 h-3" />
+              <Trash className="w-4 h-4" />
               Clear All
             </button>
           )}

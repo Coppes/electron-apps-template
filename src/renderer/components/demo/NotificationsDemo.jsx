@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Bell, Send, Trash2, AlertCircle } from 'react-feather';
+import { Bell, PaperPlaneRight, Trash, WarningCircle } from '@phosphor-icons/react';
 
 /**
  * NotificationsDemo Component
@@ -122,7 +122,7 @@ export default function NotificationsDemo() {
       {/* Status */}
       {status && (
         <div className="p-3 bg-blue-50 border border-blue-200 rounded flex items-start gap-2">
-          <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <WarningCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <p className="text-sm text-blue-800">{status}</p>
         </div>
       )}
@@ -161,7 +161,7 @@ export default function NotificationsDemo() {
       {/* Custom Notification */}
       <div className="border border-gray-200 rounded-lg p-4">
         <h3 className="font-semibold mb-3">Custom Notification</h3>
-        
+
         <div className="space-y-3">
           <div>
             <label className="block text-sm font-medium mb-1">Title *</label>
@@ -226,7 +226,7 @@ export default function NotificationsDemo() {
             onClick={showNotification}
             className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center justify-center gap-2"
           >
-            <Send className="w-4 h-4" />
+            <PaperPlaneRight className="w-4 h-4" />
             Send Notification
           </button>
         </div>
@@ -241,7 +241,7 @@ export default function NotificationsDemo() {
               onClick={clearLog}
               className="px-3 py-1 text-sm text-red-600 hover:text-red-800 flex items-center gap-1"
             >
-              <Trash2 className="w-3 h-3" />
+              <Trash className="w-3 h-3" />
               Clear
             </button>
           )}
@@ -254,12 +254,11 @@ export default function NotificationsDemo() {
             {eventLog.map((log, index) => (
               <div
                 key={index}
-                className={`p-2 rounded text-sm border ${
-                  log.type === 'click' ? 'bg-blue-50 border-blue-200' :
-                  log.type === 'action' ? 'bg-green-50 border-green-200' :
-                  log.type === 'close' ? 'bg-gray-50 border-gray-200' :
-                  'bg-purple-50 border-purple-200'
-                }`}
+                className={`p-2 rounded text-sm border ${log.type === 'click' ? 'bg-blue-50 border-blue-200' :
+                    log.type === 'action' ? 'bg-green-50 border-green-200' :
+                      log.type === 'close' ? 'bg-gray-50 border-gray-200' :
+                        'bg-purple-50 border-purple-200'
+                  }`}
               >
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
@@ -287,9 +286,9 @@ export default function NotificationsDemo() {
         </ol>
         <div className="mt-3 pt-3 border-t border-yellow-300">
           <p className="text-xs text-gray-700">
-            <strong>Platform Support:</strong><br/>
-            • <strong>macOS:</strong> Full support including actions and replies<br/>
-            • <strong>Windows 10+:</strong> Supports actions via Action Center<br/>
+            <strong>Platform Support:</strong><br />
+            • <strong>macOS:</strong> Full support including actions and replies<br />
+            • <strong>Windows 10+:</strong> Supports actions via Action Center<br />
             • <strong>Linux:</strong> Support varies by desktop environment (GNOME, KDE, etc.)
           </p>
         </div>

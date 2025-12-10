@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { FloppyDisk, DownloadSimple, Eye, Paperclip } from '@phosphor-icons/react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
 import Button from '../ui/Button';
 import Separator from '../ui/Separator';
@@ -159,32 +160,37 @@ export default function DataManagementDemo() {
   };
 
   const tabs = [
-    { id: 'backup', label: '💾 Backup & Restore' },
-    { id: 'import-export', label: '📤 Import & Export' },
-    { id: 'file-watch', label: '👁️ File Watching' },
-    { id: 'drag-drop', label: '📎 Drag & Drop' },
+    { id: 'backup', label: 'Backup & Restore', icon: FloppyDisk },
+    { id: 'import-export', label: 'Import & Export', icon: DownloadSimple },
+    { id: 'file-watch', label: 'File Watching', icon: Eye },
+    { id: 'drag-drop', label: 'Drag & Drop', icon: Paperclip },
   ];
 
   return (
     <div className="space-y-4">
       {/* Tab Navigation */}
       <div className="flex gap-2 border-b border-border pb-2">
-        {tabs.map(tab => (
-          <Button
-            key={tab.id}
-            variant={activeTab === tab.id ? 'default' : 'ghost'}
-            onClick={() => setActiveTab(tab.id)}
-          >
-            {tab.label}
-          </Button>
-        ))}
+        {tabs.map(tab => {
+          const Icon = tab.icon;
+          return (
+            <Button
+              key={tab.id}
+              variant={activeTab === tab.id ? 'default' : 'ghost'}
+              className="gap-2"
+              onClick={() => setActiveTab(tab.id)}
+            >
+              <Icon className="w-4 h-4" />
+              {tab.label}
+            </Button>
+          );
+        })}
       </div>
 
       {/* Status Message */}
       {message && (
         <div className={`p-3 rounded ${message.type === 'error' ? 'bg-red-100 text-red-800' :
-            message.type === 'success' ? 'bg-green-100 text-green-800' :
-              'bg-blue-100 text-blue-800'
+          message.type === 'success' ? 'bg-green-100 text-green-800' :
+            'bg-blue-100 text-blue-800'
           }`}>
           {message.text}
         </div>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { File, Plus, Trash2, AlertCircle, Clock } from 'react-feather';
+import { FileText, Plus, Trash, WarningCircle, Clock } from '@phosphor-icons/react';
 
 /**
  * RecentDocsDemo Component
@@ -18,11 +18,11 @@ export default function RecentDocsDemo() {
 
     try {
       await window.electronAPI.recentDocs.add(filePath.trim());
-      
+
       if (!recentDocs.includes(filePath.trim())) {
         setRecentDocs([filePath.trim(), ...recentDocs.slice(0, 9)]);
       }
-      
+
       setStatus(`Added: ${filePath}`);
       setFilePath('');
     } catch (error) {
@@ -66,7 +66,7 @@ export default function RecentDocsDemo() {
       {/* Status */}
       {status && (
         <div className="p-3 bg-blue-50 border border-blue-200 rounded flex items-start gap-2">
-          <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <WarningCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <p className="text-sm text-blue-800">{status}</p>
         </div>
       )}
@@ -74,7 +74,7 @@ export default function RecentDocsDemo() {
       {/* Add Document */}
       <div className="border border-gray-200 rounded-lg p-4">
         <h3 className="font-semibold mb-3">Add Document to Recent List</h3>
-        
+
         <div className="space-y-3">
           <div>
             <label className="block text-sm font-medium mb-1">File Path</label>
@@ -124,7 +124,7 @@ export default function RecentDocsDemo() {
               onClick={clearDocuments}
               className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 flex items-center gap-1"
             >
-              <Trash2 className="w-3 h-3" />
+              <Trash className="w-3 h-3" />
               Clear All
             </button>
           )}
@@ -140,14 +140,14 @@ export default function RecentDocsDemo() {
                 className="flex items-center justify-between p-3 bg-gray-50 rounded"
               >
                 <div className="flex items-center gap-2 flex-1 min-w-0">
-                  <File className="w-4 h-4 text-gray-600 flex-shrink-0" />
+                  <FileText className="w-4 h-4 text-gray-600 flex-shrink-0" />
                   <code className="text-sm font-mono truncate">{doc}</code>
                 </div>
                 <button
                   onClick={() => removeFromList(doc)}
                   className="text-red-600 hover:text-red-800 ml-2 flex-shrink-0"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash className="w-4 h-4" />
                 </button>
               </div>
             ))}
@@ -162,15 +162,15 @@ export default function RecentDocsDemo() {
           For security, only files with these extensions are allowed:
         </p>
         <div className="flex flex-wrap gap-2">
-          {['.pdf', '.doc', '.docx', '.txt', '.rtf', '.xlsx', '.xls', '.csv', 
+          {['.pdf', '.doc', '.docx', '.txt', '.rtf', '.xlsx', '.xls', '.csv',
             '.pptx', '.ppt', '.png', '.jpg', '.jpeg', '.gif', '.svg'].map((ext) => (
-            <span
-              key={ext}
-              className="px-2 py-1 text-xs font-mono bg-white border border-gray-300 rounded"
-            >
-              {ext}
-            </span>
-          ))}
+              <span
+                key={ext}
+                className="px-2 py-1 text-xs font-mono bg-white border border-gray-300 rounded"
+              >
+                {ext}
+              </span>
+            ))}
         </div>
       </div>
 
@@ -186,15 +186,15 @@ export default function RecentDocsDemo() {
         </ol>
         <div className="mt-3 pt-3 border-t border-yellow-300">
           <p className="text-xs text-gray-700">
-            <strong>Where to Find:</strong><br/>
-            • <strong>macOS:</strong> Apple menu → Recent Items → Documents<br/>
-            • <strong>Windows:</strong> File Explorer → Quick Access → Recent or Jump List (right-click taskbar icon)<br/>
+            <strong>Where to Find:</strong><br />
+            • <strong>macOS:</strong> Apple menu → Recent Items → Documents<br />
+            • <strong>Windows:</strong> File Explorer → Quick Access → Recent or Jump List (right-click taskbar icon)<br />
             • <strong>Linux:</strong> File manager recent files section (varies by desktop environment)
           </p>
         </div>
         <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded">
           <p className="text-xs text-red-700">
-            <strong>Note:</strong> The file must actually exist on your system. 
+            <strong>Note:</strong> The file must actually exist on your system.
             The demo sample paths will only work if those files exist on your computer.
             Try creating a test file first or use an existing file path.
           </p>

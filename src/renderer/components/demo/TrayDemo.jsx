@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Inbox, Check, X, AlertCircle, Menu } from 'react-feather';
+import { Tray, Check, X, WarningCircle, List } from '@phosphor-icons/react';
 
 /**
  * TrayDemo Component
@@ -20,7 +20,7 @@ export default function TrayDemo() {
       await window.electronAPI.tray.create();
       setTrayExists(true);
       setStatus('Tray created successfully! Check your system tray.');
-      
+
       // Set up initial menu
       await updateMenu();
     } catch (error) {
@@ -77,7 +77,7 @@ export default function TrayDemo() {
   };
 
   const toggleMenuItem = (id) => {
-    setMenuItems(menuItems.map(item => 
+    setMenuItems(menuItems.map(item =>
       item.id === id ? { ...item, enabled: !item.enabled } : item
     ));
   };
@@ -85,7 +85,7 @@ export default function TrayDemo() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2 mb-4">
-        <Inbox className="w-6 h-6 text-blue-600" />
+        <Tray className="w-6 h-6 text-blue-600" />
         <h2 className="text-2xl font-bold">System Tray</h2>
       </div>
 
@@ -112,7 +112,7 @@ export default function TrayDemo() {
       {/* Status */}
       {status && (
         <div className="p-3 bg-blue-50 border border-blue-200 rounded flex items-start gap-2">
-          <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <WarningCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <p className="text-sm text-blue-800">{status}</p>
         </div>
       )}
@@ -143,7 +143,7 @@ export default function TrayDemo() {
       <div className="border border-gray-200 rounded-lg p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-semibold flex items-center gap-2">
-            <Menu className="w-5 h-5" />
+            <List className="w-5 h-5" />
             Menu Items
           </h3>
           <button

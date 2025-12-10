@@ -1,7 +1,7 @@
 import React from 'react';
-import * as Tabs from '@radix-ui/react-tabs';
+
 import * as ContextMenu from '@radix-ui/react-context-menu';
-import { X, Home, Settings, Info, Box, Plus } from 'lucide-react';
+import { X, House, Gear, Info, Cube, Plus } from '@phosphor-icons/react';
 import { useTabContext } from '../contexts/TabContext';
 import { useStatusBar } from '../hooks/useStatusBar';
 import { useRegisterCommand } from '../hooks/useRegisterCommand';
@@ -29,7 +29,7 @@ const TabBar = () => {
 
   const closeAllAction = React.useCallback(() => closeAllTabs(), [closeAllTabs]);
   const closeOtherAction = React.useCallback(() => closeOtherTabs(activeTabId), [closeOtherTabs, activeTabId]);
-  const newTabAction = React.useCallback(() => addTab({ id: `tab-${Date.now()}`, title: 'New Tab', type: 'page' }), [addTab]);
+  const newTabAction = React.useCallback(() => addTab({ id: `tab - ${Date.now()} `, title: 'New Tab', type: 'page' }), [addTab]);
 
   useRegisterCommand(React.useMemo(() => ({
     id: 'close-all-tabs',
@@ -63,12 +63,10 @@ const TabBar = () => {
 
   // Helper to get icon for tab
   const getIcon = (id) => {
-    switch (id) {
-      case 'home': return <Home className="w-3 h-3" />;
-      case 'settings': return <Settings className="w-3 h-3" />;
-      case 'about': return <Info className="w-3 h-3" />;
-      default: return <Box className="w-3 h-3" />;
-    }
+    if (id === 'home') return <House className="w-4 h-4" />;
+    if (id === 'settings') return <Gear className="w-4 h-4" />;
+    if (id === 'about') return <Info className="w-4 h-4" />;
+    return <Cube className="w-4 h-4" />;
   };
 
   return (

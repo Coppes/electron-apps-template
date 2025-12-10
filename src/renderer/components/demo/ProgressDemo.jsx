@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Activity, Play, Pause, StopCircle, RotateCw } from 'react-feather';
+import { Pulse, Play, Pause, StopCircle, ArrowClockwise } from '@phosphor-icons/react';
 
 /**
  * ProgressDemo Component
@@ -34,7 +34,7 @@ export default function ProgressDemo() {
   const startSimulation = async () => {
     setProgress(0);
     setIsSimulating(true);
-    
+
     // Simulate progress over time
     for (let i = 0; i <= 20; i++) {
       await new Promise(resolve => setTimeout(resolve, 200));
@@ -68,8 +68,10 @@ export default function ProgressDemo() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2 mb-4">
-        <Activity className="w-6 h-6 text-green-600" />
+      <div className="flex items-center gap-2 mb-6">
+        <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+          <Pulse className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+        </div>
         <h2 className="text-2xl font-bold">Progress Indicator</h2>
       </div>
 
@@ -89,11 +91,10 @@ export default function ProgressDemo() {
               <div className="h-full bg-gradient-to-r from-blue-400 via-blue-600 to-blue-400 animate-pulse"></div>
             ) : (
               <div
-                className={`h-full transition-all duration-200 ${
-                  mode === 'error' ? 'bg-red-600' :
+                className={`h-full transition-all duration-200 ${mode === 'error' ? 'bg-red-600' :
                   mode === 'paused' ? 'bg-yellow-500' :
-                  'bg-blue-600'
-                }`}
+                    'bg-blue-600'
+                  }`}
                 style={{ width: `${progress * 100}%` }}
               ></div>
             )}
@@ -128,7 +129,7 @@ export default function ProgressDemo() {
             onClick={setIndeterminate}
             className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 flex items-center justify-center gap-2"
           >
-            <RotateCw className="w-4 h-4" />
+            <ArrowClockwise className="w-4 h-4" />
             Indeterminate
           </button>
           <button
@@ -189,11 +190,10 @@ export default function ProgressDemo() {
             <button
               key={m.value}
               onClick={() => setMode(m.value)}
-              className={`px-4 py-2 rounded border-2 transition-all ${
-                mode === m.value
-                  ? `border-${m.color}-600 bg-${m.color}-50`
-                  : 'border-gray-200 hover:border-gray-300'
-              }`}
+              className={`px-4 py-2 rounded border-2 transition-all ${mode === m.value
+                ? `border-${m.color}-600 bg-${m.color}-50`
+                : 'border-gray-200 hover:border-gray-300'
+                }`}
             >
               <span className={`font-medium ${mode === m.value ? `text-${m.color}-700` : 'text-gray-700'}`}>
                 {m.label}
@@ -219,9 +219,9 @@ export default function ProgressDemo() {
         </ol>
         <div className="mt-3 pt-3 border-t border-yellow-300">
           <p className="text-xs text-gray-700">
-            <strong>Platform Differences:</strong><br/>
-            • <strong>Windows:</strong> Shows colored progress bar on taskbar button (blue/green/yellow/red)<br/>
-            • <strong>macOS:</strong> Shows progress bar on dock icon (bouncing for indeterminate)<br/>
+            <strong>Platform Differences:</strong><br />
+            • <strong>Windows:</strong> Shows colored progress bar on taskbar button (blue/green/yellow/red)<br />
+            • <strong>macOS:</strong> Shows progress bar on dock icon (bouncing for indeterminate)<br />
             • <strong>Linux:</strong> Support varies by desktop environment (Unity shows on launcher)
           </p>
         </div>

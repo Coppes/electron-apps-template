@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Inbox, Command, Activity, Bell, Clock } from 'react-feather';
+import { Tray, Command, Pulse, Bell, Clock } from '@phosphor-icons/react';
 import TrayDemo from './TrayDemo';
 import ShortcutsDemo from './ShortcutsDemo';
 import ProgressDemo from './ProgressDemo';
@@ -14,9 +14,9 @@ export default function OSIntegrationDemo() {
   const [activeTab, setActiveTab] = useState('tray');
 
   const tabs = [
-    { id: 'tray', label: 'System Tray', icon: Inbox, component: TrayDemo },
+    { id: 'tray', label: 'System Tray', icon: Tray, component: TrayDemo },
     { id: 'shortcuts', label: 'Shortcuts', icon: Command, component: ShortcutsDemo },
-    { id: 'progress', label: 'Progress', icon: Activity, component: ProgressDemo },
+    { id: 'progress', label: 'Progress & Badge', icon: Pulse, component: ProgressDemo },
     { id: 'notifications', label: 'Notifications', icon: Bell, component: NotificationsDemo },
     { id: 'recent', label: 'Recent Docs', icon: Clock, component: RecentDocsDemo }
   ];
@@ -34,11 +34,10 @@ export default function OSIntegrationDemo() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-all ${
-                  activeTab === tab.id
-                    ? 'border-blue-600 text-blue-600 font-medium'
-                    : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
-                }`}
+                className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-all ${activeTab === tab.id
+                  ? 'border-blue-600 text-blue-600 font-medium'
+                  : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                  }`}
               >
                 <Icon className="w-4 h-4" />
                 {tab.label}

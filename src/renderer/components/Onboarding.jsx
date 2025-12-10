@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import { X, ArrowRight, Check, Rocket, Shield, Layers, Keyboard } from 'lucide-react';
+import { ArrowRight, Check, RocketLaunch, Shield, Stack, Keyboard } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 import Button from './ui/Button';
 
@@ -79,7 +79,7 @@ const Onboarding = () => {
     {
       title: t('steps.welcome.title', 'Welcome to Electron App'),
       description: t('steps.welcome.description', 'A powerful, secure, and modern template for your next project.'),
-      icon: <Rocket className="w-16 h-16 text-white" />,
+      icon: <RocketLaunch className="w-16 h-16 text-white" />,
       gradient: "from-blue-500 to-purple-500"
     },
     {
@@ -91,7 +91,7 @@ const Onboarding = () => {
     {
       title: t('steps.features.title', 'Feature Rich'),
       description: t('steps.features.description', 'Includes Tabs, Command Palette, i18n, and more out of the box.'),
-      icon: <Layers className="w-16 h-16 text-white" />,
+      icon: <Stack className="w-16 h-16 text-white" />,
       gradient: "from-orange-500 to-red-500"
     },
     {
