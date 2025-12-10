@@ -57,6 +57,42 @@ export const windowSchema = {
       state: { type: 'object', required: false },
     },
   },
+
+  'window:get-display': {
+    input: {},
+    output: {
+      success: { type: 'boolean', required: true },
+      display: { type: 'object', required: false },
+      error: { type: 'string', required: false },
+    },
+  },
+};
+
+/**
+ * Progress handlers
+ */
+export const progressSchema = {
+  [IPC_CHANNELS.PROGRESS_SET]: {
+    input: {
+      value: { type: 'number', required: true },
+      windowId: { type: 'number', required: false },
+      state: { type: 'string', required: false },
+    },
+    output: {
+      success: { type: 'boolean', required: true },
+      error: { type: 'string', required: false },
+    },
+  },
+
+  [IPC_CHANNELS.PROGRESS_CLEAR]: {
+    input: {
+      windowId: { type: 'number', required: false },
+    },
+    output: {
+      success: { type: 'boolean', required: true },
+      error: { type: 'string', required: false },
+    },
+  },
 };
 
 /**
@@ -191,6 +227,13 @@ export const appSchema = {
     input: {},
     output: {
       success: { type: 'boolean', required: true },
+    },
+  },
+
+  'app:is-packaged': {
+    input: {},
+    output: {
+      isPackaged: { type: 'boolean', required: true },
     },
   },
 };
@@ -360,6 +403,17 @@ export const dataSchema = {
     output: {
       success: { type: 'boolean', required: true },
       message: { type: 'string', required: false },
+      error: { type: 'string', required: false },
+    },
+  },
+
+  'data:validate-backup': {
+    input: {
+      filename: { type: 'string', required: true },
+    },
+    output: {
+      success: { type: 'boolean', required: true },
+      isValid: { type: 'boolean', required: false },
       error: { type: 'string', required: false },
     },
   },
@@ -608,5 +662,6 @@ export const ipcSchema = {
   ...dataSchema,
   ...traySchema,
   ...notificationSchema,
+  ...progressSchema,
   ...i18nSchema,
 };

@@ -128,6 +128,22 @@ export function installUpdateHandler() {
   };
 }
 
+
+
+/**
+ * Check if app is packaged
+ */
+export function isPackagedHandler() {
+  return async () => {
+    try {
+      return { isPackaged: app.isPackaged };
+    } catch (error) {
+      logger.error('Failed to check if app is packaged', error);
+      return createErrorResponse(error.message, 'IS_PACKAGED_FAILED');
+    }
+  };
+}
+
 /**
  * Create all app and system handlers
  * @returns {Object} Handlers keyed by channel
@@ -143,6 +159,7 @@ export function createAppHandlers() {
     [IPC_CHANNELS.APP_INSTALL_UPDATE]: installUpdateHandler(),
     [IPC_CHANNELS.RECENT_DOCS_ADD]: addRecentDocHandler(),
     [IPC_CHANNELS.RECENT_DOCS_CLEAR]: clearRecentDocsHandler(),
+    'app:is-packaged': isPackagedHandler(),
   };
 }
 

@@ -35,9 +35,20 @@ describe('App Component', () => {
     const homeButtons = screen.getAllByText(/nav.home/i);
     expect(homeButtons.length).toBeGreaterThan(0);
 
-    const demoButtons = screen.getAllByText(/nav.items.legacy_demo/i);
-    expect(demoButtons.length).toBeGreaterThan(0);
+    // Check for "Demos" section items
+    const dataManagementLink = screen.getByText(/nav.items.data_management_demo/i);
+    expect(dataManagementLink).toBeInTheDocument();
 
+    const connectivityLink = screen.getByText(/nav.items.connectivity_demo/i);
+    expect(connectivityLink).toBeInTheDocument();
+
+    const ipcLink = screen.getByText(/nav.items.ipc_demo/i);
+    expect(ipcLink).toBeInTheDocument();
+
+    const secureStorageLink = screen.getByText(/nav.items.secure_storage_demo/i);
+    expect(secureStorageLink).toBeInTheDocument();
+
+    // Check for standard items
     const settingsButtons = screen.getAllByText(/nav.items.settings/i);
     expect(settingsButtons.length).toBeGreaterThan(0);
 

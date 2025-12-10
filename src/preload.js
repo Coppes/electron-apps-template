@@ -42,6 +42,12 @@ const windowAPI = {
    * @returns {Promise<Object>} Window state (position, size, maximized, etc.)
    */
   getState: () => ipcRenderer.invoke(IPC_CHANNELS.WINDOW_GET_STATE, {}),
+
+  /**
+   * Get display info
+   * @returns {Promise<Object>} Display info
+   */
+  getDisplay: () => ipcRenderer.invoke('window:get-display', {}),
 };
 
 /**
@@ -188,6 +194,18 @@ const appAPI = {
    * @returns {Promise<Object>} Version info (electron, chrome, node, v8, app)
    */
   getVersion: () => ipcRenderer.invoke(IPC_CHANNELS.APP_GET_VERSION, {}),
+
+  /**
+   * Get platform information
+   * @returns {Promise<Object>} Platform info (platform, arch)
+   */
+  getPlatform: () => ipcRenderer.invoke(IPC_CHANNELS.SYSTEM_GET_PLATFORM, {}),
+
+  /**
+   * Check if app is packaged
+   * @returns {Promise<boolean>} True if packaged
+   */
+  isPackaged: () => ipcRenderer.invoke('app:is-packaged', {}),
 
   /**
    * Get app path
@@ -435,6 +453,13 @@ const dataAPI = {
    * @returns {Promise<Object>} Result
    */
   restoreBackup: (filename) => ipcRenderer.invoke(IPC_CHANNELS.DATA_RESTORE_BACKUP, { filename }),
+
+  /**
+   * Validate a backup file
+   * @param {string} filename - Backup filename
+   * @returns {Promise<Object>} Result
+   */
+  validateBackup: (filename) => ipcRenderer.invoke('data:validate-backup', { filename }),
 
   /**
    * Delete a backup

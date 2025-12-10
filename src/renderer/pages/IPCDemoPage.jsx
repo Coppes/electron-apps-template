@@ -1,5 +1,5 @@
 import React from 'react';
-import IPCDemo from '../demo/IPCDemo';
+import IPCDemo from '../components/demo/IPCDemo';
 
 /**
  * IPCDemoPage

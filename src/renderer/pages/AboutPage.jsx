@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
-import Separator from '../ui/Separator';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/Card';
+import Separator from '../components/ui/Separator';
 
 const AboutPage = () => {
   const [versionInfo, setVersionInfo] = useState(null);

@@ -1,10 +1,10 @@
 import React from 'react';
 import { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
-import Button from '../ui/Button';
-import Textarea from '../ui/Textarea';
-import Separator from '../ui/Separator';
-import SecureStorageDemo from '../features/secure-storage/SecureStorageDemo';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/Card';
+import Button from '../components/ui/Button';
+import Textarea from '../components/ui/Textarea';
+import Separator from '../components/ui/Separator';
+import SecureStorageDemo from '../components/features/secure-storage/SecureStorageDemo';
 
 import { FolderOpen, FloppyDisk } from '@phosphor-icons/react';
 

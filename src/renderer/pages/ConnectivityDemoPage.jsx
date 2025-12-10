@@ -1,5 +1,5 @@
 import React from 'react';
-import ConnectivityDemo from '../demo/ConnectivityDemo';
+import ConnectivityDemo from '../components/demo/ConnectivityDemo';
 
 /**
  * ConnectivityDemoPage

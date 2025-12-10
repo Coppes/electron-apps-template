@@ -8,9 +8,9 @@ import { StatusBarProvider } from '../contexts/StatusBarContext';
 import { CommandProvider } from '../contexts/CommandContext';
 
 // Mock child components to avoid full rendering complexity
-vi.mock('../components/pages/HomePage', () => ({ default: () => <div data-testid="HomePage">Home Content</div> }));
-vi.mock('../components/pages/SettingsPage', () => ({ default: () => <div data-testid="SettingsPage">Settings Content</div> }));
-vi.mock('../components/pages/DemoPage', () => ({ default: () => <div data-testid="DemoPage">Demo Content</div> }));
+vi.mock('../pages/HomePage', () => ({ default: () => <div data-testid="HomePage">Home Content</div> }));
+vi.mock('../pages/SettingsPage', () => ({ default: () => <div data-testid="SettingsPage">Settings Content</div> }));
+vi.mock('../pages/DemoPage', () => ({ default: () => <div data-testid="DemoPage">Demo Content</div> }));
 
 // Helper component to drive tests
 const TestDriver = () => {

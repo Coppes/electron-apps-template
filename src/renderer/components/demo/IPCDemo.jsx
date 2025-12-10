@@ -254,7 +254,7 @@ export default function IPCDemo() {
             <div className="space-y-2">
               <Button
                 onClick={() => callAPI(
-                  () => window.electronAPI.storage.set(storageKey, storageValue),
+                  () => window.electronAPI.store.set(storageKey, storageValue),
                   `Set '${storageKey}'`
                 )}
                 disabled={loading || !storageKey}
@@ -263,7 +263,7 @@ export default function IPCDemo() {
               </Button>
               <Button
                 onClick={() => callAPI(
-                  () => window.electronAPI.storage.get(storageKey),
+                  () => window.electronAPI.store.get(storageKey),
                   `Get '${storageKey}'`
                 )}
                 disabled={loading || !storageKey}
@@ -272,7 +272,7 @@ export default function IPCDemo() {
               </Button>
               <Button
                 onClick={() => callAPI(
-                  () => window.electronAPI.storage.delete(storageKey),
+                  () => window.electronAPI.store.delete(storageKey),
                   `Delete '${storageKey}'`
                 )}
                 disabled={loading || !storageKey}
@@ -281,7 +281,7 @@ export default function IPCDemo() {
               </Button>
               <Button
                 onClick={() => callAPI(
-                  () => window.electronAPI.storage.has(storageKey),
+                  () => window.electronAPI.store.has(storageKey),
                   `Has '${storageKey}'`
                 )}
                 disabled={loading || !storageKey}

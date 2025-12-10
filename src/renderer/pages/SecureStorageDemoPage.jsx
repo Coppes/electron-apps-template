@@ -1,5 +1,5 @@
 import React from 'react';
-import SecureStorageDemo from '../features/secure-storage/SecureStorageDemo';
+import SecureStorageDemo from '../components/features/secure-storage/SecureStorageDemo';
 
 /**
  * SecureStorageDemoPage

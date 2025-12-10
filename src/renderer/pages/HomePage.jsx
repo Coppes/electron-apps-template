@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { File, FloppyDisk, Gear, Book, UploadSimple } from '@phosphor-icons/react';
-import { useTab } from '../../hooks/useTab';
-import DropZone from '../features/data-management/DropZone';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
-import Button from '../ui/Button';
+import { useTab } from '../hooks/useTab';
+import DropZone from '../components/features/data-management/DropZone';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
+import Button from '../components/ui/Button';
 
 const HomePage = () => {
   const { t } = useTranslation('common');

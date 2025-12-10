@@ -1,5 +1,5 @@
 import React from 'react';
-import DataManagementDemo from '../demo/DataManagementDemo';
+import DataManagementDemo from '../components/demo/DataManagementDemo';
 
 /**
  * DataManagementDemoPage

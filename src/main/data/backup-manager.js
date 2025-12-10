@@ -265,7 +265,7 @@ export class BackupManager {
     try {
       // Check if database file exists
       const dbPath = path.join(app.getPath('userData'), 'database.db');
-      
+
       try {
         await fs.access(dbPath);
         archive.file(dbPath, { name: 'databases/database.db' });
@@ -286,7 +286,7 @@ export class BackupManager {
   async addUserFiles(archive, manifest) {
     try {
       const userFilesDir = path.join(app.getPath('userData'), 'user-files');
-      
+
       try {
         await fs.access(userFilesDir);
         archive.directory(userFilesDir, 'user-files');
@@ -316,12 +316,32 @@ export class BackupManager {
   }
 
   /**
+   * Validate a backup file
+   */
+  async validateBackup(filename) {
+    try {
+      const backupPath = path.join(this.backupDir, filename);
+      await fs.access(backupPath);
+      const stats = await fs.stat(backupPath);
+
+      // Basic validation: file exists and has size
+      if (stats.size === 0) {
+        return { isValid: false, error: 'Backup file is empty' };
+      }
+
+      return { isValid: true, size: stats.size };
+    } catch (error) {
+      return { isValid: false, error: 'Backup file not found' };
+    }
+  }
+
+  /**
    * List all available backups
    */
   async listBackups() {
     try {
       const history = store.get(BACKUP_METADATA_KEY, []);
-      
+
       // Verify backups still exist
       const validBackups = [];
       for (const backup of history) {
@@ -360,7 +380,7 @@ export class BackupManager {
   async deleteBackup(filename) {
     try {
       const backupPath = path.join(this.backupDir, filename);
-      
+
       // Check if file exists
       try {
         await fs.access(backupPath);
@@ -370,7 +390,7 @@ export class BackupManager {
           error: 'Backup file not found'
         };
       }
-      
+
       // Delete file
       await fs.unlink(backupPath);
 
@@ -446,7 +466,7 @@ export class BackupManager {
 
       if (history.length > this.maxBackups) {
         const toDelete = history.slice(this.maxBackups);
-        
+
         for (const backup of toDelete) {
           try {
             await this.deleteBackup(backup.filename);

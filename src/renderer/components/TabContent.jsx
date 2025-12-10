@@ -3,18 +3,19 @@ import { useTabContext } from '../contexts/TabContext';
 import { cn } from '../utils/cn';
 
 // Lazy load pages to avoid massive initial bundle
-const HomePage = React.lazy(() => import('./pages/HomePage'));
-const DemoPage = React.lazy(() => import('./pages/DemoPage'));
-const SettingsPage = React.lazy(() => import('./pages/SettingsPage'));
-const AboutPage = React.lazy(() => import('./pages/AboutPage'));
-const BackupPage = React.lazy(() => import('./pages/BackupPage'));
-const DataManagementDemoPage = React.lazy(() => import('./pages/DataManagementDemoPage'));
-const ConnectivityDemoPage = React.lazy(() => import('./pages/ConnectivityDemoPage'));
-const IPCDemoPage = React.lazy(() => import('./pages/IPCDemoPage'));
-const SecureStorageDemoPage = React.lazy(() => import('./pages/SecureStorageDemoPage'));
+const HomePage = React.lazy(() => import('../pages/HomePage'));
+const DemoPage = React.lazy(() => import('../pages/DemoPage'));
+const SettingsPage = React.lazy(() => import('../pages/SettingsPage'));
+const AboutPage = React.lazy(() => import('../pages/AboutPage'));
+const BackupPage = React.lazy(() => import('../pages/BackupPage'));
+const DataManagementDemoPage = React.lazy(() => import('../pages/DataManagementDemoPage'));
+const ConnectivityDemoPage = React.lazy(() => import('../pages/ConnectivityDemoPage'));
+const IPCDemoPage = React.lazy(() => import('../pages/IPCDemoPage'));
+const SecureStorageDemoPage = React.lazy(() => import('../pages/SecureStorageDemoPage'));
 const OSIntegrationDemoPage = React.lazy(() => import('../pages/OSIntegrationDemoPage')); // Note path difference in PageManager
-const TestPage = React.lazy(() => import('./pages/TestPage'));
-const KeyboardShortcutsPage = React.lazy(() => import('./pages/KeyboardShortcutsPage'));
+const TestPage = React.lazy(() => import('../pages/TestPage'));
+const KeyboardShortcutsPage = React.lazy(() => import('../pages/KeyboardShortcutsPage'));
+const ComponentTestPage = React.lazy(() => import('../pages/ComponentTestPage'));
 const SyncQueueViewer = React.lazy(() => import('./features/data-management/SyncQueueViewer'));
 
 const TabContent = () => {
@@ -25,6 +26,7 @@ const TabContent = () => {
     const type = tab.type || tab.id; // Fallback to ID if type is generic 'page' or missing
 
     switch (type) {
+      case 'component-test': return <ComponentTestPage />;
       case 'home': return <HomePage />;
       case 'settings': return <SettingsPage />;
       case 'about': return <AboutPage />;

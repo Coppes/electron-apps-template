@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useTab } from '../../hooks/useTab';
-import Button from '../ui/Button';
-import Switch from '../ui/Switch';
-import Label from '../ui/Label';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
-import { cn } from '../../utils/cn';
+import { useTab } from '../hooks/useTab';
+import Button from '../components/ui/Button';
+import Switch from '../components/ui/Switch';
+import Label from '../components/ui/Label';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
+import { cn } from '../utils/cn';
 
 const SettingsPage = () => {
   const [theme, setTheme] = useState('dark');

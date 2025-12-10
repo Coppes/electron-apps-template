@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useShortcutContext } from '../../contexts/ShortcutContext';
-import { Card, CardContent } from '../ui/Card';
-import Button from '../ui/Button';
+import { useShortcutContext } from '../contexts/ShortcutContext';
+import { Card, CardContent } from '../components/ui/Card';
+import Button from '../components/ui/Button';
 
 // Simple key recorder component
 const ShortcutRecorder = ({ value, onSave, onCancel, hasError }) => {

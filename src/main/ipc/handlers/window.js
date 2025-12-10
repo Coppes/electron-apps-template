@@ -133,6 +133,29 @@ export function getWindowStateHandler(windowManager) {
   };
 }
 
+
+/**
+ * Get display info handler
+ */
+export function getDisplayHandler() {
+  return async (event) => {
+    try {
+      const window = BrowserWindow.fromWebContents(event.sender);
+      if (window) {
+        // Dynamic import or use top-level if possible. electron export screen.
+        // screen is available in main process.
+        const { screen } = await import('electron');
+        const display = screen.getDisplayMatching(window.getBounds());
+        return createSuccessResponse({ display });
+      }
+      return createErrorResponse('Window not found', 'WINDOW_NOT_FOUND');
+    } catch (error) {
+      logger.error('Failed to get display info', error);
+      return createErrorResponse(error.message, 'GET_DISPLAY_FAILED');
+    }
+  };
+}
+
 /**
  * Create all window handlers
  * @param {WindowManager} windowManager - Window manager instance
@@ -145,6 +168,7 @@ export function createWindowHandlers(windowManager) {
     [IPC_CHANNELS.WINDOW_MINIMIZE]: minimizeWindowHandler(),
     [IPC_CHANNELS.WINDOW_MAXIMIZE]: maximizeWindowHandler(),
     [IPC_CHANNELS.WINDOW_GET_STATE]: getWindowStateHandler(windowManager),
+    'window:get-display': getDisplayHandler(),
     [IPC_CHANNELS.PROGRESS_SET]: progressSetHandler(),
     [IPC_CHANNELS.PROGRESS_CLEAR]: progressClearHandler(),
   };

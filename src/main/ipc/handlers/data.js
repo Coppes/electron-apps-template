@@ -262,6 +262,26 @@ export async function handleConnectivityStatus() {
   }
 }
 
+
+/**
+ * Handle validate backup request
+ */
+export async function handleValidateBackup(event, payload) {
+  const { filename } = payload || {};
+  if (!filename) return { success: false, error: 'Filename required' };
+
+  try {
+    const result = await backupManager.validateBackup(filename);
+    return {
+      success: true,
+      isValid: result.isValid,
+      error: result.error
+    };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
 /**
  * Handle sync queue add request
  */
@@ -328,6 +348,7 @@ export const dataHandlers = {
   [IPC_CHANNELS.DATA_LIST_BACKUPS]: handleListBackups,
   [IPC_CHANNELS.DATA_RESTORE_BACKUP]: handleRestoreBackup,
   [IPC_CHANNELS.DATA_DELETE_BACKUP]: handleDeleteBackup,
+  'data:validate-backup': handleValidateBackup,
   [IPC_CHANNELS.DATA_IMPORT]: handleDataImport,
   [IPC_CHANNELS.DATA_EXPORT]: handleDataExport,
   [IPC_CHANNELS.DATA_LIST_FORMATS]: handleListFormats,

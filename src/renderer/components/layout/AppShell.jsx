@@ -163,14 +163,7 @@ const AppShell = ({ children }) => {
                 {t('nav.sections.demos')}
               </div>
               <div className="space-y-1">
-                <Button
-                  variant={activeTabId === 'demo' ? 'default' : 'ghost'}
-                  className="w-full justify-start gap-2"
-                  onClick={() => nav('demo', t('nav.items.legacy_demo'))}
-                >
-                  <Wrench className="w-4 h-4" />
-                  {t('nav.items.legacy_demo')}
-                </Button>
+
                 <Button
                   variant={activeTabId === 'data-management-demo' ? 'default' : 'ghost'}
                   className="w-full justify-start gap-2"
@@ -278,6 +271,14 @@ const AppShell = ({ children }) => {
                   >
                     <Flask className="w-4 h-4" />
                     {t('nav.items.test_playground')}
+                  </Button>
+                  <Button
+                    variant={activeTabId === 'component-test' ? 'default' : 'ghost'}
+                    className="w-full justify-start gap-2"
+                    onClick={() => nav('component-test', 'UI Playground')}
+                  >
+                    <Flask className="w-4 h-4" />
+                    UI Playground
                   </Button>
                 </div>
               </div>

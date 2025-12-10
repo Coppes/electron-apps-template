@@ -17,7 +17,12 @@ export default function TrayDemo() {
 
   const createTray = async () => {
     try {
-      await window.electronAPI.tray.create();
+      const result = await window.electronAPI.tray.create();
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to create tray');
+      }
+
       setTrayExists(true);
       setStatus('Tray created successfully! Check your system tray.');
 
@@ -25,6 +30,7 @@ export default function TrayDemo() {
       await updateMenu();
     } catch (error) {
       setStatus(`Error: ${error.message}`);
+      setTrayExists(false);
     }
   };
 
