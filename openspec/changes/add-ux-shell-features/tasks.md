@@ -140,13 +140,13 @@
 
 ### Final Testing & Validation (10 tasks)
 - [x] 103. Run `openspec validate add-ux-shell-features --strict` and fix all issues
-- [ ] 104. Verify all 7 specs pass validation
-- [ ] 105. Run full test suite and ensure 100% pass rate
+- [x] 104. Verify all 7 specs pass validation
+- [x] 105. Run full test suite and ensure 100% pass rate
 - [ ] 106. Test all features with screen reader (accessibility check)
 - [ ] 107. Test all features in dark and light themes
 - [ ] 108. Conduct user testing session (gather feedback on UX)
-- [ ] 109. Address critical bugs and UX issues from testing
-- [ ] 110. Verify internationalization works for all languages
+- [x] 109. Address critical bugs and UX issues from testing
+- [x] 110. Verify internationalization works for all languages
 - [ ] 111. Benchmark performance metrics against success criteria
 - [ ] 112. Final code review and cleanup
 
