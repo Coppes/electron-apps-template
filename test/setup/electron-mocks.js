@@ -259,6 +259,8 @@ export const mockElectronAPI = {
 
   // Dialog API
   dialog: {
+    showOpenDialog: vi.fn((_options) => Promise.resolve('/mock/file.txt')),
+    showSaveDialog: vi.fn((_options) => Promise.resolve('/mock/save.txt')),
     openFile: vi.fn((_options) => Promise.resolve({
       canceled: false,
       filePath: '/mock/file.txt',
@@ -300,6 +302,12 @@ export const mockElectronAPI = {
     validatePath: vi.fn((_path) => Promise.resolve({ success: true, valid: true })),
   },
 
+  // i18n API
+  i18n: {
+    getLanguage: vi.fn(() => Promise.resolve({ success: true, language: 'en' })),
+    changeLanguage: vi.fn((_lng) => Promise.resolve({ success: true })),
+  },
+
   // Data API
   data: {
     createBackup: vi.fn((_options) => Promise.resolve({ success: true, filename: 'backup.json' })),
@@ -307,8 +315,8 @@ export const mockElectronAPI = {
     restoreBackup: vi.fn((_options) => Promise.resolve({ success: true })),
     deleteBackup: vi.fn((_options) => Promise.resolve({ success: true })),
     validateBackup: vi.fn((_options) => Promise.resolve({ success: true, valid: true })),
-    exportData: vi.fn((_options) => Promise.resolve({ success: true, path: '/mock/export.json' })),
-    importData: vi.fn((_options) => Promise.resolve({ success: true })),
+    export: vi.fn((_options) => Promise.resolve({ success: true, path: '/mock/export.json' })),
+    import: vi.fn((_options) => Promise.resolve({ success: true })),
     watchPath: vi.fn((_options) => Promise.resolve({ success: true })),
     unwatchPath: vi.fn((_options) => Promise.resolve({ success: true })),
     getSyncStats: vi.fn(() => Promise.resolve({ pending: 0, synced: 0, failed: 0 })),
@@ -432,4 +440,5 @@ export const mockElectronAPI = {
   setTitle: vi.fn(() => Promise.resolve()),
   openFile: vi.fn(() => Promise.resolve({ canceled: false, filePath: '/mock/file.txt', content: 'mock content' })),
   saveFile: vi.fn(() => Promise.resolve({ canceled: false, filePath: '/mock/save.txt' })),
+  invoke: vi.fn(() => Promise.resolve({ success: true })),
 };

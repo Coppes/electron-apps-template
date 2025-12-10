@@ -9,13 +9,18 @@ if (typeof window !== 'undefined') {
 global.window.electronAPI = mockElectronAPI;
 
 // Mock react-i18next
+// Mock react-i18next
+const mockI18n = {
+  changeLanguage: vi.fn(),
+  language: 'en',
+  on: vi.fn(),
+  off: vi.fn(),
+};
+
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key) => key,
-    i18n: {
-      changeLanguage: vi.fn(),
-      language: 'en',
-    },
+    i18n: mockI18n,
   }),
   initReactI18next: {
     type: '3rdParty',
@@ -44,6 +49,24 @@ window.PointerEvent = global.PointerEvent;
 window.HTMLElement.prototype.scrollIntoView = vi.fn();
 window.HTMLElement.prototype.releasePointerCapture = vi.fn();
 window.HTMLElement.prototype.hasPointerCapture = vi.fn();
+
+// Mock localStorage
+const localStorageMock = (() => {
+  let store = {};
+  return {
+    getItem: vi.fn((key) => store[key] || null),
+    setItem: vi.fn((key, value) => {
+      store[key] = value.toString();
+    }),
+    removeItem: vi.fn((key) => {
+      delete store[key];
+    }),
+    clear: vi.fn(() => {
+      store = {};
+    }),
+  };
+})();
+Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
 // Restore mock before each test
 beforeEach(() => {
