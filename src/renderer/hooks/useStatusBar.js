@@ -26,22 +26,9 @@ export function useStatusBar(item) {
     };
   }, []); // Only run once on mount
 
-  // Shared throttling logic
+  // Direct update without throttling
   const handleUpdate = (updates) => {
-    if (!throttleTimeoutRef.current) {
-      updateItem(itemIdRef.current, updates);
-
-      throttleTimeoutRef.current = setTimeout(() => {
-        throttleTimeoutRef.current = null;
-        if (pendingUpdateRef.current) {
-          updateItem(itemIdRef.current, pendingUpdateRef.current);
-          pendingUpdateRef.current = null;
-        }
-      }, 100);
-    } else {
-      // Merge pending updates
-      pendingUpdateRef.current = { ...(pendingUpdateRef.current || {}), ...updates };
-    }
+    updateItem(itemIdRef.current, updates);
   };
 
   // Update item when props change

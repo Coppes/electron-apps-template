@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card';
-import Button from '../ui/Button';
-import DropZone from '../features/data-management/DropZone';
+import { File, FloppyDisk, Gear, Book, UploadSimple } from '@phosphor-icons/react';
 import { useTab } from '../../hooks/useTab';
+import DropZone from '../features/data-management/DropZone';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
+import Button from '../ui/Button';
 
 const HomePage = () => {
   const { t } = useTranslation('common');
@@ -65,11 +66,7 @@ const HomePage = () => {
           <Card className="border-dashed border-2 min-h-[300px] flex flex-col items-center justify-center cursor-pointer hover:bg-accent/50 transition-colors">
             <CardContent className="flex flex-col items-center space-y-4 p-8 text-center">
               <div className="p-4 rounded-full bg-primary/10 text-primary mb-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="17 8 12 3 7 8" />
-                  <line x1="12" x2="12" y1="3" y2="15" />
-                </svg>
+                <UploadSimple className="w-12 h-12" />
               </div>
               <div className="space-y-2">
                 <h3 className="text-2xl font-semibold">Drop files to open</h3>
@@ -99,7 +96,7 @@ const HomePage = () => {
                 {droppedFiles.map((file, idx) => (
                   <div key={idx} className="flex items-center justify-between p-3 bg-muted rounded-md">
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl">📄</span>
+                      <File className="w-6 h-6" />
                       <div className="flex flex-col">
                         <span className="font-medium">{file.name}</span>
                         <span className="text-xs text-muted-foreground">{file.path}</span>
@@ -115,15 +112,15 @@ const HomePage = () => {
 
         <div className="grid grid-cols-3 gap-4">
           <Button variant="ghost" className="h-24 flex flex-col gap-2" onClick={() => openTab({ id: 'backup', title: 'Backups', type: 'backup' })}>
-            <span className="text-2xl">💾</span>
+            <FloppyDisk className="w-8 h-8" />
             Backups
           </Button>
           <Button variant="ghost" className="h-24 flex flex-col gap-2" onClick={() => openTab({ id: 'settings', title: 'Settings', type: 'settings' })}>
-            <span className="text-2xl">⚙️</span>
+            <Gear className="w-8 h-8" />
             Settings
           </Button>
           <Button variant="ghost" className="h-24 flex flex-col gap-2" onClick={() => window.open('https://github.com', '_blank')}>
-            <span className="text-2xl">📚</span>
+            <Book className="w-8 h-8" />
             Docs
           </Button>
         </div>

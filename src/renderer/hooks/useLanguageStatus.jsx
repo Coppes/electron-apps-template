@@ -8,6 +8,7 @@ import { Globe } from '@phosphor-icons/react';
  */
 export function useLanguageStatus() {
   const { i18n } = useTranslation();
+  // Initialize with current language immediately
   const [currentLang, setCurrentLang] = React.useState(i18n.language);
 
   React.useEffect(() => {

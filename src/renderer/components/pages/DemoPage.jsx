@@ -6,6 +6,8 @@ import Textarea from '../ui/Textarea';
 import Separator from '../ui/Separator';
 import SecureStorageDemo from '../features/secure-storage/SecureStorageDemo';
 
+import { FolderOpen, FloppyDisk } from '@phosphor-icons/react';
+
 const DemoPage = () => {
   const [fileContent, setFileContent] = useState('');
   const [filePath, setFilePath] = useState('');
@@ -106,11 +108,11 @@ const DemoPage = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-4">
-              <Button onClick={handleOpenFile} disabled={isLoading}>
-                {isLoading ? 'Opening...' : '📁 Open File'}
+              <Button onClick={handleOpenFile} disabled={isLoading} className="gap-2">
+                {isLoading ? 'Opening...' : <><FolderOpen className="w-4 h-4" /> Open File</>}
               </Button>
-              <Button onClick={handleSaveFile} disabled={isLoading || !fileContent.trim()}>
-                {isLoading ? 'Saving...' : '💾 Save File'}
+              <Button onClick={handleSaveFile} disabled={isLoading || !fileContent.trim()} className="gap-2">
+                {isLoading ? 'Saving...' : <><FloppyDisk className="w-4 h-4" /> Save File</>}
               </Button>
               {filePath && (
                 <span className="text-sm text-muted-foreground truncate flex-1">
