@@ -361,6 +361,9 @@ export const mockElectronAPI = {
       // Return cleanup function
       return () => { };
     }),
+    onMenuAction: vi.fn((_callback) => {
+      return () => { };
+    }),
   },
 
   // Update API

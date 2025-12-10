@@ -1,4 +1,3 @@
-import { BrowserWindow } from 'electron';
 import { windowManager } from './window-manager.js';
 import { logger } from './logger.js';
 

@@ -8,7 +8,7 @@ import OfflineIndicator from './components/shared/OfflineIndicator';
 import { StatusBarProvider } from './contexts/StatusBarContext';
 import { ShortcutProvider } from './contexts/ShortcutContext';
 import { CommandProvider } from './contexts/CommandContext';
-import { TabProvider, useTabContext } from './contexts/TabContext';
+import { TabProvider } from './contexts/TabContext';
 import CommandPalette from './components/CommandPalette';
 import TabContent from './components/TabContent';
 import Onboarding from './components/Onboarding';
@@ -19,6 +19,7 @@ import { useDataMenu } from './hooks/useDataMenu';
 
 function App() {
   const [updateInfo, setUpdateInfo] = useState(null);
+
   const [updateStatus, setUpdateStatus] = useState(null);
   const [updateProgress, setUpdateProgress] = useState(null);
 

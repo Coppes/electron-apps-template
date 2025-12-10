@@ -4,7 +4,6 @@ import { useTab } from '../../hooks/useTab';
 import Button from '../ui/Button';
 import Switch from '../ui/Switch';
 import Label from '../ui/Label';
-import Select from '../ui/Select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
 import { cn } from '../../utils/cn';
 
@@ -310,17 +309,20 @@ const SettingsPage = () => {
             </Button>
           </div>
 
-          {/* About */}
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('about.title', 'About')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">Version 1.0.0</p>
-            </CardContent>
-          </Card>
-        </div>
-        );
+        </CardContent>
+      </Card>
+
+      {/* About */}
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('about.title', 'About')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">Version 1.0.0</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
 };
 
-        export default SettingsPage;
+export default SettingsPage;

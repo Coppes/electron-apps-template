@@ -65,8 +65,8 @@ export const useDataMenu = () => {
     };
 
     // Register listeners using the exposed API
-    const removeListener = window.electronAPI.events.onMenuAction((action, data) => {
-      switch (action) {
+    const removeListener = window.electronAPI.events.onMenuAction((_event, command, _data) => {
+      switch (command) {
         case 'data-import':
           handleImport();
           break;

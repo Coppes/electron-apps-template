@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useShortcutContext } from '../../contexts/ShortcutContext';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../ui/Card';
+import { Card, CardContent } from '../ui/Card';
 import Button from '../ui/Button';
 
 // Simple key recorder component
