@@ -10,14 +10,16 @@ describe('i18n Configuration', () => {
     expect(i18n.language).toBe('en');
   });
 
-  it('should have English resources loaded', () => {
+  it('should load English resources dynamically', async () => {
+    await i18n.changeLanguage('en');
     expect(i18n.getResource('en', 'common')).toBeDefined();
     expect(i18n.getResource('en', 'settings')).toBeDefined();
     expect(i18n.getResource('en', 'errors')).toBeDefined();
     expect(i18n.getResource('en', 'onboarding')).toBeDefined();
   });
 
-  it('should have Portuguese resources loaded', () => {
+  it('should load Portuguese resources dynamically', async () => {
+    await i18n.changeLanguage('pt-BR');
     expect(i18n.getResource('pt-BR', 'common')).toBeDefined();
     expect(i18n.getResource('pt-BR', 'settings')).toBeDefined();
     expect(i18n.getResource('pt-BR', 'errors')).toBeDefined();

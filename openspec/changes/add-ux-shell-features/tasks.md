@@ -121,8 +121,8 @@
 ### Performance Optimization (6 tasks)
 - [x] 89. Optimize command palette fuzzy search for 1000+ commands (virtual scrolling)
 - [x] 90. Implement tab content lazy loading (unmount inactive tabs)
-- [ ] 91. Throttle status bar item updates (max 1/sec)
-- [ ] 92. Lazy load i18n translation namespaces
+- [x] 91. Throttle status bar item updates (max 1/sec)
+- [x] 92. Lazy load i18n translation namespaces
 - [ ] 93. Measure and optimize splash screen timing (target < 200ms)
 - [ ] 94. Profile memory usage of all new features (target < 50MB overhead)
 
