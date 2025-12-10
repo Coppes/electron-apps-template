@@ -47,9 +47,9 @@ export const markdownHandler = {
       // Convert object to sections
       for (const [key, value] of Object.entries(data)) {
         if (key === 'metadata') continue; // Skip metadata (already handled)
-        
+
         markdown += `## ${key}\n\n`;
-        
+
         if (typeof value === 'string') {
           markdown += `${value}\n\n`;
         } else if (Array.isArray(value)) {
@@ -75,7 +75,7 @@ export const markdownHandler = {
    */
   async exportStream(data, options = {}, writeStream) {
     const markdown = await this.export(data, options);
-    
+
     return new Promise((resolve, reject) => {
       writeStream.write(markdown, (error) => {
         if (error) reject(error);
@@ -112,7 +112,7 @@ export const markdownHandler = {
    */
   async importStream(readStream, options = {}) {
     const chunks = [];
-    
+
     const collectTransform = new Transform({
       transform(chunk, encoding, callback) {
         chunks.push(chunk);
@@ -121,7 +121,7 @@ export const markdownHandler = {
     });
 
     await pipeline(readStream, collectTransform);
-    
+
     const content = Buffer.concat(chunks).toString('utf8');
     return this.import(content, options);
   },
@@ -141,7 +141,7 @@ export const markdownHandler = {
     // Basic markdown detection (headers, lists, links)
     const markdownPatterns = [
       /^#{1,6}\s/m,        // Headers
-      /^\*\s/m,            // Unordered list
+      /^[\*\-\+]\s/m,      // Unordered list
       /^\d+\.\s/m,         // Ordered list
       /\[.*\]\(.*\)/,      // Links
       /\*\*.*\*\*/,        // Bold

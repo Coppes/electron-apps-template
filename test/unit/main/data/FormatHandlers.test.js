@@ -2,6 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import { jsonHandler } from '../../../../src/main/data/format-handlers/json-handler.js';
 import { csvHandler } from '../../../../src/main/data/format-handlers/csv-handler.js';
+import { markdownHandler } from '../../../../src/main/data/format-handlers/markdown-handler.js';
 
 describe('Format Handlers', () => {
   describe('JSON Handler', () => {
@@ -55,6 +56,48 @@ describe('Format Handlers', () => {
 
     it('should detect valid CSV', () => {
       expect(csvHandler.canHandle('id,name\n1,Alice')).toBe(true);
+    });
+  });
+
+  describe('Markdown Handler', () => {
+    const testData = {
+      title: 'My Document',
+      description: 'A test document',
+      items: ['Item 1', 'Item 2']
+    };
+
+    it('should export object to Markdown', async () => {
+      const result = await markdownHandler.export(testData);
+      expect(result).toContain('## title');
+      expect(result).toContain('My Document');
+      expect(result).toContain('## items');
+      expect(result).toContain('- Item 1');
+    });
+
+    it('should export array to Markdown list', async () => {
+      const arrayData = ['Apple', 'Banana'];
+      const result = await markdownHandler.export(arrayData);
+      expect(result).toContain('- Apple');
+      expect(result).toContain('- Banana');
+    });
+
+    it('should import Markdown content', async () => {
+      const mdContent = '# Title\n\n- List item';
+      const result = await markdownHandler.import(mdContent);
+      expect(result.content).toBe(mdContent);
+      expect(result.type).toBe('markdown');
+      expect(result.parsed).toBeDefined(); // Should contain HTML or tokens
+    });
+
+    it('should always validate as true (flexible format)', () => {
+      expect(markdownHandler.validate({}).valid).toBe(true);
+      expect(markdownHandler.validate("string").valid).toBe(true);
+    });
+
+    it('should detect valid Markdown', () => {
+      expect(markdownHandler.canHandle('# Header')).toBe(true);
+      expect(markdownHandler.canHandle('- List item')).toBe(true);
+      expect(markdownHandler.canHandle('Plain text')).toBe(false);
     });
   });
 });

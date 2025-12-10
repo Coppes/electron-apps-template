@@ -5,7 +5,17 @@ import path from 'path';
 import fs from 'fs/promises';
 
 // Mock fs and path
+// Mock fs and path
 vi.mock('fs/promises');
+vi.mock('electron-store', () => {
+  return {
+    default: class {
+      constructor() {
+        this.store = { mock: 'store' };
+      }
+    }
+  };
+});
 
 describe('ImportExportManager', () => {
   let manager;
@@ -77,6 +87,103 @@ describe('ImportExportManager', () => {
       const result = await manager.import(filePath);
       expect(result.success).toBe(false);
       expect(result.error).toContain('File too large');
+    });
+  });
+
+  describe('Convert', () => {
+    it('should convert data from one format to another', async () => {
+      // Setup
+      fs.stat.mockResolvedValue({ size: 100 });
+      fs.readFile.mockResolvedValue('mock-json-content');
+      fs.writeFile.mockResolvedValue(undefined);
+
+      const csvMockHandler = {
+        import: vi.fn(),
+        export: vi.fn().mockResolvedValue('mock-csv-content'),
+        validate: vi.fn().mockReturnValue({ valid: true }),
+        canHandle: vi.fn().mockReturnValue(true)
+      };
+      manager.registerHandler('csv', csvMockHandler);
+
+      const result = await manager.convert('/test/source.json', '/test/target.csv', { fromFormat: 'json', toFormat: 'csv' });
+
+      expect(result.success).toBe(true);
+      expect(result.fromFormat).toBe('json');
+      expect(result.toFormat).toBe('csv');
+
+      // Check if import was called (json handler)
+      expect(mockHandler.import).toHaveBeenCalled();
+
+      // Check if export was called with imported data (csv handler)
+      // Note: mockHandler.import returns { mock: 'data' }
+      expect(csvMockHandler.export).toHaveBeenCalledWith({ mock: 'data' }, {});
+      expect(fs.writeFile).toHaveBeenCalledWith('/test/target.csv', 'mock-csv-content', 'utf8');
+    });
+
+    it('should fail if import fails', async () => {
+      fs.stat.mockRejectedValue(new Error('File not found'));
+
+      const result = await manager.convert('/test/missing.json', '/test/target.csv');
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('Conversion failed at import step');
+    });
+  });
+
+  describe('Presets', () => {
+    it('should register and use export presets', async () => {
+      // Mock data provider
+      const mockDataProvider = vi.fn().mockResolvedValue({ preset: 'data' });
+      manager.registerPreset('test-preset', mockDataProvider);
+
+      expect(manager.listPresets()).toContain('test-preset');
+
+      // Setup export mock
+      const filePath = '/test/preset.json';
+      fs.writeFile.mockResolvedValue(undefined);
+
+      const result = await manager.exportPreset(filePath, 'test-preset', { format: 'json' });
+
+      expect(result.success).toBe(true);
+      expect(mockDataProvider).toHaveBeenCalled();
+      expect(mockHandler.export).toHaveBeenCalledWith({ preset: 'data' }, {});
+      expect(fs.writeFile).toHaveBeenCalled();
+    });
+
+    it('should fail if preset not found', async () => {
+      const result = await manager.exportPreset('/test/file.json', 'unknown-preset');
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('Preset not found');
+    });
+  });
+
+  describe('Progress Reporting', () => {
+    it('should report progress during import', async () => {
+      const filePath = '/test/progress.json';
+      const fileContent = '{"some":"data"}';
+      fs.stat.mockResolvedValue({ size: fileContent.length });
+      fs.readFile.mockResolvedValue(fileContent);
+
+      const onProgress = vi.fn();
+
+      await manager.import(filePath, { onProgress });
+
+      // Should be called at least twice (start, complete)
+      expect(onProgress).toHaveBeenCalled();
+      expect(onProgress).toHaveBeenCalledWith(expect.objectContaining({ phase: 'start' }));
+      expect(onProgress).toHaveBeenCalledWith(expect.objectContaining({ phase: 'complete' }));
+    });
+
+    it('should report progress during export', async () => {
+      const filePath = '/test/progress-export.json';
+      fs.writeFile.mockResolvedValue(undefined);
+
+      const onProgress = vi.fn();
+
+      await manager.export(filePath, { data: 'test' }, { onProgress });
+
+      expect(onProgress).toHaveBeenCalled();
+      expect(onProgress).toHaveBeenCalledWith(expect.objectContaining({ phase: 'start' }));
+      expect(onProgress).toHaveBeenCalledWith(expect.objectContaining({ phase: 'complete' }));
     });
   });
 });
