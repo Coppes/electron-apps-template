@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { Clock } from '@phosphor-icons/react';
 
 /**
  * BackupPage Component
@@ -12,11 +13,39 @@ export default function BackupPage() {
   const [restoring, setRestoring] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [schedule, setSchedule] = useState('never');
 
-  // Load backups on mount
+  // Load backups and settings on mount
   useEffect(() => {
     loadBackups();
+    loadSchedule();
   }, []);
+
+  const loadSchedule = async () => {
+    try {
+      if (window.electronAPI?.store) {
+        const savedSchedule = await window.electronAPI.store.get('backupSchedule');
+        if (savedSchedule) {
+          setSchedule(savedSchedule);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load backup schedule:', err);
+    }
+  };
+
+  const handleScheduleChange = async (e) => {
+    const newSchedule = e.target.value;
+    setSchedule(newSchedule);
+    try {
+      if (window.electronAPI?.store) {
+        await window.electronAPI.store.set('backupSchedule', newSchedule);
+        // In a real app, this would also notify the main process to reschedule
+      }
+    } catch (err) {
+      setError(`Failed to save schedule: ${err.message}`);
+    }
+  };
 
   const loadBackups = async () => {
     try {
@@ -105,13 +134,34 @@ export default function BackupPage() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          Backup Management
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Create, restore, and manage your application backups
-        </p>
+      <div className="flex justify-between items-start mb-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            Backup Management
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            Create, restore, and manage your application backups
+          </p>
+        </div>
+
+        {/* Schedule Settings */}
+        <div className="flex items-center gap-3 bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+          <Clock className="w-5 h-5 text-gray-500" />
+          <div className="flex flex-col">
+            <label htmlFor="schedule" className="text-xs font-medium text-gray-500 uppercase">Auto-Backup</label>
+            <select
+              id="schedule"
+              value={schedule}
+              onChange={handleScheduleChange}
+              className="bg-transparent text-sm font-medium focus:outline-none cursor-pointer text-gray-900 dark:text-white"
+            >
+              <option value="never">Never</option>
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       {/* Action Buttons */}
@@ -128,7 +178,7 @@ export default function BackupPage() {
           disabled={loading || creating || restoring}
           className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
-          Refresh
+          {loading ? 'Refreshing...' : 'Refresh List'}
         </button>
       </div>
 
@@ -146,7 +196,7 @@ export default function BackupPage() {
       )}
 
       {/* Backup List */}
-      {loading ? (
+      {loading && backups.length === 0 ? (
         <div className="text-center py-8">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           <p className="mt-2 text-gray-600 dark:text-gray-400">Loading backups...</p>

@@ -4,7 +4,7 @@ import AppShell from './components/layout/AppShell';
 import { UpdateNotification } from './components/shared/UpdateNotification';
 import ErrorBoundary from './components/shared/ErrorBoundary';
 
-import OfflineIndicator from './components/shared/OfflineIndicator';
+import ConnectivityStatus from './components/shared/ConnectivityStatus';
 import { StatusBarProvider } from './contexts/StatusBarContext';
 import { ShortcutProvider } from './contexts/ShortcutContext';
 import { CommandProvider } from './contexts/CommandContext';
@@ -106,7 +106,7 @@ function App() {
 
               <CommandPalette />
               <Onboarding />
-              <OfflineIndicator position="top-right" />
+              <ConnectivityStatus />
 
               {updateStatus && (
                 <UpdateNotification

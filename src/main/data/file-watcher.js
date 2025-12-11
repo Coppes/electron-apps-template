@@ -71,14 +71,14 @@ export class FileWatcher {
       if (watchData.lastActivity && now - watchData.lastActivity > this.maxIdleTime) {
         try {
           watchData.watcher.close();
-          
+
           if (watchData.timeout) {
             clearTimeout(watchData.timeout);
           }
-          
+
           this.watchers.delete(filePath);
           cleaned++;
-          
+
           logger.debug(`Cleaned up idle watcher: ${filePath}`);
         } catch (error) {
           logger.error(`Failed to cleanup watcher for ${filePath}:`, error);
@@ -116,7 +116,7 @@ export class FileWatcher {
 
       // Get initial metadata
       const metadata = await this.getFileMetadata(normalizedPath);
-      
+
       if (!metadata) {
         return {
           success: false,
@@ -200,9 +200,12 @@ export class FileWatcher {
   /**
    * Handle file change event with debouncing
    */
+  /**
+   * Handle file change event with debouncing
+   */
   handleFileChange(filePath, eventType, filename, window) {
     const watcherData = this.watchers.get(filePath);
-    
+
     if (!watcherData) {
       return;
     }
@@ -215,39 +218,34 @@ export class FileWatcher {
       clearTimeout(watcherData.timeout);
     }
 
-    // Set new timeout for debouncing (300ms - tuned for responsiveness vs performance)
+    // Set new timeout for debouncing
     watcherData.timeout = setTimeout(async () => {
       try {
-        // Get current metadata
-        const currentMetadata = await this.getFileMetadata(filePath);
+        // Construct the full path of the changed file (if filename provided by fs.watch)
+        const changedPath = filename ? path.join(filePath, filename) : filePath;
+
+        // Check availability of the specific item that changed
+        const currentMetadata = await this.getFileMetadata(changedPath);
 
         if (!currentMetadata) {
-          // File was deleted
+          // Item was deleted
           this.notifyFileChange(window, {
-            path: filePath,
-            event: 'deleted',
-            previous: watcherData.metadata
+            path: changedPath,
+            event: 'unlink',
+            type: 'unlink',
+            timestamp: new Date().toISOString()
           });
-
-          // Stop watching deleted file
-          await this.unwatch(filePath);
           return;
         }
 
-        // Check if file actually changed
-        const hasChanged = this.hasFileChanged(watcherData.metadata, currentMetadata);
+        this.notifyFileChange(window, {
+          path: changedPath,
+          event: eventType === 'rename' ? 'rename' : 'change',
+          type: eventType === 'rename' ? 'rename' : 'changed',
+          current: currentMetadata,
+          timestamp: new Date().toISOString()
+        });
 
-        if (hasChanged) {
-          this.notifyFileChange(window, {
-            path: filePath,
-            event: 'modified',
-            previous: watcherData.metadata,
-            current: currentMetadata
-          });
-
-          // Update stored metadata
-          watcherData.metadata = currentMetadata;
-        }
       } catch (error) {
         logger.error('Error handling file change:', error);
       }
@@ -277,8 +275,8 @@ export class FileWatcher {
    * Check if file has changed
    */
   hasFileChanged(previous, current) {
-    return previous.size !== current.size || 
-           previous.mtime !== current.mtime;
+    return previous.size !== current.size ||
+      previous.mtime !== current.mtime;
   }
 
   /**
@@ -309,7 +307,7 @@ export class FileWatcher {
     const results = await Promise.all(
       paths.map(path => this.unwatch(path))
     );
-    
+
     logger.info(`Stopped watching ${results.length} files`);
     return {
       success: true,

@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { FloppyDisk, DownloadSimple, Eye, Paperclip } from '@phosphor-icons/react';
+import { FloppyDisk, DownloadSimple, Eye, Paperclip, FileArchive, CloudCheck, ArrowsClockwise, WifiSlash } from '@phosphor-icons/react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
 import Button from '../ui/Button';
+import Switch from '../ui/Switch';
+import Label from '../ui/Label';
 import Separator from '../ui/Separator';
 import DropZone from '../features/data-management/DropZone';
+import useDragDrop from '../../hooks/useDragDrop';
+import useOfflineStatus from '../../hooks/useOfflineStatus';
 
 /**
  * DataManagementDemo Component
@@ -17,6 +21,16 @@ export default function DataManagementDemo() {
   const [exportData, setExportData] = useState({ key: 'value', array: [1, 2, 3] });
   const [watchedPath, setWatchedPath] = useState('');
   const [fileEvents, setFileEvents] = useState([]);
+  const [autoReload, setAutoReload] = useState(false);
+  const [schedule, setSchedule] = useState('never');
+  const [nextBackup, setNextBackup] = useState(null);
+
+  // Hooks
+  const { startDrag } = useDragDrop({
+    onError: (err) => setMessage({ type: 'error', text: err.message })
+  });
+
+  const { isOnline } = useOfflineStatus();
 
   useEffect(() => {
     loadBackups();
@@ -25,11 +39,78 @@ export default function DataManagementDemo() {
     const cleanup = window.electronAPI?.file?.onFileChanged?.((event) => {
       // Event format might vary, standardizing here
       const eventData = typeof event === 'string' ? { path: event, type: 'changed' } : event;
+
+      // Update event log
       setFileEvents(prev => [...prev, { ...eventData, timestamp: new Date().toISOString() }].slice(-10));
+
+      // Handle File Deletion
+      if (eventData.type === 'unlink' || eventData.type === 'delete') {
+        setMessage({ type: 'error', text: `File deleted externally: ${eventData.path}` });
+        window.electronAPI?.notifications?.show({
+          title: 'File Deleted',
+          body: `The file ${eventData.path} was deleted externally.`,
+          urgency: 'critical'
+        }).catch(console.error);
+        return;
+      }
+
+      // Handle Auto-Reload or Notification
+      if (autoReload && eventData.type === 'changed') {
+        // Simulate auto-reload
+        setMessage({ type: 'success', text: `File changed. Auto-reloaded: ${eventData.path}` });
+      } else {
+        // Show native notification
+        window.electronAPI?.notifications?.show({
+          title: 'File Update Detected',
+          body: `File ${eventData.type === 'rename' ? 'renamed' : 'changed'}: ${eventData.path}`,
+          silent: true
+        }).catch(err => console.error('Failed to show notification:', err));
+      }
     });
 
+
+
+    // Load schedule
+    const loadSchedule = async () => {
+      try {
+        const savedSchedule = await window.electronAPI.store.get('backupSchedule');
+        if (savedSchedule) {
+          setSchedule(savedSchedule);
+          calculateNextBackup(savedSchedule);
+        }
+      } catch (err) {
+        console.error('Failed to load schedule:', err);
+      }
+    };
+    loadSchedule();
+
     return () => cleanup?.();
-  }, []);
+  }, [autoReload]); // added autoReload dependency for closure
+
+  const calculateNextBackup = (sch) => {
+    if (sch === 'never') {
+      setNextBackup(null);
+      return;
+    }
+    const now = new Date();
+    const next = new Date(now);
+    if (sch === 'daily') next.setDate(now.getDate() + 1);
+    if (sch === 'weekly') next.setDate(now.getDate() + 7);
+    if (sch === 'monthly') next.setMonth(now.getMonth() + 1);
+    next.setHours(2, 0, 0, 0); // Default to 2 AM
+    setNextBackup(next);
+  };
+
+  const handleScheduleChange = async (e) => {
+    const newSchedule = e.target.value;
+    setSchedule(newSchedule);
+    calculateNextBackup(newSchedule);
+    try {
+      await window.electronAPI.store.set('backupSchedule', newSchedule);
+    } catch (err) {
+      console.error('Failed to save schedule:', err);
+    }
+  };
 
   const loadBackups = async () => {
     try {
@@ -159,6 +240,18 @@ export default function DataManagementDemo() {
     setMessage({ type: 'info', text: `Received ${files.length} file(s)` });
   };
 
+  const handleDragStart = (e, backup) => {
+    e.preventDefault();
+    if (!backup.path) {
+      setMessage({ type: 'error', text: 'Backup file path not available for drag' });
+      return;
+    }
+
+    // We can provide a custom icon path here if we had one
+    startDrag(backup.path);
+    setMessage({ type: 'info', text: `Dragging ${backup.filename}...` });
+  };
+
   const tabs = [
     { id: 'backup', label: 'Backup & Restore', icon: FloppyDisk },
     { id: 'import-export', label: 'Import & Export', icon: DownloadSimple },
@@ -169,21 +262,24 @@ export default function DataManagementDemo() {
   return (
     <div className="space-y-4">
       {/* Tab Navigation */}
-      <div className="flex gap-2 border-b border-border pb-2">
-        {tabs.map(tab => {
-          const Icon = tab.icon;
-          return (
-            <Button
-              key={tab.id}
-              variant={activeTab === tab.id ? 'default' : 'ghost'}
-              className="gap-2"
-              onClick={() => setActiveTab(tab.id)}
-            >
-              <Icon className="w-4 h-4" />
-              {tab.label}
-            </Button>
-          );
-        })}
+      <div className="flex items-center justify-between border-b border-border pb-2">
+        {/* Tab Navigation */}
+        <div className="flex gap-2">
+          {tabs.map(tab => {
+            const Icon = tab.icon;
+            return (
+              <Button
+                key={tab.id}
+                variant={activeTab === tab.id ? 'default' : 'ghost'}
+                className="gap-2"
+                onClick={() => setActiveTab(tab.id)}
+              >
+                <Icon className="w-4 h-4" />
+                {tab.label}
+              </Button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Status Message */}
@@ -204,13 +300,37 @@ export default function DataManagementDemo() {
             <CardDescription>Create and restore data backups</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex gap-2">
-              <Button onClick={handleCreateBackup} disabled={loading}>
-                {loading ? 'Creating...' : 'Create Backup'}
-              </Button>
-              <Button variant="outline" onClick={loadBackups} disabled={loading}>
-                Refresh
-              </Button>
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center justify-between bg-muted/30 p-3 rounded-lg border border-border">
+                <div className="flex flex-col">
+                  <h4 className="text-sm font-semibold">Backup Schedule</h4>
+                  <p className="text-xs text-muted-foreground">Automate your backups</p>
+                </div>
+                <select
+                  className="bg-background border border-border rounded text-sm p-1"
+                  value={schedule}
+                  onChange={handleScheduleChange}
+                >
+                  <option value="never">Never</option>
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
+                </select>
+                {nextBackup && (
+                  <div className="text-xs text-muted-foreground mt-1 text-right w-full absolute -bottom-5 right-0 px-3">
+                    Next: {nextBackup.toLocaleDateString()}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-2">
+                <Button onClick={handleCreateBackup} disabled={loading}>
+                  {loading ? 'Creating...' : 'Create Backup'}
+                </Button>
+                <Button variant="outline" onClick={loadBackups} disabled={loading}>
+                  Refresh
+                </Button>
+              </div>
             </div>
 
             <Separator />
@@ -226,7 +346,7 @@ export default function DataManagementDemo() {
                       <div>
                         <div className="font-medium">{backup.filename}</div>
                         <div className="text-sm text-muted-foreground">
-                          {new Date(backup.created).toLocaleString()} • {(backup.size / 1024).toFixed(1)} KB
+                          {new Date(backup.timestamp).toLocaleString()} • {(backup.size / 1024).toFixed(1)} KB
                         </div>
                       </div>
                       <Button
@@ -307,10 +427,17 @@ export default function DataManagementDemo() {
             </div>
 
             {watchedPath && (
-              <div className="text-sm text-muted-foreground">
-                Watching: {watchedPath}
+              <div className="flex flex-col gap-4">
+                <div className="text-sm text-muted-foreground bg-muted p-2 rounded">
+                  Watching: <span className="font-mono">{watchedPath}</span>
+                </div>
               </div>
             )}
+
+            <div className="flex items-center space-x-2 pt-2">
+              <Switch id="auto-reload" checked={autoReload} onCheckedChange={setAutoReload} />
+              <Label htmlFor="auto-reload">Auto-reload on external changes (Bypass conflict dialog)</Label>
+            </div>
 
             <Separator />
 
@@ -340,12 +467,53 @@ export default function DataManagementDemo() {
             <CardTitle>Drag & Drop</CardTitle>
             <CardDescription>Test file drag and drop functionality</CardDescription>
           </CardHeader>
-          <CardContent>
-            <DropZone
-              onDrop={handleFileDrop}
-              accept={['.txt', '.json', '.md']}
-              multiple
-            />
+          <CardContent className="space-y-6">
+            <div>
+              <h3 className="font-semibold mb-2 text-sm">Drop Files Here</h3>
+              <DropZone
+                onDrop={handleFileDrop}
+                accept={['.txt', '.json', '.md']}
+                multiple
+              />
+            </div>
+
+            <Separator />
+
+            <div>
+              <h3 className="font-semibold mb-2 text-sm">Drag From App (Backups)</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Drag the backup files below to your desktop or file explorer.
+              </p>
+
+              {backups.length === 0 ? (
+                <div className="p-4 border border-dashed rounded text-center text-sm text-muted-foreground">
+                  No backups available to drag. Create a backup first.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {backups.map(backup => (
+                    <div
+                      key={backup.filename}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, backup)}
+                      className="p-3 border border-border rounded bg-card hover:border-primary/50 cursor-grab active:cursor-grabbing flex items-center gap-3 transition-colors"
+                    >
+                      <div className="h-10 w-10 bg-primary/10 rounded flex items-center justify-center text-primary">
+                        <FileArchive className="w-6 h-6" />
+                      </div>
+                      <div className="overflow-hidden">
+                        <div className="font-medium text-sm truncate" title={backup.filename}>
+                          {backup.filename}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {(backup.size / 1024).toFixed(1)} KB
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
       )}

@@ -109,7 +109,7 @@
 - [x] 76. Add "Restore Backup" button with file picker and confirmation dialog
 - [x] 77. Add "Delete Backup" button with confirmation
 - [x] 78. Display backup retention settings (max backups, auto-delete old)
-- [ ] 79. Add automatic backup schedule configuration (daily, weekly, never)
+- [x] 79. Add automatic backup schedule configuration (daily, weekly, never)
 - [x] 80. Integrate BackupPage into app navigation
 
 ### Import/Export UI (7 tasks)
@@ -127,22 +127,22 @@
 - [x] 88. Integrate DropZone component into HomePage or relevant pages
 - [x] 89. Add visual feedback for drag-over state (highlight, border change)
 - [x] 90. Display dropped file information (name, size, type)
-- [ ] 91. Add "Export as File" context menu option with drag-to-desktop hint
-- [ ] 92. Implement drag preview icon customization
-- [ ] 93. Add drag-drop examples to Demo page
+- [x] 91. Add "Export as File" context menu option with drag-to-desktop hint
+- [x] 92. Implement drag preview icon customization
+- [x] 93. Add drag-drop examples to Demo page
 
 ### File Watching UI (5 tasks)
 
 - [x] 94. Create file conflict dialog component (Reload, Keep, Diff options)
-- [ ] 95. Add non-blocking notification when file changes externally
-- [ ] 96. Implement auto-reload option in settings (bypass dialog)
-- [ ] 97. Add file watch status indicator (show which files are being watched)
-- [ ] 98. Handle file deletion notification with "Save As" option
+- [x] 95. Add non-blocking notification when file changes externally
+- [x] 96. Implement auto-reload option in settings (bypass dialog)
+- [x] 97. Add file watch status indicator (show which files are being watched)
+- [x] 98. Handle file deletion notification with "Save As" option
 
 ### Offline/Sync UI (6 tasks)
 
 - [x] 99. Integrate OfflineIndicator into StatusBar (if add-ux-shell-features present)
-- [ ] 100. Add sync status indicator (syncing, synced, errors)
+- [x] 100. Add sync status indicator (syncing, synced, errors)
 - [x] 101. Create sync queue viewer in developer tools (show pending operations)
 - [x] 102. Add manual sync trigger button in settings
 - [x] 103. Display sync errors with retry option

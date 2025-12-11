@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef } from 'react';
+import { useContext, useEffect, useRef, useCallback } from 'react';
 import { StatusBarContext } from '../contexts/StatusBarContext';
 
 /**
@@ -27,14 +27,14 @@ export function useStatusBar(item) {
   }, []); // Only run once on mount
 
   // Direct update without throttling
-  const handleUpdate = (updates) => {
+  const handleUpdate = useCallback((updates) => {
     updateItem(itemIdRef.current, updates);
-  };
+  }, [updateItem]);
 
   // Update item when props change
   useEffect(() => {
     handleUpdate(item);
-  }, [item.content, item.position, item.priority]);
+  }, [item.content, item.position, item.priority, handleUpdate]);
 
   return {
     update: handleUpdate,
