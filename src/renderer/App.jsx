@@ -5,13 +5,10 @@ import { UpdateNotification } from './components/shared/UpdateNotification';
 import ErrorBoundary from './components/shared/ErrorBoundary';
 
 import ConnectivityStatus from './components/shared/ConnectivityStatus';
-import { StatusBarProvider } from './contexts/StatusBarContext';
-import { ShortcutProvider } from './contexts/ShortcutContext';
-import { CommandProvider } from './contexts/CommandContext';
-import { TabProvider } from './contexts/TabContext';
 import CommandPalette from './components/CommandPalette';
 import TabContent from './components/TabContent';
 import Onboarding from './components/Onboarding';
+import { TourOverlay } from './components/TourOverlay';
 
 import i18n from './i18n';
 
@@ -96,31 +93,24 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <ShortcutProvider>
-        <CommandProvider>
-          <TabProvider>
-            <StatusBarProvider>
-              <AppShell>
-                <TabContent />
-              </AppShell>
+      <AppShell>
+        <TabContent />
+      </AppShell>
 
-              <CommandPalette />
-              <Onboarding />
-              <ConnectivityStatus />
+      <CommandPalette />
+      <Onboarding />
+      <TourOverlay />
+      <ConnectivityStatus />
 
-              {updateStatus && (
-                <UpdateNotification
-                  updateInfo={updateInfo}
-                  status={updateStatus}
-                  progress={updateProgress}
-                  onInstall={handleInstall}
-                  onDismiss={handleDismiss}
-                />
-              )}
-            </StatusBarProvider>
-          </TabProvider>
-        </CommandProvider>
-      </ShortcutProvider>
+      {updateStatus && (
+        <UpdateNotification
+          updateInfo={updateInfo}
+          status={updateStatus}
+          progress={updateProgress}
+          onInstall={handleInstall}
+          onDismiss={handleDismiss}
+        />
+      )}
     </ErrorBoundary>
   );
 }

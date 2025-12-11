@@ -147,7 +147,7 @@ const AppShell = ({ children }) => {
             <h2 className="text-lg font-semibold">{t('nav.title')}</h2>
           </div>
 
-          <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+          <nav className="flex-1 p-4 space-y-2 overflow-y-auto" data-tour="sidebar-nav">
             <Button
               variant={activeTabId === 'home' ? 'default' : 'ghost'}
               className="w-full justify-start gap-2"
@@ -242,6 +242,7 @@ const AppShell = ({ children }) => {
                   variant={activeTabId === 'settings' ? 'default' : 'ghost'}
                   className="w-full justify-start gap-2"
                   onClick={() => nav('settings', t('nav.items.settings'))}
+                  data-tour="settings-link"
                 >
                   <Gear className="w-4 h-4" />
                   {t('nav.items.settings')}
