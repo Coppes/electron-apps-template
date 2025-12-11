@@ -5,14 +5,14 @@
 
 import path from 'path';
 import fs from 'fs/promises';
-import { BrowserWindow } from 'electron';
+import { BrowserWindow, app, nativeImage } from 'electron';
 import { IPC_CHANNELS } from '../../../common/constants.js';
 import { logger } from '../../logger.js';
 import fileWatcher from '../../data/file-watcher.js';
-import { 
-  validateFilePath as secureValidatePath, 
+import {
+  validateFilePath as secureValidatePath,
   sanitizeFilename,
-  fileOperationLimiter 
+  fileOperationLimiter
 } from '../../security/data-security.js';
 
 // Security configuration
@@ -23,6 +23,7 @@ const ALLOWED_EXTENSIONS = [
 ];
 
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB default
+const FALLBACK_ICON = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==';
 
 /**
  * Validate file path for security (wrapper for centralized security module)
@@ -172,7 +173,7 @@ export async function handleDragStart(event, payload) {
   try {
     // Validate file exists and is accessible
     const validation = await validateFilePath(filePath, { mustExist: true });
-    
+
     if (!validation.valid) {
       return {
         success: false,
@@ -190,10 +191,25 @@ export async function handleDragStart(event, payload) {
     }
 
     // Start native drag operation
-    event.sender.startDrag({
-      file: validation.metadata.path,
-      icon: icon || '' // Optional drag icon
-    });
+    const dragOptions = {
+      file: validation.metadata.path
+    };
+
+    if (icon) {
+      dragOptions.icon = nativeImage.createFromPath(icon);
+    } else {
+      // Use default app icon if available, or fallback to generated image
+      const defaultIconPath = path.join(app.getAppPath(), 'assets', 'icon-Template.png');
+      let img = nativeImage.createFromPath(defaultIconPath);
+
+      if (img.isEmpty()) {
+        logger.warn('Default icon is empty or missing, using fallback');
+        img = nativeImage.createFromDataURL(FALLBACK_ICON);
+      }
+      dragOptions.icon = img;
+    }
+
+    event.sender.startDrag(dragOptions);
 
     logger.info(`Started drag operation for file: ${validation.metadata.name}`);
 
@@ -248,7 +264,7 @@ export async function handleFileWatchStart(event, payload) {
   try {
     // Get the window that made the request
     const window = BrowserWindow.fromWebContents(event.sender);
-    
+
     if (!window) {
       return {
         success: false,

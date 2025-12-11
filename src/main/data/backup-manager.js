@@ -345,7 +345,7 @@ export class BackupManager {
         const backupPath = path.join(this.backupDir, backup.filename);
         try {
           await fs.access(backupPath);
-          validBackups.push(backup);
+          validBackups.push({ ...backup, path: backupPath });
         } catch {
           logger.warn(`Backup file missing: ${backup.filename}`);
         }
