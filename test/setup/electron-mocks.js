@@ -322,6 +322,10 @@ export const mockElectronAPI = {
     getSyncStats: vi.fn(() => Promise.resolve({ pending: 0, synced: 0, failed: 0 })),
     triggerSync: vi.fn(() => Promise.resolve({ success: true })),
     clearSyncQueue: vi.fn(() => Promise.resolve({ success: true })),
+    getConnectivityStatus: vi.fn(() => Promise.resolve({ success: true, online: true, lastCheck: Date.now() })),
+    onConnectivityChanged: vi.fn((_callback) => {
+      return () => { };
+    }),
   },
 
   // System API

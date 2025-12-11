@@ -14,14 +14,15 @@ const mockData = {
   getSyncStats: vi.fn(),
 };
 
-window.electronAPI = {
-  data: mockData,
-};
-
 describe('ConnectivityDemo', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    window.electronAPI = {
+      data: mockData,
+    };
     mockData.getSyncStats.mockResolvedValue({ pending: 0, completed: 0, failed: 0 });
+    mockData.getConnectivityStatus = vi.fn().mockResolvedValue({ success: true, online: true });
+    mockData.onConnectivityChanged = vi.fn(() => () => { });
   });
 
   it('renders correctly', () => {

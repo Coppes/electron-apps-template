@@ -264,7 +264,7 @@ export default function DataManagementDemo() {
       {/* Tab Navigation */}
       <div className="flex items-center justify-between border-b border-border pb-2">
         {/* Tab Navigation */}
-        <div className="flex gap-2">
+        <div className="flex gap-2" role="tablist">
           {tabs.map(tab => {
             const Icon = tab.icon;
             return (
@@ -273,8 +273,11 @@ export default function DataManagementDemo() {
                 variant={activeTab === tab.id ? 'default' : 'ghost'}
                 className="gap-2"
                 onClick={() => setActiveTab(tab.id)}
+                role="tab"
+                aria-selected={activeTab === tab.id}
+                aria-controls={`panel-${tab.id}`}
               >
-                <Icon className="w-4 h-4" />
+                <Icon className="w-4 h-4" aria-hidden="true" />
                 {tab.label}
               </Button>
             );
@@ -310,6 +313,7 @@ export default function DataManagementDemo() {
                   className="bg-background border border-border rounded text-sm p-1"
                   value={schedule}
                   onChange={handleScheduleChange}
+                  aria-label="Backup Schedule Frequency"
                 >
                   <option value="never">Never</option>
                   <option value="daily">Daily</option>
@@ -381,6 +385,7 @@ export default function DataManagementDemo() {
                   className="w-full p-2 border border-border rounded font-mono text-sm"
                   rows={6}
                   value={JSON.stringify(exportData, null, 2)}
+                  aria-label="Data to Export (JSON)"
                   onChange={(e) => {
                     try {
                       setExportData(JSON.parse(e.target.value));

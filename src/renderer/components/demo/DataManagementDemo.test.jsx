@@ -10,6 +10,13 @@ const mockData = {
   restoreBackup: vi.fn(),
   export: vi.fn(),
   import: vi.fn(),
+  getConnectivityStatus: vi.fn().mockResolvedValue({ success: true, online: true }),
+  onConnectivityChanged: vi.fn(() => () => { }),
+};
+
+const mockStore = {
+  get: vi.fn(),
+  set: vi.fn(),
 };
 
 const mockDialog = {
@@ -23,15 +30,15 @@ const mockFile = {
   onFileChanged: vi.fn(),
 };
 
-window.electronAPI = {
-  data: mockData,
-  dialog: mockDialog,
-  file: mockFile,
-};
-
 describe('DataManagementDemo', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    window.electronAPI = {
+      data: mockData,
+      dialog: mockDialog,
+      file: mockFile,
+      store: mockStore,
+    };
     mockData.listBackups.mockResolvedValue({ backups: [] });
   });
 
@@ -52,7 +59,7 @@ describe('DataManagementDemo', () => {
   it('handles create backup', async () => {
     mockData.createBackup.mockResolvedValue({ filename: 'new-backup.zip' });
 
-    render(<DataManagementDemo />);
+
 
     render(<DataManagementDemo />);
 

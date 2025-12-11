@@ -86,8 +86,20 @@ export function useDragDrop(options = {}) {
       }
 
       // Extract file paths and filter out non-file drops (web elements)
+      // Use webUtils via preload to get path if file.path is undefined (Electron security)
       const filePaths = files
-        .map(file => file.path)
+        .map(file => {
+          if (file.path) return file.path;
+          if (window.electronAPI?.file?.getPath) {
+            try {
+              return window.electronAPI.file.getPath(file);
+            } catch (e) {
+              // Ignore error, return null
+              return null;
+            }
+          }
+          return null;
+        })
         .filter(path => !!path);
 
       if (filePaths.length === 0) {

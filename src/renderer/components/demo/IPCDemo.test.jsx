@@ -24,25 +24,26 @@ const mockStorage = {
   has: vi.fn(),
 };
 
-window.electronAPI = {
-  app: mockApp,
-  window: mockWindow,
-  storage: mockStorage,
-  dialog: { // Mock dialog to avoid crash when rendering Dialog APIs tab
-    openFile: vi.fn(),
-    openFolder: vi.fn(),
-    saveFile: vi.fn(),
-  },
-  data: { // Mock data to avoid crash when rendering Data APIs tab
-    listBackups: vi.fn(),
-    createBackup: vi.fn(),
-    validateBackup: vi.fn(),
-  }
-};
-
 describe('IPCDemo', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    window.electronAPI = {
+      app: mockApp,
+      window: mockWindow,
+      storage: mockStorage,
+      dialog: { // Mock dialog to avoid crash when rendering Dialog APIs tab
+        openFile: vi.fn(),
+        openFolder: vi.fn(),
+        saveFile: vi.fn(),
+      },
+      data: { // Mock data to avoid crash when rendering Data APIs tab
+        listBackups: vi.fn(),
+        createBackup: vi.fn(),
+        validateBackup: vi.fn(),
+        getConnectivityStatus: vi.fn().mockResolvedValue({ success: true, online: true }),
+        onConnectivityChanged: vi.fn(() => () => { }),
+      }
+    };
   });
 
   it('renders app APIs by default', () => {
