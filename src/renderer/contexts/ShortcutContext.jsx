@@ -110,26 +110,125 @@ export const ShortcutProvider = ({ children }) => {
 
         // Use override key if available, else default
         const effectiveKeyBinding = userOverrides[shortcut.id] || shortcut.keys;
-        const keys = effectiveKeyBinding.toLowerCase().split('+');
+        const keys = effectiveKeyBinding.toLowerCase().split('+').map(k => k.trim());
+
+        // Determine required modifiers
+        const requiredModifiers = {
+          ctrl: keys.includes('ctrl') || keys.includes('control'),
+          meta: keys.includes('cmd') || keys.includes('meta') || keys.includes('mod'), // treat mod as meta/ctrl generic
+          shift: keys.includes('shift'),
+          alt: keys.includes('alt')
+        };
+
+        // "Mod" usually implies Meta on Mac, Ctrl on Win.
+        // If we want to be precise:
+        // If 'mod' is present, we require EITHER meta OR ctrl (depending on platform, but here we accept either).
+        // But importantly: if 'shift' is NOT in keys, event.shiftKey MUST be false.
+
+        // Check modifiers strictly
+        // Note: event.ctrlKey on Mac is distinct from Cmd (metaKey).
+        // If 'mod' is used, we usually mean the primary command key.
+
+        const hasCtrl = event.ctrlKey;
+        const hasMeta = event.metaKey;
+        const hasShift = event.shiftKey;
+        const hasAlt = event.altKey;
+
+        // Check mismatch causing extra modifiers
+        if (hasShift && !requiredModifiers.shift) continue;
+        if (hasAlt && !requiredModifiers.alt) continue;
+
+        // For Mod/Ctrl/Meta, it's trickier cross-platform.
+        // Simplification:
+        // If pattern has 'cmd'/'meta' -> require metaKey.
+        // If pattern has 'ctrl' -> require ctrlKey.
+        // If pattern has 'mod' -> require metaKey OR ctrlKey.
+        // AND ensure we don't have the *other* if not requested.
+
+        // Let's rely on the previous logic BUT add the "no extra" check.
+        // Actually, just checking that every 'true' event modifier is accounted for in 'keys'.
+
+        const eventModifiers = [];
+        if (hasCtrl) eventModifiers.push('ctrl');
+        if (hasMeta) eventModifiers.push('meta');
+        if (hasShift) eventModifiers.push('shift');
+        if (hasAlt) eventModifiers.push('alt');
+
+        // Check if all event modifiers are allowed by the shortcut keys
+        // 'mod' allows 'meta' OR 'ctrl'.
+        const allowedModifiers = new Set(keys.filter(k => ['ctrl', 'control', 'cmd', 'meta', 'mod', 'shift', 'alt'].includes(k)));
+
+        // We need to map 'control'->'ctrl', etc for comparison?
+        // Let's do a logic check:
+        // 1. All REQUIRED keys must be present (captured by .every check below, mostly)
+        // 2. All EVENT modifiers must be ALLOWED.
+
+        const isModifierAllowed = (mod) => {
+          if (mod === 'shift') return allowedModifiers.has('shift');
+          if (mod === 'alt') return allowedModifiers.has('alt');
+          if (mod === 'ctrl') return allowedModifiers.has('ctrl') || allowedModifiers.has('control') || allowedModifiers.has('mod');
+          if (mod === 'meta') return allowedModifiers.has('meta') || allowedModifiers.has('cmd') || allowedModifiers.has('mod');
+          return false;
+        };
+
+        const unexpectedModifier = eventModifiers.some(m => !isModifierAllowed(m));
+        if (unexpectedModifier) continue;
 
         const match = keys.every((key) => {
-          if (key === 'ctrl' || key === 'control') return event.ctrlKey;
-          if (key === 'cmd' || key === 'meta') return event.metaKey;
-          if (key === 'shift') return event.shiftKey;
-          if (key === 'alt') return event.altKey;
-          return event.key.toLowerCase() === key;
+          const k = key.trim();
+          if (['ctrl', 'control', 'cmd', 'meta', 'mod', 'shift', 'alt'].includes(k)) return true; // Modifiers checked above validation-style? 
+          // Wait, .every needs to check presence too.
+
+          // Re-evaluate matching strategy:
+          // Just check strict equality of modifier states?
+
+          if (k === 'ctrl' || k === 'control') return hasCtrl;
+          if (k === 'cmd' || k === 'meta') return hasMeta;
+          if (k === 'mod') return (hasMeta || hasCtrl);
+          if (k === 'shift') return hasShift;
+          if (k === 'alt') return hasAlt;
+
+          // Non-modifier key match
+          return event.key.toLowerCase() === k;
         });
+
+        // Double check: If I require "Mod+Z", and I press "Mod+Shift+Z".
+        // keys=['mod', 'z'].
+        // 'mod' returns True (hasMeta).
+        // 'z' returns True.
+        // Match = True.
+        // But unexpectedModifier check (Shift) would have failed it.
+        // So logic: Check unexpected FIRST. Then check required.
+
+        if (unexpectedModifier) continue;
+        if (!match) continue;
+
+        // One edge case: 'mod' requires EITHER. If I press Ctrl+Cmd+Z?
+        // keys=['mod', 'z']. allowed=['mod'].
+        // event=['ctrl', 'meta'].
+        // isModifierAllowed('ctrl') -> True (mod).
+        // isModifierAllowed('meta') -> True (mod).
+        // unexpected = False.
+        // match -> True.
+        // So Ctrl+Cmd+Z would trigger Mod+Z.
+        // This is usually acceptable, or we can say Mod matches EXACTLY one? 
+        // For now, acceptable. Using two command keys is rare/user error.
 
         if (match) {
           event.preventDefault();
+          event.stopPropagation(); // Stop bubbling to be safe
           shortcut.action();
           return;
         }
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown, { capture: true }); // Use capture to intercept before browser inputs?
+    // Actually, React synth events bubble. Native events capture.
+    // If we use capture: true, we get it first.
+    // But we need to be careful not to break normal typing if we match too aggressively.
+    // Our matching logic checks modifiers, so it should be safe.
+    return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
   }, [shortcuts, userOverrides]);
 
   return (

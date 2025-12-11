@@ -19,6 +19,16 @@ const SettingsPage = () => {
   const [saveMessage, setSaveMessage] = useState('');
   const [testText, setTestText] = useState("");
 
+  // Sync testText if history actions affect it?
+  // Actually, the `undo` and `redo` functions in handleTestChange call setTestText directly.
+  // So the input *should* update if those functions are called.
+  // The issue might be that Redo isn't calling `execute` properly or maintaining the closure state.
+
+  // Debug toggle
+  // useEffect(() => {
+  //   console.log('Test Text Updated:', testText);
+  // }, [testText]);
+
   if (loading) {
     return <div className="p-6">Loading settings...</div>;
   }
@@ -115,13 +125,17 @@ const SettingsPage = () => {
 
   const handleTestChange = (e) => {
     const newValue = e.target.value;
-    const oldValue = testText;
+    const oldValue = testText; // Capture current state in closure
 
     // Use execute to create undoable action
     execute({
-      execute: () => setTestText(newValue),
-      undo: () => setTestText(oldValue),
-      label: 'Type text'
+      execute: () => {
+        setTestText(newValue);
+      },
+      undo: () => {
+        setTestText(oldValue);
+      },
+      label: `Type "${newValue}"`
     });
   };
 

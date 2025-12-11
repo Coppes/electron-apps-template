@@ -14,6 +14,23 @@ export const HistoryProvider = ({ children }) => {
 
   const maxStackSize = settings.history?.maxStackSize || 50;
 
+  // Enforce stack size limit when setting changes
+  useEffect(() => {
+    // Defer update to avoid "update while rendering" warning
+    const timer = setTimeout(() => {
+      setHistory(prev => {
+        if (prev.past.length > maxStackSize) {
+          return {
+            ...prev,
+            past: prev.past.slice(prev.past.length - maxStackSize)
+          };
+        }
+        return prev;
+      });
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [maxStackSize]);
+
   // Command interface: { execute: () => void, undo: () => void, label?: string }
 
   // Forward declarations for use in shortcuts
@@ -84,12 +101,16 @@ export const HistoryProvider = ({ children }) => {
 
       try {
         command.execute();
+
+        // Success: Move to past
         return {
           past: [...prev.past, command],
           future: newFuture
         };
       } catch (error) {
         console.error('Failed to redo command:', error);
+        // If it failed, do we keep it in future? Or move to past?
+        // Standard: If it throws, state is undefined. Keep in future to retry?
         return prev;
       }
     });
