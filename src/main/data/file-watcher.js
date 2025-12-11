@@ -107,6 +107,14 @@ export class FileWatcher {
       // Check if already watching
       if (this.watchers.has(normalizedPath)) {
         logger.debug(`Already watching file: ${normalizedPath}`);
+
+        // Update the window reference if it has changed (e.g., after reload)
+        const watcherData = this.watchers.get(normalizedPath);
+        if (watcherData && watcherData.window !== window) {
+          watcherData.window = window;
+          logger.debug(`Updated window reference for watcher: ${normalizedPath}`);
+        }
+
         return {
           success: true,
           message: 'Already watching',
@@ -124,8 +132,8 @@ export class FileWatcher {
         };
       }
 
-      // Create watcher
-      const watcher = watch(normalizedPath, (eventType, filename) => {
+      // Create watcher with recursive option enabled
+      const watcher = watch(normalizedPath, { recursive: true }, (eventType, filename) => {
         this.handleFileChange(normalizedPath, eventType, filename, window);
       });
 
@@ -135,6 +143,7 @@ export class FileWatcher {
         metadata,
         window,
         timeout: null,
+        batch: new Set(), // Store changed filenames for batching
         lastActivity: Date.now() // Track activity for cleanup
       });
 
@@ -198,10 +207,7 @@ export class FileWatcher {
   }
 
   /**
-   * Handle file change event with debouncing
-   */
-  /**
-   * Handle file change event with debouncing
+   * Handle file change event with batching and debouncing
    */
   handleFileChange(filePath, eventType, filename, window) {
     const watcherData = this.watchers.get(filePath);
@@ -213,6 +219,9 @@ export class FileWatcher {
     // Update last activity time for cleanup
     watcherData.lastActivity = Date.now();
 
+    // Add filename to batch (normalize to null if undefined/empty)
+    watcherData.batch.add(filename || null);
+
     // Clear existing timeout
     if (watcherData.timeout) {
       clearTimeout(watcherData.timeout);
@@ -221,37 +230,79 @@ export class FileWatcher {
     // Set new timeout for debouncing
     watcherData.timeout = setTimeout(async () => {
       try {
-        // Construct the full path of the changed file (if filename provided by fs.watch)
-        // Only append filename if we are watching a directory
+        const batch = new Set(watcherData.batch);
+        watcherData.batch.clear();
+        watcherData.timeout = null; // Clear timeout reference
+
         const isDirectory = watcherData.metadata && watcherData.metadata.isDirectory;
-        const changedPath = (isDirectory && filename) ? path.join(filePath, filename) : filePath;
 
-        // Check availability of the specific item that changed
-        const currentMetadata = await this.getFileMetadata(changedPath);
+        // Process based on whether we have specific filenames or just a general directory change
+        // If we have specific filenames, check each one.
+        // If the batch contains null (unknown file changed) or we are watching a file directly, check the watched path.
 
-        if (!currentMetadata) {
-          // Item was deleted
-          this.notifyFileChange(window, {
-            path: changedPath,
-            event: 'unlink',
-            type: 'unlink',
-            timestamp: new Date().toISOString()
-          });
-          return;
+        const filesToCheck = new Set();
+
+        if (isDirectory) {
+          // If we have specific files, check them
+          for (const fname of batch) {
+            if (fname) {
+              filesToCheck.add(path.join(filePath, fname));
+            } else {
+              // If we have a null filename (common on some OS/operations), it means "something changed in this dir"
+              // We add the directory itself to check.
+              filesToCheck.add(filePath);
+            }
+          }
+        } else {
+          // It is a file watcher, so the file itself changed
+          filesToCheck.add(filePath);
         }
 
-        this.notifyFileChange(window, {
-          path: changedPath,
-          event: eventType === 'rename' ? 'rename' : 'change',
-          type: eventType === 'rename' ? 'rename' : 'changed',
-          current: currentMetadata,
-          timestamp: new Date().toISOString()
-        });
+        // Validate and notify for each potentially changed file
+        for (const fullPath of filesToCheck) {
+          // Use the current window reference from watcherData, not the stale one from closure
+          await this.checkAndNotifyChange(fullPath, watcherData.window);
+        }
 
       } catch (error) {
         logger.error('Error handling file change:', error);
       }
     }, this.debounceDelay);
+  }
+
+  /**
+   * Check a specific path state and notify if changed
+   * @param {string} fullPath
+   * @param {BrowserWindow} window
+   */
+  async checkAndNotifyChange(fullPath, window) {
+    try {
+      // Check availability
+      const currentMetadata = await this.getFileMetadata(fullPath);
+
+      if (!currentMetadata) {
+        // Item was deleted
+        this.notifyFileChange(window, {
+          path: fullPath,
+          event: 'unlink',
+          type: 'unlink',
+          timestamp: new Date().toISOString()
+        });
+        return;
+      }
+
+      // If it exists, we treat it as a change (renames often come as change+rename pairs or just rename)
+      // For the UI, we just want to know "something happened to this file"
+      this.notifyFileChange(window, {
+        path: fullPath,
+        event: 'change', // Simplified event name
+        type: 'changed',
+        current: currentMetadata,
+        timestamp: new Date().toISOString()
+      });
+    } catch (err) {
+      logger.warn(`Failed to check path ${fullPath}: ${err.message}`);
+    }
   }
 
   /**

@@ -255,7 +255,6 @@ export default function DataManagementDemo() {
   const tabs = [
     { id: 'backup', label: 'Backup & Restore', icon: FloppyDisk },
     { id: 'import-export', label: 'Import & Export', icon: DownloadSimple },
-    { id: 'file-watch', label: 'File Watching', icon: Eye },
     { id: 'drag-drop', label: 'Drag & Drop', icon: Paperclip },
   ];
 
