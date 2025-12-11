@@ -22,6 +22,7 @@ import { trayManager } from './tray.js';
 import { shortcutManager } from './shortcuts.js';
 import connectivityManager from './data/connectivity-manager.js';
 import syncQueue from './data/sync-queue.js';
+import fileWatcher from './data/file-watcher.js';
 import { splashManager } from './splash.js';
 import { notificationManager } from './notifications.js';
 import { addRecentDocument } from './recent-docs.js';
@@ -225,7 +226,8 @@ export class LifecycleManager {
 
       // Step 2: Cleanup data management services
       connectivityManager.cleanup();
-      logger.debug('Connectivity manager cleaned up');
+      await fileWatcher.cleanup();
+      logger.debug('Data management services cleaned up');
 
       // Step 3: Save all window states
       windowManager.saveAllStates();

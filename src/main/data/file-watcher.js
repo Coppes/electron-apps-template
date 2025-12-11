@@ -222,7 +222,9 @@ export class FileWatcher {
     watcherData.timeout = setTimeout(async () => {
       try {
         // Construct the full path of the changed file (if filename provided by fs.watch)
-        const changedPath = filename ? path.join(filePath, filename) : filePath;
+        // Only append filename if we are watching a directory
+        const isDirectory = watcherData.metadata && watcherData.metadata.isDirectory;
+        const changedPath = (isDirectory && filename) ? path.join(filePath, filename) : filePath;
 
         // Check availability of the specific item that changed
         const currentMetadata = await this.getFileMetadata(changedPath);
@@ -261,6 +263,7 @@ export class FileWatcher {
       return {
         size: stats.size,
         mtime: stats.mtime.getTime(),
+        isDirectory: stats.isDirectory(),
         exists: true
       };
     } catch (error) {

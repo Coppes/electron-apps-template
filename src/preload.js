@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron';
+import { contextBridge, ipcRenderer, webUtils } from 'electron';
 import { IPC_CHANNELS } from './common/constants.js';
 
 /**
@@ -387,6 +387,13 @@ const fileAPI = {
    * @returns {Promise<Object>} Result with valid/invalid files
    */
   drop: (filePaths, options) => ipcRenderer.invoke(IPC_CHANNELS.FILE_DROP, { filePaths, options }),
+
+  /**
+   * Get file path from File object (webUtils)
+   * @param {File} file - File object
+   * @returns {string} File path
+   */
+  getPath: (file) => webUtils.getPathForFile(file),
 
   /**
    * Start drag operation from app
