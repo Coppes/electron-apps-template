@@ -3,7 +3,31 @@ import { logger } from '../../logger.js';
 import { createErrorResponse, createSuccessResponse } from '../bridge.js';
 import { IPC_CHANNELS } from '../../../common/constants.js';
 
-export const store = new Store();
+const defaults = {
+  appearance: { theme: 'system', density: 'normal' },
+  history: { maxStackSize: 50 },
+  language: 'en',
+  hasCompletedTour: false
+};
+
+const migrations = {
+  '1.0.0': (store) => {
+    // Migrate flat settings to nested structure if needed
+    if (store.has('theme') && !store.has('appearance.theme')) {
+      store.set('appearance.theme', store.get('theme'));
+      store.delete('theme');
+    }
+    if (store.has('language') && !store.has('language')) {
+      // already top level, but explicit check
+    }
+  }
+};
+
+export const store = new Store({
+  defaults,
+  migrations,
+  projectVersion: '1.0.0' // Matches package.json usually
+});
 
 /**
  * Store IPC handlers

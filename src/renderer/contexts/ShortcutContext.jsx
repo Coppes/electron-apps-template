@@ -83,6 +83,16 @@ export const ShortcutProvider = ({ children }) => {
     }
   }, []);
 
+  const importOverrides = useCallback(async (newOverrides) => {
+    try {
+      await window.electronAPI.store.set('keyboard-shortcuts', newOverrides);
+      setUserOverrides(newOverrides);
+    } catch (error) {
+      console.error('Failed to import shortcuts:', error);
+      throw error;
+    }
+  }, []);
+
   // Global keydown handler
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -123,7 +133,7 @@ export const ShortcutProvider = ({ children }) => {
   }, [shortcuts, userOverrides]);
 
   return (
-    <ShortcutContext.Provider value={{ shortcuts, registerShortcut, unregisterShortcut, updateShortcut, resetToDefaults, userOverrides }}>
+    <ShortcutContext.Provider value={{ shortcuts, registerShortcut, unregisterShortcut, updateShortcut, resetToDefaults, importOverrides, userOverrides }}>
       {children}
     </ShortcutContext.Provider>
   );
