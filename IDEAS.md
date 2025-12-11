@@ -1,4 +1,4 @@
-# 100 Ideias de Funcionalidades e Melhorias para Template Electron
+# 200 Ideias de Funcionalidades e Melhorias para Template Electron
 
 Esta é uma lista abrangente de ideias para transformar este template em uma base de nível empresarial ("Enterprise-Grade"), organizada por categorias.
 
@@ -119,3 +119,125 @@ Esta é uma lista abrangente de ideias para transformar este template em uma bas
 98. **Kanban Board Component:** Componente complexo de drag-and-drop.
 99. **Gantt Chart Component:** Visualização de cronograma.
 100. **AI Assistant Chat UI:** Interface pronta para conectar com LLMs.
+
+---
+
+### 🧠 IA & Automação Avançada (100-110)
+101. **Local LLM Integration:** Rodar modelos leves (Llama-2, Mistral) localmente via WebGPU/WASM para privacidade total.
+102. **RAG Local (Retrieval-Augmented Generation):** Chatbot que lê e responde perguntas baseado nos documentos do usuário.
+103. **Voice Cloning / TTS Neural:** Síntese de voz ultra-realista para leitura de documentos.
+104. **Image Generative Edit:** In-painting/Out-painting simples usando modelos de difusão locais.
+105. **Smart Auto-Complete (Copilot-style):** Sugestão de texto preditiva em campos de input longos.
+106. **Automated Tagging:** Classificação automática de arquivos ou imagens importadas via ML.
+107. **Sentiment Analysis:** Mostrar tom emocional de textos recebidos ou escritos.
+108. **OCR (Reconhecimento de Texto):** Extrair texto de imagens coladas ou screenshots automaticamente (Tesseract.js).
+109. **Translation Overlay:** Traduzir texto na tela ao passar o mouse.
+110. **Summarization Agent:** Botão "Resumir" para notas ou documentos longos.
+
+### 🏢 Segurança Empresarial & Compliance (111-120)
+111. **SAML/OIDC SSO:** Suporte Enterprise a Okta, Auth0, Azure AD.
+112. **MDM Check (Mobile Device Management):** Verificar se o dispositivo é corporativo antes de liberar acesso.
+113. **YubiKey Integration:** Suporte a chaves de segurança de hardware (FIDO2/WebAuthn).
+114. **Audit Logs:** Log imutável de todas as ações críticas do usuário exportável para CSV.
+115. **Remote Wipe:** Comando remoto para apagar dados locais em caso de roubo do notebook.
+116. **Watermarking de Tela:** Marca d'água sutil com nome do usuário para prevenir vazamentos (leaks).
+117. **Data Loss Prevention (DLP):** Alertar ou bloquear ao tentar copiar dados sensíveis (CC, CPF).
+118. **Certificate-Based Auth:** Autenticação via certificados cliente instalados no SO.
+119. **Session Timeout Configurável:** Deslogar automaticamente após X minutos inativos (policy).
+120. **Self-Destruct Messages:** Dados que se apagam após visualização ou tempo.
+
+### 📟 IoT & Hardware (121-130)
+121. **NFC Reader Support:** Ler tags NFC usando leitores USB ou hardware embutido.
+122. **Bluetooth Low Energy (BLE) Dash:** Painel para escanear e conectar a sensores BLE próximos.
+123. **Serial Port Monitor:** Terminal para debugar Arduinos/ESP32 via USB.
+124. **MQTT Client Integrado:** Pub/Sub para automação residencial ou industrial.
+125. **TWAIN/WIA Scanner Support:** Controlar scanners de mesa diretamente do app.
+126. **Multi-Monitor Management:** Identificar e posicionar janelas em monitores específicos automaticamente.
+127. **Battery Health Monitor:** Ler ciclos e saúde da bateria do laptop.
+128. **GPU Monitor:** Mostrar uso de VRAM e temperatura da GPU.
+129. **Hid Reader (Card Swiper):** Integração com leitores de cartão magnético (venda/POS).
+130. **Stream Deck Integration:** Plugin oficial para controlar o app via botões físicos do Elgato.
+
+### 🤝 Colaboração & Remoto (131-140)
+131. **Shared Cursor (Multiplayer):** Ver cursores de outros colegas no mesmo documento.
+132. **Live Drawing/Annotation:** Desenhar sobre a tela compartilhada ou documento.
+133. **P2P File Drop:** Arrastar arquivo para o avatar do colega envia via WebRTC.
+134. **Push-to-Talk Global:** Atalho global para abrir microfone em chamada de fundo.
+135. **Presence Indicators:** Status "Digitando...", "Em outra aba", "Focado".
+136. **Comments on Anything:** Sistema de comentários flutuantes sobre qualquer elemento da UI.
+137. **Diff Viewer Visual:** Comparar versões de documentos lado a lado.
+138. **Polls/Votação Rápida:** Widget de enquete instantânea para times.
+139. **Breakout Rooms:** Dividir usuários em sub-salas de áudio/vídeo.
+140. **Whiteboard Infinito:** Canvas colaborativo com stickers e notas.
+
+### 📂 Arquivos & Dados Avançados (141-150)
+141. **Hex Editor:** Visualizador hexadecimal para arquivos binários.
+142. **DICOM Viewer:** Visualizador de imagens médicas (Raios-X, RM).
+143. **CAD Viewer (STL/OBJ):** Visualizar modelos 3D simples.
+144. **Large File Viewer:** Abrir logs de gigabytes via "chunking" sem travar memória.
+145. **Universal File Converter:** Ferramenta interna (ffmpeg/imagemagick) para converter formatos.
+146. **Metadata Editor:** Editar EXIF de fotos ou tags ID3 de áudio.
+147. **Archive Manager:** Criar/Extrair ZIP, RAR, 7Z nativamente.
+148. **Deduplication Tool:** Encontrar arquivos duplicados na biblioteca do app.
+149. **File Tagging System:** Sistema de tags coloridas (estilo Finder) cross-platform.
+150. **Virtual Drive Mounting:** Montar um arquivo do app como um drive do sistema (FUSE).
+
+### 🎨 UI/UX Inovadora (151-160)
+151. **Command Line Interface (CLI) Mode:** UI puramente textual para power users.
+152. **Mind Map View:** Visualizar dados hierárquicos como mapa mental.
+153. **Timeline View:** Visualizar histórico ou projetos em linha do tempo horizontal.
+154. **Floating Action Button (Speed Dial):** Menu rápido expansivel no canto da tela.
+155. **Diverse Window Shapes:** Janelas redondas ou irregulares (transparência/masks).
+156. **Parallax Effects:** Fundo que se move sutilmente com o mouse.
+157. **Particle Effects:** Confetes ou partículas para celebrar conquistas ("Juice").
+158. **Morphing Transitions:** Animações de transição de forma entre rotas (Shared Element).
+159. **Haptic Feedback Support:** Vibrar trackpads compatíveis ou controles de game.
+160. **Adaptive Layouts (Container Queries):** Componentes que mudam layout baseados no tamanho *deles*, não da tela.
+
+### 🛠️ Developer Tools 2.0 (161-170)
+161. **REPL Console:** Console JS interativo dentro do app com acesso ao contexto.
+162. **API Request Builder:** Interface estilo Postman embutida para testar APIs do app.
+163. **State Time Travel:** Slider para voltar o estado (Redux/Zustand) no tempo.
+164. **Feature Flag Manager:** UI para ligar/desligar features experimentais em runtime.
+165. **Environments Switcher:** Trocar entre Prod/Staging/Dev sem recompilar.
+166. **Network Throttling Simulator:** Simular 3G/Offline para testar robustez.
+167. **Accessibility Auditor Overlay:** Destacar elementos sem `aria-label` visualmente.
+168. **Deep Performance Trace:** Integrar com `chrome://tracing` para exportar perfis.
+169. **Database Visualizer:** UI para ver tabelas e dados do banco local (SQLite/IndexedDB).
+170. **Log Tail Viewer:** Ver logs do backend/main process rolando em tempo real.
+
+### ⚙️ Sistema Desktop & Utilitários (171-180)
+171. **Clipboard History Manager:** Guardar últimos X itens copiados (texto/imagem).
+172. **Global Hotkey Manager:** UI visual para remapear qualquer atalho do app.
+173. **Screen Ruler:** Régua de pixels flutuante para medir coisas na tela.
+174. **Color Picker Global:** "Conta-gotas" que pega cor de qualquer lugar da tela (fora do app).
+175. **Prevent Sleep Toggle:** Botão "Caffeine" para impedir tela de desligar.
+176. **Volume Mixer:** Controlar volume do app independente do sistema.
+177. **Proxy Switcher:** Configurar proxy HTTP/SOCKS específico para o app.
+178. **DNS-over-HTTPS (DoH):** Forçar DNS seguro ignorando o do sistema.
+179. **VPN Client Integrado:** Tunelar tráfego do app via VPN própria (WireGuard user-space).
+180. **System Info Dash:** Mostrar CPU, RAM, IP e MAC address do PC.
+
+### 🧩 Nicho & Indústria (181-190)
+181. **POS UI (Point of Sale):** Interface otimizada para toque e caixa rápido.
+182. **Kiosk Virtual Keyboard:** Teclado virtual na tela seguro.
+183. **Signature Pad:** Capturar assinatura manuscrita (vetorial/SVG).
+184. **Barcode Generator:** Criar etiquetas de código de barras para impressão.
+185. **Receipt Printer Template:** Layout HTML/CSS calibrado para bobinas de 80mm/58mm.
+186. **Ticket Support System:** Sistema de tickets de suporte integrado no app.
+187. **Inventory Grid:** Grid de dados ultra-denso (estilo Excel) para gestão de estoque.
+188. **Calendar/Scheduler:** Agenda complexa com drag-and-drop (estilo Outlook).
+189. **Map/GIS Integration:** Mapas offline ou vetoriais com Leaflet/Mapbox GL.
+190. **Audio Waveform Editor:** Visualizar e cortar ondas de áudio.
+
+### 🤖 Automação & Scripting (191-200)
+191. **User Scripting (Lua/JS):** Permitir usuários escreverem scripts para automatizar o app.
+192. **Zapier/IFTTT Webhook:** Gatilhos para integrar com automação web externa.
+193. **Cron Job Schedule:** Agendar tarefas recorrentes dentro do app.
+194. **Batch Processing UI:** Aplicar uma ação a 1000 itens de uma vez.
+195. **RegEx Tester:** Ferramenta para testar expressões regulares nos dados.
+196. **Folder Monitor Action:** "Se arquivo cair nesta pasta, faça X".
+197. **Email Client Lite:** Enviar emails (SMTP) direto do app.
+198. **SMS/WhatsApp Sender:** Integração (Twilio/WPP) para mensagens rápidas.
+199. **Web Scraper Integrado:** Baixar dados de uma URL externa e processar.
+200. **Headless Mode:** Rodar o app sem janela via linha de comando para tarefas de servidor.
