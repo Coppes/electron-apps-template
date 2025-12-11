@@ -810,6 +810,13 @@ const i18nAPI = {
 };
 
 /**
+ * Plugins API
+ */
+const pluginsAPI = {
+  getAll: () => ipcRenderer.invoke(IPC_CHANNELS.PLUGINS_GET_ALL).then(r => r.plugins || []),
+};
+
+/**
  * Complete Electron API surface exposed to renderer
  */
 const electronAPI = {
@@ -829,7 +836,9 @@ const electronAPI = {
   recentDocs: recentDocsAPI,
   notifications: notificationsAPI,
   deepLink: deepLinkAPI,
+  deepLink: deepLinkAPI,
   i18n: i18nAPI,
+  plugins: pluginsAPI,
 
   // Legacy compatibility - will be deprecated
   setTitle: (title) => windowAPI.getState().then(() => title),
@@ -846,6 +855,14 @@ const electronAPI = {
  * Object is frozen to prevent modifications from renderer
  */
 contextBridge.exposeInMainWorld('electronAPI', electronAPI);
+
+// Expose Plugin Registry API
+contextBridge.exposeInMainWorld('appPlugin', {
+  registerCommand: (command) => {
+    // Dispatch event so React context can pick it up
+    window.dispatchEvent(new CustomEvent('plugin-register-command', { detail: command }));
+  }
+});
 
 // Freeze API to prevent tampering
 Object.freeze(electronAPI);

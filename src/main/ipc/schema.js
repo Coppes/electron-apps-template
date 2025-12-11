@@ -649,6 +649,19 @@ export const i18nSchema = {
 };
 
 /**
+ * Plugin handlers
+ */
+export const pluginsSchema = {
+  'plugins:get-all': {
+    input: {},
+    output: {
+      success: { type: 'boolean', required: true },
+      plugins: { type: 'array', required: false },
+    },
+  },
+};
+
+/**
  * Combined schema export
  */
 export const ipcSchema = {
@@ -664,4 +677,6 @@ export const ipcSchema = {
   ...notificationSchema,
   ...progressSchema,
   ...i18nSchema,
+  ...pluginsSchema,
 };
+

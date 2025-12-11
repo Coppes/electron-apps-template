@@ -125,6 +125,9 @@ export const IPC_CHANNELS = {
 
   // Deep Linking (Enhanced Protocol Handler)
   DEEP_LINK_RECEIVED: 'deep-link:received',
+
+  // Plugins
+  PLUGINS_GET_ALL: 'plugins:get-all',
 };
 
 // Window Types

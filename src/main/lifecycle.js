@@ -18,6 +18,7 @@ import { trayHandlers } from './ipc/handlers/tray.js';
 import { shortcutHandlers } from './ipc/handlers/shortcuts.js';
 import { notificationHandlers } from './ipc/handlers/notifications.js';
 import { i18nHandlers } from './ipc/handlers/i18n.js';
+import { createPluginHandlers } from './ipc/handlers/plugins.js';
 import { trayManager } from './tray.js';
 import { shortcutManager } from './shortcuts.js';
 import connectivityManager from './data/connectivity-manager.js';
@@ -140,6 +141,7 @@ export class LifecycleManager {
       ...shortcutHandlers,
       ...notificationHandlers,
       ...i18nHandlers,
+      ...createPluginHandlers(),
     };
 
     registerHandlers(ipcSchema, handlers);
