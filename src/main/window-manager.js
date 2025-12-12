@@ -46,6 +46,9 @@ export class WindowManager {
       ...defaultConfig,
       ...savedState,
       ...customOptions,
+      // Custom Title Bar: Remove frame on Windows/Linux (macOS uses titleBarStyle: hidden from config)
+      frame: process.platform === 'darwin' ? true : false,
+      titleBarOverlay: process.platform === 'win32' ? false : undefined, // We are building a custom React titlebar, so disable native overlay
       webPreferences: {
         contextIsolation: true,
         nodeIntegration: false,

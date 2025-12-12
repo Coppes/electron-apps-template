@@ -24,6 +24,7 @@ import {
   Info,
   Flask
 } from '@phosphor-icons/react';
+import { TitleBar } from './TitleBar';
 
 const AppShell = ({ children }) => {
   const [sidebarWidth, setSidebarWidth] = useState(250);
@@ -138,6 +139,7 @@ const AppShell = ({ children }) => {
 
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden">
+      <TitleBar className="relative bg-background border-b border-border" />
       <div className="flex flex-1 overflow-hidden" onMouseMove={handleMouseMove} onMouseUp={handleMouseUp}>
         <aside
           style={{ width: `${sidebarWidth}px` }}

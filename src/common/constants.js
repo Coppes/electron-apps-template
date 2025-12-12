@@ -146,6 +146,9 @@ export const DEFAULT_WINDOW_CONFIG = {
     minWidth: 800,
     minHeight: 600,
     title: 'Electron App',
+    // Custom Title Bar Settings
+    titleBarStyle: 'hidden', // Hides native title bar on macOS, keeps traffic lights
+    trafficLightPosition: { x: 12, y: 12 }, // Position traffic lights slightly lower/inward
   },
   [WINDOW_TYPES.SETTINGS]: {
     width: 600,
