@@ -25,11 +25,14 @@ import {
   Flask
 } from '@phosphor-icons/react';
 import { TitleBar } from './TitleBar';
+import TabContent from '../TabContent';
 
 const AppShell = ({ children }) => {
   const [sidebarWidth, setSidebarWidth] = useState(250);
-  const [isResizing, setIsResizing] = useState(false);
-  const { openTab, activeTabId, tabs, closeTab } = useTab();
+  const [resizingTarget, setResizingTarget] = useState(null); // 'sidebar' | 'split' | null
+  const [splitRatio, setSplitRatio] = useState(0.5);
+  const [dragTarget, setDragTarget] = useState(null); // 'primary' | 'secondary' | null
+  const { openTab, activeTabId, tabs, closeTab, isSplit, moveTabToGroup } = useTab();
   const { t } = useTranslation('common');
 
   // Register Global Navigation Commands
@@ -41,30 +44,35 @@ const AppShell = ({ children }) => {
   const { update: updateNotification } = useStatusBar({
     id: 'file-watcher-notification',
     position: 'right',
-    priority: 1000, // High priority to be visible
+    priority: 1000,
     content: null,
   });
 
   const handleMouseDown = (e) => {
     e.preventDefault();
-    setIsResizing(true);
+    setResizingTarget('sidebar');
   };
 
   const handleMouseMove = (e) => {
-    if (isResizing) {
+    if (resizingTarget === 'sidebar') {
       const newWidth = e.clientX;
       if (newWidth >= 200 && newWidth <= 400) {
         setSidebarWidth(newWidth);
       }
+    } else if (resizingTarget === 'split') {
+      const contentWidth = window.innerWidth - sidebarWidth;
+      const relativeX = e.clientX - sidebarWidth;
+      const newRatio = Math.min(Math.max(relativeX / contentWidth, 0.2), 0.8);
+      setSplitRatio(newRatio);
     }
   };
 
   const handleMouseUp = () => {
-    setIsResizing(false);
+    setResizingTarget(null);
   };
 
   useEffect(() => {
-    if (isResizing) {
+    if (resizingTarget) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
     } else {
@@ -75,7 +83,7 @@ const AppShell = ({ children }) => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isResizing]);
+  }, [resizingTarget, sidebarWidth]); // Updated dependencies
 
   // Helper handling tab opening
   const nav = (id, title, typeOverride) => {
@@ -293,18 +301,129 @@ const AppShell = ({ children }) => {
         <div
           className={cn(
             'w-1 cursor-col-resize hover:bg-primary/20 transition-colors',
-            isResizing && 'bg-primary/40'
+            resizingTarget === 'sidebar' && 'bg-primary/40'
           )}
           onMouseDown={handleMouseDown}
         />
 
         {/* Main Content Area with Tabs */}
-        <div className="flex flex-col flex-1 overflow-hidden min-w-0">
-          <TabBar />
-          <main className="flex-1 relative overflow-hidden">
-            {children}
-          </main>
-        </div>
+        {!isSplit ? (
+          <div className="flex flex-col flex-1 overflow-hidden min-w-0">
+            <TabBar group="primary" />
+            <main
+              className={cn(
+                "flex-1 relative overflow-hidden transition-all",
+                dragTarget === 'secondary' && "bg-blue-50/50 dark:bg-blue-900/10 ring-2 ring-inset ring-blue-500"
+              )}
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                setDragTarget('secondary'); // Suggests moving to secondary (which will split)
+              }}
+              onDragLeave={(e) => {
+                if (e.currentTarget.contains(e.relatedTarget)) return;
+                setDragTarget(null);
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                setDragTarget(null);
+                const tabId = e.dataTransfer.getData('application/tab-id');
+                if (tabId) {
+                  moveTabToGroup(tabId, 'secondary');
+                }
+              }}
+            >
+              <TabContent group="primary" />
+              {dragTarget === 'secondary' && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none bg-background/50 backdrop-blur-[1px]">
+                  <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium shadow-sm">
+                    Open in Split View
+                  </span>
+                </div>
+              )}
+            </main>
+          </div>
+        ) : (
+          <div className="flex flex-1 overflow-hidden min-w-0 relative">
+            {/* Primary Pane */}
+            <div
+              className="flex flex-col overflow-hidden border-r border-border min-w-0"
+              style={{ flex: splitRatio }}
+            >
+              <TabBar group="primary" />
+              <main
+                className={cn(
+                  "flex-1 relative overflow-hidden transition-all",
+                  dragTarget === 'primary' && "bg-blue-50/50 dark:bg-blue-900/10 ring-2 ring-inset ring-blue-500"
+                )}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.dataTransfer.dropEffect = 'move';
+                  setDragTarget('primary');
+                }}
+                onDragLeave={(e) => {
+                  if (e.currentTarget.contains(e.relatedTarget)) return;
+                  setDragTarget(null);
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setDragTarget(null);
+                  const tabId = e.dataTransfer.getData('application/tab-id');
+                  if (tabId) {
+                    moveTabToGroup(tabId, 'primary');
+                  }
+                }}
+              >
+                <TabContent group="primary" />
+              </main>
+            </div>
+
+            {/* Split Resize Handle */}
+            <div
+              className={cn(
+                "w-1 cursor-col-resize hover:bg-primary/20 transition-colors z-10",
+                resizingTarget === 'split' && "bg-primary/40"
+              )}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                setResizingTarget('split');
+              }}
+            />
+
+            {/* Secondary Pane */}
+            <div
+              className="flex flex-col overflow-hidden min-w-0"
+              style={{ flex: 1 - splitRatio }}
+            >
+              <TabBar group="secondary" />
+              <main
+                className={cn(
+                  "flex-1 relative overflow-hidden transition-all",
+                  dragTarget === 'secondary' && "bg-blue-50/50 dark:bg-blue-900/10 ring-2 ring-inset ring-blue-500"
+                )}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.dataTransfer.dropEffect = 'move';
+                  setDragTarget('secondary');
+                }}
+                onDragLeave={(e) => {
+                  if (e.currentTarget.contains(e.relatedTarget)) return;
+                  setDragTarget(null);
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setDragTarget(null);
+                  const tabId = e.dataTransfer.getData('application/tab-id');
+                  if (tabId) {
+                    moveTabToGroup(tabId, 'secondary');
+                  }
+                }}
+              >
+                <TabContent group="secondary" />
+              </main>
+            </div>
+          </div>
+        )}
       </div>
       <StatusBar />
     </div>

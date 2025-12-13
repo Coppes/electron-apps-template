@@ -33,8 +33,7 @@ export default function ImportExportDialog({ isOpen, mode, onClose }) {
 
       setProgress({ current: 30, total: 100, message: 'Reading file...' });
 
-      const importResult = await window.electronAPI.data.import({
-        filePath,
+      const importResult = await window.electronAPI.data.import(filePath, {
         format: selectedFormat,
       });
 

@@ -77,8 +77,17 @@ const SettingsPage = () => {
 
   const handleImportSettings = async () => {
     try {
-      const result = await window.electronAPI.data.import({
-        filters: [{ name: 'JSON', extensions: ['json'] }]
+      // 1. Select file to import
+      const filePath = await window.electronAPI.dialog.showOpenDialog({
+        filters: [{ name: 'JSON', extensions: ['json'] }],
+        properties: ['openFile']
+      });
+
+      if (!filePath) return;
+
+      // 2. Import data
+      const result = await window.electronAPI.data.import(filePath, {
+        format: 'json'
       });
 
       if (result.success && result.data) {
@@ -173,9 +182,32 @@ const SettingsPage = () => {
         <CardContent>
           <div className="flex items-center justify-between">
             <span>{t('appearance.theme', 'Theme')}</span>
-            <Button onClick={toggleTheme} variant="outline">
-              {settings.appearance.theme === 'dark' ? '🌙 Dark' : '☀️ Light'}
-            </Button>
+            <div className="flex gap-1 bg-muted p-1 rounded-lg">
+              <Button
+                size="sm"
+                variant={settings.appearance.theme === 'system' ? 'default' : 'ghost'}
+                onClick={() => updateSetting('appearance.theme', 'system')}
+                title="Follow System"
+              >
+                🖥️
+              </Button>
+              <Button
+                size="sm"
+                variant={settings.appearance.theme === 'light' ? 'default' : 'ghost'}
+                onClick={() => updateSetting('appearance.theme', 'light')}
+                title="Light Mode"
+              >
+                ☀️
+              </Button>
+              <Button
+                size="sm"
+                variant={settings.appearance.theme === 'dark' ? 'default' : 'ghost'}
+                onClick={() => updateSetting('appearance.theme', 'dark')}
+                title="Dark Mode"
+              >
+                🌙
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -207,14 +239,14 @@ const SettingsPage = () => {
       {/* History & Undo */}
       <Card>
         <CardHeader>
-          <CardTitle>History & Undo</CardTitle>
-          <CardDescription>Manage undo/redo limits and test functionality.</CardDescription>
+          <CardTitle>{t('history.title', 'History & Undo')}</CardTitle>
+          <CardDescription>{t('history.description', 'Manage undo/redo limits and test functionality.')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label>Max Undo Steps</Label>
-              <div className="text-sm text-muted-foreground">Maximum number of actions to keep in history</div>
+              <Label>{t('history.max_undo_steps', 'Max Undo Steps')}</Label>
+              <div className="text-sm text-muted-foreground">{t('history.max_undo_help', 'Maximum number of actions to keep in history')}</div>
             </div>
             <input
               type="number"
@@ -225,19 +257,19 @@ const SettingsPage = () => {
           </div>
 
           <div className="p-4 border rounded-lg bg-muted/20 space-y-3">
-            <h4 className="text-sm font-semibold">Test Zone</h4>
+            <h4 className="text-sm font-semibold">{t('history.test_zone', 'Test Zone')}</h4>
             <div className="flex gap-2">
-              <Button onClick={undo} disabled={!canUndo} variant="outline" size="sm">Undo (Cmd+Z)</Button>
-              <Button onClick={redo} disabled={!canRedo} variant="outline" size="sm">Redo (Cmd+Shift+Z)</Button>
+              <Button onClick={undo} disabled={!canUndo} variant="outline" size="sm">{t('history.undo', 'Undo')} (Cmd+Z)</Button>
+              <Button onClick={redo} disabled={!canRedo} variant="outline" size="sm">{t('history.redo', 'Redo')} (Cmd+Shift+Z)</Button>
             </div>
             <input
               className="w-full p-2 border rounded bg-background"
               value={testText}
               onChange={handleTestChange}
-              placeholder="Type here then Undo/Redo..."
+              placeholder={t('history.type_here', 'Type here then Undo/Redo...')}
             />
             <p className="text-xs text-muted-foreground">
-              History Stack: {canUndo ? 'Has items' : 'Empty'} | Future Stack: {canRedo ? 'Has items' : 'Empty'}
+              {t('history.history_stack', 'History Stack')}: {canUndo ? t('history.has_items', 'Has items') : t('history.empty', 'Empty')} | {t('history.future_stack', 'Future Stack')}: {canRedo ? t('history.has_items', 'Has items') : t('history.empty', 'Empty')}
             </p>
           </div>
         </CardContent>

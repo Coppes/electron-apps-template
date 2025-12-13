@@ -89,7 +89,7 @@ export default function BackupPage() {
       setError(null);
       setSuccess(null);
 
-      await window.electronAPI.data.restoreBackup({ filename });
+      await window.electronAPI.data.restoreBackup(filename);
       setSuccess(`Backup restored successfully: ${filename}`);
 
       // Reload app data after restore
@@ -112,7 +112,7 @@ export default function BackupPage() {
       setError(null);
       setSuccess(null);
 
-      await window.electronAPI.data.deleteBackup({ filename });
+      await window.electronAPI.data.deleteBackup(filename);
       setSuccess(`Backup deleted: ${filename}`);
       await loadBackups();
     } catch (err) {
@@ -275,7 +275,7 @@ function BackupRow({ backup, onRestore, onDelete, disabled, formatDate, formatFi
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="text-sm text-gray-600 dark:text-gray-400">
-          {formatDate(backup.timestamp)}
+          {new Date(backup.timestamp).toLocaleString()}
         </div>
       </td>
       <td className="px-6 py-4 whitespace-nowrap">

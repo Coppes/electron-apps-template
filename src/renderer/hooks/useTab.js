@@ -1,13 +1,21 @@
 import { useTabContext } from '../contexts/TabContext';
 
 export function useTab() {
-  const { addTab, closeTab, setActiveTab, activeTabId, tabs } = useTabContext();
+  const context = useTabContext();
 
   return {
-    openTab: (tab) => addTab(tab),
-    closeTab,
-    activateTab: setActiveTab,
-    activeTabId,
-    tabs,
+    openTab: (tab) => context.addTab(tab),
+    closeTab: context.closeTab,
+    activateTab: context.setActiveTab,
+    activeTabId: context.activeTabId,
+    tabs: context.tabs,
+    // Split View
+    isSplit: context.isSplit,
+    toggleSplit: context.toggleSplit,
+    moveTabToGroup: context.moveTabToGroup,
+    secondaryTabs: context.secondaryTabs,
+    secondaryActiveTabId: context.secondaryActiveTabId,
+    activeGroup: context.activeGroup,
+    setActiveGroup: context.setActiveGroup
   };
 }

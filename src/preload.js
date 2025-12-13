@@ -542,6 +542,7 @@ const dataAPI = {
    * @returns {Promise<Object>} Result with queue statistics
    */
   syncQueueStatus: () => ipcRenderer.invoke(IPC_CHANNELS.SYNC_QUEUE_STATUS, {}),
+  getSyncQueueStatus: () => ipcRenderer.invoke(IPC_CHANNELS.SYNC_QUEUE_STATUS, {}),
 
   /**
    * Listen for sync status change events

@@ -13,8 +13,13 @@ const Onboarding = () => {
     const checkOnboarding = async () => {
       try {
         const completed = await window.electronAPI.store.get('onboardingCompleted');
-        if (!completed) {
+        const legacyCompleted = await window.electronAPI.store.get('hasCompletedTour');
+
+        if (!completed && !legacyCompleted) {
           setIsOpen(true);
+        } else if (!completed && legacyCompleted) {
+          // Migration: set new key if old key exists
+          await window.electronAPI.store.set('onboardingCompleted', true);
         }
       } catch (error) {
         console.error('Failed to check onboarding status:', error);

@@ -9,8 +9,17 @@ import { useKeyboardShortcut } from '../hooks/useKeyboardShortcut';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../utils/cn.js';
 
-const TabBar = () => {
-  const { tabs, activeTabId, setActiveTab, closeTab, closeAllTabs, closeOtherTabs, addTab } = useTabContext();
+const TabBar = ({ group = 'primary' }) => {
+  const {
+    tabs: primaryTabs, activeTabId: primaryActiveId,
+    secondaryTabs, secondaryActiveTabId,
+    setActiveTab, closeTab, closeAllTabs, closeOtherTabs, addTab, reorderTab, moveTabToGroup,
+    draggingTab, setDraggingTab
+  } = useTabContext();
+
+  const tabs = group === 'primary' ? primaryTabs : secondaryTabs;
+  const activeTabId = group === 'primary' ? primaryActiveId : secondaryActiveTabId;
+
   const { t } = useTranslation('common');
 
   // Memoize status bar content to prevent infinite updates
@@ -29,7 +38,7 @@ const TabBar = () => {
 
   const closeAllAction = React.useCallback(() => closeAllTabs(), [closeAllTabs]);
   const closeOtherAction = React.useCallback(() => closeOtherTabs(activeTabId), [closeOtherTabs, activeTabId]);
-  const newTabAction = React.useCallback(() => addTab({ id: `tab - ${Date.now()} `, title: 'New Tab', type: 'page' }), [addTab]);
+  const newTabAction = React.useCallback(() => addTab({ id: `tab-${Date.now()}`, title: 'New Tab', type: 'page' }), [addTab]);
 
   useRegisterCommand(React.useMemo(() => ({
     id: 'close-all-tabs',
@@ -69,66 +78,221 @@ const TabBar = () => {
     return <Cube className="w-4 h-4" />;
   };
 
+
+  const [dragOverIndex, setDragOverIndex] = React.useState(null);
+
   return (
-    <div className="w-full bg-muted/40 border-b border-border">
+    <div
+      className={cn(
+        "w-full bg-muted/40 border-b border-border transition-colors",
+        draggingTab?.group === group && "bg-muted/60" // Feedback for active group
+      )}
+      onAuxClick={(e) => {
+        if (e.button === 1 && e.target === e.currentTarget) {
+          newTabAction();
+        }
+      }}
+      onDragOver={(e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+      }}
+      onDrop={(e) => {
+        e.preventDefault();
+        setDragOverIndex(null);
+        setDraggingTab(null);
+        const tabId = e.dataTransfer.getData('application/tab-id');
+        if (tabId) {
+          // If tab is in this group, reorder to end?
+          // If from other group, move here.
+          // We need to know if tab is in this group.
+          const isInGroup = tabs.find(t => t.id === tabId);
+          if (isInGroup) {
+            reorderTab(tabs.indexOf(isInGroup), tabs.length);
+          } else {
+            moveTabToGroup(tabId, group);
+          }
+        }
+      }}
+      onDragLeave={() => setDragOverIndex(null)}
+    >
       <div className="flex items-center w-full overflow-x-auto no-scrollbar">
-        {tabs.map((tab) => (
-          <ContextMenu.Root key={tab.id}>
-            <ContextMenu.Trigger>
-              <div
-                className={cn(
-                  "group flex items-center gap-2 px-3 py-2 text-xs border-r border-border/50 cursor-pointer select-none transition-colors min-w-[120px] max-w-[200px]",
-                  activeTabId === tab.id
-                    ? "bg-background text-foreground border-b-2 border-b-primary font-medium"
-                    : "bg-muted/40 text-muted-foreground hover:bg-muted/60"
-                )}
-                onClick={() => setActiveTab(tab.id)}
-              >
-                {getIcon(tab.id)}
-                <span className="truncate flex-1">{tab.title}</span>
-                <button
-                  className={cn(
-                    "opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive rounded p-0.5 transition-all",
-                    activeTabId === tab.id && "opacity-100"
-                  )}
-                  onClick={(e) => {
+        {tabs.map((tab, index) => (
+          <React.Fragment key={tab.id}>
+            {/* Spacer for drop indication */}
+            {/* Don't show spacer if it's the index of the dragged tab OR the index immediately after (no-op positions) */}
+            <div
+              className={cn(
+                "transition-all duration-200 ease-in-out w-0 overflow-hidden",
+                (dragOverIndex === index &&
+                  !(draggingTab?.group === group && (draggingTab?.index === index || draggingTab?.index === index - 1))
+                ) && "w-[120px] opacity-50 bg-primary/10 border-2 border-dashed border-primary/30 rounded mx-1"
+              )}
+              style={{ height: '32px' }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setDragOverIndex(index);
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setDragOverIndex(null);
+                setDraggingTab(null);
+                const tabId = e.dataTransfer.getData('application/tab-id');
+                if (tabId) {
+                  const isInGroup = tabs.find(t => t.id === tabId);
+                  if (isInGroup) {
+                    reorderTab(tabs.indexOf(isInGroup), index, group);
+                  } else {
+                    moveTabToGroup(tabId, group);
+                  }
+                }
+              }}
+            />
+
+            <ContextMenu.Root>
+              <ContextMenu.Trigger>
+                <div
+                  draggable
+                  onDragStart={(e) => {
+                    setDraggingTab({ id: tab.id, group, index });
+                    e.dataTransfer.setData('text/plain', index.toString());
+                    e.dataTransfer.setData('application/tab-id', tab.id);
+                  }}
+                  onDragEnd={() => {
+                    setDraggingTab(null);
+                    setDragOverIndex(null);
+                  }}
+                  onDragOver={(e) => {
+                    e.preventDefault();
                     e.stopPropagation();
-                    closeTab(tab.id);
+                    // Calculate if we are on left or right half
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const mid = (rect.left + rect.right) / 2;
+                    const isRight = e.clientX > mid;
+                    setDragOverIndex(isRight ? index + 1 : index);
+                  }}
+                  onDrop={(e) => {
+                    // Handled by Spacer or this element if spacer is small?
+                    // Actually let's delegate drop to the visual spacer logic mostly, 
+                    // OR handle it here.
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setDragOverIndex(null);
+                    setDraggingTab(null);
+                    const tabId = e.dataTransfer.getData('application/tab-id');
+                    const fromIndex = parseInt(e.dataTransfer.getData('text/plain'), 10);
+                    // If moving within same group
+                    if (tabId && tabs.find(t => t.id === tabId)) {
+                      reorderTab(fromIndex, index, group);
+                    } else if (tabId) {
+                      moveTabToGroup(tabId, group);
+                    }
+                  }}
+                  className={cn(
+                    "group flex items-center gap-2 px-3 py-2 text-xs border-r border-border/50 cursor-pointer select-none transition-colors min-w-[120px] max-w-[200px]",
+                    activeTabId === tab.id
+                      ? "bg-background text-foreground border-b-2 border-b-primary font-medium"
+                      : "bg-muted/40 text-muted-foreground hover:bg-muted/60"
+                  )}
+                  onClick={() => setActiveTab(tab.id)}
+                  onAuxClick={(e) => {
+                    if (e.button === 1) {
+                      e.preventDefault();
+                      closeTab(tab.id);
+                    }
                   }}
                 >
-                  <X className="w-3 h-3" />
-                </button>
-              </div>
-            </ContextMenu.Trigger>
-            <ContextMenu.Portal>
-              <ContextMenu.Content className="min-w-[160px] bg-popover rounded-md border border-border p-1 shadow-md z-[50]">
-                <ContextMenu.Item
-                  className="flex cursor-default items-center rounded-sm px-2 py-1.5 text-xs outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:opacity-50"
-                  onClick={() => closeTab(tab.id)}
-                >
-                  Close Tab
-                </ContextMenu.Item>
-                <ContextMenu.Item
-                  className="flex cursor-default items-center rounded-sm px-2 py-1.5 text-xs outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:opacity-50"
-                  onClick={() => closeOtherTabs(tab.id)}
-                >
-                  Close Others
-                </ContextMenu.Item>
-                <ContextMenu.Separator className="my-1 h-px bg-border" />
-                <ContextMenu.Item
-                  className="flex cursor-default items-center rounded-sm px-2 py-1.5 text-xs outline-none focus:bg-accent focus:text-accent-foreground text-destructive focus:text-destructive"
-                  onClick={closeAllTabs}
-                >
-                  Close All
-                </ContextMenu.Item>
-              </ContextMenu.Content>
-            </ContextMenu.Portal>
-          </ContextMenu.Root>
+                  {getIcon(tab.id)}
+                  <span className="truncate flex-1">{tab.title}</span>
+                  <button
+                    className={cn(
+                      "opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive rounded p-0.5 transition-all",
+                      activeTabId === tab.id && "opacity-100"
+                    )}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      closeTab(tab.id);
+                    }}
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              </ContextMenu.Trigger>
+              <ContextMenu.Portal>
+                <ContextMenu.Content className="min-w-[160px] bg-popover rounded-md border border-border p-1 shadow-md z-[50]">
+                  <ContextMenu.Item
+                    className="flex cursor-default items-center rounded-sm px-2 py-1.5 text-xs outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:opacity-50"
+                    onClick={() => closeTab(tab.id)}
+                  >
+                    Close Tab
+                  </ContextMenu.Item>
+                  <ContextMenu.Item
+                    className="flex cursor-default items-center rounded-sm px-2 py-1.5 text-xs outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:opacity-50"
+                    onClick={() => closeOtherTabs(tab.id)}
+                  >
+                    Close Others
+                  </ContextMenu.Item>
+                  <ContextMenu.Item
+                    className="flex cursor-default items-center rounded-sm px-2 py-1.5 text-xs outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:opacity-50"
+                    onClick={() => {
+                      const targetGroup = group === 'primary' ? 'secondary' : 'primary';
+                      moveTabToGroup(tab.id, targetGroup);
+                    }}
+                  >
+                    Split Right
+                  </ContextMenu.Item>
+                  <ContextMenu.Separator className="my-1 h-px bg-border" />
+                  <ContextMenu.Item
+                    className="flex cursor-default items-center rounded-sm px-2 py-1.5 text-xs outline-none focus:bg-accent focus:text-accent-foreground text-destructive focus:text-destructive"
+                    onClick={closeAllTabs}
+                  >
+                    Close All
+                  </ContextMenu.Item>
+                </ContextMenu.Content>
+              </ContextMenu.Portal>
+            </ContextMenu.Root>
+          </React.Fragment>
         ))}
+        {/* Trailing Spacer for appending at end */}
+        <div
+          className={cn(
+            "transition-all duration-200 ease-in-out w-0 overflow-hidden",
+            (dragOverIndex === tabs.length &&
+              !(draggingTab?.group === group && draggingTab?.index === tabs.length - 1)
+            ) && "w-[120px] opacity-50 bg-primary/10 border-2 border-dashed border-primary/30 rounded mx-1"
+          )}
+          style={{ height: '32px' }}
+          onDragOver={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setDragOverIndex(tabs.length);
+          }}
+          onDrop={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setDragOverIndex(null);
+            setDraggingTab(null);
+            const tabId = e.dataTransfer.getData('application/tab-id');
+            if (tabId) {
+              // Determine if move or reorder (append)
+              const isInGroup = tabs.find(t => t.id === tabId);
+              if (isInGroup) {
+                reorderTab(tabs.indexOf(isInGroup), tabs.length, group);
+              } else {
+                moveTabToGroup(tabId, group);
+              }
+            }
+          }}
+        />
         <button
           className="flex items-center justify-center px-3 py-2 text-muted-foreground hover:bg-muted/60 hover:text-foreground transition-colors border-r border-border/50"
           onClick={newTabAction}
           title="New Tab (Ctrl+T)"
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDragOverIndex(tabs.length);
+          }}
         >
           <Plus className="w-4 h-4" />
         </button>

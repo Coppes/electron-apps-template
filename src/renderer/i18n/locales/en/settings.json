@@ -9,6 +9,20 @@
     "title": "Language",
     "description": "Select display language."
   },
+  "history": {
+    "title": "History & Undo",
+    "description": "Manage undo/redo limits and test functionality.",
+    "max_undo_steps": "Max Undo Steps",
+    "max_undo_help": "Maximum number of actions to keep in history",
+    "test_zone": "Test Zone",
+    "undo": "Undo",
+    "redo": "Redo",
+    "type_here": "Type here then Undo/Redo...",
+    "history_stack": "History Stack",
+    "future_stack": "Future Stack",
+    "has_items": "Has items",
+    "empty": "Empty"
+  },
   "shortcuts": {
     "title": "Keyboard Shortcuts",
     "description": "View and customize keyboard shortcuts."

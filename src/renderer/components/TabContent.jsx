@@ -4,7 +4,6 @@ import { cn } from '../utils/cn';
 
 // Lazy load pages to avoid massive initial bundle
 const HomePage = React.lazy(() => import('../pages/HomePage'));
-const DemoPage = React.lazy(() => import('../pages/DemoPage'));
 const SettingsPage = React.lazy(() => import('../pages/SettingsPage'));
 const AboutPage = React.lazy(() => import('../pages/AboutPage'));
 const BackupPage = React.lazy(() => import('../pages/BackupPage'));
@@ -18,8 +17,11 @@ const KeyboardShortcutsPage = React.lazy(() => import('../pages/KeyboardShortcut
 const ComponentTestPage = React.lazy(() => import('../pages/ComponentTestPage'));
 const SyncQueueViewer = React.lazy(() => import('./features/data-management/SyncQueueViewer'));
 
-const TabContent = () => {
-  const { tabs, activeTabId } = useTabContext();
+const TabContent = ({ group = 'primary' }) => {
+  const { tabs: primaryTabs, activeTabId: primaryActiveId, secondaryTabs, secondaryActiveTabId } = useTabContext();
+
+  const tabs = group === 'primary' ? primaryTabs : secondaryTabs;
+  const activeTabId = group === 'primary' ? primaryActiveId : secondaryActiveTabId;
 
   // Strategy pattern: Resolve component based on tab TYPE primarily, ID as fallback
   const renderTabContent = (tab) => {
@@ -30,7 +32,6 @@ const TabContent = () => {
       case 'home': return <HomePage />;
       case 'settings': return <SettingsPage />;
       case 'about': return <AboutPage />;
-      case 'demo': return <DemoPage />;
       case 'data-management-demo': return <DataManagementDemoPage />;
       case 'connectivity-demo': return <ConnectivityDemoPage />;
       case 'ipc-demo': return <IPCDemoPage />;

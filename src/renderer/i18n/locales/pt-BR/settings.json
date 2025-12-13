@@ -9,6 +9,20 @@
     "title": "Idioma",
     "description": "Selecione o idioma de exibição."
   },
+  "history": {
+    "title": "Histórico e Desfazer",
+    "description": "Gerencie limites de desfazer/refazer e teste a funcionalidade.",
+    "max_undo_steps": "Máximo de Passos",
+    "max_undo_help": "Número máximo de ações para manter no histórico",
+    "test_zone": "Zona de Teste",
+    "undo": "Desfazer",
+    "redo": "Refazer",
+    "type_here": "Digite aqui e depois Desfaça/Refaça...",
+    "history_stack": "Pilha de Histórico",
+    "future_stack": "Pilha Futura",
+    "has_items": "Com itens",
+    "empty": "Vazia"
+  },
   "shortcuts": {
     "title": "Atalhos de Teclado",
     "description": "Visualize e personalize atalhos de teclado."

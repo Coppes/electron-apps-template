@@ -58,6 +58,27 @@ export const SettingsProvider = ({ children }) => {
     loadSettings();
   }, []);
 
+  // Apply Theme
+  useEffect(() => {
+    const theme = settings.appearance?.theme || 'system';
+    const root = document.documentElement;
+
+    const applyTheme = (t) => {
+      const isDark = t === 'dark' || (t === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      root.classList.toggle('dark', isDark);
+    };
+
+    applyTheme(theme);
+
+    // Listen for system changes if system
+    if (theme === 'system') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const handler = (e) => applyTheme('system');
+      mediaQuery.addEventListener('change', handler);
+      return () => mediaQuery.removeEventListener('change', handler);
+    }
+  }, [settings.appearance]);
+
   const updateSetting = async (path, value) => {
     // path could be 'appearance.theme' or 'notifications'
     setSettings(prev => {
