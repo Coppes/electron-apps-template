@@ -5,11 +5,11 @@ import { logger } from './logger.js';
  * Global Shortcuts Manager
  * Manages application-wide keyboard shortcuts
  */
-class ShortcutManager {
+export class ShortcutManager {
   constructor() {
     /** @type {Map<string, {handler: Function, description: string}>} */
     this.shortcuts = new Map();
-    
+
     // Whitelist of allowed shortcuts for security
     this.whitelist = [
       'CommandOrControl+Shift+K',
@@ -168,7 +168,7 @@ class ShortcutManager {
     // Basic format validation
     const validKeys = /^(CommandOrControl|CmdOrCtrl|Command|Cmd|Control|Ctrl|Alt|Option|AltGr|Shift|Super|Meta)\+/i;
     const hasFunctionKey = /^F[0-9]{1,2}$/i.test(accelerator);
-    
+
     return validKeys.test(accelerator) || hasFunctionKey;
   }
 

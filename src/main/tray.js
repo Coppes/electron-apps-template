@@ -8,7 +8,7 @@ import { isMacOS, isWindows } from '../common/constants.js';
  * System Tray Manager
  * Manages system tray icon and context menu
  */
-class TrayManager {
+export class TrayManager {
   constructor() {
     this.tray = null;
     this.menuTemplate = [];

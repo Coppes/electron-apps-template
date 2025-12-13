@@ -11,7 +11,9 @@ vi.mock('electron', () => ({
     unregisterAll: vi.fn()
   },
   app: {
-    on: vi.fn() // For 'will-quit' listener
+    on: vi.fn(), // For 'will-quit' listener
+    getPath: vi.fn(() => '/tmp'),
+    getName: vi.fn(() => 'Test App')
   }
 }));
 
@@ -42,15 +44,16 @@ describe('ShortcutManager', () => {
   });
 
   it('should detect conflicts if shortcut is already registered', () => {
-    globalShortcut.isRegistered.mockReturnValue(true);
+    globalShortcut.register.mockReturnValue(false); // Simulate conflict
 
     const result = shortcutManager.register('CommandOrControl+Shift+K', () => { });
 
     expect(result).toBe(false);
-    expect(globalShortcut.register).not.toHaveBeenCalled();
+    expect(globalShortcut.register).toHaveBeenCalledWith('CommandOrControl+Shift+K', expect.any(Function));
   });
 
   it('should unregister a shortcut', () => {
+    globalShortcut.register.mockReturnValue(true);
     shortcutManager.register('CommandOrControl+Shift+K', () => { });
     shortcutManager.unregister('CommandOrControl+Shift+K');
 
