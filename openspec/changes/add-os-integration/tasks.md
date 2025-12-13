@@ -209,7 +209,7 @@
 - [x] Update `src/preload.js` to expose notification API
 - [x] Add JSDoc documentation for notification API
 - [ ] Test notifications triggered from renderer
-- [ ] Test notification action callbacks to renderer
+- [x] Test notification action callbacks to renderer
 - [x] Document IPC notification API
 
 ### 15. Notification Permission Handling
