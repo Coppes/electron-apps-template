@@ -111,5 +111,14 @@
       "docs": "View Documentation",
       "github": "GitHub Repository"
     }
+  },
+  "command": {
+    "placeholder": "Type a command or search...",
+    "no_results": "No results found.",
+    "switch_to": "Switch to",
+    "close_all_tabs": "Close All Tabs",
+    "close_other_tabs": "Close Other Tabs",
+    "new_tab": "New Tab",
+    "open_in_new_tab": "Open {{item}} in New Tab"
   }
 }

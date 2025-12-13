@@ -38,36 +38,39 @@ const TabBar = ({ group = 'primary' }) => {
 
   const closeAllAction = React.useCallback(() => closeAllTabs(), [closeAllTabs]);
   const closeOtherAction = React.useCallback(() => closeOtherTabs(activeTabId), [closeOtherTabs, activeTabId]);
-  const newTabAction = React.useCallback(() => addTab({ id: `tab-${Date.now()}`, title: 'New Tab', type: 'page' }), [addTab]);
+  const newTabAction = React.useCallback(() => addTab({ id: `tab-${Date.now()}`, title: t('command.new_tab', 'New Tab'), type: 'page' }), [addTab, t]);
 
   useRegisterCommand(React.useMemo(() => ({
     id: 'close-all-tabs',
-    label: 'Close All Tabs',
+    label: t('command.close_all_tabs', 'Close All Tabs'),
     group: 'Tabs',
-    action: closeAllAction
-  }), [closeAllAction]));
+    action: closeAllAction,
+    keywords: ['Close All Tabs']
+  }), [closeAllAction, t]));
 
   useRegisterCommand(React.useMemo(() => ({
     id: 'close-other-tabs',
-    label: 'Close Other Tabs',
+    label: t('command.close_other_tabs', 'Close Other Tabs'),
     group: 'Tabs',
-    action: closeOtherAction
-  }), [closeOtherAction]));
+    action: closeOtherAction,
+    keywords: ['Close Other Tabs']
+  }), [closeOtherAction, t]));
 
   useRegisterCommand(React.useMemo(() => ({
     id: 'new-tab',
-    label: 'New Tab',
+    label: t('command.new_tab', 'New Tab'),
     group: 'Tabs',
     shortcut: 'Ctrl+T',
-    action: newTabAction
-  }), [newTabAction]));
+    action: newTabAction,
+    keywords: ['New Tab']
+  }), [newTabAction, t]));
 
   // Register Global Shortcut for New Tab
   useKeyboardShortcut({
     id: 'shortcut-new-tab',
     keys: 'Ctrl+T',
     action: newTabAction,
-    description: 'Open New Tab'
+    description: t('command.new_tab', 'Open New Tab') // Reusing New Tab label or could be specific
   });
 
   // Helper to get icon for tab
@@ -204,7 +207,13 @@ const TabBar = ({ group = 'primary' }) => {
                   }}
                 >
                   {getIcon(tab.id)}
-                  <span className="truncate flex-1">{tab.title}</span>
+                  <span className="truncate flex-1">
+                    {tab.type === 'home' ? t('nav.home') :
+                      tab.type === 'settings' ? t('nav.items.settings') :
+                        tab.type === 'demo' ? t('nav.items.legacy_demo') :
+                          tab.type === 'test' ? t('nav.items.test_playground') :
+                            tab.title}
+                  </span>
                   <button
                     className={cn(
                       "opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive rounded p-0.5 transition-all",

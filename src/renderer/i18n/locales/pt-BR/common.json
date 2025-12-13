@@ -111,5 +111,14 @@
       "docs": "Ver Documentação",
       "github": "Repositório GitHub"
     }
+  },
+  "command": {
+    "placeholder": "Digite um comando ou busque...",
+    "no_results": "Nenhum resultado encontrado.",
+    "switch_to": "Mudar para",
+    "close_all_tabs": "Fechar Todas as Abas",
+    "close_other_tabs": "Fechar Outras Abas",
+    "new_tab": "Nova Aba",
+    "open_in_new_tab": "Abrir {{item}} em Nova Aba"
   }
 }
