@@ -567,6 +567,12 @@ const trayAPI = {
   create: () => ipcRenderer.invoke(IPC_CHANNELS.TRAY_CREATE, {}),
 
   /**
+   * Check if tray is created
+   * @returns {Promise<boolean>} True if created
+   */
+  checkStatus: () => ipcRenderer.invoke(IPC_CHANNELS.TRAY_CHECK_STATUS, {}).then(r => r.created),
+
+  /**
    * Destroy tray icon
    * @returns {Promise<Object>} Result
    */

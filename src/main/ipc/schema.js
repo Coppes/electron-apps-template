@@ -536,6 +536,13 @@ export const traySchema = {
     },
   },
 
+  [IPC_CHANNELS.TRAY_CHECK_STATUS]: {
+    input: {},
+    output: {
+      created: { type: 'boolean', required: true },
+    },
+  },
+
   [IPC_CHANNELS.TRAY_SHOW]: {
     input: {},
     output: {

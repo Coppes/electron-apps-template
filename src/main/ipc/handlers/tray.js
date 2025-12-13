@@ -24,6 +24,10 @@ export function createTrayHandlers() {
       return { success: true };
     },
 
+    [IPC_CHANNELS.TRAY_CHECK_STATUS]: async () => {
+      return { created: trayManager.isCreated() };
+    },
+
     [IPC_CHANNELS.TRAY_SHOW]: async () => {
       const success = trayManager.show();
       return { success };

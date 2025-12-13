@@ -16,6 +16,14 @@ export class TrayManager {
   }
 
   /**
+   * Check if tray is created
+   * @returns {boolean} True if created
+   */
+  isCreated() {
+    return !!this.tray;
+  }
+
+  /**
    * Create system tray icon
    * @param {Object} [options] - Tray creation options
    * @param {string} [options.tooltip] - Tooltip text
