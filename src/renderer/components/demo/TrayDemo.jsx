@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Tray, Check, X, WarningCircle, List } from '@phosphor-icons/react';
 
 /**
@@ -14,6 +14,21 @@ export default function TrayDemo() {
     { id: 'sep1', type: 'separator' },
     { id: 'quit', label: 'Quit', type: 'normal', enabled: true }
   ]);
+  useEffect(() => {
+    checkStatus();
+  }, []);
+
+  const checkStatus = async () => {
+    try {
+      const exists = await window.electronAPI.tray.checkStatus();
+      setTrayExists(exists);
+      if (exists) {
+        setStatus('Tray detected (persisted from previous session/reload)');
+      }
+    } catch (error) {
+      console.error('Failed to check tray status', error);
+    }
+  };
 
   const createTray = async () => {
     try {
@@ -88,11 +103,17 @@ export default function TrayDemo() {
     ));
   };
 
+  const updateMenuItemLabel = (id, newLabel) => {
+    setMenuItems(menuItems.map(item =>
+      item.id === id ? { ...item, label: newLabel } : item
+    ));
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2 mb-4">
-        <Tray className="w-6 h-6 text-blue-600" />
-        <h2 className="text-2xl font-bold">System Tray</h2>
+        <Tray className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">System Tray</h2>
       </div>
 
       {/* Control Buttons */}
@@ -117,22 +138,22 @@ export default function TrayDemo() {
 
       {/* Status */}
       {status && (
-        <div className="p-3 bg-blue-50 border border-blue-200 rounded flex items-start gap-2">
-          <WarningCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-blue-800">{status}</p>
+        <div className="p-3 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded flex items-start gap-2">
+          <WarningCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-blue-800 dark:text-blue-200">{status}</p>
         </div>
       )}
 
       {/* Tooltip Configuration */}
-      <div className="border border-gray-200 rounded-lg p-4">
-        <h3 className="font-semibold mb-3">Tooltip</h3>
+      <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+        <h3 className="font-semibold mb-3 text-gray-900 dark:text-white">Tooltip</h3>
         <div className="flex gap-2">
           <input
             type="text"
             value={tooltip}
             onChange={(e) => setTooltip(e.target.value)}
             placeholder="Tray tooltip"
-            className="flex-1 px-3 py-2 border border-gray-300 rounded"
+            className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400"
             disabled={!trayExists}
           />
           <button
@@ -146,9 +167,9 @@ export default function TrayDemo() {
       </div>
 
       {/* Menu Items */}
-      <div className="border border-gray-200 rounded-lg p-4">
+      <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold flex items-center gap-2">
+          <h3 className="font-semibold flex items-center gap-2 text-gray-900 dark:text-white">
             <List className="w-5 h-5" />
             Menu Items
           </h3>
@@ -165,10 +186,10 @@ export default function TrayDemo() {
           {menuItems.map((item) => (
             <div
               key={item.id}
-              className="flex items-center gap-2 p-2 bg-gray-50 rounded"
+              className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700"
             >
               {item.type === 'separator' ? (
-                <div className="flex-1 border-t border-gray-300"></div>
+                <div className="flex-1 border-t border-gray-300 dark:border-gray-600"></div>
               ) : (
                 <>
                   <input
@@ -176,14 +197,20 @@ export default function TrayDemo() {
                     checked={item.enabled}
                     onChange={() => toggleMenuItem(item.id)}
                     disabled={!trayExists}
-                    className="w-4 h-4"
+                    className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 bg-white dark:bg-gray-700"
                   />
-                  <span className="flex-1">{item.label}</span>
+                  <input
+                    type="text"
+                    value={item.label}
+                    onChange={(e) => updateMenuItemLabel(item.id, e.target.value)}
+                    disabled={!trayExists}
+                    className="flex-1 bg-transparent border-none focus:ring-0 p-0 text-gray-900 dark:text-white placeholder-gray-400 disabled:text-gray-400"
+                  />
                   {!['show', 'quit'].includes(item.id) && (
                     <button
                       onClick={() => removeMenuItem(item.id)}
                       disabled={!trayExists}
-                      className="text-red-600 hover:text-red-800 disabled:text-gray-400"
+                      className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 disabled:text-gray-400"
                     >
                       <X className="w-4 h-4" />
                     </button>
