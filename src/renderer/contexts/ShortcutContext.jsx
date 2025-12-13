@@ -174,14 +174,12 @@ export const ShortcutProvider = ({ children }) => {
         const unexpectedModifier = eventModifiers.some(m => !isModifierAllowed(m));
         if (unexpectedModifier) continue;
 
+        if (unexpectedModifier) continue;
+
         const match = keys.every((key) => {
           const k = key.trim();
-          if (['ctrl', 'control', 'cmd', 'meta', 'mod', 'shift', 'alt'].includes(k)) return true; // Modifiers checked above validation-style? 
-          // Wait, .every needs to check presence too.
 
-          // Re-evaluate matching strategy:
-          // Just check strict equality of modifier states?
-
+          // Check if modifier key is actually pressed
           if (k === 'ctrl' || k === 'control') return hasCtrl;
           if (k === 'cmd' || k === 'meta') return hasMeta;
           if (k === 'mod') return (hasMeta || hasCtrl);
@@ -192,15 +190,6 @@ export const ShortcutProvider = ({ children }) => {
           return event.key.toLowerCase() === k;
         });
 
-        // Double check: If I require "Mod+Z", and I press "Mod+Shift+Z".
-        // keys=['mod', 'z'].
-        // 'mod' returns True (hasMeta).
-        // 'z' returns True.
-        // Match = True.
-        // But unexpectedModifier check (Shift) would have failed it.
-        // So logic: Check unexpected FIRST. Then check required.
-
-        if (unexpectedModifier) continue;
         if (!match) continue;
 
         // One edge case: 'mod' requires EITHER. If I press Ctrl+Cmd+Z?
