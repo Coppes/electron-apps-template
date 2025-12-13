@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTab } from '../hooks/useTab';
@@ -7,8 +8,9 @@ import { useHistory } from '../contexts/HistoryContext';
 import Button from '../components/ui/Button';
 import Switch from '../components/ui/Switch';
 import Label from '../components/ui/Label';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card';
 import { cn } from '../utils/cn';
+import { Monitor, Sun, Moon } from '@phosphor-icons/react';
 
 const SettingsPage = () => {
   const { settings, updateSetting, loading } = useSettings();
@@ -63,13 +65,13 @@ const SettingsPage = () => {
       const result = await window.electronAPI.data.export(filePath, exportData);
 
       if (result.success) {
-        setSaveMessage(`✓ Exported to ${result.filePath}`);
+        setSaveMessage(`✓ Exported to ${result.filePath} `);
       } else {
-        setSaveMessage(`✗ Export failed: ${result.error}`);
+        setSaveMessage(`✗ Export failed: ${result.error} `);
       }
     } catch (error) {
       console.error('Export error:', error);
-      setSaveMessage(`✗ Export error: ${error.message}`);
+      setSaveMessage(`✗ Export error: ${error.message} `);
     } finally {
       setTimeout(() => setSaveMessage(''), 3000);
     }
@@ -103,7 +105,7 @@ const SettingsPage = () => {
           Object.keys(result.data.settings).forEach(section => {
             if (typeof result.data.settings[section] === 'object') {
               Object.keys(result.data.settings[section]).forEach(key => {
-                updateSetting(`${section}.${key}`, result.data.settings[section][key]);
+                updateSetting(`${section}.${key} `, result.data.settings[section][key]);
               });
             } else {
               updateSetting(section, result.data.settings[section]);
@@ -126,7 +128,7 @@ const SettingsPage = () => {
       }
     } catch (error) {
       console.error('Import error:', error);
-      setSaveMessage(`✗ Import failed: ${error.message}`);
+      setSaveMessage(`✗ Import failed: ${error.message} `);
     } finally {
       setTimeout(() => setSaveMessage(''), 3000);
     }
@@ -189,7 +191,7 @@ const SettingsPage = () => {
                 onClick={() => updateSetting('appearance.theme', 'system')}
                 title="Follow System"
               >
-                🖥️
+                <Monitor className="h-4 w-4" /> System
               </Button>
               <Button
                 size="sm"
@@ -197,7 +199,7 @@ const SettingsPage = () => {
                 onClick={() => updateSetting('appearance.theme', 'light')}
                 title="Light Mode"
               >
-                ☀️
+                <Sun className="h-4 w-4" /> Light
               </Button>
               <Button
                 size="sm"
@@ -205,7 +207,7 @@ const SettingsPage = () => {
                 onClick={() => updateSetting('appearance.theme', 'dark')}
                 title="Dark Mode"
               >
-                🌙
+                <Moon className="h-4 w-4" /> Dark
               </Button>
             </div>
           </div>
