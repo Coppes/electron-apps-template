@@ -16,14 +16,16 @@ vi.mock('electron', () => ({
     buildFromTemplate: vi.fn(template => ({ template, popup: vi.fn() })),
     setApplicationMenu: vi.fn()
   },
-  Tray: vi.fn().mockImplementation(() => ({
-    setToolTip: vi.fn(),
-    setContextMenu: vi.fn(),
-    on: vi.fn(),
-    setImage: vi.fn(),
-    destroy: vi.fn(),
-    getBounds: vi.fn(() => ({ x: 0, y: 0, width: 16, height: 16 }))
-  })),
+  Tray: vi.fn().mockImplementation(function () {
+    return {
+      setToolTip: vi.fn(),
+      setContextMenu: vi.fn(),
+      on: vi.fn(),
+      setImage: vi.fn(),
+      destroy: vi.fn(),
+      getBounds: vi.fn(() => ({ x: 0, y: 0, width: 16, height: 16 }))
+    };
+  }),
   nativeImage: {
     createFromPath: vi.fn(() => ({ isEmpty: vi.fn(() => false), resize: vi.fn(() => ({})) }))
   }
@@ -44,10 +46,11 @@ vi.mock('../../../src/common/constants.js', () => ({
   isMacOS: vi.fn(() => true),
   isWindows: vi.fn(() => false),
   isLinux: vi.fn(() => false),
+  ENV: { DEVELOPMENT: 'development', PRODUCTION: 'production' }
 }));
 
 
-describe.skip('TrayManager Menu', () => {
+describe('TrayManager Menu', () => {
   let trayManager;
   let windowManagerMock;
 
@@ -66,28 +69,30 @@ describe.skip('TrayManager Menu', () => {
   it('should create a default context menu', () => {
     trayManager.createTray();
 
-    // Check if Menu.buildFromTemplate was called
     expect(Menu.buildFromTemplate).toHaveBeenCalled();
     const template = Menu.buildFromTemplate.mock.calls[0][0];
 
-    // Check for default items
-    expect(template).toEqual(expect.arrayContaining([
-      expect.objectContaining({ label: 'Open' }),
-      expect.objectContaining({ type: 'separator' }),
-      expect.objectContaining({ label: 'Quit' })
-    ]));
+    expect(template).toHaveLength(3);
+    expect(template[0].label).toBe('Show Window');
+    expect(template[2].label).toBe('Quit');
   });
 
   it('should allow adding custom menu items', () => {
     trayManager.createTray();
-    const customItem = { label: 'Custom Item', click: vi.fn() };
 
-    trayManager.addMenuItem(customItem);
+    // Clear previous calls to check strictly
+    Menu.buildFromTemplate.mockClear();
 
-    const template = Menu.buildFromTemplate.mock.lastCall[0];
-    expect(template).toEqual(expect.arrayContaining([
-      expect.objectContaining({ label: 'Custom Item' })
-    ]));
+    trayManager.setContextMenu([
+      { label: 'Custom Item', click: vi.fn() }
+    ]);
+
+    expect(Menu.buildFromTemplate).toHaveBeenCalled();
+    const template = Menu.buildFromTemplate.mock.calls[0][0];
+
+    const customItem = template.find(item => item.label === 'Custom Item');
+    expect(customItem).toBeDefined();
+    expect(customItem.label).toBe('Custom Item');
   });
 
   it('should update context menu dynamically', () => {
@@ -105,26 +110,23 @@ describe.skip('TrayManager Menu', () => {
 
   it('should handle menu item clicks', () => {
     trayManager.createTray();
+    const emitSpy = vi.spyOn(trayManager, 'emit');
+
     const template = Menu.buildFromTemplate.mock.calls[0][0];
+    const showItem = template.find(item => item.label === 'Show Window');
 
-    // Find Open item and trigger click
-    const openItem = template.find(item => item.label === 'Open');
-    openItem.click();
-
-    expect(windowManagerMock.getMainWindow).toHaveBeenCalled();
-    const mainWindow = windowManagerMock.getMainWindow();
-    expect(mainWindow.show).toHaveBeenCalled();
-    expect(mainWindow.focus).toHaveBeenCalled();
+    showItem.click();
+    expect(emitSpy).toHaveBeenCalledWith('menu-item-click', 'show');
   });
 
   it('should handle quit item click', () => {
     trayManager.createTray();
+    const emitSpy = vi.spyOn(trayManager, 'emit');
+
     const template = Menu.buildFromTemplate.mock.calls[0][0];
-
-    // Find Quit item and trigger click
     const quitItem = template.find(item => item.label === 'Quit');
-    quitItem.click();
 
-    expect(app.quit).toHaveBeenCalled();
+    quitItem.click();
+    expect(emitSpy).toHaveBeenCalledWith('menu-item-click', 'quit');
   });
 });

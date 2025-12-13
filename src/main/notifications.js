@@ -7,7 +7,7 @@ import { isPermissionAllowed } from './security/permissions.js';
 /**
  * Native OS Notifications Manager
  */
-class NotificationManager {
+export class NotificationManager {
   constructor() {
     /** @type {Map<string, {notification: Notification, options: Object}>} */
     this.activeNotifications = new Map();

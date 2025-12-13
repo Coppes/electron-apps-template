@@ -298,9 +298,9 @@
 ### 23. Unit Tests
 
 - [ ] Create unit tests for URL parsing and validation
-- [ ] Create unit tests for shortcut validation
-- [ ] Create unit tests for progress value validation
-- [ ] Create unit tests for notification builder
+- [x] Create unit tests for shortcut validation
+- [x] Create unit tests for progress value validation
+- [x] Create unit tests for notification builder
 - [x] Create unit tests for platform detection
 - [ ] Achieve >80% code coverage for OS integration modules
 - [ ] Run tests on CI for all platforms

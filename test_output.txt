@@ -1,0 +1,410 @@
+
+[1m[46m RUN [49m[22m [36mv4.0.15 [39m[90m/Users/yuricoppe/Code/electron-apps-template[39m
+
+[90mstderr[2m | test/unit/main/notifications.test.js[2m > [22m[2mNotificationManager[2m > [22m[2mshould show a notification
+[22m[39m[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see https://vitest.dev/api/vi#vi-spyon for examples.
+
+[90mstderr[2m | test/unit/main/notifications.test.js[2m > [22m[2mNotificationManager[2m > [22m[2mshould sanitize HTML in body
+[22m[39m[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see https://vitest.dev/api/vi#vi-spyon for examples.
+
+ [31m❯[39m test/unit/main/notifications.test.js [2m([22m[2m6 tests[22m[2m | [22m[31m4 failed[39m[2m)[22m[32m 7[2mms[22m[39m
+[31m     [31m×[31m should show a notification[39m[32m 3[2mms[22m[39m
+     [32m✓[39m should sanitize HTML in body[32m 1[2mms[22m[39m
+[31m     [31m×[31m should handle silent mode[39m[32m 1[2mms[22m[39m
+[31m     [31m×[31m should enforce rate limiting[39m[32m 0[2mms[22m[39m
+     [32m✓[39m should validate icon path[32m 0[2mms[22m[39m
+[31m     [31m×[31m should track history[39m[32m 1[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 4 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m test/unit/main/notifications.test.js[2m > [22mNotificationManager[2m > [22mshould show a notification
+[31m[1mAssertionError[22m: expected Promise{…} to be true // Object.is equality[39m
+
+[32m- Expected:[39m 
+true
+
+[31m+ Received:[39m 
+Promise {}
+
+[36m [2m❯[22m test/unit/main/notifications.test.js:[2m81:20[22m[39m
+    [90m 79| [39m    })[33m;[39m
+    [90m 80| [39m
+    [90m 81| [39m    [34mexpect[39m(result)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   | [39m                   [31m^[39m
+    [90m 82| [39m    [34mexpect[39m([33mNotification[39m)[33m.[39m[34mtoHaveBeenCalledWith[39m(expect[33m.[39m[34mobjectContaining[39m({
+    [90m 83| [39m      title[33m:[39m [32m'Test'[39m[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m test/unit/main/notifications.test.js[2m > [22mNotificationManager[2m > [22mshould handle silent mode
+[31m[1mAssertionError[22m: expected "vi.fn()" to be called with arguments: [ ObjectContaining {"silent": true} ][90m
+
+Number of calls: [1m0[22m
+[31m[39m
+[36m [2m❯[22m test/unit/main/notifications.test.js:[2m107:26[22m[39m
+    [90m105| [39m    })[33m;[39m
+    [90m106| [39m
+    [90m107| [39m    [34mexpect[39m([33mNotification[39m)[33m.[39m[34mtoHaveBeenCalledWith[39m(expect[33m.[39m[34mobjectContaining[39m({
+    [90m   | [39m                         [31m^[39m
+    [90m108| [39m      silent[33m:[39m [35mtrue[39m
+    [90m109| [39m    }))[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m test/unit/main/notifications.test.js[2m > [22mNotificationManager[2m > [22mshould enforce rate limiting
+[31m[1mAssertionError[22m: expected Promise{…} to be false // Object.is equality[39m
+
+[32m- Expected:[39m 
+false
+
+[31m+ Received:[39m 
+Promise {}
+
+[36m [2m❯[22m test/unit/main/notifications.test.js:[2m120:20[22m[39m
+    [90m118| [39m    [90m// 11th should fail[39m
+    [90m119| [39m    const result = notificationManager.showNotification({ title: 'Spam…
+    [90m120| [39m    [34mexpect[39m(result)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+    [90m   | [39m                   [31m^[39m
+    [90m121| [39m  })[33m;[39m
+    [90m122| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m test/unit/main/notifications.test.js[2m > [22mNotificationManager[2m > [22mshould track history
+[31m[1mAssertionError[22m: expected [] to have a length of 1 but got +0[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 1[39m
+[31m+ 0[39m
+
+[36m [2m❯[22m test/unit/main/notifications.test.js:[2m132:21[22m[39m
+    [90m130| [39m    notificationManager[33m.[39m[34mshowNotification[39m({ title[33m:[39m [32m'History 1'[39m })[33m;[39m
+    [90m131| [39m    [35mconst[39m history [33m=[39m notificationManager[33m.[39m[34mgetHistory[39m()[33m;[39m
+    [90m132| [39m    [34mexpect[39m(history)[33m.[39m[34mtoHaveLength[39m([34m1[39m)[33m;[39m
+    [90m   | [39m                    [31m^[39m
+    [90m133| [39m    [34mexpect[39m(history[[34m0[39m][33m.[39mtitle)[33m.[39m[34mtoBe[39m([32m'History 1'[39m)[33m;[39m
+    [90m134| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Unhandled Errors [49m[22m[31m⎯⎯⎯⎯⎯⎯[39m
+[31m[1m
+Vitest caught 15 unhandled errors during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.[22m[39m
+
+[31m⎯⎯⎯⎯[39m[1m[41m Unhandled Rejection [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mTypeError[22m: () => ({
+    show: __vite_ssr_import_0__.vi.fn(),
+    on: __vite_ssr_import_0__.vi.fn(),
+    close: __vite_ssr_...<omitted>...}) is not a constructor[39m
+[90m [2m❯[22m new Mock node_modules/@vitest/spy/dist/index.js:[2m262:27[22m[39m
+[36m [2m❯[22m NotificationManager.showNotification src/main/notifications.js:[2m55:28[22m[39m
+    [90m 53| [39m
+    [90m 54| [39m      [90m// Create native notification[39m
+    [90m 55| [39m      [35mconst[39m notification [33m=[39m [35mnew[39m [33mNotification[39m({
+    [90m   | [39m                           [31m^[39m
+    [90m 56| [39m        title[33m:[39m sanitizedOptions[33m.[39mtitle[33m,[39m
+    [90m 57| [39m        body[33m:[39m sanitizedOptions[33m.[39mbody[33m,[39m
+[90m [2m❯[22m test/unit/main/notifications.test.js:[2m76:40[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m145:11[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m915:26[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m1240:20[22m[39m
+[90m [2m❯[22m runWithTimeout node_modules/@vitest/runner/dist/index.js:[2m1206:10[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m1650:37[22m[39m
+[90m [2m❯[22m Traces.$ node_modules/vitest/dist/chunks/traces.U4xDYhzZ.js:[2m115:27[22m[39m
+
+[31mThis error originated in "[1mtest/unit/main/notifications.test.js[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+
+[31m⎯⎯⎯⎯[39m[1m[41m Unhandled Rejection [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mTypeError[22m: () => ({
+    show: __vite_ssr_import_0__.vi.fn(),
+    on: __vite_ssr_import_0__.vi.fn(),
+    close: __vite_ssr_...<omitted>...}) is not a constructor[39m
+[90m [2m❯[22m new Mock node_modules/@vitest/spy/dist/index.js:[2m262:27[22m[39m
+[36m [2m❯[22m NotificationManager.showNotification src/main/notifications.js:[2m55:28[22m[39m
+    [90m 53| [39m
+    [90m 54| [39m      [90m// Create native notification[39m
+    [90m 55| [39m      [35mconst[39m notification [33m=[39m [35mnew[39m [33mNotification[39m({
+    [90m   | [39m                           [31m^[39m
+    [90m 56| [39m        title[33m:[39m sanitizedOptions[33m.[39mtitle[33m,[39m
+    [90m 57| [39m        body[33m:[39m sanitizedOptions[33m.[39mbody[33m,[39m
+[90m [2m❯[22m test/unit/main/notifications.test.js:[2m91:25[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m145:11[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m915:26[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m1240:20[22m[39m
+[90m [2m❯[22m runWithTimeout node_modules/@vitest/runner/dist/index.js:[2m1206:10[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m1650:37[22m[39m
+[90m [2m❯[22m Traces.$ node_modules/vitest/dist/chunks/traces.U4xDYhzZ.js:[2m115:27[22m[39m
+
+[31mThis error originated in "[1mtest/unit/main/notifications.test.js[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+
+[31m⎯⎯⎯⎯[39m[1m[41m Unhandled Rejection [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mError[22m: Title and body are required[39m
+[36m [2m❯[22m NotificationManager.showNotification src/main/notifications.js:[2m33:15[22m[39m
+    [90m 31| [39m      [90m// Validate options[39m
+    [90m 32| [39m      [35mif[39m ([33m![39moptions[33m.[39mtitle [33m||[39m [33m![39moptions[33m.[39mbody) {
+    [90m 33| [39m        [35mthrow[39m [35mnew[39m [33mError[39m([32m'Title and body are required'[39m)[33m;[39m
+    [90m   | [39m              [31m^[39m
+    [90m 34| [39m      }
+    [90m 35| [39m
+[90m [2m❯[22m test/unit/main/notifications.test.js:[2m102:25[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m145:11[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m915:26[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m1240:20[22m[39m
+[90m [2m❯[22m runWithTimeout node_modules/@vitest/runner/dist/index.js:[2m1206:10[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m1650:37[22m[39m
+[90m [2m❯[22m Traces.$ node_modules/vitest/dist/chunks/traces.U4xDYhzZ.js:[2m115:27[22m[39m
+[90m [2m❯[22m trace node_modules/vitest/dist/chunks/test.BT8LKgU9.js:[2m239:21[22m[39m
+
+[31mThis error originated in "[1mtest/unit/main/notifications.test.js[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+
+[31m⎯⎯⎯⎯[39m[1m[41m Unhandled Rejection [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mError[22m: Title and body are required[39m
+[36m [2m❯[22m NotificationManager.showNotification src/main/notifications.js:[2m33:15[22m[39m
+    [90m 31| [39m      [90m// Validate options[39m
+    [90m 32| [39m      [35mif[39m ([33m![39moptions[33m.[39mtitle [33m||[39m [33m![39moptions[33m.[39mbody) {
+    [90m 33| [39m        [35mthrow[39m [35mnew[39m [33mError[39m([32m'Title and body are required'[39m)[33m;[39m
+    [90m   | [39m              [31m^[39m
+    [90m 34| [39m      }
+    [90m 35| [39m
+[90m [2m❯[22m test/unit/main/notifications.test.js:[2m115:27[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m145:11[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m915:26[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m1240:20[22m[39m
+[90m [2m❯[22m runWithTimeout node_modules/@vitest/runner/dist/index.js:[2m1206:10[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m1650:37[22m[39m
+[90m [2m❯[22m Traces.$ node_modules/vitest/dist/chunks/traces.U4xDYhzZ.js:[2m115:27[22m[39m
+[90m [2m❯[22m trace node_modules/vitest/dist/chunks/test.BT8LKgU9.js:[2m239:21[22m[39m
+
+[31mThis error originated in "[1mtest/unit/main/notifications.test.js[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+
+[31m⎯⎯⎯⎯[39m[1m[41m Unhandled Rejection [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mError[22m: Title and body are required[39m
+[36m [2m❯[22m NotificationManager.showNotification src/main/notifications.js:[2m33:15[22m[39m
+    [90m 31| [39m      [90m// Validate options[39m
+    [90m 32| [39m      [35mif[39m ([33m![39moptions[33m.[39mtitle [33m||[39m [33m![39moptions[33m.[39mbody) {
+    [90m 33| [39m        [35mthrow[39m [35mnew[39m [33mError[39m([32m'Title and body are required'[39m)[33m;[39m
+    [90m   | [39m              [31m^[39m
+    [90m 34| [39m      }
+    [90m 35| [39m
+[90m [2m❯[22m test/unit/main/notifications.test.js:[2m115:27[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m145:11[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m915:26[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m1240:20[22m[39m
+[90m [2m❯[22m runWithTimeout node_modules/@vitest/runner/dist/index.js:[2m1206:10[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m1650:37[22m[39m
+[90m [2m❯[22m Traces.$ node_modules/vitest/dist/chunks/traces.U4xDYhzZ.js:[2m115:27[22m[39m
+[90m [2m❯[22m trace node_modules/vitest/dist/chunks/test.BT8LKgU9.js:[2m239:21[22m[39m
+
+[31mThis error originated in "[1mtest/unit/main/notifications.test.js[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+
+[31m⎯⎯⎯⎯[39m[1m[41m Unhandled Rejection [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mError[22m: Title and body are required[39m
+[36m [2m❯[22m NotificationManager.showNotification src/main/notifications.js:[2m33:15[22m[39m
+    [90m 31| [39m      [90m// Validate options[39m
+    [90m 32| [39m      [35mif[39m ([33m![39moptions[33m.[39mtitle [33m||[39m [33m![39moptions[33m.[39mbody) {
+    [90m 33| [39m        [35mthrow[39m [35mnew[39m [33mError[39m([32m'Title and body are required'[39m)[33m;[39m
+    [90m   | [39m              [31m^[39m
+    [90m 34| [39m      }
+    [90m 35| [39m
+[90m [2m❯[22m test/unit/main/notifications.test.js:[2m115:27[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m145:11[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m915:26[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m1240:20[22m[39m
+[90m [2m❯[22m runWithTimeout node_modules/@vitest/runner/dist/index.js:[2m1206:10[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m1650:37[22m[39m
+[90m [2m❯[22m Traces.$ node_modules/vitest/dist/chunks/traces.U4xDYhzZ.js:[2m115:27[22m[39m
+[90m [2m❯[22m trace node_modules/vitest/dist/chunks/test.BT8LKgU9.js:[2m239:21[22m[39m
+
+[31mThis error originated in "[1mtest/unit/main/notifications.test.js[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+
+[31m⎯⎯⎯⎯[39m[1m[41m Unhandled Rejection [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mError[22m: Title and body are required[39m
+[36m [2m❯[22m NotificationManager.showNotification src/main/notifications.js:[2m33:15[22m[39m
+    [90m 31| [39m      [90m// Validate options[39m
+    [90m 32| [39m      [35mif[39m ([33m![39moptions[33m.[39mtitle [33m||[39m [33m![39moptions[33m.[39mbody) {
+    [90m 33| [39m        [35mthrow[39m [35mnew[39m [33mError[39m([32m'Title and body are required'[39m)[33m;[39m
+    [90m   | [39m              [31m^[39m
+    [90m 34| [39m      }
+    [90m 35| [39m
+[90m [2m❯[22m test/unit/main/notifications.test.js:[2m115:27[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m145:11[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m915:26[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m1240:20[22m[39m
+[90m [2m❯[22m runWithTimeout node_modules/@vitest/runner/dist/index.js:[2m1206:10[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m1650:37[22m[39m
+[90m [2m❯[22m Traces.$ node_modules/vitest/dist/chunks/traces.U4xDYhzZ.js:[2m115:27[22m[39m
+[90m [2m❯[22m trace node_modules/vitest/dist/chunks/test.BT8LKgU9.js:[2m239:21[22m[39m
+
+[31mThis error originated in "[1mtest/unit/main/notifications.test.js[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+
+[31m⎯⎯⎯⎯[39m[1m[41m Unhandled Rejection [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mError[22m: Title and body are required[39m
+[36m [2m❯[22m NotificationManager.showNotification src/main/notifications.js:[2m33:15[22m[39m
+    [90m 31| [39m      [90m// Validate options[39m
+    [90m 32| [39m      [35mif[39m ([33m![39moptions[33m.[39mtitle [33m||[39m [33m![39moptions[33m.[39mbody) {
+    [90m 33| [39m        [35mthrow[39m [35mnew[39m [33mError[39m([32m'Title and body are required'[39m)[33m;[39m
+    [90m   | [39m              [31m^[39m
+    [90m 34| [39m      }
+    [90m 35| [39m
+[90m [2m❯[22m test/unit/main/notifications.test.js:[2m115:27[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m145:11[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m915:26[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m1240:20[22m[39m
+[90m [2m❯[22m runWithTimeout node_modules/@vitest/runner/dist/index.js:[2m1206:10[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m1650:37[22m[39m
+[90m [2m❯[22m Traces.$ node_modules/vitest/dist/chunks/traces.U4xDYhzZ.js:[2m115:27[22m[39m
+[90m [2m❯[22m trace node_modules/vitest/dist/chunks/test.BT8LKgU9.js:[2m239:21[22m[39m
+
+[31mThis error originated in "[1mtest/unit/main/notifications.test.js[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+
+[31m⎯⎯⎯⎯[39m[1m[41m Unhandled Rejection [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mError[22m: Title and body are required[39m
+[36m [2m❯[22m NotificationManager.showNotification src/main/notifications.js:[2m33:15[22m[39m
+    [90m 31| [39m      [90m// Validate options[39m
+    [90m 32| [39m      [35mif[39m ([33m![39moptions[33m.[39mtitle [33m||[39m [33m![39moptions[33m.[39mbody) {
+    [90m 33| [39m        [35mthrow[39m [35mnew[39m [33mError[39m([32m'Title and body are required'[39m)[33m;[39m
+    [90m   | [39m              [31m^[39m
+    [90m 34| [39m      }
+    [90m 35| [39m
+[90m [2m❯[22m test/unit/main/notifications.test.js:[2m115:27[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m145:11[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m915:26[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m1240:20[22m[39m
+[90m [2m❯[22m runWithTimeout node_modules/@vitest/runner/dist/index.js:[2m1206:10[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m1650:37[22m[39m
+[90m [2m❯[22m Traces.$ node_modules/vitest/dist/chunks/traces.U4xDYhzZ.js:[2m115:27[22m[39m
+[90m [2m❯[22m trace node_modules/vitest/dist/chunks/test.BT8LKgU9.js:[2m239:21[22m[39m
+
+[31mThis error originated in "[1mtest/unit/main/notifications.test.js[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+
+[31m⎯⎯⎯⎯[39m[1m[41m Unhandled Rejection [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mError[22m: Title and body are required[39m
+[36m [2m❯[22m NotificationManager.showNotification src/main/notifications.js:[2m33:15[22m[39m
+    [90m 31| [39m      [90m// Validate options[39m
+    [90m 32| [39m      [35mif[39m ([33m![39moptions[33m.[39mtitle [33m||[39m [33m![39moptions[33m.[39mbody) {
+    [90m 33| [39m        [35mthrow[39m [35mnew[39m [33mError[39m([32m'Title and body are required'[39m)[33m;[39m
+    [90m   | [39m              [31m^[39m
+    [90m 34| [39m      }
+    [90m 35| [39m
+[90m [2m❯[22m test/unit/main/notifications.test.js:[2m115:27[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m145:11[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m915:26[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m1240:20[22m[39m
+[90m [2m❯[22m runWithTimeout node_modules/@vitest/runner/dist/index.js:[2m1206:10[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m1650:37[22m[39m
+[90m [2m❯[22m Traces.$ node_modules/vitest/dist/chunks/traces.U4xDYhzZ.js:[2m115:27[22m[39m
+[90m [2m❯[22m trace node_modules/vitest/dist/chunks/test.BT8LKgU9.js:[2m239:21[22m[39m
+
+[31mThis error originated in "[1mtest/unit/main/notifications.test.js[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+
+[31m⎯⎯⎯⎯[39m[1m[41m Unhandled Rejection [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mError[22m: Title and body are required[39m
+[36m [2m❯[22m NotificationManager.showNotification src/main/notifications.js:[2m33:15[22m[39m
+    [90m 31| [39m      [90m// Validate options[39m
+    [90m 32| [39m      [35mif[39m ([33m![39moptions[33m.[39mtitle [33m||[39m [33m![39moptions[33m.[39mbody) {
+    [90m 33| [39m        [35mthrow[39m [35mnew[39m [33mError[39m([32m'Title and body are required'[39m)[33m;[39m
+    [90m   | [39m              [31m^[39m
+    [90m 34| [39m      }
+    [90m 35| [39m
+[90m [2m❯[22m test/unit/main/notifications.test.js:[2m115:27[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m145:11[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m915:26[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m1240:20[22m[39m
+[90m [2m❯[22m runWithTimeout node_modules/@vitest/runner/dist/index.js:[2m1206:10[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m1650:37[22m[39m
+[90m [2m❯[22m Traces.$ node_modules/vitest/dist/chunks/traces.U4xDYhzZ.js:[2m115:27[22m[39m
+[90m [2m❯[22m trace node_modules/vitest/dist/chunks/test.BT8LKgU9.js:[2m239:21[22m[39m
+
+[31mThis error originated in "[1mtest/unit/main/notifications.test.js[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+
+[31m⎯⎯⎯⎯[39m[1m[41m Unhandled Rejection [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mError[22m: Title and body are required[39m
+[36m [2m❯[22m NotificationManager.showNotification src/main/notifications.js:[2m33:15[22m[39m
+    [90m 31| [39m      [90m// Validate options[39m
+    [90m 32| [39m      [35mif[39m ([33m![39moptions[33m.[39mtitle [33m||[39m [33m![39moptions[33m.[39mbody) {
+    [90m 33| [39m        [35mthrow[39m [35mnew[39m [33mError[39m([32m'Title and body are required'[39m)[33m;[39m
+    [90m   | [39m              [31m^[39m
+    [90m 34| [39m      }
+    [90m 35| [39m
+[90m [2m❯[22m test/unit/main/notifications.test.js:[2m115:27[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m145:11[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m915:26[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m1240:20[22m[39m
+[90m [2m❯[22m runWithTimeout node_modules/@vitest/runner/dist/index.js:[2m1206:10[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m1650:37[22m[39m
+[90m [2m❯[22m Traces.$ node_modules/vitest/dist/chunks/traces.U4xDYhzZ.js:[2m115:27[22m[39m
+[90m [2m❯[22m trace node_modules/vitest/dist/chunks/test.BT8LKgU9.js:[2m239:21[22m[39m
+
+[31mThis error originated in "[1mtest/unit/main/notifications.test.js[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+
+[31m⎯⎯⎯⎯[39m[1m[41m Unhandled Rejection [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mError[22m: Title and body are required[39m
+[36m [2m❯[22m NotificationManager.showNotification src/main/notifications.js:[2m33:15[22m[39m
+    [90m 31| [39m      [90m// Validate options[39m
+    [90m 32| [39m      [35mif[39m ([33m![39moptions[33m.[39mtitle [33m||[39m [33m![39moptions[33m.[39mbody) {
+    [90m 33| [39m        [35mthrow[39m [35mnew[39m [33mError[39m([32m'Title and body are required'[39m)[33m;[39m
+    [90m   | [39m              [31m^[39m
+    [90m 34| [39m      }
+    [90m 35| [39m
+[90m [2m❯[22m test/unit/main/notifications.test.js:[2m115:27[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m145:11[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m915:26[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m1240:20[22m[39m
+[90m [2m❯[22m runWithTimeout node_modules/@vitest/runner/dist/index.js:[2m1206:10[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m1650:37[22m[39m
+[90m [2m❯[22m Traces.$ node_modules/vitest/dist/chunks/traces.U4xDYhzZ.js:[2m115:27[22m[39m
+[90m [2m❯[22m trace node_modules/vitest/dist/chunks/test.BT8LKgU9.js:[2m239:21[22m[39m
+
+[31mThis error originated in "[1mtest/unit/main/notifications.test.js[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+
+[31m⎯⎯⎯⎯[39m[1m[41m Unhandled Rejection [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mError[22m: Title and body are required[39m
+[36m [2m❯[22m NotificationManager.showNotification src/main/notifications.js:[2m33:15[22m[39m
+    [90m 31| [39m      [90m// Validate options[39m
+    [90m 32| [39m      [35mif[39m ([33m![39moptions[33m.[39mtitle [33m||[39m [33m![39moptions[33m.[39mbody) {
+    [90m 33| [39m        [35mthrow[39m [35mnew[39m [33mError[39m([32m'Title and body are required'[39m)[33m;[39m
+    [90m   | [39m              [31m^[39m
+    [90m 34| [39m      }
+    [90m 35| [39m
+[90m [2m❯[22m test/unit/main/notifications.test.js:[2m119:40[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m145:11[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m915:26[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m1240:20[22m[39m
+[90m [2m❯[22m runWithTimeout node_modules/@vitest/runner/dist/index.js:[2m1206:10[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m1650:37[22m[39m
+[90m [2m❯[22m Traces.$ node_modules/vitest/dist/chunks/traces.U4xDYhzZ.js:[2m115:27[22m[39m
+[90m [2m❯[22m trace node_modules/vitest/dist/chunks/test.BT8LKgU9.js:[2m239:21[22m[39m
+
+[31mThis error originated in "[1mtest/unit/main/notifications.test.js[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+
+[31m⎯⎯⎯⎯[39m[1m[41m Unhandled Rejection [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mError[22m: Title and body are required[39m
+[36m [2m❯[22m NotificationManager.showNotification src/main/notifications.js:[2m33:15[22m[39m
+    [90m 31| [39m      [90m// Validate options[39m
+    [90m 32| [39m      [35mif[39m ([33m![39moptions[33m.[39mtitle [33m||[39m [33m![39moptions[33m.[39mbody) {
+    [90m 33| [39m        [35mthrow[39m [35mnew[39m [33mError[39m([32m'Title and body are required'[39m)[33m;[39m
+    [90m   | [39m              [31m^[39m
+    [90m 34| [39m      }
+    [90m 35| [39m
+[90m [2m❯[22m test/unit/main/notifications.test.js:[2m130:25[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m145:11[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m915:26[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m1240:20[22m[39m
+[90m [2m❯[22m runWithTimeout node_modules/@vitest/runner/dist/index.js:[2m1206:10[22m[39m
+[90m [2m❯[22m node_modules/@vitest/runner/dist/index.js:[2m1650:37[22m[39m
+[90m [2m❯[22m Traces.$ node_modules/vitest/dist/chunks/traces.U4xDYhzZ.js:[2m115:27[22m[39m
+[90m [2m❯[22m trace node_modules/vitest/dist/chunks/test.BT8LKgU9.js:[2m239:21[22m[39m
+
+[31mThis error originated in "[1mtest/unit/main/notifications.test.js[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+[31m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m4 failed[39m[22m[2m | [22m[1m[32m2 passed[39m[22m[90m (6)[39m
+[2m     Errors [22m [1m[31m15 errors[39m[22m
+[2m   Start at [22m 16:02:34
+[2m   Duration [22m 170ms[2m (transform 39ms, setup 31ms, import 23ms, tests 7ms, environment 0ms)[22m
+
