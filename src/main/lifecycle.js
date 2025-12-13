@@ -160,11 +160,13 @@ export class LifecycleManager {
           onClick: () => {
             const mainWindow = windowManager.getWindowByType('main');
             if (mainWindow && !mainWindow.isDestroyed()) {
-              if (mainWindow.isVisible()) {
-                mainWindow.hide();
-              } else {
-                windowManager.focusWindow(mainWindow.id);
+              if (!mainWindow.isVisible()) {
+                mainWindow.show();
               }
+              if (mainWindow.isMinimized()) {
+                mainWindow.restore();
+              }
+              windowManager.focusWindow(mainWindow.id);
             }
           },
         });
