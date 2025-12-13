@@ -265,11 +265,11 @@
 
 ### 20. Integration Testing
 
-- [ ] Test tray icon + tray menu interaction
-- [ ] Test global shortcuts + window management
+- [x] Test tray icon + tray menu interaction
+- [x] Test global shortcuts + window management
 - [ ] Test progress indicator during real operations
 - [ ] Test recent documents + file operations
-- [ ] Test deep links + window navigation
+- [x] Test deep links + window navigation
 - [ ] Test notifications + action handlers
 - [ ] Test all features with single instance lock
 - [ ] Test graceful degradation when features not supported
