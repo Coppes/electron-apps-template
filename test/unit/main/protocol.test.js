@@ -72,12 +72,11 @@ describe('LifecycleManager Protocol Handling', () => {
     vi.clearAllMocks();
     lifecycleManager = new LifecycleManager();
 
+    // Updated mock matching lifecycle.js expectation (BrowserWindow instance)
     mockWindow = {
       id: 1,
-      window: {
-        webContents: {
-          send: vi.fn()
-        }
+      webContents: {
+        send: vi.fn()
       }
     };
 
@@ -90,7 +89,7 @@ describe('LifecycleManager Protocol Handling', () => {
       lifecycleManager.handleDeepLink(url);
 
       expect(windowManager.getWindowByType).toHaveBeenCalledWith('main');
-      expect(mockWindow.window.webContents.send).toHaveBeenCalledWith('deep-link:received', expect.objectContaining({
+      expect(mockWindow.webContents.send).toHaveBeenCalledWith('deep-link:received', expect.objectContaining({
         protocol: 'electronapp',
         host: 'settings',
         path: '',
@@ -102,7 +101,7 @@ describe('LifecycleManager Protocol Handling', () => {
       const url = 'electronapp://open?file=doc.txt&mode=read';
       lifecycleManager.handleDeepLink(url);
 
-      expect(mockWindow.window.webContents.send).toHaveBeenCalledWith('deep-link:received', expect.objectContaining({
+      expect(mockWindow.webContents.send).toHaveBeenCalledWith('deep-link:received', expect.objectContaining({
         host: 'open',
         params: { file: 'doc.txt', mode: 'read' }
       }));
@@ -112,7 +111,7 @@ describe('LifecycleManager Protocol Handling', () => {
       const url = 'electronapp://view/12345';
       lifecycleManager.handleDeepLink(url);
 
-      expect(mockWindow.window.webContents.send).toHaveBeenCalledWith('deep-link:received', expect.objectContaining({
+      expect(mockWindow.webContents.send).toHaveBeenCalledWith('deep-link:received', expect.objectContaining({
         host: 'view',
         path: '/12345',
         pathParams: { id: '12345' }
@@ -123,7 +122,7 @@ describe('LifecycleManager Protocol Handling', () => {
       const url = 'electronapp://settings/security';
       lifecycleManager.handleDeepLink(url);
 
-      expect(mockWindow.window.webContents.send).toHaveBeenCalledWith('deep-link:received', expect.objectContaining({
+      expect(mockWindow.webContents.send).toHaveBeenCalledWith('deep-link:received', expect.objectContaining({
         host: 'settings',
         pathParams: { section: 'security' }
       }));

@@ -466,7 +466,7 @@ export class LifecycleManager {
         windowManager.focusWindow(mainWindow.id);
 
         // Send deep link data to renderer
-        mainWindow.window.webContents.send('deep-link:received', deepLinkData);
+        mainWindow.webContents.send('deep-link:received', deepLinkData);
       }
     } catch (error) {
       logger.error('Failed to parse deep link', { url, error: error.message });

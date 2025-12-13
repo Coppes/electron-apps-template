@@ -407,7 +407,66 @@ const queue = await window.electronAPI.sync.getQueueStatus();
 
 See [Data Management Documentation](docs/DATA_MANAGEMENT.md) for complete API reference.
 
-## �📦 Building & Distribution
+## 🖥 OS Integration
+
+The template creates a seamless native experience with deep OS integration features.
+
+### System Tray
+Manages system tray icon, context menu, and behavior.
+```javascript
+// Show/Hide tray
+await window.electronAPI.tray.show();
+
+// Update tray icon
+await window.electronAPI.tray.setIcon(iconPath);
+
+// Set tooltip
+await window.electronAPI.tray.setTooltip('My App');
+```
+
+### Native Notifications
+Send system-level notifications with rate limiting and history.
+```javascript
+await window.electronAPI.notifications.show({
+  title: 'Task Complete',
+  body: 'Your export has finished successfully.',
+  silent: false
+});
+```
+
+### Global Shortcuts
+Register system-wide keyboard shortcuts.
+```javascript
+const success = await window.electronAPI.shortcuts.register('CommandOrControl+Shift+Z', () => {
+    console.log('Global shortcut triggered!');
+});
+```
+
+### Progress Indicator
+Show progress on the dock/taskbar icon.
+```javascript
+// Set progress (0 to 1)
+await window.electronAPI.progress.setValue(0.5);
+
+// Indeterminate mode
+await window.electronAPI.progress.setIndeterminate();
+
+// Clear progress
+await window.electronAPI.progress.clear();
+```
+
+### Deep Linking
+Handle custom protocols (e.g., `electronapp://settings`) to open specific app states.
+The app automatically handles `electronapp://` URLs and routes them to the renderer.
+
+### Recent Documents
+Manage the "Open Recent" menu in the OS.
+```javascript
+await window.electronAPI.recentDocs.add('/path/to/file.txt');
+await window.electronAPI.recentDocs.clear();
+```
+
+## 📦 Building & Distribution
 
 The template uses Electron Forge with makers for multiple platforms:
 

@@ -297,7 +297,7 @@
 
 ### 23. Unit Tests
 
-- [ ] Create unit tests for URL parsing and validation
+- [x] Create unit tests for URL parsing and validation
 - [x] Create unit tests for shortcut validation
 - [x] Create unit tests for progress value validation
 - [x] Create unit tests for notification builder
@@ -325,7 +325,7 @@
 - [x] Document notification behavior and permissions
 - [ ] Add screenshots for each OS integration feature
 - [ ] Create troubleshooting guide for common issues
-- [ ] Update main README.md with OS integration overview
+- [x] Update main README.md with OS integration overview
 
 ### 26. Developer Documentation
 
