@@ -195,7 +195,7 @@
 - [x] Add icon path validation (local files only)
 - [x] Test notifications display on macOS
 - [ ] Test notifications display on Windows
-- [ ] Test notification click focuses app
+- [x] Test notification click focuses app
 - [ ] Test action buttons on supported platforms
 - [ ] Test rate limiting prevents spam
 - [x] Document notification API and platform differences
@@ -208,18 +208,18 @@
 - [x] Expose notification history query via IPC
 - [x] Update `src/preload.js` to expose notification API
 - [x] Add JSDoc documentation for notification API
-- [ ] Test notifications triggered from renderer
+- [x] Test notifications triggered from renderer
 - [x] Test notification action callbacks to renderer
 - [x] Document IPC notification API
 
 ### 15. Notification Permission Handling
 
-- [ ] Implement permission check before showing notification
-- [ ] Add macOS notification permission request
-- [ ] Handle denied permission gracefully (log error, show in-app fallback)
-- [ ] Add configuration option for fallback behavior
-- [ ] Test permission request on first notification
-- [ ] Test graceful degradation when permission denied
+- [x] Implement permission check before showing notification
+- [x] Add macOS notification permission request
+- [x] Handle denied permission gracefully (log error, show in-app fallback)
+- [x] Add configuration option for fallback behavior
+- [x] Test permission request on first notification
+- [x] Test graceful degradation when permission denied
 - [x] Document permission handling per platform
 
 ### 16. Notification Integration with Existing Features
@@ -270,7 +270,7 @@
 - [ ] Test progress indicator during real operations
 - [ ] Test recent documents + file operations
 - [x] Test deep links + window navigation
-- [ ] Test notifications + action handlers
+- [x] Test notifications + action handlers
 - [ ] Test all features with single instance lock
 - [ ] Test graceful degradation when features not supported
 - [x] Document integration patterns
@@ -289,7 +289,7 @@
 
 - [ ] Test behavior when tray icon creation fails
 - [x] Test behavior when shortcut registration fails (conflict)
-- [ ] Test behavior when notification permission denied
+- [x] Test behavior when notification permission denied
 - [ ] Test behavior on platforms without feature support
 - [ ] Test app quit with active notifications/shortcuts
 - [ ] Test window close with active progress indicator

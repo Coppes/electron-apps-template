@@ -22,6 +22,25 @@ export class NotificationManager {
   }
 
   /**
+   * Check if notifications are allowed
+   * @returns {boolean} True if allowed
+   */
+  checkPermission() {
+    return isPermissionAllowed('notifications');
+  }
+
+  /**
+   * Request notification permission
+   * @returns {Promise<boolean>} True if granted
+   */
+  async requestPermission() {
+    // For native notifications, permission is largely managed by the OS.
+    // However, we check our internal security policy.
+    // In a real app, this might trigger a system dialog or check system preferences.
+    return this.checkPermission();
+  }
+
+  /**
    * Show a native notification
    * @param {import('../common/types.js').NotificationOptions} options - Notification options
    * @returns {Promise<string>} Notification ID

@@ -749,6 +749,20 @@ const notificationsAPI = {
     ipcRenderer.invoke(IPC_CHANNELS.NOTIFICATION_GET_HISTORY, { limit }).then(r => r.history),
 
   /**
+   * Check if notifications are allowed
+   * @returns {Promise<boolean>} True if allowed
+   */
+  checkPermission: () =>
+    ipcRenderer.invoke(IPC_CHANNELS.NOTIFICATION_CHECK_PERMISSION, {}).then(r => r.allowed),
+
+  /**
+   * Request notification permission
+   * @returns {Promise<boolean>} True if granted
+   */
+  requestPermission: () =>
+    ipcRenderer.invoke(IPC_CHANNELS.NOTIFICATION_REQUEST_PERMISSION, {}).then(r => r.granted),
+
+  /**
    * Listen for notification clicks
    * @param {Function} callback - Callback function
    * @returns {Function} Cleanup function

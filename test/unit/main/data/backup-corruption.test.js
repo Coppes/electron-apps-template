@@ -48,15 +48,44 @@ vi.mock('electron-store', () => {
   };
 });
 
+// Mock fs/promises
+vi.mock('fs/promises', () => ({
+  default: {
+    mkdir: vi.fn(),
+    readdir: vi.fn().mockResolvedValue([]),
+    // By default, stat returns a file
+    stat: vi.fn().mockResolvedValue({ isFile: () => true, size: 1024, mtime: new Date() }),
+    access: vi.fn().mockResolvedValue(undefined),
+    rm: vi.fn(),
+    readFile: vi.fn().mockImplementation(async (filePath) => {
+      const pathStr = filePath.toString();
+      if (pathStr.includes('manifest.json')) {
+        return JSON.stringify({
+          version: '1.0.0',
+          includes: ['electron-store'],
+          checksum: 'mock-checksum'
+        });
+      }
+      if (pathStr.includes('config.json')) {
+        return JSON.stringify({ some: 'data' });
+      }
+      return '{}';
+    }),
+    writeFile: vi.fn(),
+  }
+}));
+
+// Mock logger
 vi.mock('../../../../src/main/logger', () => ({
   logger: {
     info: vi.fn(),
     error: vi.fn(),
     warn: vi.fn(),
+    debug: vi.fn(),
   },
 }));
 
-// Mocksecure store
+// Mock secure store
 vi.mock('../../../../src/main/ipc/handlers/secure-store', () => ({
   default: {
     has: vi.fn().mockResolvedValue(false),
@@ -68,38 +97,33 @@ vi.mock('../../../../src/main/ipc/handlers/secure-store', () => ({
 describe('Backup Manager - Corruption Handling', () => {
   let backupManager;
   const mockUserDataPath = '/mock/user/data';
-  const mockBackupPath = '/mock/backups';
 
   beforeEach(async () => {
-    vi.resetAllMocks();
-    mockExtractAllTo.mockClear();
-    mockAdmZipConstructor.mockClear();
+    vi.clearAllMocks();
 
-    // Setup paths
-    app.getPath.mockImplementation((name) => {
-      if (name === 'userData') return mockUserDataPath;
-      if (name === 'temp') return '/mock/temp';
-      return '';
-    });
-
-    // Mock fs
-    vi.spyOn(fs, 'mkdir').mockResolvedValue(undefined);
-    vi.spyOn(fs, 'readdir').mockResolvedValue([]);
-    vi.spyOn(fs, 'stat').mockResolvedValue({ isFile: () => true, size: 1024, mtime: new Date() });
-    vi.spyOn(fs, 'access').mockResolvedValue(undefined); // File exists
-    vi.spyOn(fs, 'rm').mockResolvedValue(undefined);
-    vi.spyOn(fs, 'readFile').mockImplementation(async (path) => {
-      // Default valid manifest
-      if (path.toString().endsWith('manifest.json')) {
+    // Reset defaults
+    fs.readFile.mockImplementation(async (filePath) => {
+      const pathStr = filePath.toString();
+      if (pathStr.includes('manifest.json')) {
         return JSON.stringify({
           version: '1.0.0',
           includes: ['electron-store'],
           checksum: 'mock-checksum'
         });
       }
-      if (path.toString().endsWith('config.json')) {
+      if (pathStr.includes('config.json')) {
         return JSON.stringify({ some: 'data' });
       }
+      return '{}';
+    });
+
+    // Reset other mocks if changed in tests
+    // ...
+
+    // Setup paths
+    app.getPath.mockImplementation((name) => {
+      if (name === 'userData') return mockUserDataPath;
+      if (name === 'temp') return '/mock/temp';
       return '';
     });
 

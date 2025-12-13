@@ -49,6 +49,16 @@ export function createNotificationHandlers() {
       const history = notificationManager.getHistory(limitNum);
       return { history };
     },
+
+    [IPC_CHANNELS.NOTIFICATION_CHECK_PERMISSION]: async () => {
+      const allowed = notificationManager.checkPermission();
+      return { allowed };
+    },
+
+    [IPC_CHANNELS.NOTIFICATION_REQUEST_PERMISSION]: async () => {
+      const granted = await notificationManager.requestPermission();
+      return { granted };
+    },
   };
 }
 

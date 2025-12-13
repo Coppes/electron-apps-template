@@ -193,4 +193,19 @@ describe('NotificationManager', () => {
       action: { type: 'button', text: 'Reply' }
     }));
   });
+
+  it('should check permission status', async () => {
+    const { isPermissionAllowed } = await import('../../../src/main/security/permissions.js');
+    isPermissionAllowed.mockReturnValue(true);
+    expect(notificationManager.checkPermission()).toBe(true);
+
+    isPermissionAllowed.mockReturnValue(false);
+    expect(notificationManager.checkPermission()).toBe(false);
+  });
+
+  it('should request permission', async () => {
+    const { isPermissionAllowed } = await import('../../../src/main/security/permissions.js');
+    isPermissionAllowed.mockReturnValue(true);
+    expect(await notificationManager.requestPermission()).toBe(true);
+  });
 });

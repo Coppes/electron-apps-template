@@ -118,7 +118,9 @@ export const IPC_CHANNELS = {
   NOTIFICATION_GET_HISTORY: 'notification:get-history',
   NOTIFICATION_CLICKED: 'notification:clicked',
   NOTIFICATION_ACTION_CLICKED: 'notification:action-clicked',
-  NOTIFICATION_CLOSED: 'notification:closed',
+  NOTIFICATION_ACTIONS: 'notification:actions',
+  NOTIFICATION_CHECK_PERMISSION: 'notification:check-permission',
+  NOTIFICATION_REQUEST_PERMISSION: 'notification:request-permission',
 
   // i18n
   I18N_SET_LANGUAGE: 'i18n:set-language',

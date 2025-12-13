@@ -632,6 +632,22 @@ export const notificationSchema = {
       error: { type: 'string', required: false },
     },
   },
+
+  [IPC_CHANNELS.NOTIFICATION_CHECK_PERMISSION]: {
+    input: {},
+    output: {
+      allowed: { type: 'boolean', required: true },
+      error: { type: 'string', required: false },
+    },
+  },
+
+  [IPC_CHANNELS.NOTIFICATION_REQUEST_PERMISSION]: {
+    input: {},
+    output: {
+      granted: { type: 'boolean', required: true },
+      error: { type: 'string', required: false },
+    },
+  },
 };
 
 /**
