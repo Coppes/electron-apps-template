@@ -319,12 +319,12 @@
 
 ### 25. User Documentation
 
-- [ ] Create user guide for tray icon and menu
-- [ ] Document available global shortcuts
+- [x] Create user guide for tray icon and menu
+- [x] Document available global shortcuts
 - [x] Document deep link URL patterns
 - [x] Document notification behavior and permissions
 - [ ] Add screenshots for each OS integration feature
-- [ ] Create troubleshooting guide for common issues
+- [x] Create troubleshooting guide for common issues
 - [x] Update main README.md with OS integration overview
 
 ### 26. Developer Documentation

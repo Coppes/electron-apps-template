@@ -1,12 +1,12 @@
 # Electron + React Template Boilerplate
 
-A secure, scalable, and modern boilerplate template for creating desktop applications with Electron and React.
-
-## 🎯 Features
-
-- ✅ **Security First**
-  - Context Isolation enabled
-  - Node Integration disabled
+A secure, scalable, and modern boilerplate template for creating desktop applications- 💾 **Data Management**: Automated backups, file watching, and secure storage
+- 🖥️ **Advanced OS Integration**: 
+  - **System Tray**: Persistent icon with context menu and notifications
+  - **Global Shortcuts**: Customizable keyboard shortcuts (e.g., `Cmd+Shift+K`)
+  - **Deep Linking**: Handle `electronapp://` URLs with routing
+  - **Native Notifications**: Rich system notifications with actions
+- 🔒 **Security-First**: strict CSP, context isolation, and secure IPC patterns Integration disabled
   - Sandbox activated
   - Robust preload script with contextBridge
   - Content Security Policy (CSP) configured
