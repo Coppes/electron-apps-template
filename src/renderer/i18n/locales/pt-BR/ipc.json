@@ -1,0 +1,85 @@
+{
+  "title": "Demo de Comunicação IPC",
+  "description": "Explore todas as APIs IPC disponíveis e seus padrões de uso",
+  "architecture": {
+    "title": "Arquitetura IPC",
+    "intro": "Toda comunicação entre renderer e processo principal segue estes princípios de segurança:",
+    "exposed": "Todas as APIs expostas através do window.electronAPI",
+    "validation": "Validação de entrada em ambos os processos",
+    "error_handling": "Tratamento de erros com mensagens sanitizadas",
+    "no_node": "Sem acesso direto ao Node.js no processo renderer",
+    "context": "Isolamento de contexto ativado para segurança"
+  },
+  "security": {
+    "title": "Melhores Práticas de Segurança",
+    "no_exec": "Nunca exponha módulos inteiros ou execução de código arbitrária",
+    "validate": "Sempre valide e sanitize as entradas",
+    "allow_lists": "Use listas de permissão explícitas para caminhos de arquivo e operações",
+    "errors": "Implemente tratamento de erros adequado",
+    "logging": "Registre todas as operações relevantes para segurança"
+  },
+  "demo": {
+    "sections": {
+      "app": "APIs do App",
+      "window": "APIs de Janela",
+      "dialog": "APIs de Diálogo",
+      "storage": "APIs de Armazenamento",
+      "data": "APIs de Dados"
+    },
+    "result": {
+      "title": "Resultado: {{desc}}",
+      "loading": "Chamando {{desc}}...",
+      "error": "Erro: {{error}}"
+    },
+    "app": {
+      "title": "APIs do App",
+      "description": "Informações e controles em nível de aplicativo",
+      "get_version": "Obter Versão do App",
+      "get_path": "Obter Caminho de Dados do Usuário",
+      "get_platform": "Obter Plataforma",
+      "is_packaged": "Verificar se está Empacotado"
+    },
+    "window": {
+      "title": "APIs de Janela",
+      "description": "Gerenciamento e controles de janela",
+      "minimize": "Minimizar Janela",
+      "toggle_max": "Alternar Maximizar",
+      "get_bounds": "Obter Limites da Janela",
+      "get_display": "Obter Info da Tela",
+      "msg_minimized": "Janela minimizada",
+      "msg_maximized": "Janela maximizada/restaurada"
+    },
+    "dialog": {
+      "title": "APIs de Diálogo",
+      "description": "Diálogos do sistema para seleção de arquivos e pastas",
+      "open_file": "Abrir Diálogo de Arquivo",
+      "open_folder": "Abrir Diálogo de Pasta",
+      "save_file": "Salvar Diálogo de Arquivo",
+      "select_file": "Selecione um arquivo",
+      "select_folder": "Selecione uma pasta",
+      "save_file_title": "Salvar arquivo"
+    },
+    "storage": {
+      "title": "APIs de Armazenamento",
+      "description": "Operações de armazenamento seguro",
+      "key_placeholder": "Chave",
+      "value_placeholder": "Valor",
+      "set_val": "Definir Valor",
+      "get_val": "Obter Valor",
+      "del_val": "Excluir Valor",
+      "check_exists": "Verificar se Existe",
+      "action_set": "Definir '{{key}}'",
+      "action_get": "Obter '{{key}}'",
+      "action_del": "Excluir '{{key}}'",
+      "action_has": "Existe '{{key}}'"
+    },
+    "data": {
+      "title": "APIs de Dados",
+      "description": "Operações de gerenciamento de dados",
+      "list_backups": "Listar Backups",
+      "create_backup": "Criar Backup",
+      "validate_backup": "Validar Backup",
+      "action_validate": "Validar Último Backup"
+    }
+  }
+}

@@ -23,15 +23,31 @@
     "has_items": "Com itens",
     "empty": "Vazia"
   },
-  "shortcuts": {
-    "title": "Atalhos de Teclado",
-    "description": "Visualize e personalize atalhos de teclado."
+  "about": {
+    "title": "Sobre"
+  },
+  "loading": "Carregando configurações...",
+  "import": "Importar Configurações",
+  "export": "Exportar Configurações",
+  "messages": {
+    "export_success": "✓ Exportado para {{path}}",
+    "export_fail": "✗ Exportação falhou: {{error}}",
+    "export_error": "✗ Erro na exportação: {{error}}",
+    "import_success": "✓ Configurações importadas com sucesso",
+    "import_fail": "⚠ Nenhuma configuração válida encontrada",
+    "import_error": "✗ Importação falhou: {{error}}"
   },
   "system": {
     "title": "Sistema",
-    "description": "Configurações do sistema."
+    "description": "Configurações do sistema.",
+    "notifications": "Notificações",
+    "notifications_desc": "Habilitar notificações na área de trabalho",
+    "autostart": "Iniciar Automaticamente",
+    "autostart_desc": "Iniciar junto com o sistema"
   },
-  "about": {
-    "title": "Sobre"
+  "shortcuts": {
+    "title": "Atalhos de Teclado",
+    "description": "Visualize e personalize atalhos de teclado.",
+    "view": "Ver Atalhos"
   }
 }

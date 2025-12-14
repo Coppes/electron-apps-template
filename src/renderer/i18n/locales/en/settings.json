@@ -23,15 +23,31 @@
     "has_items": "Has items",
     "empty": "Empty"
   },
-  "shortcuts": {
-    "title": "Keyboard Shortcuts",
-    "description": "View and customize keyboard shortcuts."
+  "about": {
+    "title": "About"
+  },
+  "loading": "Loading settings...",
+  "import": "Import Settings",
+  "export": "Export Settings",
+  "messages": {
+    "export_success": "✓ Exported to {{path}}",
+    "export_fail": "✗ Export failed: {{error}}",
+    "export_error": "✗ Export error: {{error}}",
+    "import_success": "✓ Settings imported successfully",
+    "import_fail": "⚠ No valid settings found in file",
+    "import_error": "✗ Import failed: {{error}}"
   },
   "system": {
     "title": "System",
-    "description": "System configurations."
+    "description": "System configurations.",
+    "notifications": "Notifications",
+    "notifications_desc": "Enable desktop notifications",
+    "autostart": "Auto Start",
+    "autostart_desc": "Launch on system startup"
   },
-  "about": {
-    "title": "About"
+  "shortcuts": {
+    "title": "Keyboard Shortcuts",
+    "description": "View and customize keyboard shortcuts.",
+    "view": "View Shortcuts"
   }
 }

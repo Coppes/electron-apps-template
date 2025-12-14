@@ -40,85 +40,294 @@
       "sync_queue": "Sync Queue",
       "settings": "Settings",
       "about": "About",
-      "test_playground": "Test Playground"
+      "test_playground": "Test Playground",
+      "ui_playground": "UI Playground"
     }
   },
-  "home": {
-    "title": "Welcome to Electron Apps Template",
-    "subtitle": "A secure, scalable, and modern boilerplate for desktop applications",
-    "cards": {
-      "security": {
-        "title": "Security First",
-        "description": "Built with best practices in mind",
-        "features": {
-          "context": "Context isolation enabled",
-          "node": "Node integration disabled in renderer",
-          "ipc": "Secure IPC via contextBridge",
-          "csp": "Content Security Policy configured"
-        }
-      },
-      "stack": {
-        "title": "Modern Stack",
-        "description": "Latest tools and technologies",
-        "features": {
-          "electron": "Electron latest",
-          "react": "React 18 with hooks",
-          "tailwind": "Tailwind CSS for styling",
-          "shadcn": "shadcn/ui component library"
-        }
-      },
-      "ui": {
-        "title": "Beautiful UI",
-        "description": "Pre-configured components ready to use",
-        "features": {
-          "layout": "Resizable sidebar layout",
-          "pages": "Multiple page templates",
-          "forms": "Form components (Input, Select, Switch)",
-          "components": "Cards, Buttons, and more"
-        }
-      },
-      "storage": {
-        "title": "Persistent Storage",
-        "description": "Save user preferences easily",
-        "features": {
-          "store": "electron-store integration",
-          "settings": "Settings persistence",
-          "cross": "Cross-platform storage",
-          "api": "Simple key-value API"
-        }
-      },
-      "start": {
-        "title": "Getting Started",
-        "description": "Explore the template features",
-        "text": "Navigate through the sidebar to explore different sections:",
-        "demo": {
-          "title": "Demo",
-          "description": "Try the native file opener and see IPC in action"
-        },
-        "settings": {
-          "title": "Settings",
-          "description": "Configure preferences with persistent storage"
-        },
-        "about": {
-          "title": "About",
-          "description": "View version info and system details"
-        }
-      }
+  "secure_storage": {
+    "title": "Secure Storage Demo",
+    "description": "Explore encrypted storage capabilities and key management",
+    "encryption_details": {
+      "title": "Encryption Details",
+      "intro": "The secure storage system uses industry-standard encryption:",
+      "aes": "AES-256-GCM encryption for data at rest",
+      "pbkdf2": "PBKDF2 key derivation with configurable iterations",
+      "salt": "Unique salt and IV for each encrypted value",
+      "keychain": "Secure key storage using OS keychain (keytar)",
+      "timing": "Protection against timing attacks"
     },
-    "ready": {
-      "title": "Ready to Build?",
-      "text": "This template is ready for development. Start customizing components, add your features, and build amazing desktop applications.",
-      "docs": "View Documentation",
-      "github": "GitHub Repository"
+    "best_practices": {
+      "title": "Key Management Best Practices",
+      "no_plain": "Never store encryption keys in plain text",
+      "strong_pass": "Use strong, randomly generated passwords",
+      "rotation": "Implement key rotation for sensitive data",
+      "backup": "Back up encryption keys securely",
+      "separation": "Use separate keys for different data types"
+    },
+    "migration": {
+      "title": "Migration Example"
+    },
+    "demo": {
+      "unavailable": "Encrypted storage is not available on this platform",
+      "requirements": "Encryption requires:",
+      "description": "This demo shows how to securely store sensitive data like API keys, tokens, and credentials using OS-level encryption.",
+      "key_label": "Key:",
+      "key_placeholder": "e.g., apiKey, authToken",
+      "value_label": "Value (sensitive data):",
+      "value_placeholder": "Enter sensitive value to store",
+      "store": "Store",
+      "retrieve": "Retrieve",
+      "check": "Check Exists",
+      "delete": "Delete",
+      "retrieved": "Retrieved Value:",
+      "security_notes": "Security Notes:",
+      "note_encryption": "Data is encrypted using OS-level encryption (Keychain/DPAPI/libsecret)",
+      "note_management": "Encryption keys are managed by the operating system",
+      "note_logs": "Values are never logged or exposed in production",
+      "note_use_cases": "Use for: API keys, auth tokens, credentials, secrets",
+      "note_limitations": "Don't use for: Large files, frequently accessed data, non-sensitive data",
+      "messages": {
+        "enter_both": "Please enter both key and value",
+        "stored": "Successfully stored \"{{key}}\"",
+        "store_error": "Error storing: {{error}}",
+        "enter_key": "Please enter a key",
+        "retrieved_success": "Retrieved value for \"{{key}}\"",
+        "not_found": "No value found for \"{{key}}\"",
+        "retrieve_error": "Error retrieving: {{error}}",
+        "deleted": "Deleted \"{{key}}\"",
+        "delete_error": "Error deleting: {{error}}",
+        "exists": "\"{{key}}\" exists",
+        "not_exists": "\"{{key}}\" does not exist",
+        "check_error": "Error checking: {{error}}",
+        "avail_warning": "Encrypted storage is not available on this platform",
+        "avail_error": "Error checking availability: {{error}}"
+      }
+    }
+  },
+  "app": {
+    "name": "Electron App",
+    "subtitle": "Start Hub"
+  },
+  "home": {
+    "drop_title": "Drop files to open",
+    "drop_desc": "Drag and drop files here to import data or open projects.",
+    "open_file": "Open File...",
+    "recent_activity": "Recent Activity",
+    "just_now": "Just now",
+    "backups": "Backups",
+    "docs": "Docs"
+  },
+  "about": {
+    "title": "About",
+    "subtitle": "Application and system information",
+    "template_title": "Electron Apps Template",
+    "template_desc": "A secure, scalable, and modern boilerplate template for desktop applications",
+    "loading": "Loading version information...",
+    "error": "Unable to load version information",
+    "app_version": "App Version",
+    "features": {
+      "title": "Features",
+      "description": "What makes this template special",
+      "ipc": "Secure IPC communication via contextBridge",
+      "context": "Context isolation and Node.js integration disabled",
+      "react": "Modern React with hooks",
+      "ui": "Tailwind CSS and shadcn/ui components",
+      "settings": "Persistent settings with electron-store",
+      "dialog": "Native file dialog integration",
+      "layout": "Resizable sidebar layout"
+    },
+    "license": {
+      "title": "License",
+      "text": "This template is open source and available under the ISC License."
+    }
+  },
+  "shortcuts": {
+    "title": "Keyboard Shortcuts",
+    "subtitle": "Customize your keyboard shortcuts",
+    "reset": "Reset to Defaults",
+    "press_keys": "Press keys...",
+    "invalid": "Invalid shortcut. Click to retry.",
+    "record_tooltip": "Click to record new shortcut",
+    "cancel": "Cancel",
+    "no_shortcuts": "No shortcuts registered."
+  },
+  "test_playground": {
+    "title": "Test Playground",
+    "description": "Ad-hoc testing and experimentation area",
+    "tabs": {
+      "quick": "⚡ Quick Test",
+      "api": "🔌 API Test",
+      "console": "📟 Console"
+    },
+    "quick": {
+      "title": "Quick Test",
+      "description": "Run quick tests with simple input",
+      "placeholder": "Enter test input (try 'version' or 'storage:key')",
+      "test_btn": "Test",
+      "testing_btn": "Testing...",
+      "clear_btn": "Clear Results"
+    },
+    "api": {
+      "title": "API Test",
+      "description": "Test specific API endpoints",
+      "hint": "Use the IPC Demo page for comprehensive API testing",
+      "go_ipc": "Go to IPC Demo →"
+    },
+    "console": {
+      "title": "Console Output",
+      "description": "View test results and logs",
+      "no_results": "No results yet"
+    }
+  },
+  "component_test": {
+    "title": "Component Playground",
+    "description": "Test area for UI components and interactions.",
+    "tabs": {
+      "buttons": "Buttons",
+      "inputs": "Inputs",
+      "cards": "Cards"
+    },
+    "buttons": {
+      "title": "Button Variants",
+      "description": "Test different button styles and states",
+      "default": "Default Button",
+      "secondary": "Secondary",
+      "destructive": "Destructive",
+      "outline": "Outline",
+      "ghost": "Ghost",
+      "link": "Link",
+      "small": "Small",
+      "large": "Large",
+      "icon": "icon",
+      "disabled": "Disabled",
+      "disabled_outline": "Disabled Outline"
+    },
+    "inputs": {
+      "title": "Input Components",
+      "description": "Test text inputs and controls",
+      "standard_label": "Standard Input",
+      "placeholder": "Type something...",
+      "value_label": "Value: {{val}}",
+      "disabled_label": "Disabled Input",
+      "disabled_placeholder": "Cannot type here",
+      "error_label": "Input with Error",
+      "error_placeholder": "Error state",
+      "error_msg": "Invalid input value"
+    },
+    "cards": {
+      "simple_title": "Simple Card",
+      "simple_desc": "Basic card with header and content",
+      "simple_content": "This is the content within the card body.",
+      "muted_title": "Muted Card",
+      "muted_desc": "Card with muted background",
+      "muted_content": "Content on a muted background surface."
     }
   },
   "command": {
     "placeholder": "Type a command or search...",
     "no_results": "No results found.",
+    "menu_label": "Global Command Menu",
     "switch_to": "Switch to",
     "close_all_tabs": "Close All Tabs",
     "close_other_tabs": "Close Other Tabs",
     "new_tab": "New Tab",
-    "open_in_new_tab": "Open {{item}} in New Tab"
+    "open_in_new_tab": "Open {{item}} in New Tab",
+    "footer": {
+      "count": "{{count}} commands available",
+      "select": "to select",
+      "execute": "to execute"
+    }
+  },
+  "sidebar": {
+    "open_new_tab": "Open in New Tab",
+    "open_split_view": "Open in Split View",
+    "collapse": "Collapse Sidebar",
+    "expand": "Expand Sidebar"
+  },
+  "notifications": {
+    "file_changed": "⚠️ File Changed: {{file}}"
+  },
+  "window": {
+    "controls": {
+      "minimize": "Minimize",
+      "maximize": "Maximize",
+      "restore": "Restore",
+      "close": "Close"
+    }
+  },
+  "tour": {
+    "back": "Back",
+    "next": "Next",
+    "finish": "Finish",
+    "step_progress": "STEP {{current}} OF {{total}}"
+  },
+  "notifications_demo": {
+    "title": "Native Notifications",
+    "status": "Status",
+    "permission_status": "Permission Status",
+    "check_request": "Check/Request Permission",
+    "unknown": "Unknown",
+    "granted": "Granted",
+    "denied": "Denied",
+    "quick_title": "Quick Notifications",
+    "success": "Success",
+    "success_body": "Operation completed successfully!",
+    "warning": "Warning",
+    "warning_body": "Please review this action",
+    "error": "Error",
+    "error_body": "Something went wrong",
+    "info": "Info",
+    "info_body": "Here is some useful information",
+    "custom_title": "Custom Notification",
+    "input_title": "Title *",
+    "input_title_placeholder": "Notification title",
+    "input_body": "Body",
+    "input_body_placeholder": "Notification body text",
+    "urgency": "Urgency",
+    "low": "Low",
+    "normal": "Normal",
+    "critical": "Critical",
+    "silent": "Silent",
+    "with_actions": "With Actions",
+    "send_btn": "Send Notification",
+    "event_log": "Event Log",
+    "clear_log": "Clear",
+    "no_events": "No events yet...",
+    "instructions_title": "Instructions:",
+    "instruction_1": "Try the quick notification buttons for common use cases",
+    "instruction_2": "Create custom notifications with title, body, and options",
+    "instruction_3": "Click on notifications to see click events logged",
+    "instruction_4": "Enable \"With Actions\" to add buttons (platform support varies)",
+    "instruction_5": "Watch the event log for all notification interactions",
+    "instruction_6": "Rate limiting prevents more than 10 notifications per minute",
+    "platform_support": "Platform Support:",
+    "macos_support": "macOS: Full support including actions and replies",
+    "windows_support": "Windows 10+: Supports actions via Action Center",
+    "linux_support": "Linux: Support varies by desktop environment"
+  },
+  "update": {
+    "available": {
+      "title": "Update Available",
+      "message": "Version {{version}} is available. Would you like to download it now?",
+      "release_notes": "What's new?"
+    },
+    "download": {
+      "title": "Downloading Update",
+      "message": "Downloading version {{version}}...",
+      "hide": "Hide"
+    },
+    "ready": {
+      "title": "Update Ready to Install",
+      "message": "Version {{version}} has been downloaded and is ready to install. The application will restart.",
+      "install": "Install & Restart"
+    },
+    "later": "Later",
+    "download_btn": "Download"
+  },
+  "status": {
+    "ready": "Ready",
+    "online": "Online",
+    "offline": "Offline",
+    "tabs": "{{count}} Tabs"
   }
 }

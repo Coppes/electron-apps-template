@@ -1,5 +1,5 @@
 {
-  "app_name": "App Electron",
+  "app_name": "Electron App",
   "welcome": "Bem-vindo",
   "version": "Versão",
   "status": {
@@ -21,7 +21,7 @@
     "finish": "Concluir"
   },
   "nav": {
-    "title": "App Electron",
+    "title": "Electron App",
     "home": "Início",
     "sections": {
       "demos": "Demos",
@@ -31,94 +31,303 @@
     },
     "items": {
       "legacy_demo": "Demo Legado",
-      "data_mgmt": "Ger. Dados",
+      "data_mgmt": "Gestão de Dados",
       "connectivity": "Conectividade",
       "ipc": "IPC",
-      "secure_storage": "Arm. Seguro",
-      "os_integration": "Int. OS",
+      "secure_storage": "Armazenamento Seguro",
+      "os_integration": "Integração OS",
       "backups": "Backups",
-      "sync_queue": "Fila de Sync",
+      "sync_queue": "Fila de Sincronização",
       "settings": "Configurações",
       "about": "Sobre",
-      "test_playground": "Playground de Teste"
+      "test_playground": "Playground de Teste",
+      "ui_playground": "Playground de UI"
     }
   },
-  "home": {
-    "title": "Bem-vindo ao Electron Apps Template",
-    "subtitle": "Um boilerplate seguro, escalável e moderno para aplicações desktop",
-    "cards": {
-      "security": {
-        "title": "Segurança Primeiro",
-        "description": "Construído com as melhores práticas em mente",
-        "features": {
-          "context": "Isolamento de contexto ativado",
-          "node": "Integração Node desativada no renderer",
-          "ipc": "IPC seguro via contextBridge",
-          "csp": "Política de Segurança de Conteúdo configurada"
-        }
-      },
-      "stack": {
-        "title": "Stack Moderna",
-        "description": "Ferramentas e tecnologias mais recentes",
-        "features": {
-          "electron": "Electron mais recente",
-          "react": "React 18 com hooks",
-          "tailwind": "Tailwind CSS para estilo",
-          "shadcn": "Biblioteca de componentes shadcn/ui"
-        }
-      },
-      "ui": {
-        "title": "UI Bonita",
-        "description": "Componentes pré-configurados prontos para uso",
-        "features": {
-          "layout": "Layout com barra lateral redimensionável",
-          "pages": "Múltiplos modelos de página",
-          "forms": "Componentes de formulário (Input, Select, Switch)",
-          "components": "Cards, Botões e mais"
-        }
-      },
-      "storage": {
-        "title": "Armazenamento Persistente",
-        "description": "Salve preferências do usuário facilmente",
-        "features": {
-          "store": "Integração electron-store",
-          "settings": "Persistência de configurações",
-          "cross": "Armazenamento multiplataforma",
-          "api": "API chave-valor simples"
-        }
-      },
-      "start": {
-        "title": "Começando",
-        "description": "Explore os recursos do modelo",
-        "text": "Navegue pela barra lateral para explorar diferentes seções:",
-        "demo": {
-          "title": "Demo",
-          "description": "Experimente o abridor de arquivos nativo e veja o IPC em ação"
-        },
-        "settings": {
-          "title": "Configurações",
-          "description": "Configure preferências com armazenamento persistente"
-        },
-        "about": {
-          "title": "Sobre",
-          "description": "Veja informações da versão e detalhes do sistema"
-        }
-      }
+  "secure_storage": {
+    "title": "Demo de Armazenamento Seguro",
+    "description": "Explore recursos de armazenamento criptografado e gerenciamento de chaves",
+    "encryption_details": {
+      "title": "Detalhes da Criptografia",
+      "intro": "O sistema de armazenamento seguro usa criptografia padrão da indústria:",
+      "aes": "Criptografia AES-256-GCM para dados em repouso",
+      "pbkdf2": "Derivação de chave PBKDF2 com iterações configuráveis",
+      "salt": "Salt e IV únicos para cada valor criptografado",
+      "keychain": "Armazenamento seguro de chaves usando chaveiro do SO (keytar)",
+      "timing": "Proteção contra ataques de tempo"
     },
-    "ready": {
-      "title": "Pronto para Construir?",
-      "text": "Este modelo está pronto para desenvolvimento. Comece a personalizar componentes, adicione seus recursos e construa aplicações desktop incríveis.",
-      "docs": "Ver Documentação",
-      "github": "Repositório GitHub"
+    "best_practices": {
+      "title": "Melhores Práticas de Gestão de Chaves",
+      "no_plain": "Nunca armazene chaves de criptografia em texto simples",
+      "strong_pass": "Use senhas fortes e geradas aleatoriamente",
+      "rotation": "Implemente rotação de chaves para dados sensíveis",
+      "backup": "Faça backup das chaves de criptografia com segurança",
+      "separation": "Use chaves separadas para diferentes tipos de dados"
+    },
+    "migration": {
+      "title": "Exemplo de Migração"
+    },
+    "demo": {
+      "unavailable": "Armazenamento criptografado não disponível nesta plataforma",
+      "requirements": "Criptografia requer:",
+      "description": "Esta demonstração mostra como armazenar dados sensíveis como chaves de API, tokens e credenciais com segurança usando criptografia no nível do SO.",
+      "key_label": "Chave:",
+      "key_placeholder": "ex: apiKey, authToken",
+      "value_label": "Valor (dado sensível):",
+      "value_placeholder": "Digite o valor sensível para armazenar",
+      "store": "Armazenar",
+      "retrieve": "Recuperar",
+      "check": "Verificar Existência",
+      "delete": "Excluir",
+      "retrieved": "Valor Recuperado:",
+      "security_notes": "Notas de Segurança:",
+      "note_encryption": "Dados criptografados usando criptografia do SO (Keychain/DPAPI/libsecret)",
+      "note_management": "Chaves de criptografia são gerenciadas pelo sistema operacional",
+      "note_logs": "Valores nunca são registrados ou expostos em produção",
+      "note_use_cases": "Use para: chaves de API, tokens de autenticação, credenciais, segredos",
+      "note_limitations": "Não use para: Arquivos grandes, dados acessados frequentemente, dados não sensíveis",
+      "messages": {
+        "enter_both": "Por favor informe chave e valor",
+        "stored": "Armazenado com sucesso \"{{key}}\"",
+        "store_error": "Erro ao armazenar: {{error}}",
+        "enter_key": "Por favor informe uma chave",
+        "retrieved_success": "Valor recuperado para \"{{key}}\"",
+        "not_found": "Nenhum valor encontrado para \"{{key}}\"",
+        "retrieve_error": "Erro ao recuperar: {{error}}",
+        "deleted": "Excluído \"{{key}}\"",
+        "delete_error": "Erro ao excluir: {{error}}",
+        "exists": "\"{{key}}\" existe",
+        "not_exists": "\"{{key}}\" não existe",
+        "check_error": "Erro ao verificar: {{error}}",
+        "avail_warning": "Armazenamento criptografado não disponível nesta plataforma",
+        "avail_error": "Erro ao verificar disponibilidade: {{error}}"
+      }
+    }
+  },
+  "app": {
+    "name": "Electron App",
+    "subtitle": "Hub Inicial"
+  },
+  "home": {
+    "drop_title": "Solte arquivos para abrir",
+    "drop_desc": "Arraste e solte arquivos aqui para importar dados ou abrir projetos.",
+    "open_file": "Abrir Arquivo...",
+    "recent_activity": "Atividade Recente",
+    "just_now": "Agora mesmo",
+    "backups": "Backups",
+    "docs": "Documentação"
+  },
+  "about": {
+    "title": "Sobre",
+    "subtitle": "Informações do aplicativo e do sistema",
+    "template_title": "Electron Apps Template",
+    "template_desc": "Um template boilerplate seguro, escalável e moderno para aplicativos desktop",
+    "loading": "Carregando informações da versão...",
+    "error": "Não foi possível carregar informações da versão",
+    "app_version": "Versão do App",
+    "features": {
+      "title": "Recursos",
+      "description": "O que torna este template especial",
+      "ipc": "Comunicação IPC segura via contextBridge",
+      "context": "Isolamento de contexto e integração Node.js desativada",
+      "react": "React moderno com hooks",
+      "ui": "Tailwind CSS e componentes shadcn/ui",
+      "settings": "Configurações persistentes com electron-store",
+      "dialog": "Integração nativa de diálogo de arquivo",
+      "layout": "Layout de barra lateral redimensionável"
+    },
+    "license": {
+      "title": "Licença",
+      "text": "Este template é open source e está disponível sob a Licença ISC."
+    }
+  },
+  "shortcuts": {
+    "title": "Atalhos de Teclado",
+    "subtitle": "Personalize seus atalhos de teclado",
+    "reset": "Restaurar Padrões",
+    "press_keys": "Pressione as teclas...",
+    "invalid": "Atalho inválido. Clique para tentar novamente.",
+    "record_tooltip": "Clique para gravar novo atalho",
+    "cancel": "Cancelar",
+    "no_shortcuts": "Nenhum atalho registrado."
+  },
+  "test_playground": {
+    "title": "Playground de Teste",
+    "description": "Área de testes ad-hoc e experimentação",
+    "tabs": {
+      "quick": "⚡ Teste Rápido",
+      "api": "🔌 Teste API",
+      "console": "📟 Console"
+    },
+    "quick": {
+      "title": "Teste Rápido",
+      "description": "Execute testes rápidos com entrada simples",
+      "placeholder": "Digite entrada de teste (tente 'version' ou 'storage:key')",
+      "test_btn": "Testar",
+      "testing_btn": "Testando...",
+      "clear_btn": "Limpar Resultados"
+    },
+    "api": {
+      "title": "Teste API",
+      "description": "Testar endpoints específicos da API",
+      "hint": "Use a página de demonstração IPC para testes abrangentes de API",
+      "go_ipc": "Ir para Demo IPC →"
+    },
+    "console": {
+      "title": "Saída do Console",
+      "description": "Ver resultados de testes e logs",
+      "no_results": "Sem resultados ainda"
+    }
+  },
+  "component_test": {
+    "title": "Playground de Componentes",
+    "description": "Área de teste para componentes de UI e interações.",
+    "tabs": {
+      "buttons": "Botões",
+      "inputs": "Inputs",
+      "cards": "Cards"
+    },
+    "buttons": {
+      "title": "Variantes de Botão",
+      "description": "Teste diferentes estilos e estados de botão",
+      "default": "Botão Padrão",
+      "secondary": "Secundário",
+      "destructive": "Destrutivo",
+      "outline": "Contorno",
+      "ghost": "Fantasma",
+      "link": "Link",
+      "small": "Pequeno",
+      "large": "Grande",
+      "icon": "ícone",
+      "disabled": "Desabilitado",
+      "disabled_outline": "Contorno Desabilitado"
+    },
+    "inputs": {
+      "title": "Componentes de Input",
+      "description": "Teste entradas de texto e controles",
+      "standard_label": "Input Padrão",
+      "placeholder": "Digite algo...",
+      "value_label": "Valor: {{val}}",
+      "disabled_label": "Input Desabilitado",
+      "disabled_placeholder": "Não é possível digitar aqui",
+      "error_label": "Input com Erro",
+      "error_placeholder": "Estado de erro",
+      "error_msg": "Valor de input inválido"
+    },
+    "cards": {
+      "simple_title": "Card Simples",
+      "simple_desc": "Card básico com cabeçalho e conteúdo",
+      "simple_content": "Este é o conteúdo dentro do corpo do card.",
+      "muted_title": "Card Suave",
+      "muted_desc": "Card com fundo suave",
+      "muted_content": "Conteúdo em uma superfície de fundo suave."
     }
   },
   "command": {
-    "placeholder": "Digite um comando ou busque...",
+    "placeholder": "Digite um comando ou pesquise...",
     "no_results": "Nenhum resultado encontrado.",
-    "switch_to": "Mudar para",
+    "menu_label": "Menu de Comandos Global",
+    "switch_to": "Alternar para",
     "close_all_tabs": "Fechar Todas as Abas",
     "close_other_tabs": "Fechar Outras Abas",
     "new_tab": "Nova Aba",
-    "open_in_new_tab": "Abrir {{item}} em Nova Aba"
+    "open_in_new_tab": "Abrir {{item}} em Nova Aba",
+    "footer": {
+      "count": "{{count}} comandos disponíveis",
+      "select": "para selecionar",
+      "execute": "para executar"
+    }
+  },
+  "sidebar": {
+    "open_new_tab": "Abrir em Nova Aba",
+    "open_split_view": "Abrir em Visualização Dividida",
+    "collapse": "Recolher Barra Lateral",
+    "expand": "Expandir Barra Lateral"
+  },
+  "notifications": {
+    "file_changed": "⚠️ Arquivo Alterado: {{file}}"
+  },
+  "window": {
+    "controls": {
+      "minimize": "Minimizar",
+      "maximize": "Maximizar",
+      "restore": "Restaurar",
+      "close": "Fechar"
+    }
+  },
+  "tour": {
+    "back": "Voltar",
+    "next": "Próximo",
+    "finish": "Concluir",
+    "step_progress": "PASSO {{current}} DE {{total}}"
+  },
+  "notifications_demo": {
+    "title": "Notificações Nativas",
+    "status": "Estado",
+    "permission_status": "Estado da Permissão",
+    "check_request": "Verificar/Solicitar Permissão",
+    "unknown": "Desconhecido",
+    "granted": "Concedido",
+    "denied": "Negado",
+    "quick_title": "Notificações Rápidas",
+    "success": "Sucesso",
+    "success_body": "Operação concluída com sucesso!",
+    "warning": "Aviso",
+    "warning_body": "Por favor reveja esta ação",
+    "error": "Erro",
+    "error_body": "Algo deu errado",
+    "info": "Info",
+    "info_body": "Aqui está uma informação útil",
+    "custom_title": "Notificação Personalizada",
+    "input_title": "Título *",
+    "input_title_placeholder": "Título da notificação",
+    "input_body": "Corpo",
+    "input_body_placeholder": "Texto da notificação",
+    "urgency": "Urgência",
+    "low": "Baixa",
+    "normal": "Normal",
+    "critical": "Crítica",
+    "silent": "Silencioso",
+    "with_actions": "Com Ações",
+    "send_btn": "Enviar Notificação",
+    "event_log": "Registro de Eventos",
+    "clear_log": "Limpar",
+    "no_events": "Nenhum evento ainda...",
+    "instructions_title": "Instruções:",
+    "instruction_1": "Experimente os botões de notificação rápida",
+    "instruction_2": "Crie notificações personalizadas com título, corpo e opções",
+    "instruction_3": "Clique nas notificações para ver os eventos de clique",
+    "instruction_4": "Ative \"Com Ações\" para adicionar botões (suporte varia)",
+    "instruction_5": "Acompanhe o registro de eventos para interações",
+    "instruction_6": "Limite de taxa previne mais de 10 notificações por minuto",
+    "platform_support": "Suporte de Plataforma:",
+    "macos_support": "macOS: Suporte total incluindo ações e respostas",
+    "windows_support": "Windows 10+: Suporta ações via Central de Ações",
+    "linux_support": "Linux: Suporte varia por ambiente desktop"
+  },
+  "update": {
+    "available": {
+      "title": "Atualização Disponível",
+      "message": "Versão {{version}} está disponível. Deseja baixar agora?",
+      "release_notes": "O que há de novo?"
+    },
+    "download": {
+      "title": "Baixando Atualização",
+      "message": "Baixando versão {{version}}...",
+      "hide": "Ocultar"
+    },
+    "ready": {
+      "title": "Atualização Pronta para Instalar",
+      "message": "Versão {{version}} foi baixada e está pronta para instalar. O aplicativo será reiniciado.",
+      "install": "Instalar & Reiniciar"
+    },
+    "later": "Depois",
+    "download_btn": "Baixar"
+  },
+  "status": {
+    "ready": "Pronto",
+    "online": "Conectado",
+    "offline": "Desconectado",
+    "tabs": "{{count}} Abas"
   }
 }

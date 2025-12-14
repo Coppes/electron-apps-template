@@ -1,0 +1,85 @@
+{
+  "title": "IPC Communication Demo",
+  "description": "Explore all available IPC APIs and their usage patterns",
+  "architecture": {
+    "title": "IPC Architecture",
+    "intro": "All communication between renderer and main process follows these security principles:",
+    "exposed": "All APIs exposed through window.electronAPI",
+    "validation": "Input validation on both renderer and main process",
+    "error_handling": "Error handling with sanitized error messages",
+    "no_node": "No direct Node.js access in renderer process",
+    "context": "Context isolation enabled for security"
+  },
+  "security": {
+    "title": "Security Best Practices",
+    "no_exec": "Never expose entire modules or arbitrary code execution",
+    "validate": "Always validate and sanitize inputs",
+    "allow_lists": "Use explicit allow-lists for file paths and operations",
+    "errors": "Implement proper error handling",
+    "logging": "Log all security-relevant operations"
+  },
+  "demo": {
+    "sections": {
+      "app": "App APIs",
+      "window": "Window APIs",
+      "dialog": "Dialog APIs",
+      "storage": "Storage APIs",
+      "data": "Data APIs"
+    },
+    "result": {
+      "title": "Result: {{desc}}",
+      "loading": "Calling {{desc}}...",
+      "error": "Error: {{error}}"
+    },
+    "app": {
+      "title": "App APIs",
+      "description": "Application-level information and controls",
+      "get_version": "Get App Version",
+      "get_path": "Get User Data Path",
+      "get_platform": "Get Platform",
+      "is_packaged": "Check If Packaged"
+    },
+    "window": {
+      "title": "Window APIs",
+      "description": "Window management and controls",
+      "minimize": "Minimize Window",
+      "toggle_max": "Toggle Maximize",
+      "get_bounds": "Get Window Bounds",
+      "get_display": "Get Display Info",
+      "msg_minimized": "Window minimized",
+      "msg_maximized": "Window toggled maximize"
+    },
+    "dialog": {
+      "title": "Dialog APIs",
+      "description": "System dialogs for file and folder selection",
+      "open_file": "Open File Dialog",
+      "open_folder": "Open Folder Dialog",
+      "save_file": "Save File Dialog",
+      "select_file": "Select a file",
+      "select_folder": "Select a folder",
+      "save_file_title": "Save file"
+    },
+    "storage": {
+      "title": "Storage APIs",
+      "description": "Secure storage operations",
+      "key_placeholder": "Key",
+      "value_placeholder": "Value",
+      "set_val": "Set Value",
+      "get_val": "Get Value",
+      "del_val": "Delete Value",
+      "check_exists": "Check If Exists",
+      "action_set": "Set '{{key}}'",
+      "action_get": "Get '{{key}}'",
+      "action_del": "Delete '{{key}}'",
+      "action_has": "Has '{{key}}'"
+    },
+    "data": {
+      "title": "Data APIs",
+      "description": "Data management operations",
+      "list_backups": "List Backups",
+      "create_backup": "Create Backup",
+      "validate_backup": "Validate Backup",
+      "action_validate": "Validate Latest Backup"
+    }
+  }
+}

@@ -22,5 +22,27 @@
     "back": "Voltar",
     "next": "Próximo",
     "finish": "Começar"
+  },
+  "tour": {
+    "welcome": {
+      "title": "Bem-vindo ao Electron App Template",
+      "content": "Este tour guiado irá orientá-lo sobre os principais recursos deste aplicativo."
+    },
+    "navigation": {
+      "title": "Navegação",
+      "content": "Use a barra lateral para navegar entre diferentes seções, como Painel, Configurações e Demos."
+    },
+    "command_palette": {
+      "title": "Paleta de Comandos",
+      "content": "Pressione Cmd+K (ou Ctrl+K) para acessar a Paleta de Comandos para ações rápidas."
+    },
+    "settings": {
+      "title": "Configurações",
+      "content": "Configure as preferências do aplicativo, temas e atalhos aqui."
+    },
+    "finish": {
+      "title": "Tudo pronto!",
+      "content": "Aproveite o uso do aplicativo. Você pode reiniciar este tour a qualquer momento no menu Ajuda."
+    }
   }
 }
