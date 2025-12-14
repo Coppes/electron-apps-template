@@ -1,11 +1,22 @@
 import { describe, it, expect } from 'vitest';
-import { 
-  logCSPViolation, 
-  logNavigationBlock, 
-  logPermissionRequest, 
+import {
+  logCSPViolation,
+  logNavigationBlock,
+  logPermissionRequest,
   logExternalLink,
-  logSecurityEvent 
+  logSecurityEvent
 } from '../../../src/main/security/audit-log.js';
+import { vi } from 'vitest';
+
+// Mock logger
+vi.mock('../../../src/main/logger.js', () => ({
+  logger: {
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+  },
+}));
 
 /**
  * Security - Audit Logging Tests

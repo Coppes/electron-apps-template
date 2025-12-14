@@ -1,6 +1,17 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { isAllowedOrigin } from '../../../src/main/security/navigation-guard.js';
 import { config } from '../../../src/main/config.js';
+import { vi } from 'vitest';
+
+// Mock logger
+vi.mock('../../../src/main/logger.js', () => ({
+  logger: {
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+  },
+}));
 
 /**
  * Security - Navigation Guard Tests

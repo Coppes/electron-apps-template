@@ -1,5 +1,17 @@
 import { describe, it, expect } from 'vitest';
 import { buildCSPHeader, getCSPPolicy } from '../../../src/main/security/csp.js';
+import { isCSPCompliant } from '../../../src/main/security/csp-enforcer.js';
+import { vi } from 'vitest';
+
+// Mock logger
+vi.mock('../../../src/main/logger.js', () => ({
+  logger: {
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+  },
+}));
 
 /**
  * Security - Content Security Policy Tests
@@ -14,7 +26,7 @@ describe('Content Security Policy', () => {
       };
 
       const header = buildCSPHeader(policy);
-      
+
       expect(header).toContain("default-src 'self'");
       expect(header).toContain("script-src 'self' 'unsafe-eval'");
       expect(header).toContain("style-src 'self' 'unsafe-inline'");
@@ -52,7 +64,7 @@ describe('Content Security Policy', () => {
       // Development policy should allow localhost
       const policy = getCSPPolicy();
       const defaultSrc = policy['default-src'];
-      
+
       // In development, should have localhost or be more permissive
       expect(Array.isArray(defaultSrc)).toBe(true);
     });
@@ -68,14 +80,14 @@ describe('Content Security Policy', () => {
     it('should allow Tailwind inline styles', () => {
       const policy = getCSPPolicy();
       const styleSrc = policy['style-src'];
-      
+
       expect(styleSrc).toContain("'unsafe-inline'");
     });
 
     it('should restrict connect-src to self', () => {
       const policy = getCSPPolicy();
       const connectSrc = policy['connect-src'];
-      
+
       expect(connectSrc).toContain("'self'");
     });
   });

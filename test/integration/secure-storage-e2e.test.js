@@ -13,6 +13,9 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Skipped: This test requires a real Electron environment with a functioning renderer process.
+// The current test runner (Vitest + Node) uses mocks where executeJavaScript does not run code.
+// See test/unit/main/ipc/handlers/secure-store.test.js for IPC handler unit tests.
 describe.skip('Secure Storage E2E', () => {
   let mainWindow;
 
