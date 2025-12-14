@@ -13,7 +13,6 @@ import { isDevelopment } from '../../utils/is-dev';
 import { useStatusBar } from '../../hooks/useStatusBar';
 import {
   House,
-  Wrench,
   FloppyDisk,
   Globe,
   Plug,
@@ -73,12 +72,13 @@ SidebarNavButton.propTypes = {
   type: PropTypes.string
 };
 
-const AppShell = ({ children }) => {
+const AppShell = () => {
   const [sidebarWidth, setSidebarWidth] = useState(250);
   const [resizingTarget, setResizingTarget] = useState(null); // 'sidebar' | 'split' | null
   const [splitRatio, setSplitRatio] = useState(0.5);
   const [dragTarget, setDragTarget] = useState(null); // 'primary' | 'secondary' | null
   const { openTab, activeTabId, tabs, closeTab, isSplit, moveTabToGroup } = useTab();
+  const { addTab } = useTabContext();
   const { t } = useTranslation('common');
 
   // Register Global Navigation Commands
@@ -99,7 +99,7 @@ const AppShell = ({ children }) => {
     setResizingTarget('sidebar');
   };
 
-  const handleMouseMove = (e) => {
+  const handleMouseMove = React.useCallback((e) => {
     if (resizingTarget === 'sidebar') {
       const newWidth = e.clientX;
       if (newWidth >= 200 && newWidth <= 400) {
@@ -111,11 +111,11 @@ const AppShell = ({ children }) => {
       const newRatio = Math.min(Math.max(relativeX / contentWidth, 0.2), 0.8);
       setSplitRatio(newRatio);
     }
-  };
+  }, [resizingTarget, sidebarWidth]);
 
-  const handleMouseUp = () => {
+  const handleMouseUp = React.useCallback(() => {
     setResizingTarget(null);
-  };
+  }, []);
 
   useEffect(() => {
     if (resizingTarget) {
@@ -129,7 +129,7 @@ const AppShell = ({ children }) => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [resizingTarget, sidebarWidth]); // Updated dependencies
+  }, [resizingTarget, handleMouseMove, handleMouseUp]);
 
   // Helper handling tab opening
   const nav = (id, title, typeOverride) => {
@@ -159,7 +159,7 @@ const AppShell = ({ children }) => {
     return () => {
       if (cleanupMenuListener) cleanupMenuListener();
     };
-  }, [openTab, t, tabs, activeTabId, closeTab]);
+  }, [openTab, t, tabs, activeTabId, closeTab, addTab]);
 
   // Listen for file changes
   useEffect(() => {
@@ -191,7 +191,7 @@ const AppShell = ({ children }) => {
     };
   }, [updateNotification]);
 
-  const { addTab } = useTabContext();
+
 
   const handleToggleSidebar = () => {
     setSidebarWidth(prev => prev > 50 ? 50 : 250);
