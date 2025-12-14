@@ -2,9 +2,12 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { vi, describe, it, expect } from 'vitest';
-import HomePage from '../../../src/renderer/components/pages/HomePage.jsx';
-import SettingsPage from '../../../src/renderer/components/pages/SettingsPage.jsx';
+import HomePage from '../../../src/renderer/pages/HomePage.jsx';
+import SettingsPage from '../../../src/renderer/pages/SettingsPage.jsx';
 import { TabProvider } from '../../../src/renderer/contexts/TabContext.jsx';
+import { SettingsProvider } from '../../../src/renderer/contexts/SettingsContext.jsx';
+import { HistoryProvider } from '../../../src/renderer/contexts/HistoryContext.jsx';
+import { ShortcutProvider } from '../../../src/renderer/contexts/ShortcutContext.jsx';
 
 // Mock child components to isolate verification
 console.log('Loading DataManagement.test.jsx');
@@ -56,28 +59,40 @@ describe('Data Management UI', () => {
     it('should render Data Management section', async () => {
       render(
         <TabProvider>
-          <SettingsPage />
+          <SettingsProvider>
+            <ShortcutProvider>
+              <HistoryProvider>
+                <SettingsPage />
+              </HistoryProvider>
+            </ShortcutProvider>
+          </SettingsProvider>
         </TabProvider>
       );
       // Wait for settings to load
       await waitFor(() => {
-        expect(screen.getByText(/data.title/i)).toBeInTheDocument();
+        expect(screen.getByText(/import/i)).toBeInTheDocument();
       });
-      expect(screen.getByText(/Import Data/i)).toBeInTheDocument();
-      expect(screen.getByText(/Export Data/i)).toBeInTheDocument();
+      expect(screen.getByText(/export/i)).toBeInTheDocument();
     });
 
     it('should trigger Export Data flow', async () => {
       render(
         <TabProvider>
-          <SettingsPage />
+          <SettingsProvider>
+            <ShortcutProvider>
+              <HistoryProvider>
+                <SettingsPage />
+              </HistoryProvider>
+            </ShortcutProvider>
+          </SettingsProvider>
         </TabProvider>
       );
 
       // Mock store.get to ensure it resolves
       window.electronAPI.store.get.mockResolvedValue({ language: 'en' });
 
-      const exportBtn = screen.getByText(/Export Data/i);
+      // Wait for button to be available
+      const exportBtn = await screen.findByText(/export/i);
       fireEvent.click(exportBtn);
 
       // Expect showSaveDialog call

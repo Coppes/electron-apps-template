@@ -53,8 +53,8 @@ describe('UpdateNotification Component', () => {
         />
       );
 
-      expect(screen.getByText('Update Available')).toBeInTheDocument();
-      expect(screen.getByText(/Version 2.0.0 is available/i)).toBeInTheDocument();
+      expect(screen.getByText('update.available.title')).toBeInTheDocument();
+      expect(screen.getByText(/update.available.message/i)).toBeInTheDocument();
     });
 
     it('should display release notes when provided', () => {
@@ -67,7 +67,7 @@ describe('UpdateNotification Component', () => {
         />
       );
 
-      expect(screen.getByText("What's new?")).toBeInTheDocument();
+      expect(screen.getByText("update.available.release_notes")).toBeInTheDocument();
       expect(screen.getByText('Bug fixes and improvements')).toBeInTheDocument();
     });
 
@@ -81,8 +81,8 @@ describe('UpdateNotification Component', () => {
         />
       );
 
-      expect(screen.getByRole('button', { name: /Download/i })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /Later/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /update.download_btn/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /update.later/i })).toBeInTheDocument();
     });
 
     it('should call onInstall when Download is clicked', () => {
@@ -95,7 +95,7 @@ describe('UpdateNotification Component', () => {
         />
       );
 
-      const downloadButton = screen.getByRole('button', { name: /Download/i });
+      const downloadButton = screen.getByRole('button', { name: /update.download_btn/i });
       fireEvent.click(downloadButton);
 
       expect(mockOnInstall).toHaveBeenCalledTimes(1);
@@ -111,7 +111,7 @@ describe('UpdateNotification Component', () => {
         />
       );
 
-      const laterButton = screen.getByRole('button', { name: /Later/i });
+      const laterButton = screen.getByRole('button', { name: /update.later/i });
       fireEvent.click(laterButton);
 
       expect(mockOnDismiss).toHaveBeenCalledTimes(1);
@@ -130,8 +130,8 @@ describe('UpdateNotification Component', () => {
         />
       );
 
-      expect(screen.getByText('Downloading Update')).toBeInTheDocument();
-      expect(screen.getByText(/Downloading version 2.0.0/i)).toBeInTheDocument();
+      expect(screen.getByText('update.download.title')).toBeInTheDocument();
+      expect(screen.getByText(/update.download.message/i)).toBeInTheDocument();
     });
 
     it('should display progress bar with percentage', () => {
@@ -159,7 +159,7 @@ describe('UpdateNotification Component', () => {
         />
       );
 
-      expect(screen.getByRole('button', { name: /Hide/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /update.download.hide/i })).toBeInTheDocument();
     });
 
     it('should call onDismiss when Hide is clicked', () => {
@@ -173,7 +173,7 @@ describe('UpdateNotification Component', () => {
         />
       );
 
-      const hideButton = screen.getByRole('button', { name: /Hide/i });
+      const hideButton = screen.getByRole('button', { name: /update.download.hide/i });
       fireEvent.click(hideButton);
 
       expect(mockOnDismiss).toHaveBeenCalledTimes(1);
@@ -191,8 +191,8 @@ describe('UpdateNotification Component', () => {
         />
       );
 
-      expect(screen.getByText('Update Ready to Install')).toBeInTheDocument();
-      expect(screen.getByText(/Version 2.0.0 has been downloaded/i)).toBeInTheDocument();
+      expect(screen.getByText('update.ready.title')).toBeInTheDocument();
+      expect(screen.getByText(/update.ready.message/i)).toBeInTheDocument();
     });
 
     it('should have Install & Restart and Later buttons', () => {
@@ -205,8 +205,8 @@ describe('UpdateNotification Component', () => {
         />
       );
 
-      expect(screen.getByRole('button', { name: /Install & Restart/i })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /Later/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /update.ready.install/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /update.later/i })).toBeInTheDocument();
     });
 
     it('should call onInstall when Install & Restart is clicked', () => {
@@ -219,7 +219,7 @@ describe('UpdateNotification Component', () => {
         />
       );
 
-      const installButton = screen.getByRole('button', { name: /Install & Restart/i });
+      const installButton = screen.getByRole('button', { name: /update.ready.install/i });
       fireEvent.click(installButton);
 
       expect(mockOnInstall).toHaveBeenCalledTimes(1);
@@ -235,7 +235,7 @@ describe('UpdateNotification Component', () => {
         />
       );
 
-      const laterButton = screen.getByRole('button', { name: /Later/i });
+      const laterButton = screen.getByRole('button', { name: /update.later/i });
       fireEvent.click(laterButton);
 
       expect(mockOnDismiss).toHaveBeenCalledTimes(1);

@@ -99,7 +99,8 @@ describe('CommandPalette', () => {
     // Since we don't have a test-id, we 'll assume the first child of root is the backdrop
     // We can try to click the backdrop. 
     // Since we don't have a test-id, we 'll assume the first child of root is the backdrop
-    const backdrop = screen.getByPlaceholderText('command.placeholder').closest('.fixed');
+    // We can try to click the backdrop using the test id
+    const backdrop = screen.getByTestId('command-backdrop');
     fireEvent.click(backdrop);
 
     expect(mockSetIsOpen).toHaveBeenCalledWith(false);

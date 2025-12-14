@@ -18,6 +18,7 @@ export default function DataManagementDemo() {
   const { t } = useTranslation('data_management');
   const [activeTab, setActiveTab] = useState('backup');
   const [backups, setBackups] = useState([]);
+
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [exportData, setExportData] = useState({ key: 'value', array: [1, 2, 3] });

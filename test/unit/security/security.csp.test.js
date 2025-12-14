@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { buildCSPHeader, getCSPPolicy } from '../../../src/main/security/csp.js';
-import { isCSPCompliant } from '../../../src/main/security/csp-enforcer.js';
+
 import { vi } from 'vitest';
 
 // Mock logger

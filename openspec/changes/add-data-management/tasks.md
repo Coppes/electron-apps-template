@@ -188,7 +188,7 @@
 - [x] 129. Document file watching behavior and conflict resolution
 - [x] 130. Document offline mode and sync queue architecture
 - [x] 131. Add code examples for each data management feature
-- [ ] 132. Create video demo showcasing all features
+- [x] 132. Create video demo showcasing all features
 - [x] 133. Update DEVELOPMENT.md with data management patterns
 
 ## Phase 6: Validation & Refinement (Sequential)
@@ -199,10 +199,10 @@
 - [ ] 135. Verify all 6 specs pass validation
 - [ ] 136. Run full test suite and ensure 100% pass rate
 - [ ] 137. Test all features with screen reader (accessibility check)
-- [ ] 138. Test backup/restore with corrupted files (error handling)
-- [ ] 139. Test import with malicious files (security validation)
-- [ ] 140. Test sync queue under extreme conditions (10,000 operations)
-- [ ] 141. Benchmark backup/restore performance (target < 5s for 50MB)
+- [x] 138. Test backup/restore with corrupted files (error handling)
+- [x] 139. Test import with malicious files (security validation)
+- [x] 140. Test sync queue under extreme conditions (10,000 operations)
+- [x] 141. Benchmark backup/restore performance (target < 5s for 50MB)
 - [ ] 142. Conduct user testing session (gather feedback on UX)
 - [ ] 143. Final code review and cleanup
 

@@ -57,43 +57,68 @@ describe('DataManagementDemo', () => {
   });
 
   it('handles create backup', async () => {
-    mockData.createBackup.mockResolvedValue({ filename: 'new-backup.zip' });
+    // defined locally to capture logs
+    const localListBackups = vi.fn().mockResolvedValue({ backups: [] });
+    const localCreateBackup = vi.fn().mockResolvedValue({ filename: 'new-backup.zip' });
 
-
+    // Explicitly set window.electronAPI here to override any global verification
+    window.electronAPI = {
+      data: {
+        ...mockData,
+        listBackups: localListBackups,
+        createBackup: localCreateBackup,
+      },
+      dialog: mockDialog,
+      file: mockFile,
+      store: {
+        ...mockStore,
+        get: vi.fn().mockResolvedValue('never'),
+      },
+    };
 
     render(<DataManagementDemo />);
 
     await waitFor(() => {
-      expect(screen.getByText('Create Backup')).toBeInTheDocument();
+      expect(screen.getByText('demo.backup.create_btn')).toBeInTheDocument();
     });
 
-    const createBtn = screen.getByText('Create Backup');
+    const createBtn = screen.getByText('demo.backup.create_btn');
     fireEvent.click(createBtn);
 
     await waitFor(() => {
-      expect(mockData.createBackup).toHaveBeenCalled();
-      expect(screen.getByText(/Backup created/i)).toBeInTheDocument();
+      expect(localCreateBackup).toHaveBeenCalled();
+      // 'demo.backup.create_success' typically has interpolation, mock returns key only if configured simple
+      // Usually mock returns "key" or "key {param: val}".
+      // Let's assume standard mock returns key.
+      expect(screen.getByText(/demo.backup.create_success/i)).toBeInTheDocument();
     });
   });
 
   it('switches tabs correctly', () => {
     render(<DataManagementDemo />);
 
-    const importExportTab = screen.getByText('Import & Export');
+    // Tabs are rendered with keys
+    const importExportTab = screen.getByText('demo.tabs.import_export');
     fireEvent.click(importExportTab);
 
-    expect(screen.getByText('Export Data')).toBeInTheDocument();
-    expect(screen.getByText('Import Data')).toBeInTheDocument();
+    // Hardcoded titles in CardTitle/CardHeader?
+    // DataManagementDemo.jsx Line 379: <CardTitle>{t('demo.import_export.title')}</CardTitle>
+    expect(screen.getByText('demo.import_export.title')).toBeInTheDocument();
+
+    // Import button: t('demo.import_export.import_btn')
+    // Export button section title: t('demo.import_export.export_section')
+    expect(screen.getByText('demo.import_export.export_section')).toBeInTheDocument();
+    expect(screen.getByText('demo.import_export.import_section')).toBeInTheDocument();
   });
 
   it('handles file watching', async () => {
     render(<DataManagementDemo />);
 
-    fireEvent.click(screen.getByText('File Watching'));
+    fireEvent.click(screen.getByText('demo.tabs.file_watch'));
 
     mockDialog.showOpenDialog.mockResolvedValue('/path/to/watch');
 
-    const watchBtn = screen.getByText('Select Folder to Watch');
+    const watchBtn = screen.getByText('demo.file_watch.select_folder');
 
     await waitFor(() => {
       expect(watchBtn).not.toBeDisabled();
@@ -106,8 +131,12 @@ describe('DataManagementDemo', () => {
     });
 
     await waitFor(() => {
-      // confirm UI updated, which implies success
-      expect(screen.getAllByText('Watching: /path/to/watch').length).toBeGreaterThan(0);
+      // "demo.file_watch.watching_label" followed by path
+      // Mock returns just the key usually, but if structure is <div>{t(...)} <span>{path}</span></div>
+      // they are separate nodes.
+      // DataManagementDemo.jsx: {t('demo.file_watch.watching_label')} <span ...>{watchedPath}</span>
+      expect(screen.getByText('demo.file_watch.watching_label')).toBeInTheDocument();
+      expect(screen.getByText('/path/to/watch')).toBeInTheDocument();
     });
   });
 });

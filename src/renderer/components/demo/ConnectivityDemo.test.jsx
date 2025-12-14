@@ -28,7 +28,7 @@ describe('ConnectivityDemo', () => {
 
   it('renders correctly', () => {
     render(<ConnectivityDemo />);
-    expect(screen.getByText('Connection Status')).toBeInTheDocument();
+    expect(screen.getByText('demo.status_title')).toBeInTheDocument();
     expect(screen.getByTestId('sync-queue-viewer')).toBeInTheDocument();
   });
 
@@ -37,17 +37,17 @@ describe('ConnectivityDemo', () => {
 
     // Initially should be online (or whatever navigator.onLine is, assuming true for test env usually)
     // But testing the button toggle text change
-    const toggleBtn = screen.getByText('Simulate Offline Mode');
+    const toggleBtn = screen.getByText('demo.sim_offline');
     fireEvent.click(toggleBtn);
 
-    expect(screen.getByText('Enable Network')).toBeInTheDocument();
-    expect(screen.getByText('Manual offline mode')).toBeInTheDocument();
+    expect(screen.getByText('demo.enable_net')).toBeInTheDocument();
+    expect(screen.getByText('demo.manual_mode')).toBeInTheDocument();
   });
 
   it('handles trigger sync', async () => {
     render(<ConnectivityDemo />);
 
-    const syncBtn = screen.getByText('Trigger Sync');
+    const syncBtn = screen.getByText('demo.trigger_sync');
     // It might be disabled if effectiveOnline is false or pending is 0
     // We need to mock state where it is enabled?
     // In the component: disabled={!effectiveOnline || syncStats.pending === 0}
@@ -80,7 +80,7 @@ describe('ConnectivityDemo', () => {
     // Let's rely on checking if `clearSyncQueue` is called when we can click it.
 
     // Alternative: verify button existence
-    const clearBtn = screen.getByText('Clear Queue');
+    const clearBtn = screen.getByText('demo.clear_queue');
     expect(clearBtn).toBeInTheDocument();
 
     vi.useRealTimers();

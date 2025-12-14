@@ -85,6 +85,7 @@ const CommandPalette = () => {
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/40 backdrop-blur-sm"
             onClick={() => setIsOpen(false)}
+            data-testid="command-backdrop"
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: -20 }}

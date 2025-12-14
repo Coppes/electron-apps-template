@@ -17,7 +17,7 @@ const mockSecureStore = {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  
+
   // Setup window.api mock
   global.window = global.window || {};
   global.window.api = {
@@ -32,14 +32,14 @@ describe('SecureStorageDemo', () => {
     render(<SecureStorageDemo />);
 
     await waitFor(() => {
-      expect(screen.getByText(/Secure Storage Demo/i)).toBeInTheDocument();
+      expect(screen.getByText('secure_storage.title')).toBeInTheDocument();
     });
 
-    expect(screen.getByLabelText(/Key:/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Value/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Store/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Retrieve/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Delete/i })).toBeInTheDocument();
+    expect(screen.getByLabelText('secure_storage.demo.key_label')).toBeInTheDocument();
+    expect(screen.getByLabelText('secure_storage.demo.value_label')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'secure_storage.demo.store' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'secure_storage.demo.retrieve' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'secure_storage.demo.delete' })).toBeInTheDocument();
   });
 
   it('should show warning when encryption is not available', async () => {
@@ -48,10 +48,10 @@ describe('SecureStorageDemo', () => {
     render(<SecureStorageDemo />);
 
     await waitFor(() => {
-      expect(screen.getByText(/not available/i)).toBeInTheDocument();
+      expect(screen.getByText('secure_storage.demo.requirements')).toBeInTheDocument();
     });
 
-    expect(screen.queryByRole('button', { name: /Store/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'secure_storage.demo.store' })).not.toBeInTheDocument();
   });
 
   it('should store a value when Store button is clicked', async () => {
@@ -61,12 +61,12 @@ describe('SecureStorageDemo', () => {
     render(<SecureStorageDemo />);
 
     await waitFor(() => {
-      expect(screen.getByLabelText(/Key:/i)).toBeInTheDocument();
+      expect(screen.getByLabelText('secure_storage.demo.key_label')).toBeInTheDocument();
     });
 
-    const keyInput = screen.getByLabelText(/Key:/i);
-    const valueInput = screen.getByLabelText(/Value/i);
-    const storeButton = screen.getByRole('button', { name: /Store/i });
+    const keyInput = screen.getByLabelText('secure_storage.demo.key_label');
+    const valueInput = screen.getByLabelText('secure_storage.demo.value_label');
+    const storeButton = screen.getByRole('button', { name: 'secure_storage.demo.store' });
 
     fireEvent.change(keyInput, { target: { value: 'apiKey' } });
     fireEvent.change(valueInput, { target: { value: 'secret123' } });
@@ -74,7 +74,10 @@ describe('SecureStorageDemo', () => {
 
     await waitFor(() => {
       expect(mockSecureStore.set).toHaveBeenCalledWith('apiKey', 'secret123');
-      expect(screen.getByText(/Successfully stored/i)).toBeInTheDocument();
+      // The message involves interpolation: "stored {key: 'apiKey'}" -> mock returns raw key?
+      // Mock returns "key", so we expect "secure_storage.demo.messages.stored"
+      // Wait, mock returns `key`. So t('foo', { x: 1 }) -> 'foo'.
+      expect(screen.getByText('secure_storage.demo.messages.stored')).toBeInTheDocument();
     });
   });
 
@@ -85,11 +88,11 @@ describe('SecureStorageDemo', () => {
     render(<SecureStorageDemo />);
 
     await waitFor(() => {
-      expect(screen.getByLabelText(/Key:/i)).toBeInTheDocument();
+      expect(screen.getByLabelText('secure_storage.demo.key_label')).toBeInTheDocument();
     });
 
-    const keyInput = screen.getByLabelText(/Key:/i);
-    const retrieveButton = screen.getByRole('button', { name: /Retrieve/i });
+    const keyInput = screen.getByLabelText('secure_storage.demo.key_label');
+    const retrieveButton = screen.getByRole('button', { name: 'secure_storage.demo.retrieve' });
 
     fireEvent.change(keyInput, { target: { value: 'apiKey' } });
     fireEvent.click(retrieveButton);
@@ -97,7 +100,7 @@ describe('SecureStorageDemo', () => {
     await waitFor(() => {
       expect(mockSecureStore.get).toHaveBeenCalledWith('apiKey');
       expect(screen.getByText('retrieved-secret')).toBeInTheDocument();
-      expect(screen.getByText(/Retrieved value for "apiKey"/i)).toBeInTheDocument();
+      expect(screen.getByText('secure_storage.demo.messages.retrieved_success')).toBeInTheDocument();
     });
   });
 
@@ -108,18 +111,18 @@ describe('SecureStorageDemo', () => {
     render(<SecureStorageDemo />);
 
     await waitFor(() => {
-      expect(screen.getByLabelText(/Key:/i)).toBeInTheDocument();
+      expect(screen.getByLabelText('secure_storage.demo.key_label')).toBeInTheDocument();
     });
 
-    const keyInput = screen.getByLabelText(/Key:/i);
-    const deleteButton = screen.getByRole('button', { name: /Delete/i });
+    const keyInput = screen.getByLabelText('secure_storage.demo.key_label');
+    const deleteButton = screen.getByRole('button', { name: 'secure_storage.demo.delete' });
 
     fireEvent.change(keyInput, { target: { value: 'apiKey' } });
     fireEvent.click(deleteButton);
 
     await waitFor(() => {
       expect(mockSecureStore.delete).toHaveBeenCalledWith('apiKey');
-      expect(screen.getByText(/Deleted/i)).toBeInTheDocument();
+      expect(screen.getByText('secure_storage.demo.messages.deleted')).toBeInTheDocument();
     });
   });
 
@@ -130,18 +133,18 @@ describe('SecureStorageDemo', () => {
     render(<SecureStorageDemo />);
 
     await waitFor(() => {
-      expect(screen.getByLabelText(/Key:/i)).toBeInTheDocument();
+      expect(screen.getByLabelText('secure_storage.demo.key_label')).toBeInTheDocument();
     });
 
-    const keyInput = screen.getByLabelText(/Key:/i);
-    const checkButton = screen.getByRole('button', { name: /Check Exists/i });
+    const keyInput = screen.getByLabelText('secure_storage.demo.key_label');
+    const checkButton = screen.getByRole('button', { name: 'secure_storage.demo.check' });
 
     fireEvent.change(keyInput, { target: { value: 'apiKey' } });
     fireEvent.click(checkButton);
 
     await waitFor(() => {
       expect(mockSecureStore.has).toHaveBeenCalledWith('apiKey');
-      expect(screen.getByText(/exists/i)).toBeInTheDocument();
+      expect(screen.getByText('secure_storage.demo.messages.exists')).toBeInTheDocument();
     });
   });
 
@@ -151,14 +154,14 @@ describe('SecureStorageDemo', () => {
     render(<SecureStorageDemo />);
 
     await waitFor(() => {
-      expect(screen.getByLabelText(/Key:/i)).toBeInTheDocument();
+      expect(screen.getByLabelText('secure_storage.demo.key_label')).toBeInTheDocument();
     });
 
-    const storeButton = screen.getByRole('button', { name: /Store/i });
+    const storeButton = screen.getByRole('button', { name: 'secure_storage.demo.store' });
     fireEvent.click(storeButton);
 
     await waitFor(() => {
-      expect(screen.getByText(/Please enter both key and value/i)).toBeInTheDocument();
+      expect(screen.getByText('secure_storage.demo.messages.enter_both')).toBeInTheDocument();
     });
 
     expect(mockSecureStore.set).not.toHaveBeenCalled();
@@ -171,19 +174,19 @@ describe('SecureStorageDemo', () => {
     render(<SecureStorageDemo />);
 
     await waitFor(() => {
-      expect(screen.getByLabelText(/Key:/i)).toBeInTheDocument();
+      expect(screen.getByLabelText('secure_storage.demo.key_label')).toBeInTheDocument();
     });
 
-    const keyInput = screen.getByLabelText(/Key:/i);
-    const valueInput = screen.getByLabelText(/Value/i);
-    const storeButton = screen.getByRole('button', { name: /Store/i });
+    const keyInput = screen.getByLabelText('secure_storage.demo.key_label');
+    const valueInput = screen.getByLabelText('secure_storage.demo.value_label');
+    const storeButton = screen.getByRole('button', { name: 'secure_storage.demo.store' });
 
     fireEvent.change(keyInput, { target: { value: 'apiKey' } });
     fireEvent.change(valueInput, { target: { value: 'secret123' } });
     fireEvent.click(storeButton);
 
     await waitFor(() => {
-      expect(screen.getByText(/Error storing/i)).toBeInTheDocument();
+      expect(screen.getByText('secure_storage.demo.messages.store_error')).toBeInTheDocument();
     });
   });
 
@@ -194,17 +197,17 @@ describe('SecureStorageDemo', () => {
     render(<SecureStorageDemo />);
 
     await waitFor(() => {
-      expect(screen.getByLabelText(/Key:/i)).toBeInTheDocument();
+      expect(screen.getByLabelText('secure_storage.demo.key_label')).toBeInTheDocument();
     });
 
-    const keyInput = screen.getByLabelText(/Key:/i);
-    const retrieveButton = screen.getByRole('button', { name: /Retrieve/i });
+    const keyInput = screen.getByLabelText('secure_storage.demo.key_label');
+    const retrieveButton = screen.getByRole('button', { name: 'secure_storage.demo.retrieve' });
 
     fireEvent.change(keyInput, { target: { value: 'nonexistent' } });
     fireEvent.click(retrieveButton);
 
     await waitFor(() => {
-      expect(screen.getByText(/No value found/i)).toBeInTheDocument();
+      expect(screen.getByText('secure_storage.demo.messages.not_found')).toBeInTheDocument();
     });
   });
 });

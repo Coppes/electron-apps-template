@@ -17,16 +17,34 @@ const mockI18n = {
   off: vi.fn(),
 };
 
+// Stable mock object to prevent infinite re-renders in effects that depend on { t }
+const mockUseTranslationValues = {
+  t: (key) => key,
+  i18n: mockI18n,
+};
+
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key) => key,
-    i18n: mockI18n,
-  }),
+  useTranslation: () => mockUseTranslationValues, // Return the SAME object
   initReactI18next: {
     type: '3rdParty',
     init: vi.fn(),
   },
 }));
+
+// Mock matchMedia
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: vi.fn().mockImplementation(query => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(), // deprecated
+    removeListener: vi.fn(), // deprecated
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })),
+});
 
 // Mock ResizeObserver
 global.ResizeObserver = class ResizeObserver {

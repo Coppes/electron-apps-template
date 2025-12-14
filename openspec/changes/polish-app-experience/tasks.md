@@ -3,7 +3,7 @@
 1.  **General & Code Quality**
     - [x] Audit codebase for duplicate and legacy code (remove 'Legacy Demo' references if any remain).
     - [x] Implement custom Scroll Bar component globally (CSS/Component).
-    - [ ] Setup Storybook for components.
+    - [x] Setup Storybook for components.
 
 2.  **Fix Connectivity & Data APIs**
     - [x] Fix `preload.js` to expose `getSyncQueueStatus` (aliasing `syncQueueStatus` or renaming).

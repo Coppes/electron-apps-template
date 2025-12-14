@@ -30,7 +30,7 @@ describe('IPCDemo', () => {
     window.electronAPI = {
       app: mockApp,
       window: mockWindow,
-      storage: mockStorage,
+      store: mockStorage,
       dialog: { // Mock dialog to avoid crash when rendering Dialog APIs tab
         openFile: vi.fn(),
         openFolder: vi.fn(),
@@ -48,15 +48,15 @@ describe('IPCDemo', () => {
 
   it('renders app APIs by default', () => {
     render(<IPCDemo />);
-    expect(screen.getByRole('heading', { name: 'App APIs' })).toBeInTheDocument();
-    expect(screen.getByText('Get App Version')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'demo.app.title' })).toBeInTheDocument();
+    expect(screen.getByText('demo.app.get_version')).toBeInTheDocument();
   });
 
   it('calls app version API', async () => {
     mockApp.getVersion.mockResolvedValue('1.0.0');
     render(<IPCDemo />);
 
-    fireEvent.click(screen.getByText('Get App Version'));
+    fireEvent.click(screen.getByText('demo.app.get_version'));
 
     await waitFor(() => {
       expect(mockApp.getVersion).toHaveBeenCalled();
@@ -67,10 +67,10 @@ describe('IPCDemo', () => {
   it('switches to Window APIs and calls minimize', async () => {
     render(<IPCDemo />);
 
-    fireEvent.click(screen.getByText('Window APIs'));
-    expect(screen.getByText('Minimize Window')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('demo.sections.window'));
+    expect(screen.getByText('demo.window.minimize')).toBeInTheDocument();
 
-    fireEvent.click(screen.getByText('Minimize Window'));
+    fireEvent.click(screen.getByText('demo.window.minimize'));
 
     await waitFor(() => {
       expect(mockWindow.minimize).toHaveBeenCalled();
@@ -80,9 +80,9 @@ describe('IPCDemo', () => {
   it('switches to Storage APIs and handles set/get', async () => {
     render(<IPCDemo />);
 
-    fireEvent.click(screen.getByText('Storage APIs'));
+    fireEvent.click(screen.getByText('demo.sections.storage'));
 
-    const setBtn = screen.getByText('Set Value');
+    const setBtn = screen.getByText('demo.storage.set_val');
     fireEvent.click(setBtn);
 
     await waitFor(() => {
