@@ -2,6 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useStatusBar } from './useStatusBar';
 import { Globe } from '@phosphor-icons/react';
+import * as ContextMenu from '../components/ui/ContextMenu';
 
 /**
  * Updates the status bar with the current language.
@@ -21,21 +22,35 @@ export function useLanguageStatus() {
     };
   }, [i18n]);
 
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
+  };
+
   const languageItem = React.useMemo(() => ({
     id: 'language',
     content: (
-      <div className="flex items-center gap-1.5" title="Current Language">
-        <Globe className="w-3 h-3" />
-        <span>{currentLang?.startsWith('pt') ? 'PT-BR' : 'EN'}</span>
-      </div>
+      <ContextMenu.ContextMenu>
+        <ContextMenu.ContextMenuTrigger>
+          <div className="flex items-center gap-1.5 cursor-pointer hover:bg-white/10 px-2 py-0.5 rounded" title="Right click to change language">
+            <Globe className="w-3 h-3" />
+            <span>{currentLang?.startsWith('pt') ? 'PT-BR' : 'EN'}</span>
+          </div>
+        </ContextMenu.ContextMenuTrigger>
+        <ContextMenu.ContextMenuContent side="top" align="end">
+          <ContextMenu.ContextMenuRadioGroup value={currentLang} onValueChange={changeLanguage}>
+            <ContextMenu.ContextMenuRadioItem value="en">
+              English
+            </ContextMenu.ContextMenuRadioItem>
+            <ContextMenu.ContextMenuRadioItem value="pt-BR">
+              Português (Brasil)
+            </ContextMenu.ContextMenuRadioItem>
+          </ContextMenu.ContextMenuRadioGroup>
+        </ContextMenu.ContextMenuContent>
+      </ContextMenu.ContextMenu>
     ),
     position: 'right',
-    priority: 20 // Higher priority than Tabs (10) so it's to the right of tabs? Or left?
-    // Standard priority logic: Higher usually means further right or left?
-    // Looking at StatusBar.jsx might clarify. Usually Right side items sort by priority.
-    // Let's assume lower priority = closer to edge or vice versa. 
-    // Tabs is 10. Let's try 20 to see where it lands.
-  }), [currentLang]);
+    priority: 20
+  }), [currentLang, i18n]); // Added i18n to dep array for changeLanguage stability (though i18n instance is stable)
 
   useStatusBar(languageItem);
 }

@@ -1,0 +1,59 @@
+
+/Users/yuricoppe/Code/electron-apps-template/src/renderer/components/TabBar.jsx
+  234:11  error  Parsing error: Adjacent JSX elements must be wrapped in an enclosing tag
+
+/Users/yuricoppe/Code/electron-apps-template/src/renderer/components/layout/AppShell.jsx
+   16:3   warning  'Wrench' is defined but never used                                                                                  no-unused-vars
+   32:29  warning  'active' is missing in props validation                                                                             react/prop-types
+   32:37  warning  'onClick' is missing in props validation                                                                            react/prop-types
+   32:46  warning  'icon' is missing in props validation                                                                               react/prop-types
+   32:58  warning  'label' is missing in props validation                                                                              react/prop-types
+   32:65  warning  'id' is missing in props validation                                                                                 react/prop-types
+   32:69  warning  'addTab' is missing in props validation                                                                             react/prop-types
+   32:77  warning  'type' is missing in props validation                                                                               react/prop-types
+   66:21  warning  'children' is defined but never used. Allowed unused args must match /^_/u                                          no-unused-vars
+  122:6   warning  React Hook useEffect has a missing dependency: 'handleMouseMove'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/yuricoppe/Code/electron-apps-template/src/renderer/components/ui/ContextMenu.jsx
+   18:51  warning  'className' is missing in props validation  react/prop-types
+   18:62  warning  'inset' is missing in props validation      react/prop-types
+   18:69  warning  'children' is missing in props validation   react/prop-types
+   34:51  warning  'className' is missing in props validation  react/prop-types
+   46:48  warning  'className' is missing in props validation  react/prop-types
+   60:45  warning  'className' is missing in props validation  react/prop-types
+   60:56  warning  'inset' is missing in props validation      react/prop-types
+   73:53  warning  'className' is missing in props validation  react/prop-types
+   73:64  warning  'children' is missing in props validation   react/prop-types
+   73:74  warning  'checked' is missing in props validation    react/prop-types
+   93:50  warning  'className' is missing in props validation  react/prop-types
+   93:61  warning  'children' is missing in props validation   react/prop-types
+  112:46  warning  'className' is missing in props validation  react/prop-types
+  112:57  warning  'inset' is missing in props validation      react/prop-types
+  125:50  warning  'className' is missing in props validation  react/prop-types
+  134:32  warning  'className' is missing in props validation  react/prop-types
+
+/Users/yuricoppe/Code/electron-apps-template/src/renderer/hooks/useLanguageStatus.jsx
+  29:38  error    Compilation Skipped: Existing memoization could not be preserved
+
+React Compiler has skipped optimizing this component because the existing manual memoization could not be preserved. The inferred dependencies did not match the manually specified dependencies, which could cause the value to change more or less frequently than expected. The inferred dependency was `changeLanguage`, but the source dependencies were [currentLang, i18n]. Inferred different dependency than source.
+
+  27 |   };
+  28 |
+> 29 |   const languageItem = React.useMemo(() => ({
+     |                                      ^^^^^^^^
+> 30 |     id: 'language',
+     | ^^^^^^^^^^^^^^^^^^^
+> 31 |     content: (
+     …
+     | ^^^^^^^^^^^^^^^^^^^
+> 52 |     priority: 20
+     | ^^^^^^^^^^^^^^^^^^^
+> 53 |   }), [currentLang, i18n]); // Added i18n to dep array for changeLanguage stability (though i18n instance is stable)
+     | ^^^^^ Could not preserve existing manual memoization
+  54 |
+  55 |   useStatusBar(languageItem);
+  56 | }  react-hooks/preserve-manual-memoization
+  53:7   warning  React Hook React.useMemo has a missing dependency: 'changeLanguage'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        react-hooks/exhaustive-deps
+
+✖ 29 problems (2 errors, 27 warnings)
+

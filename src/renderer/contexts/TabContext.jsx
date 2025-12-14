@@ -17,16 +17,32 @@ export const TabProvider = ({ children }) => {
   ]);
   const [activeTabId, setActiveTabId] = useState('home');
 
-  const addTab = useCallback((tab) => {
-    setTabs((prev) => {
-      // If tab exists (by ID), just activate it
-      const existing = prev.find((t) => t.id === tab.id);
-      if (existing) {
-        return prev;
-      }
-      return [...prev, tab];
-    });
-    setActiveTabId(tab.id);
+  /* Split View State */
+  const [isSplit, setIsSplit] = useState(false);
+  const [secondaryTabs, setSecondaryTabs] = useState([]);
+  const [secondaryActiveTabId, setSecondaryActiveTabId] = useState(null);
+  const [activeGroup, setActiveGroup] = useState('primary'); // 'primary' | 'secondary'
+  const [draggingTab, setDraggingTab] = useState(null); // { id, group, index }
+
+  const addTab = useCallback((tab, targetGroup = 'primary') => {
+    if (targetGroup === 'primary') {
+      setTabs((prev) => {
+        const existing = prev.find((t) => t.id === tab.id);
+        if (existing) return prev;
+        return [...prev, tab];
+      });
+      setActiveTabId(tab.id);
+      setActiveGroup('primary');
+    } else {
+      setSecondaryTabs((prev) => {
+        const existing = prev.find((t) => t.id === tab.id);
+        if (existing) return prev;
+        return [...prev, tab];
+      });
+      setSecondaryActiveTabId(tab.id);
+      setIsSplit(true);
+      setActiveGroup('secondary');
+    }
   }, []);
 
   const closeTab = useCallback((id) => {
@@ -56,13 +72,22 @@ export const TabProvider = ({ children }) => {
   }, []);
 
   const closeOtherTabs = useCallback((keepId) => {
-    setTabs((prev) => {
-      const keep = prev.find(t => t.id === keepId);
-      if (!keep) return prev;
-      return [keep];
-    });
-    setActiveTabId(keepId);
-  }, []);
+    // Check where the tab is
+    const inPrimary = tabs.find(t => t.id === keepId);
+    const inSecondary = secondaryTabs.find(t => t.id === keepId);
+
+    const tabToKeep = inPrimary || inSecondary;
+
+    if (tabToKeep) {
+      // Reset to just this tab in primary group
+      setTabs([tabToKeep]);
+      setSecondaryTabs([]);
+      setIsSplit(false);
+      setActiveTabId(tabToKeep.id);
+      setSecondaryActiveTabId(null);
+      setActiveGroup('primary');
+    }
+  }, [tabs, secondaryTabs]);
 
   const reorderTab = useCallback((fromIndex, toIndex, group = 'primary') => {
     const updateFn = group === 'primary' ? setTabs : setSecondaryTabs;
@@ -79,11 +104,7 @@ export const TabProvider = ({ children }) => {
     });
   }, []);
 
-  /* Split View State */
-  const [isSplit, setIsSplit] = useState(false);
-  const [secondaryTabs, setSecondaryTabs] = useState([]);
-  const [secondaryActiveTabId, setSecondaryActiveTabId] = useState(null);
-  const [activeGroup, setActiveGroup] = useState('primary'); // 'primary' | 'secondary'
+
 
   const toggleSplit = useCallback(() => {
     setIsSplit((prev) => !prev);
@@ -161,7 +182,7 @@ export const TabProvider = ({ children }) => {
     setActiveGroup(targetGroup);
   }, [tabs, secondaryTabs, activeTabId, secondaryActiveTabId]);
 
-  const [draggingTab, setDraggingTab] = useState(null); // { id, group, index }
+
 
   // Auto-close split view logic
   useEffect(() => {

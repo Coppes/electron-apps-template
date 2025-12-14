@@ -26,6 +26,52 @@ import {
 } from '@phosphor-icons/react';
 import { TitleBar } from './TitleBar';
 import TabContent from '../TabContent';
+import * as ContextMenu from '../ui/ContextMenu';
+import { useTabContext } from '../../contexts/TabContext';
+
+const SidebarNavButton = ({ active, onClick, icon: Icon, label, id, addTab, type, ...props }) => {
+  const handleOpenNew = () => {
+    addTab({ id: `${id}-${Date.now()}`, title: label, type: type || id });
+  };
+
+  const handleOpenSplit = () => {
+    addTab({ id: `${id}-${Date.now()}`, title: label, type: type || id }, 'secondary');
+  };
+
+  return (
+    <ContextMenu.ContextMenu>
+      <ContextMenu.ContextMenuTrigger>
+        <Button
+          variant={active ? 'default' : 'ghost'}
+          className="w-full justify-start gap-2"
+          onClick={onClick}
+          {...props}
+        >
+          <Icon className="w-4 h-4" />
+          {label}
+        </Button>
+      </ContextMenu.ContextMenuTrigger>
+      <ContextMenu.ContextMenuContent>
+        <ContextMenu.ContextMenuItem onClick={handleOpenNew}>
+          Open in New Tab
+        </ContextMenu.ContextMenuItem>
+        <ContextMenu.ContextMenuItem onClick={handleOpenSplit}>
+          Open in Split View
+        </ContextMenu.ContextMenuItem>
+      </ContextMenu.ContextMenuContent>
+    </ContextMenu.ContextMenu>
+  );
+};
+
+SidebarNavButton.propTypes = {
+  active: PropTypes.bool,
+  onClick: PropTypes.func.isRequired,
+  icon: PropTypes.elementType.isRequired,
+  label: PropTypes.string.isRequired,
+  id: PropTypes.string.isRequired,
+  addTab: PropTypes.func.isRequired,
+  type: PropTypes.string
+};
 
 const AppShell = ({ children }) => {
   const [sidebarWidth, setSidebarWidth] = useState(250);
@@ -145,6 +191,13 @@ const AppShell = ({ children }) => {
     };
   }, [updateNotification]);
 
+  const { addTab } = useTabContext();
+
+  const handleToggleSidebar = () => {
+    setSidebarWidth(prev => prev > 50 ? 50 : 250);
+  };
+
+
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden">
       <TitleBar className="relative bg-background border-b border-border" />
@@ -157,144 +210,153 @@ const AppShell = ({ children }) => {
             <h2 className="text-lg font-semibold">{t('nav.title')}</h2>
           </div>
 
-          <nav className="flex-1 p-4 space-y-2 overflow-y-auto" data-tour="sidebar-nav">
-            <Button
-              variant={activeTabId === 'home' ? 'default' : 'ghost'}
-              className="w-full justify-start gap-2"
-              onClick={() => nav('home', t('nav.home'))}
-            >
-              <House className="w-4 h-4" />
-              {t('nav.home')}
-            </Button>
+          <ContextMenu.ContextMenu>
+            <ContextMenu.ContextMenuTrigger className="flex-1 overflow-y-auto">
+              <nav className="flex-1 p-4 space-y-2" data-tour="sidebar-nav">
+                <SidebarNavButton
+                  active={activeTabId === 'home'}
+                  onClick={() => nav('home', t('nav.home'))}
+                  icon={House}
+                  label={t('nav.home')}
+                  id="home"
+                  addTab={addTab}
+                  type="home"
+                />
 
-            {/* Demos Section */}
-            <div className="pt-4 pb-2">
-              <div className="text-xs font-semibold text-muted-foreground uppercase px-3 pb-2">
-                {t('nav.sections.demos')}
-              </div>
-              <div className="space-y-1">
-
-                <Button
-                  variant={activeTabId === 'data-management-demo' ? 'default' : 'ghost'}
-                  className="w-full justify-start gap-2"
-                  onClick={() => nav('data-management-demo', t('nav.items.data_mgmt'))}
-                >
-                  <FloppyDisk className="w-4 h-4" />
-                  {t('nav.items.data_mgmt')}
-                </Button>
-                <Button
-                  variant={activeTabId === 'connectivity-demo' ? 'default' : 'ghost'}
-                  className="w-full justify-start gap-2"
-                  onClick={() => nav('connectivity-demo', t('nav.items.connectivity'))}
-                >
-                  <Globe className="w-4 h-4" />
-                  {t('nav.items.connectivity')}
-                </Button>
-                <Button
-                  variant={activeTabId === 'ipc-demo' ? 'default' : 'ghost'}
-                  className="w-full justify-start gap-2"
-                  onClick={() => nav('ipc-demo', t('nav.items.ipc'))}
-                >
-                  <Plug className="w-4 h-4" />
-                  {t('nav.items.ipc')}
-                </Button>
-                <Button
-                  variant={activeTabId === 'secure-storage-demo' ? 'default' : 'ghost'}
-                  className="w-full justify-start gap-2"
-                  onClick={() => nav('secure-storage-demo', t('nav.items.secure_storage'))}
-                >
-                  <Lock className="w-4 h-4" />
-                  {t('nav.items.secure_storage')}
-                </Button>
-                <Button
-                  variant={activeTabId === 'os-integration-demo' ? 'default' : 'ghost'}
-                  className="w-full justify-start gap-2"
-                  onClick={() => nav('os-integration-demo', t('nav.items.os_integration'))}
-                >
-                  <Laptop className="w-4 h-4" />
-                  {t('nav.items.os_integration')}
-                </Button>
-              </div>
-            </div>
-
-            {/* Data Section */}
-            <div className="pt-2 pb-2">
-              <div className="text-xs font-semibold text-muted-foreground uppercase px-3 pb-2">
-                {t('nav.sections.data')}
-              </div>
-              <div className="space-y-1">
-                <Button
-                  variant={activeTabId === 'backups' ? 'default' : 'ghost'}
-                  className="w-full justify-start gap-2"
-                  onClick={() => nav('backups', t('nav.items.backups'))}
-                >
-                  <FloppyDisk className="w-4 h-4" />
-                  {t('nav.items.backups')}
-                </Button>
-                <Button
-                  variant={activeTabId === 'sync' ? 'default' : 'ghost'}
-                  className="w-full justify-start gap-2"
-                  onClick={() => nav('sync', t('nav.items.sync_queue'))}
-                >
-                  <ArrowsClockwise className="w-4 h-4" />
-                  {t('nav.items.sync_queue')}
-                </Button>
-              </div>
-            </div>
-
-            {/* Settings Section */}
-            <div className="pt-2 pb-2">
-              <div className="text-xs font-semibold text-muted-foreground uppercase px-3 pb-2">
-                {t('nav.sections.settings')}
-              </div>
-              <div className="space-y-1">
-                <Button
-                  variant={activeTabId === 'settings' ? 'default' : 'ghost'}
-                  className="w-full justify-start gap-2"
-                  onClick={() => nav('settings', t('nav.items.settings'))}
-                  data-tour="settings-link"
-                >
-                  <Gear className="w-4 h-4" />
-                  {t('nav.items.settings')}
-                </Button>
-                <Button
-                  variant={activeTabId === 'about' ? 'default' : 'ghost'}
-                  className="w-full justify-start gap-2"
-                  onClick={() => nav('about', t('nav.items.about'))}
-                >
-                  <Info className="w-4 h-4" />
-                  {t('nav.items.about')}
-                </Button>
-              </div>
-            </div>
-
-            {/* Development Section */}
-            {isDevelopment && (
-              <div className="pt-2 pb-2">
-                <div className="text-xs font-semibold text-muted-foreground uppercase px-3 pb-2">
-                  {t('nav.sections.development')}
+                {/* Demos Section */}
+                <div className="pt-4 pb-2">
+                  <div className="text-xs font-semibold text-muted-foreground uppercase px-3 pb-2">
+                    {t('nav.sections.demos')}
+                  </div>
+                  <div className="space-y-1">
+                    <SidebarNavButton
+                      active={activeTabId === 'data-management-demo'}
+                      onClick={() => nav('data-management-demo', t('nav.items.data_mgmt'))}
+                      icon={FloppyDisk}
+                      label={t('nav.items.data_mgmt')}
+                      id="data-management-demo"
+                      addTab={addTab}
+                    />
+                    <SidebarNavButton
+                      active={activeTabId === 'connectivity-demo'}
+                      onClick={() => nav('connectivity-demo', t('nav.items.connectivity'))}
+                      icon={Globe}
+                      label={t('nav.items.connectivity')}
+                      id="connectivity-demo"
+                      addTab={addTab}
+                    />
+                    <SidebarNavButton
+                      active={activeTabId === 'ipc-demo'}
+                      onClick={() => nav('ipc-demo', t('nav.items.ipc'))}
+                      icon={Plug}
+                      label={t('nav.items.ipc')}
+                      id="ipc-demo"
+                      addTab={addTab}
+                    />
+                    <SidebarNavButton
+                      active={activeTabId === 'secure-storage-demo'}
+                      onClick={() => nav('secure-storage-demo', t('nav.items.secure_storage'))}
+                      icon={Lock}
+                      label={t('nav.items.secure_storage')}
+                      id="secure-storage-demo"
+                      addTab={addTab}
+                    />
+                    <SidebarNavButton
+                      active={activeTabId === 'os-integration-demo'}
+                      onClick={() => nav('os-integration-demo', t('nav.items.os_integration'))}
+                      icon={Laptop}
+                      label={t('nav.items.os_integration')}
+                      id="os-integration-demo"
+                      addTab={addTab}
+                    />
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <Button
-                    variant={activeTabId === 'test' ? 'default' : 'ghost'}
-                    className="w-full justify-start gap-2"
-                    onClick={() => nav('test', t('nav.items.test_playground'))}
-                  >
-                    <Flask className="w-4 h-4" />
-                    {t('nav.items.test_playground')}
-                  </Button>
-                  <Button
-                    variant={activeTabId === 'component-test' ? 'default' : 'ghost'}
-                    className="w-full justify-start gap-2"
-                    onClick={() => nav('component-test', 'UI Playground')}
-                  >
-                    <Flask className="w-4 h-4" />
-                    UI Playground
-                  </Button>
+
+                {/* Data Section */}
+                <div className="pt-2 pb-2">
+                  <div className="text-xs font-semibold text-muted-foreground uppercase px-3 pb-2">
+                    {t('nav.sections.data')}
+                  </div>
+                  <div className="space-y-1">
+                    <SidebarNavButton
+                      active={activeTabId === 'backups'}
+                      onClick={() => nav('backups', t('nav.items.backups'))}
+                      icon={FloppyDisk}
+                      label={t('nav.items.backups')}
+                      id="backups"
+                      addTab={addTab}
+                    />
+                    <SidebarNavButton
+                      active={activeTabId === 'sync'}
+                      onClick={() => nav('sync', t('nav.items.sync_queue'))}
+                      icon={ArrowsClockwise}
+                      label={t('nav.items.sync_queue')}
+                      id="sync"
+                      addTab={addTab}
+                    />
+                  </div>
                 </div>
-              </div>
-            )}
-          </nav>
+
+                {/* Settings Section */}
+                <div className="pt-2 pb-2">
+                  <div className="text-xs font-semibold text-muted-foreground uppercase px-3 pb-2">
+                    {t('nav.sections.settings')}
+                  </div>
+                  <div className="space-y-1">
+                    <SidebarNavButton
+                      active={activeTabId === 'settings'}
+                      onClick={() => nav('settings', t('nav.items.settings'))}
+                      icon={Gear}
+                      label={t('nav.items.settings')}
+                      id="settings"
+                      addTab={addTab}
+                      data-tour="settings-link"
+                    />
+                    <SidebarNavButton
+                      active={activeTabId === 'about'}
+                      onClick={() => nav('about', t('nav.items.about'))}
+                      icon={Info}
+                      label={t('nav.items.about')}
+                      id="about"
+                      addTab={addTab}
+                    />
+                  </div>
+                </div>
+
+                {/* Development Section */}
+                {isDevelopment && (
+                  <div className="pt-2 pb-2">
+                    <div className="text-xs font-semibold text-muted-foreground uppercase px-3 pb-2">
+                      {t('nav.sections.development')}
+                    </div>
+                    <div className="space-y-1">
+                      <SidebarNavButton
+                        active={activeTabId === 'test'}
+                        onClick={() => nav('test', t('nav.items.test_playground'))}
+                        icon={Flask}
+                        label={t('nav.items.test_playground')}
+                        id="test"
+                        addTab={addTab}
+                      />
+                      <SidebarNavButton
+                        active={activeTabId === 'component-test'}
+                        onClick={() => nav('component-test', 'UI Playground')}
+                        icon={Flask}
+                        label="UI Playground"
+                        id="component-test"
+                        addTab={addTab}
+                      />
+                    </div>
+                  </div>
+                )}
+              </nav>
+            </ContextMenu.ContextMenuTrigger>
+            <ContextMenu.ContextMenuContent>
+              <ContextMenu.ContextMenuItem onClick={handleToggleSidebar}>
+                {sidebarWidth > 50 ? 'Collapse Sidebar' : 'Expand Sidebar'}
+              </ContextMenu.ContextMenuItem>
+            </ContextMenu.ContextMenuContent>
+          </ContextMenu.ContextMenu>
         </aside>
 
         {/* Resize Handle */}
