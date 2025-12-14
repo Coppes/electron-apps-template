@@ -26,7 +26,7 @@ export default function TrayDemo() {
         setStatus('Tray detected (persisted from previous session/reload)');
       }
     } catch (error) {
-      console.error('Failed to check tray status', error);
+      // console.error('Failed to check tray status', error);
     }
   };
 

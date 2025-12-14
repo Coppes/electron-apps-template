@@ -6,6 +6,8 @@ import { cn } from '../../utils/cn';
  * Window controls component (Minimize, Maximize/Restore, Close)
  * Designed for Windows/Linux custom title bars
  */
+import PropTypes from 'prop-types';
+
 export function WindowControls({ className }) {
   const [isMaximized, setIsMaximized] = useState(false);
 
@@ -16,7 +18,7 @@ export function WindowControls({ className }) {
         const state = await window.electronAPI.window.getState();
         if (state) setIsMaximized(state.isMaximized);
       } catch (err) {
-        console.error('Failed to get window state:', err);
+        // console.error('Failed to get window state:', err);
       }
     };
 
@@ -77,3 +79,7 @@ export function WindowControls({ className }) {
     </div>
   );
 }
+
+WindowControls.propTypes = {
+  className: PropTypes.string
+};

@@ -80,8 +80,9 @@ export class FileWatcher {
           cleaned++;
 
           logger.debug(`Cleaned up idle watcher: ${filePath}`);
-        } catch (error) {
-          logger.error(`Failed to cleanup watcher for ${filePath}:`, error);
+        } catch (_error) {
+          logger.error(`Failed to cleanup watcher for ${filePath}:`, _error);
+          // window is not defined in main process, but error was about unused arg?ror);
         }
       }
     }
@@ -134,7 +135,7 @@ export class FileWatcher {
 
       // Create watcher with recursive option enabled
       const watcher = watch(normalizedPath, { recursive: true }, (eventType, filename) => {
-        this.handleFileChange(normalizedPath, eventType, filename, window);
+        this.handleFileChange(normalizedPath, eventType, filename);
       });
 
       // Store watcher and metadata
@@ -209,7 +210,7 @@ export class FileWatcher {
   /**
    * Handle file change event with batching and debouncing
    */
-  handleFileChange(filePath, eventType, filename, window) {
+  handleFileChange(filePath, eventType, filename) {
     const watcherData = this.watchers.get(filePath);
 
     if (!watcherData) {

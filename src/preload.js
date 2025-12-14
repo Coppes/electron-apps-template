@@ -857,7 +857,7 @@ const electronAPI = {
   recentDocs: recentDocsAPI,
   notifications: notificationsAPI,
   deepLink: deepLinkAPI,
-  deepLink: deepLinkAPI,
+
   i18n: i18nAPI,
   plugins: pluginsAPI,
 

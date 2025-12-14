@@ -20,7 +20,7 @@ export const useDataMenu = () => {
 
         // Show some global loading state? 
         // For now, we'll just process it. Ideally, we'd have a global toaster or status.
-        console.log('Importing data from:', filePath);
+        // console.log('Importing data from:', filePath);
 
         const result = await window.electronAPI.data.import(filePath);
 
@@ -31,7 +31,7 @@ export const useDataMenu = () => {
           alert(`Import failed: ${result.error}`);
         }
       } catch (error) {
-        console.error('Menu import error:', error);
+        // console.error('Menu import error:', error);
         alert(`Import error: ${error.message}`);
       }
     };
@@ -48,7 +48,7 @@ export const useDataMenu = () => {
 
         if (!filePath) return;
 
-        console.log('Exporting data to:', filePath);
+        // console.log('Exporting data to:', filePath);
 
         // Use 'settings' preset by default for menu action
         const result = await window.electronAPI.data.exportPreset(filePath, 'settings');
@@ -59,7 +59,7 @@ export const useDataMenu = () => {
           alert(`Export failed: ${result.error}`);
         }
       } catch (error) {
-        console.error('Menu export error:', error);
+        // console.error('Menu export error:', error);
         alert(`Export error: ${error.message}`);
       }
     };

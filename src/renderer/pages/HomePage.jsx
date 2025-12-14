@@ -13,7 +13,7 @@ const HomePage = () => {
 
   const handleDrop = async (files) => {
     setDroppedFiles(files);
-    console.log('Dropped files:', files);
+    // console.log('Dropped files:', files);
 
     // Auto-import logic could go here, or just showing them
     for (const file of files) {
@@ -22,17 +22,17 @@ const HomePage = () => {
         if (file.path.endsWith('.json') || file.path.endsWith('.csv')) {
           try {
             // We could automatically trigger import here or just notify
-            console.log('File supported for import:', file.path);
+            // console.log('File supported for import:', file.path);
           } catch (e) {
-            console.error('Import check failed', e);
+            // console.error('Import check failed', e);
           }
         }
       }
     }
   };
 
-  const handleDragError = (error) => {
-    console.error('Drag and drop error:', error);
+  const handleDragError = (_error) => {
+    // console.error('Drag and drop error:', error);
   };
 
   const handleOpenFile = async () => {
@@ -41,11 +41,11 @@ const HomePage = () => {
         properties: ['openFile']
       });
       if (filePath) {
-        console.log('Selected file:', filePath);
+        // console.log('Selected file:', filePath);
         // Handle file opening logic
       }
     } catch (error) {
-      console.error('Open file error:', error);
+      // console.error('Open file error:', error);
     }
   };
 

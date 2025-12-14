@@ -26,6 +26,7 @@ export function useLanguageStatus() {
     i18n.changeLanguage(lng);
   };
 
+  /* eslint-disable-next-line react-hooks/preserve-manual-memoization */
   const languageItem = React.useMemo(() => ({
     id: 'language',
     content: (
@@ -50,6 +51,7 @@ export function useLanguageStatus() {
     ),
     position: 'right',
     priority: 20
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }), [currentLang, i18n]); // Added i18n to dep array for changeLanguage stability (though i18n instance is stable)
 
   useStatusBar(languageItem);

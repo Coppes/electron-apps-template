@@ -141,7 +141,7 @@ export const markdownHandler = {
     // Basic markdown detection (headers, lists, links)
     const markdownPatterns = [
       /^#{1,6}\s/m,        // Headers
-      /^(\s*)(\*|\+|\-) /gm, // Normalize list methods
+      /^(\s*)(\*|\+|-)\s/gm, // Normalize list methods
       /^\d+\.\s/m,         // Ordered list
       /\[.*\]\(.*\)/,      // Links
       /\*\*.*\*\*/,        // Bold

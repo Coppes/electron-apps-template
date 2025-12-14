@@ -1,7 +1,7 @@
 import React from 'react';
 import { useStatusBar } from '../../contexts/StatusBarContext';
 import { Circle } from '@phosphor-icons/react';
-import { useDataMenu } from '../../hooks/useDataMenu';
+import { useConnectivity } from '../../hooks/useConnectivity';
 
 const StatusBar = () => {
   const { status, message } = useStatusBar();
@@ -42,7 +42,7 @@ const StatusBar = () => {
         if (result && typeof result.online === 'boolean') {
           setIsOnline(result.online);
         }
-      }).catch(console.error);
+      }).catch(() => { }); // console.error
     }
 
     return () => {

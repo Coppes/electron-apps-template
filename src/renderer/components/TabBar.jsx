@@ -9,6 +9,8 @@ import { useKeyboardShortcut } from '../hooks/useKeyboardShortcut';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../utils/cn.js';
 
+import PropTypes from 'prop-types';
+
 const TabBar = ({ group = 'primary' }) => {
   const {
     tabs: primaryTabs, activeTabId: primaryActiveId,
@@ -276,6 +278,10 @@ const TabBar = ({ group = 'primary' }) => {
       </div>
     </div >
   );
+};
+
+TabBar.propTypes = {
+  group: PropTypes.string
 };
 
 export default TabBar;

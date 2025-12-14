@@ -43,22 +43,10 @@ export default function NotificationsDemo() {
       if (unsubscribeAction) unsubscribeAction();
       if (unsubscribeClose) unsubscribeClose();
     };
-    return () => {
-      if (unsubscribeClick) unsubscribeClick();
-      if (unsubscribeAction) unsubscribeAction();
-      if (unsubscribeClose) unsubscribeClose();
-    };
+
   }, []);
 
-  const checkPermission = async () => {
-    try {
-      const allowed = await window.electronAPI.notifications.checkPermission();
-      setPermissionStatus(allowed ? 'granted' : 'denied');
-      addLog('permission', `Permission status: ${allowed ? 'Granted' : 'Denied'}`);
-    } catch (error) {
-      setStatus(`Error checking permission: ${error.message}`);
-    }
-  };
+
 
   const requestPermission = async () => {
     try {
@@ -71,7 +59,16 @@ export default function NotificationsDemo() {
   };
 
   useEffect(() => {
-    checkPermission();
+    const check = async () => {
+      try {
+        const allowed = await window.electronAPI.notifications.checkPermission();
+        setPermissionStatus(allowed ? 'granted' : 'denied');
+        addLog('permission', `Permission status: ${allowed ? 'Granted' : 'Denied'}`);
+      } catch (error) {
+        setStatus(`Error checking permission: ${error.message}`);
+      }
+    };
+    check();
   }, []);
 
   const showNotification = async () => {

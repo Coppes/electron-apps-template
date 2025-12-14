@@ -17,7 +17,7 @@ export function useTabCommands() {
 
     tabs.forEach((tab) => {
       const commandId = `switch-to-tab-${tab.id}`;
-      let keywords = [];
+      const keywords = [];
       if (tab.type === 'settings') keywords.push('Settings');
       if (tab.type === 'home') keywords.push('Home');
       if (tab.type === 'demo') keywords.push('Demo');

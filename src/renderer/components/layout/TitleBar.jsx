@@ -6,6 +6,8 @@ import { WindowControls } from './WindowControls';
  * Custom Title Bar Component
  * Handles platform-specific rendering (macOS vs Windows/Linux)
  */
+import PropTypes from 'prop-types';
+
 export function TitleBar({ className, children }) {
   const [platform, setPlatform] = useState('');
 
@@ -17,7 +19,7 @@ export function TitleBar({ className, children }) {
           setPlatform(p.platform);
         }
       } catch (err) {
-        console.error('Failed to get platform:', err);
+        // console.error('Failed to get platform:', err);
       }
     };
     getPlatform();
@@ -58,3 +60,8 @@ export function TitleBar({ className, children }) {
     </div>
   );
 }
+
+TitleBar.propTypes = {
+  className: PropTypes.string,
+  children: PropTypes.node
+};

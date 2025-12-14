@@ -22,7 +22,7 @@ const Onboarding = () => {
           await window.electronAPI.store.set('onboardingCompleted', true);
         }
       } catch (error) {
-        console.error('Failed to check onboarding status:', error);
+        // console.error('Failed to check onboarding status:', error);
       }
     };
 
@@ -59,7 +59,7 @@ const Onboarding = () => {
       await window.electronAPI.store.set('onboardingCompleted', true);
       setIsOpen(false);
     } catch (error) {
-      console.error('Failed to save onboarding status:', error);
+      // console.error('Failed to save onboarding status:', error);
       setIsOpen(false); // Close anyway
     }
   };
@@ -72,7 +72,7 @@ const Onboarding = () => {
         const p = await window.electronAPI.system.getPlatform();
         setPlatform(p.platform);
       } catch (e) {
-        console.error('Failed to get platform', e);
+        // console.error('Failed to get platform', e);
       }
     };
     getPlatform();

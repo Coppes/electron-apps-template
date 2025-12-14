@@ -32,7 +32,7 @@ export const TourOverlay = () => {
         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       } else {
         // Fallback to center if target not found
-        console.warn(`Tour target ${step.target} not found`);
+        // console.warn(`Tour target ${step.target} not found`);
         setTargetRect(null);
       }
     };
@@ -127,8 +127,8 @@ export const TourOverlay = () => {
     }
 
     // Apply strict clamping ensuring it never goes off screen or negative
-    let finalTop = Math.max(12, Math.min(bestPos.top, viewportHeight - CARD_HEIGHT - 12));
-    let finalLeft = Math.max(12, Math.min(bestPos.left, viewportWidth - CARD_WIDTH - 12));
+    const finalTop = Math.max(12, Math.min(bestPos.top, viewportHeight - CARD_HEIGHT - 12));
+    const finalLeft = Math.max(12, Math.min(bestPos.left, viewportWidth - CARD_WIDTH - 12));
 
     style = {
       position: 'absolute',

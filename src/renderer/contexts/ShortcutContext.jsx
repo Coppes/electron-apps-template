@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import PropTypes from 'prop-types';
 
 const ShortcutContext = createContext({
   shortcuts: [],
@@ -21,7 +22,7 @@ export const ShortcutProvider = ({ children }) => {
           setUserOverrides(overrides);
         }
       } catch (error) {
-        console.error('Failed to load shortcuts:', error);
+        // console.error('Failed to load shortcuts:', error);
       }
     };
     loadOverrides();
@@ -35,7 +36,7 @@ export const ShortcutProvider = ({ children }) => {
       // Check for conflicts
       const isConflict = filtered.some(s => s.keys.toLowerCase() === shortcut.keys.toLowerCase());
       if (isConflict) {
-        console.warn(`Shortcut conflict detected: ${shortcut.keys} is already bound.`);
+        // console.warn(`Shortcut conflict detected: ${shortcut.keys} is already bound.`);
         // Ideally we would trigger UI warning here or return failure
       }
 
@@ -63,15 +64,10 @@ export const ShortcutProvider = ({ children }) => {
       throw new Error(`Shortcut ${newKeys} is already in use.`);
     }
 
-    try {
-      // Save to store
-      const updatedOverrides = { ...userOverrides, [id]: newKeys };
-      await window.electronAPI.store.set('keyboard-shortcuts', updatedOverrides);
-      setUserOverrides(updatedOverrides);
-    } catch (error) {
-      console.error('Failed to save shortcut override:', error);
-      throw error;
-    }
+    // Save to store
+    const updatedOverrides = { ...userOverrides, [id]: newKeys };
+    await window.electronAPI.store.set('keyboard-shortcuts', updatedOverrides);
+    setUserOverrides(updatedOverrides);
   }, [shortcuts, userOverrides]);
 
   const resetToDefaults = useCallback(async () => {
@@ -79,18 +75,13 @@ export const ShortcutProvider = ({ children }) => {
       await window.electronAPI.store.delete('keyboard-shortcuts');
       setUserOverrides({});
     } catch (error) {
-      console.error('Failed to reset shortcuts:', error);
+      // console.error('Failed to reset shortcuts:', error);
     }
   }, []);
 
   const importOverrides = useCallback(async (newOverrides) => {
-    try {
-      await window.electronAPI.store.set('keyboard-shortcuts', newOverrides);
-      setUserOverrides(newOverrides);
-    } catch (error) {
-      console.error('Failed to import shortcuts:', error);
-      throw error;
-    }
+    await window.electronAPI.store.set('keyboard-shortcuts', newOverrides);
+    setUserOverrides(newOverrides);
   }, []);
 
   // Global keydown handler
@@ -225,4 +216,8 @@ export const ShortcutProvider = ({ children }) => {
       {children}
     </ShortcutContext.Provider>
   );
+};
+
+ShortcutProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 };

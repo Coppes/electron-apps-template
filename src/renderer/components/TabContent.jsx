@@ -17,6 +17,8 @@ const KeyboardShortcutsPage = React.lazy(() => import('../pages/KeyboardShortcut
 const ComponentTestPage = React.lazy(() => import('../pages/ComponentTestPage'));
 const SyncQueueViewer = React.lazy(() => import('./features/data-management/SyncQueueViewer'));
 
+import PropTypes from 'prop-types';
+
 const TabContent = ({ group = 'primary' }) => {
   const { tabs: primaryTabs, activeTabId: primaryActiveId, secondaryTabs, secondaryActiveTabId } = useTabContext();
 
@@ -81,6 +83,10 @@ const TabContent = ({ group = 'primary' }) => {
       })}
     </div>
   );
+};
+
+TabContent.propTypes = {
+  group: PropTypes.string
 };
 
 export default TabContent;

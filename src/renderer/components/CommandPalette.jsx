@@ -123,7 +123,7 @@ const CommandPalette = () => {
                 </Command.Empty>
 
                 {Object.entries(groupedCommands)
-                  .sort(([groupA, commandsA], [groupB, commandsB]) => {
+                  .sort(([_groupA, commandsA], [_groupB, commandsB]) => {
                     if (!search) return 0; // Default order if no search
 
                     // Find the best score in each group

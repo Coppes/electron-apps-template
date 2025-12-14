@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import PropTypes from 'prop-types';
 
 const PluginContext = createContext({
   plugins: [],
@@ -13,7 +14,7 @@ export const PluginProvider = ({ children }) => {
   const [commands, setCommands] = useState([]);
 
   const registerCommand = useCallback((command) => {
-    console.log('Registering plugin command:', command);
+    // console.log('Registering plugin command:', command);
     setCommands(prev => {
       // Avoid duplicates
       if (prev.find(c => c.id === command.id)) return prev;
@@ -52,11 +53,11 @@ export const PluginProvider = ({ children }) => {
             const executePlugin = new Function(plugin.content);
             executePlugin();
           } catch (err) {
-            console.error(`Failed to execute plugin ${plugin.filename}:`, err);
+            // console.error(`Failed to execute plugin ${plugin.filename}:`, err);
           }
         });
       } catch (error) {
-        console.error('Failed to load plugins:', error);
+        // console.error('Failed to load plugins:', error);
       }
     };
 
@@ -68,4 +69,8 @@ export const PluginProvider = ({ children }) => {
       {children}
     </PluginContext.Provider>
   );
+};
+
+PluginProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 };

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FloppyDisk, DownloadSimple, Eye, Paperclip, FileArchive, CloudCheck, ArrowsClockwise, WifiSlash } from '@phosphor-icons/react';
+import { FloppyDisk, DownloadSimple, Paperclip, FileArchive } from '@phosphor-icons/react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
 import Button from '../ui/Button';
 import Switch from '../ui/Switch';
@@ -7,7 +7,7 @@ import Label from '../ui/Label';
 import Separator from '../ui/Separator';
 import DropZone from '../features/data-management/DropZone';
 import useDragDrop from '../../hooks/useDragDrop';
-import useOfflineStatus from '../../hooks/useOfflineStatus';
+
 
 /**
  * DataManagementDemo Component
@@ -30,7 +30,7 @@ export default function DataManagementDemo() {
     onError: (err) => setMessage({ type: 'error', text: err.message })
   });
 
-  const { isOnline } = useOfflineStatus();
+  // const { isOnline } = useOfflineStatus();
 
   useEffect(() => {
     loadBackups();
@@ -50,7 +50,7 @@ export default function DataManagementDemo() {
           title: 'File Deleted',
           body: `The file ${eventData.path} was deleted externally.`,
           urgency: 'critical'
-        }).catch(console.error);
+        }).catch(() => { }); // console.error
         return;
       }
 
@@ -64,7 +64,7 @@ export default function DataManagementDemo() {
           title: 'File Update Detected',
           body: `File ${eventData.type === 'rename' ? 'renamed' : 'changed'}: ${eventData.path}`,
           silent: true
-        }).catch(err => console.error('Failed to show notification:', err));
+        }).catch(() => { }); // err => console.error('Failed to show notification:', err)
       }
     });
 
@@ -78,8 +78,8 @@ export default function DataManagementDemo() {
           setSchedule(savedSchedule);
           calculateNextBackup(savedSchedule);
         }
-      } catch (err) {
-        console.error('Failed to load schedule:', err);
+      } catch (_error) {
+        // console.error('Failed to load schedule:', _error);
       }
     };
     loadSchedule();
@@ -108,7 +108,7 @@ export default function DataManagementDemo() {
     try {
       await window.electronAPI.store.set('backupSchedule', newSchedule);
     } catch (err) {
-      console.error('Failed to save schedule:', err);
+      // console.error('Failed to save schedule:', err);
     }
   };
 

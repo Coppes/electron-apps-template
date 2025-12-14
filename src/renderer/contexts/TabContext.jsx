@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import PropTypes from 'prop-types';
 
 export const TabContext = createContext({
   tabs: [],
@@ -187,25 +188,25 @@ export const TabProvider = ({ children }) => {
   // Auto-close split view logic
   useEffect(() => {
     if (isSplit) {
-      // If secondary is empty, just close split (revert to primary)
-      if (secondaryTabs.length === 0) {
-        setIsSplit(false);
-        setActiveGroup('primary');
-        setSecondaryActiveTabId(null);
-      }
-      // If primary is empty but secondary has tabs, promote secondary to primary
-      else if (tabs.length === 0) {
-        setTabs(secondaryTabs);
-        setSecondaryTabs([]);
-        // This setActiveTab refers to the function defined in the context value below.
-        // For this to work, setActiveTab needs to be memoized or its dependencies handled.
-        // For now, we'll assume it's available or will be refactored.
-        // A safer approach would be to directly call setActiveTabId and setActiveGroup.
-        setActiveTabId(secondaryActiveTabId); // Directly set primary active tab
-        setActiveGroup('primary'); // Ensure primary group is active
-        setIsSplit(false);
-        setSecondaryActiveTabId(null);
-      }
+      // Defer state updates to avoid synchronous setState in effect
+      const timer = setTimeout(() => {
+        // If secondary is empty, just close split (revert to primary)
+        if (secondaryTabs.length === 0) {
+          setIsSplit(false);
+          setActiveGroup('primary');
+          setSecondaryActiveTabId(null);
+        }
+        // If primary is empty but secondary has tabs, promote secondary to primary
+        else if (tabs.length === 0) {
+          setTabs(secondaryTabs);
+          setSecondaryTabs([]);
+          setActiveTabId(secondaryActiveTabId); // Directly set primary active tab
+          setActiveGroup('primary'); // Ensure primary group is active
+          setIsSplit(false);
+          setSecondaryActiveTabId(null);
+        }
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [isSplit, secondaryTabs, tabs, secondaryActiveTabId, setActiveTabId, setActiveGroup]); // Added setActiveTabId and setActiveGroup to dependencies
 
@@ -263,4 +264,8 @@ export const TabProvider = ({ children }) => {
       {children}
     </TabContext.Provider>
   );
+};
+
+TabProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 };

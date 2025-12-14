@@ -1,9 +1,9 @@
-import { render, screen, act, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
 import React from 'react';
 import { SettingsProvider, useSettings } from '../contexts/SettingsContext';
 import { HistoryProvider, useHistory } from '../contexts/HistoryContext';
-import { PluginProvider, usePlugins } from '../contexts/PluginContext';
+// import { PluginProvider, usePlugins } from '../contexts/PluginContext';
 import { TourProvider, useTour } from '../contexts/TourContext';
 
 // Mock Electron API

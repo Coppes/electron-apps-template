@@ -16,7 +16,7 @@ const SettingsPage = () => {
   const { settings, updateSetting, loading } = useSettings();
   const { userOverrides, importOverrides } = useShortcutContext();
   const { execute, undo, redo, canUndo, canRedo } = useHistory();
-  const { t, i18n } = useTranslation('settings');
+  const { t } = useTranslation('settings');
   const { openTab } = useTab();
   const [saveMessage, setSaveMessage] = useState('');
   const [testText, setTestText] = useState("");
@@ -35,12 +35,7 @@ const SettingsPage = () => {
     return <div className="p-6">Loading settings...</div>;
   }
 
-  const toggleTheme = () => {
-    const newTheme = settings.appearance.theme === 'dark' ? 'light' : 'dark';
-    updateSetting('appearance.theme', newTheme);
-    document.documentElement.classList.toggle('dark', newTheme === 'dark');
-    localStorage.setItem('theme', newTheme);
-  };
+
 
   const changeLanguage = (lng) => {
     updateSetting('language', lng);
@@ -70,7 +65,7 @@ const SettingsPage = () => {
         setSaveMessage(`✗ Export failed: ${result.error} `);
       }
     } catch (error) {
-      console.error('Export error:', error);
+      // console.error('Export error:', error);
       setSaveMessage(`✗ Export error: ${error.message} `);
     } finally {
       setTimeout(() => setSaveMessage(''), 3000);
@@ -127,7 +122,7 @@ const SettingsPage = () => {
         }
       }
     } catch (error) {
-      console.error('Import error:', error);
+      // console.error('Import error:', error);
       setSaveMessage(`✗ Import failed: ${error.message} `);
     } finally {
       setTimeout(() => setSaveMessage(''), 3000);

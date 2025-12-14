@@ -30,7 +30,7 @@ export default function BackupPage() {
         }
       }
     } catch (err) {
-      console.error('Failed to load backup schedule:', err);
+      // console.error('Failed to load backup schedule:', err);
     }
   };
 
@@ -128,9 +128,9 @@ export default function BackupPage() {
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
   };
 
-  const formatDate = (timestamp) => {
-    return new Date(timestamp).toLocaleString();
-  };
+  // const formatDate = (timestamp) => {
+  //   return new Date(timestamp).toLocaleString();
+  // };
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
@@ -249,7 +249,7 @@ export default function BackupPage() {
                   onRestore={handleRestoreBackup}
                   onDelete={handleDeleteBackup}
                   disabled={creating || restoring}
-                  formatDate={formatDate}
+                  // formatDate={formatDate}
                   formatFileSize={formatFileSize}
                 />
               ))}
@@ -265,7 +265,7 @@ export default function BackupPage() {
  * BackupRow Component
  * Single row in the backup list table
  */
-function BackupRow({ backup, onRestore, onDelete, disabled, formatDate, formatFileSize }) {
+function BackupRow({ backup, onRestore, onDelete, disabled, formatFileSize }) {
   return (
     <tr className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
       <td className="px-6 py-4 whitespace-nowrap">
@@ -318,6 +318,6 @@ BackupRow.propTypes = {
   onRestore: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
   disabled: PropTypes.bool,
-  formatDate: PropTypes.func.isRequired,
   formatFileSize: PropTypes.func.isRequired,
+  // formatDate: PropTypes.func.isRequired,
 };

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { useSettings } from './SettingsContext';
 import { TOUR_STEPS } from '../config/tour-steps';
 
@@ -24,7 +25,10 @@ export const TourProvider = ({ children }) => {
   useEffect(() => {
     // Check if settings loaded and tour not completed
     if (settings && settings.hasCompletedTour === false) {
-      setIsOpen(true);
+      const timer = setTimeout(() => {
+        setIsOpen(true);
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [settings]);
 
@@ -70,4 +74,8 @@ export const TourProvider = ({ children }) => {
       {children}
     </TourContext.Provider>
   );
+};
+
+TourProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 };

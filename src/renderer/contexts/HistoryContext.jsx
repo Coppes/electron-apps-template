@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { useSettings } from './SettingsContext';
 import { useKeyboardShortcut } from '../hooks/useKeyboardShortcut';
 
@@ -63,7 +64,7 @@ export const HistoryProvider = ({ children }) => {
         };
       });
     } catch (error) {
-      console.error('Failed to execute command:', error);
+      // console.error('Failed to execute command:', error);
     }
   }, [maxStackSize]);
 
@@ -81,7 +82,7 @@ export const HistoryProvider = ({ children }) => {
           future: [command, ...prev.future]
         };
       } catch (error) {
-        console.error('Failed to undo command:', error);
+        // console.error('Failed to undo command:', error);
         // If undo fails, state might be inconsistent. 
         // We keep it popped or try to recover? For now, risk data loss vs stuck state.
         return {
@@ -108,7 +109,7 @@ export const HistoryProvider = ({ children }) => {
           future: newFuture
         };
       } catch (error) {
-        console.error('Failed to redo command:', error);
+        // console.error('Failed to redo command:', error);
         // If it failed, do we keep it in future? Or move to past?
         // Standard: If it throws, state is undefined. Keep in future to retry?
         return prev;
@@ -152,6 +153,10 @@ export const HistoryProvider = ({ children }) => {
       {children}
     </HistoryContext.Provider>
   );
+};
+
+HistoryProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 };
 
 export const useHistory = () => {

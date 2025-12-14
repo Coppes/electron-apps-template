@@ -31,10 +31,10 @@ function App() {
         if (result.success && result.language) {
           // Update local i18n instance
           await i18n.changeLanguage(result.language);
-          console.log('Language initialized to:', result.language);
+          // console.log('Language initialized to:', result.language);
         }
       } catch (error) {
-        console.error('Failed to initialize language:', error);
+        // console.error('Failed to initialize language:', error);
       }
     };
     initLanguage();

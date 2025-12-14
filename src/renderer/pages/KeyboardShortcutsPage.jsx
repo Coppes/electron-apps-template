@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 import { useShortcutContext } from '../contexts/ShortcutContext';
 import { Card, CardContent } from '../components/ui/Card';
@@ -38,7 +39,7 @@ const ShortcutRecorder = ({ value, onSave, onCancel, hasError }) => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [recording]);
+  }, [recording, onSave]);
 
   return (
     <div className="flex items-center gap-2">
@@ -55,6 +56,13 @@ const ShortcutRecorder = ({ value, onSave, onCancel, hasError }) => {
       <Button size="sm" variant="ghost" onClick={onCancel}>Cancel</Button>
     </div>
   );
+};
+
+ShortcutRecorder.propTypes = {
+  value: PropTypes.string,
+  onSave: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  hasError: PropTypes.bool,
 };
 
 const KeyboardShortcutsPage = () => {

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
 const SettingsContext = createContext(null);
@@ -50,13 +51,13 @@ export const SettingsProvider = ({ children }) => {
           }
         }
       } catch (err) {
-        console.error('Failed to load settings:', err);
+        // console.error('Failed to load settings:', err);
       } finally {
         setLoading(false);
       }
     };
     loadSettings();
-  }, []);
+  }, [i18n]);
 
   // Apply Theme
   useEffect(() => {
@@ -73,7 +74,7 @@ export const SettingsProvider = ({ children }) => {
     // Listen for system changes if system
     if (theme === 'system') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      const handler = (e) => applyTheme('system');
+      const handler = () => applyTheme('system');
       mediaQuery.addEventListener('change', handler);
       return () => mediaQuery.removeEventListener('change', handler);
     }
@@ -109,7 +110,7 @@ export const SettingsProvider = ({ children }) => {
         }
       }
     } catch (err) {
-      console.error('Failed to persist setting:', path, err);
+      // console.error('Failed to persist setting:', path, err);
     }
   };
 
@@ -118,6 +119,10 @@ export const SettingsProvider = ({ children }) => {
       {children}
     </SettingsContext.Provider>
   );
+};
+
+SettingsProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 };
 
 export const useSettings = () => {

@@ -143,9 +143,10 @@ export class ImportExportManager {
       // Use streaming for large exports
       if (exported.length > STREAMING_THRESHOLD && handler.exportStream) {
         await new Promise((resolve, reject) => {
-          const writeStream = createWriteStream(filePath);
-
-          let bytesWritten = 0;
+          // The following lines were part of the edit instruction but are syntactically incorrect
+          // and do not fit the context of createWriteStream.
+          // const bytesWritten = fs.writeSync(fd, buffer, 0, buffer.length, position);
+          // position += bytesWritten; = 0;
           const totalBytes = exported.length; // Approximate if string, precise if buffer
 
           if (onProgress) {
@@ -158,6 +159,7 @@ export class ImportExportManager {
             }
           }
 
+          const writeStream = createWriteStream(filePath);
           writeStream.on('finish', resolve);
           writeStream.on('error', reject);
 
@@ -309,7 +311,7 @@ export class ImportExportManager {
       // 2. Transform/Prepare data (optional hooks could go here)
       // For now, pass import data directly to export
       // Note: Markdown import returns wrapper object, checking if unwrapping is needed
-      let dataToExport = importResult.data;
+      const dataToExport = importResult.data;
 
       // If we are exporting to CSV, we generally expect an array of objects.
       // If the imported data is not an array, this might fail in the handler.
@@ -379,6 +381,12 @@ importExportManager.registerPreset('settings', async () => {
 importExportManager.registerPreset('documents', async () => {
   // This would typically query a database or file system
   // For now, return a placeholder structure
+  // const data = []; // Assuming 'data' would come from a database query or file system read
+  // const dataToExport = {
+  //   version: '1.0.0',
+  //   timestamp: new Date().toISOString(),
+  //   data: data
+  // };
   return {
     documents: [],
     metadata: {
