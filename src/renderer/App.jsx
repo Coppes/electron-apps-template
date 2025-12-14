@@ -20,6 +20,8 @@ function App() {
   const [updateStatus, setUpdateStatus] = useState(null);
   const [updateProgress, setUpdateProgress] = useState(null);
 
+  const [isInitialized, setIsInitialized] = useState(false);
+
   // Initialize data menu handlers
   useDataMenu();
 
@@ -31,10 +33,11 @@ function App() {
         if (result.success && result.language) {
           // Update local i18n instance
           await i18n.changeLanguage(result.language);
-          // console.log('Language initialized to:', result.language);
         }
       } catch (error) {
-        // console.error('Failed to initialize language:', error);
+        console.error('Failed to initialize language:', error);
+      } finally {
+        setIsInitialized(true);
       }
     };
     initLanguage();
@@ -90,6 +93,10 @@ function App() {
   const handleDismiss = () => {
     setUpdateStatus(null);
   };
+
+  if (!isInitialized) {
+    return null;
+  }
 
   return (
     <ErrorBoundary>

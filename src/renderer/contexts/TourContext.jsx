@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import PropTypes from 'prop-types';
 import { useSettings } from './SettingsContext';
 import { TOUR_STEPS } from '../config/tour-steps';
@@ -17,6 +18,7 @@ const TourContext = createContext({
 export const useTour = () => useContext(TourContext);
 
 export const TourProvider = ({ children }) => {
+  const { t } = useTranslation('onboarding');
   const { settings, updateSetting } = useSettings();
   const [isOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
@@ -41,8 +43,21 @@ export const TourProvider = ({ children }) => {
     setIsOpen(false);
   };
 
+  // Translate steps dynamically
+  const translatedSteps = TOUR_STEPS.map((step, index) => {
+    const keys = ['welcome', 'navigation', 'command_palette', 'settings', 'finish'];
+    const key = keys[index];
+    if (!key) return step;
+
+    return {
+      ...step,
+      title: t(`tour.${key}.title`, step.title),
+      content: t(`tour.${key}.content`, step.content),
+    };
+  });
+
   const nextStep = () => {
-    if (currentStep < TOUR_STEPS.length - 1) {
+    if (currentStep < translatedSteps.length - 1) {
       setCurrentStep(prev => prev + 1);
     } else {
       completeTour();
@@ -64,7 +79,7 @@ export const TourProvider = ({ children }) => {
     <TourContext.Provider value={{
       isOpen,
       currentStep,
-      steps: TOUR_STEPS,
+      steps: translatedSteps,
       startTour,
       closeTour,
       nextStep,

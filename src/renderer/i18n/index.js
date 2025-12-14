@@ -11,9 +11,8 @@ i18n
     )
   )
   .init({
-    lng: 'en', // Default language
     fallbackLng: 'en',
-    ns: ['common', 'settings', 'errors', 'onboarding'],
+    ns: ['common', 'settings', 'errors', 'onboarding', 'connectivity', 'ipc', 'data_management'],
     defaultNS: 'common',
     interpolation: {
       escapeValue: false, // React already escapes values

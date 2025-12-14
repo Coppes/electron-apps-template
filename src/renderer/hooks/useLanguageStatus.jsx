@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSettings } from '../contexts/SettingsContext';
 import { useStatusBar } from './useStatusBar';
 import { Globe } from '@phosphor-icons/react';
 import * as ContextMenu from '../components/ui/ContextMenu';
@@ -9,21 +10,17 @@ import * as ContextMenu from '../components/ui/ContextMenu';
  */
 export function useLanguageStatus() {
   const { i18n } = useTranslation();
-  // Initialize with current language immediately
-  const [currentLang, setCurrentLang] = React.useState(i18n.language);
+  const { updateSetting, settings } = useSettings();
 
-  React.useEffect(() => {
-    const handleLanguageChanged = (lng) => {
-      setCurrentLang(lng);
-    };
-    i18n.on('languageChanged', handleLanguageChanged);
-    return () => {
-      i18n.off('languageChanged', handleLanguageChanged);
-    };
-  }, [i18n]);
+  // Use settings as source of truth if available, fall back to i18n
+  const currentLang = settings?.language || i18n.language;
+
+  // No need for local state syncing listener if we rely on settings
+  // But settings update is async. i18n might update faster.
+  // actually SettingsContext syncs i18n. 
 
   const changeLanguage = (lng) => {
-    i18n.changeLanguage(lng);
+    updateSetting('language', lng);
   };
 
   /* eslint-disable-next-line react-hooks/preserve-manual-memoization */
