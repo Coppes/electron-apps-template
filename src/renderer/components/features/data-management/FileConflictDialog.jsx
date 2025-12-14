@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation, Trans } from 'react-i18next';
 import PropTypes from 'prop-types';
 
 /**
@@ -6,6 +7,7 @@ import PropTypes from 'prop-types';
  * Modal dialog for resolving file conflicts with diff view
  */
 export default function FileConflictDialog({ isOpen, conflict, onResolve, onClose }) {
+  const { t } = useTranslation('data_management');
   const [selectedResolution, setSelectedResolution] = useState('keep-local');
   const [showDiff, setShowDiff] = useState(false);
 
@@ -44,7 +46,7 @@ export default function FileConflictDialog({ isOpen, conflict, onResolve, onClos
                 />
               </svg>
               <h3 className="text-lg font-medium text-red-900 dark:text-red-100">
-                File Conflict Detected
+                {t('conflict.title')}
               </h3>
             </div>
           </div>
@@ -54,8 +56,7 @@ export default function FileConflictDialog({ isOpen, conflict, onResolve, onClos
             {/* Conflict Info */}
             <div className="mb-6">
               <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
-                The file <span className="font-mono font-medium">{conflict.filename}</span> has
-                been modified both locally and remotely. Choose how to resolve this conflict:
+                <Trans i18nKey="conflict.message" t={t} values={{ filename: conflict.filename }} components={{ 1: <span className="font-mono font-medium" /> }} />
               </p>
             </div>
 
@@ -63,42 +64,46 @@ export default function FileConflictDialog({ isOpen, conflict, onResolve, onClos
             <div className="space-y-3 mb-6">
               <ResolutionOption
                 id="keep-local"
-                title="Keep Local Version"
-                description="Use your local changes and discard remote changes"
+                title={t('conflict.keep_local')}
+                description={t('conflict.keep_local_desc')}
                 icon="⬅️"
                 selected={selectedResolution === 'keep-local'}
                 onSelect={() => setSelectedResolution('keep-local')}
                 metadata={conflict.local}
+                t={t}
               />
 
               <ResolutionOption
                 id="keep-remote"
-                title="Keep Remote Version"
-                description="Use remote changes and discard your local changes"
+                title={t('conflict.keep_remote')}
+                description={t('conflict.keep_remote_desc')}
                 icon="➡️"
                 selected={selectedResolution === 'keep-remote'}
                 onSelect={() => setSelectedResolution('keep-remote')}
                 metadata={conflict.remote}
+                t={t}
               />
 
               <ResolutionOption
                 id="merge"
-                title="Merge Changes"
-                description="Attempt to automatically merge both versions"
+                title={t('conflict.merge')}
+                description={t('conflict.merge_desc')}
                 icon="🔀"
                 selected={selectedResolution === 'merge'}
                 onSelect={() => setSelectedResolution('merge')}
                 metadata={{ warning: 'May require manual review after merge' }}
+                t={t}
               />
 
               <ResolutionOption
                 id="rename"
-                title="Keep Both (Rename)"
-                description="Keep both versions by renaming the remote file"
+                title={t('conflict.rename')}
+                description={t('conflict.rename_desc')}
                 icon="📋"
                 selected={selectedResolution === 'rename'}
                 onSelect={() => setSelectedResolution('rename')}
                 metadata={{ note: 'Remote file will be saved with a timestamp suffix' }}
+                t={t}
               />
             </div>
 
@@ -108,7 +113,7 @@ export default function FileConflictDialog({ isOpen, conflict, onResolve, onClos
                 onClick={() => setShowDiff(!showDiff)}
                 className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium"
               >
-                {showDiff ? '▼ Hide' : '▶ Show'} Changes
+                {showDiff ? `▼ ${t('conflict.hide_diff')}` : `▶ ${t('conflict.show_diff')}`}
               </button>
             </div>
 
@@ -120,10 +125,10 @@ export default function FileConflictDialog({ isOpen, conflict, onResolve, onClos
                   <div className="bg-red-50 dark:bg-red-900/10">
                     <div className="px-4 py-2 bg-red-100 dark:bg-red-900/30 border-b border-red-200 dark:border-red-800">
                       <p className="text-xs font-medium text-red-900 dark:text-red-100">
-                        Local Version
+                        {t('conflict.local_version')}
                       </p>
                       <p className="text-xs text-red-700 dark:text-red-300">
-                        Modified: {formatDate(conflict.local.modifiedAt)}
+                        {t('conflict.modified', { date: formatDate(conflict.local.modifiedAt) })}
                       </p>
                     </div>
                     <div className="p-4">
@@ -137,10 +142,10 @@ export default function FileConflictDialog({ isOpen, conflict, onResolve, onClos
                   <div className="bg-green-50 dark:bg-green-900/10">
                     <div className="px-4 py-2 bg-green-100 dark:bg-green-900/30 border-b border-green-200 dark:border-green-800">
                       <p className="text-xs font-medium text-green-900 dark:text-green-100">
-                        Remote Version
+                        {t('conflict.remote_version')}
                       </p>
                       <p className="text-xs text-green-700 dark:text-green-300">
-                        Modified: {formatDate(conflict.remote.modifiedAt)}
+                        {t('conflict.modified', { date: formatDate(conflict.remote.modifiedAt) })}
                       </p>
                     </div>
                     <div className="p-4">
@@ -156,7 +161,7 @@ export default function FileConflictDialog({ isOpen, conflict, onResolve, onClos
             {/* Warning */}
             <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
               <p className="text-xs text-yellow-800 dark:text-yellow-200">
-                ⚠️ This action cannot be undone. Make sure you have a backup if you&apos;re unsure.
+                ⚠️ {t('conflict.warning')}
               </p>
             </div>
           </div>
@@ -167,13 +172,13 @@ export default function FileConflictDialog({ isOpen, conflict, onResolve, onClos
               onClick={onClose}
               className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
             >
-              Cancel
+              {t('conflict.cancel')}
             </button>
             <button
               onClick={handleResolve}
               className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
             >
-              Resolve Conflict
+              {t('conflict.resolve')}
             </button>
           </div>
         </div>
@@ -186,15 +191,14 @@ export default function FileConflictDialog({ isOpen, conflict, onResolve, onClos
  * ResolutionOption Component
  * Radio button option for conflict resolution
  */
-function ResolutionOption({ id, title, description, icon, selected, onSelect, metadata }) {
+function ResolutionOption({ id, title, description, icon, selected, onSelect, metadata, t }) {
   return (
     <label
       htmlFor={id}
-      className={`block p-4 border-2 rounded-lg cursor-pointer transition-all ${
-        selected
-          ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
-          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-      }`}
+      className={`block p-4 border-2 rounded-lg cursor-pointer transition-all ${selected
+        ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
+        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+        }`}
     >
       <div className="flex items-start">
         <input
@@ -213,7 +217,7 @@ function ResolutionOption({ id, title, description, icon, selected, onSelect, me
           <p className="text-xs text-gray-600 dark:text-gray-400">{description}</p>
           {metadata && (
             <div className="mt-2 text-xs text-gray-500 dark:text-gray-500">
-              {metadata.modifiedAt && <p>Modified: {formatDate(metadata.modifiedAt)}</p>}
+              {metadata.modifiedAt && <p>{t('conflict.modified', { date: formatDate(metadata.modifiedAt) })}</p>}
               {metadata.size && <p>Size: {formatFileSize(metadata.size)}</p>}
               {metadata.warning && (
                 <p className="text-yellow-700 dark:text-yellow-400">⚠️ {metadata.warning}</p>
@@ -270,4 +274,5 @@ ResolutionOption.propTypes = {
   selected: PropTypes.bool.isRequired,
   onSelect: PropTypes.func.isRequired,
   metadata: PropTypes.object,
+  t: PropTypes.func.isRequired,
 };

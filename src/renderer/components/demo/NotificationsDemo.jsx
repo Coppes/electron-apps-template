@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Bell, PaperPlaneRight, Trash, WarningCircle, ShieldCheck, ShieldWarning } from '@phosphor-icons/react';
 
 /**
@@ -6,6 +7,7 @@ import { Bell, PaperPlaneRight, Trash, WarningCircle, ShieldCheck, ShieldWarning
  * Demonstrates native OS notifications with actions
  */
 export default function NotificationsDemo() {
+  const { t } = useTranslation('common');
   const [title, setTitle] = useState('Hello!');
   const [body, setBody] = useState('This is a notification from your Electron app');
   const [urgency, setUrgency] = useState('normal');
@@ -144,7 +146,7 @@ export default function NotificationsDemo() {
     <div className="space-y-6">
       <div className="flex items-center gap-2 mb-4">
         <Bell className="w-6 h-6 text-orange-600" />
-        <h2 className="text-2xl font-bold">Native Notifications</h2>
+        <h2 className="text-2xl font-bold">{t('notifications_demo.title')}</h2>
       </div>
 
       {/* Status */}
@@ -161,7 +163,7 @@ export default function NotificationsDemo() {
       <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <h3 className="font-semibold">Permission Status</h3>
+            <h3 className="font-semibold">{t('notifications_demo.permission_status')}</h3>
             <span className={`px-2 py-1 rounded text-xs font-medium flex items-center gap-1 ${permissionStatus === 'granted'
               ? 'bg-green-100 text-green-800'
               : permissionStatus === 'denied'
@@ -169,71 +171,71 @@ export default function NotificationsDemo() {
                 : 'bg-gray-100 text-gray-800'
               }`}>
               {permissionStatus === 'granted' ? <ShieldCheck className="w-3 h-3" /> : <ShieldWarning className="w-3 h-3" />}
-              {permissionStatus === null ? 'Unknown' : permissionStatus === 'granted' ? 'Granted' : 'Denied'}
+              {permissionStatus === null ? t('notifications_demo.unknown') : permissionStatus === 'granted' ? t('notifications_demo.granted') : t('notifications_demo.denied')}
             </span>
           </div>
           <button
             onClick={requestPermission}
             className="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 rounded text-sm hover:bg-gray-50"
           >
-            Check/Request Permission
+            {t('notifications_demo.check_request')}
           </button>
         </div>
       </div>
 
       {/* Quick Notifications */}
       <div className="border border-gray-200 rounded-lg p-4">
-        <h3 className="font-semibold mb-3">Quick Notifications</h3>
+        <h3 className="font-semibold mb-3">{t('notifications_demo.quick_title')}</h3>
         <div className="grid grid-cols-2 gap-3">
           <button
             onClick={() => showQuickNotification('success')}
             className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 flex items-center justify-center gap-2"
           >
-            ✓ Success
+            ✓ {t('notifications_demo.success')}
           </button>
           <button
             onClick={() => showQuickNotification('warning')}
             className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 flex items-center justify-center gap-2"
           >
-            ⚠ Warning
+            ⚠ {t('notifications_demo.warning')}
           </button>
           <button
             onClick={() => showQuickNotification('error')}
             className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 flex items-center justify-center gap-2"
           >
-            ✗ Error
+            ✗ {t('notifications_demo.error')}
           </button>
           <button
             onClick={() => showQuickNotification('info')}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center justify-center gap-2"
           >
-            ℹ Info
+            ℹ {t('notifications_demo.info')}
           </button>
         </div>
       </div>
 
       {/* Custom Notification */}
       <div className="border border-gray-200 rounded-lg p-4">
-        <h3 className="font-semibold mb-3">Custom Notification</h3>
+        <h3 className="font-semibold mb-3">{t('notifications_demo.custom_title')}</h3>
 
         <div className="space-y-3">
           <div>
-            <label className="block text-sm font-medium mb-1">Title *</label>
+            <label className="block text-sm font-medium mb-1">{t('notifications_demo.input_title')}</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Notification title"
+              placeholder={t('notifications_demo.input_title_placeholder')}
               className="w-full px-3 py-2 border border-gray-300 rounded"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Body</label>
+            <label className="block text-sm font-medium mb-1">{t('notifications_demo.input_body')}</label>
             <textarea
               value={body}
               onChange={(e) => setBody(e.target.value)}
-              placeholder="Notification body text"
+              placeholder={t('notifications_demo.input_body_placeholder')}
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 rounded"
             />
@@ -241,15 +243,15 @@ export default function NotificationsDemo() {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium mb-1">Urgency</label>
+              <label className="block text-sm font-medium mb-1">{t('notifications_demo.urgency')}</label>
               <select
                 value={urgency}
                 onChange={(e) => setUrgency(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded"
               >
-                <option value="low">Low</option>
-                <option value="normal">Normal</option>
-                <option value="critical">Critical</option>
+                <option value="low">{t('notifications_demo.low')}</option>
+                <option value="normal">{t('notifications_demo.normal')}</option>
+                <option value="critical">{t('notifications_demo.critical')}</option>
               </select>
             </div>
 
@@ -261,7 +263,7 @@ export default function NotificationsDemo() {
                   onChange={(e) => setSilent(e.target.checked)}
                   className="w-4 h-4"
                 />
-                <span className="text-sm">Silent</span>
+                <span className="text-sm">{t('notifications_demo.silent')}</span>
               </label>
 
               <label className="flex items-center gap-2">
@@ -271,7 +273,7 @@ export default function NotificationsDemo() {
                   onChange={(e) => setWithActions(e.target.checked)}
                   className="w-4 h-4"
                 />
-                <span className="text-sm">With Actions</span>
+                <span className="text-sm">{t('notifications_demo.with_actions')}</span>
               </label>
             </div>
           </div>
@@ -281,7 +283,7 @@ export default function NotificationsDemo() {
             className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center justify-center gap-2"
           >
             <PaperPlaneRight className="w-4 h-4" />
-            Send Notification
+            {t('notifications_demo.send_btn')}
           </button>
         </div>
       </div>
@@ -289,20 +291,20 @@ export default function NotificationsDemo() {
       {/* Event Log */}
       <div className="border border-gray-200 rounded-lg p-4">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold">Event Log ({eventLog.length})</h3>
+          <h3 className="font-semibold">{t('notifications_demo.event_log')} ({eventLog.length})</h3>
           {eventLog.length > 0 && (
             <button
               onClick={clearLog}
               className="px-3 py-1 text-sm text-red-600 hover:text-red-800 flex items-center gap-1"
             >
               <Trash className="w-3 h-3" />
-              Clear
+              {t('notifications_demo.clear_log')}
             </button>
           )}
         </div>
 
         {eventLog.length === 0 ? (
-          <p className="text-gray-500 text-sm">No events yet. Send a notification to see events.</p>
+          <p className="text-gray-500 text-sm">{t('notifications_demo.no_events')}</p>
         ) : (
           <div className="space-y-2 max-h-64 overflow-y-auto">
             {eventLog.map((log, index) => (
@@ -329,21 +331,21 @@ export default function NotificationsDemo() {
 
       {/* Instructions */}
       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-        <h4 className="font-semibold mb-2">Instructions:</h4>
+        <h4 className="font-semibold mb-2">{t('notifications_demo.instructions_title')}</h4>
         <ol className="list-decimal list-inside space-y-1 text-sm">
-          <li>Try the quick notification buttons for common use cases</li>
-          <li>Create custom notifications with title, body, and options</li>
-          <li>Click on notifications to see click events logged</li>
-          <li>Enable &ldquo;With Actions&rdquo; to add buttons (platform support varies)</li>
-          <li>Watch the event log for all notification interactions</li>
-          <li>Rate limiting prevents more than 10 notifications per minute</li>
+          <li>{t('notifications_demo.instruction_1')}</li>
+          <li>{t('notifications_demo.instruction_2')}</li>
+          <li>{t('notifications_demo.instruction_3')}</li>
+          <li>{t('notifications_demo.instruction_4')}</li>
+          <li>{t('notifications_demo.instruction_5')}</li>
+          <li>{t('notifications_demo.instruction_6')}</li>
         </ol>
         <div className="mt-3 pt-3 border-t border-yellow-300">
           <p className="text-xs text-gray-700">
-            <strong>Platform Support:</strong><br />
-            • <strong>macOS:</strong> Full support including actions and replies<br />
-            • <strong>Windows 10+:</strong> Supports actions via Action Center<br />
-            • <strong>Linux:</strong> Support varies by desktop environment (GNOME, KDE, etc.)
+            <strong>{t('notifications_demo.platform_support')}</strong><br />
+            • <strong>{t('notifications_demo.macos_support')}</strong><br />
+            • <strong>{t('notifications_demo.windows_support')}</strong><br />
+            • <strong>{t('notifications_demo.linux_support')}</strong>
           </p>
         </div>
       </div>

@@ -1,25 +1,27 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Separator from '../components/ui/Separator';
 
 export default function ComponentTestPage() {
+  const { t } = useTranslation('common');
   const [activeTab, setActiveTab] = useState('buttons');
   const [inputValue, setInputValue] = useState('');
 
   const tabs = [
-    { id: 'buttons', label: 'Buttons' },
-    { id: 'inputs', label: 'Inputs' },
-    { id: 'cards', label: 'Cards' },
+    { id: 'buttons', label: t('component_test.tabs.buttons') },
+    { id: 'inputs', label: t('component_test.tabs.inputs') },
+    { id: 'cards', label: t('component_test.tabs.cards') },
   ];
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Component Playground</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{t('component_test.title')}</h1>
         <p className="text-muted-foreground">
-          Test area for UI components and interactions.
+          {t('component_test.description')}
         </p>
       </div>
 
@@ -38,33 +40,33 @@ export default function ComponentTestPage() {
       {activeTab === 'buttons' && (
         <Card>
           <CardHeader>
-            <CardTitle>Button Variants</CardTitle>
-            <CardDescription>Test different button styles and states</CardDescription>
+            <CardTitle>{t('component_test.buttons.title')}</CardTitle>
+            <CardDescription>{t('component_test.buttons.description')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex flex-wrap gap-4">
-              <Button>Default Button</Button>
-              <Button variant="secondary">Secondary</Button>
-              <Button variant="destructive">Destructive</Button>
-              <Button variant="outline">Outline</Button>
-              <Button variant="ghost">Ghost</Button>
-              <Button variant="link">Link</Button>
+              <Button>{t('component_test.buttons.default')}</Button>
+              <Button variant="secondary">{t('component_test.buttons.secondary')}</Button>
+              <Button variant="destructive">{t('component_test.buttons.destructive')}</Button>
+              <Button variant="outline">{t('component_test.buttons.outline')}</Button>
+              <Button variant="ghost">{t('component_test.buttons.ghost')}</Button>
+              <Button variant="link">{t('component_test.buttons.link')}</Button>
             </div>
 
             <Separator />
 
             <div className="flex flex-wrap gap-4">
-              <Button size="sm">Small</Button>
-              <Button size="default">Default</Button>
-              <Button size="lg">Large</Button>
-              <Button size="icon">icon</Button>
+              <Button size="sm">{t('component_test.buttons.small')}</Button>
+              <Button size="default">{t('component_test.buttons.default')}</Button>
+              <Button size="lg">{t('component_test.buttons.large')}</Button>
+              <Button size="icon">{t('component_test.buttons.icon')}</Button>
             </div>
 
             <Separator />
 
             <div className="flex flex-wrap gap-4">
-              <Button disabled>Disabled</Button>
-              <Button variant="outline" disabled>Disabled Outline</Button>
+              <Button disabled>{t('component_test.buttons.disabled')}</Button>
+              <Button variant="outline" disabled>{t('component_test.buttons.disabled_outline')}</Button>
             </div>
           </CardContent>
         </Card>
@@ -73,29 +75,29 @@ export default function ComponentTestPage() {
       {activeTab === 'inputs' && (
         <Card>
           <CardHeader>
-            <CardTitle>Input Components</CardTitle>
-            <CardDescription>Test text inputs and controls</CardDescription>
+            <CardTitle>{t('component_test.inputs.title')}</CardTitle>
+            <CardDescription>{t('component_test.inputs.description')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="max-w-sm space-y-2">
-              <label className="text-sm font-medium">Standard Input</label>
+              <label className="text-sm font-medium">{t('component_test.inputs.standard_label')}</label>
               <Input
-                placeholder="Type something..."
+                placeholder={t('component_test.inputs.placeholder')}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
               />
-              <p className="text-xs text-muted-foreground">Value: {inputValue}</p>
+              <p className="text-xs text-muted-foreground">{t('component_test.inputs.value_label', { val: inputValue })}</p>
             </div>
 
             <div className="max-w-sm space-y-2">
-              <label className="text-sm font-medium">Disabled Input</label>
-              <Input disabled placeholder="Cannot type here" />
+              <label className="text-sm font-medium">{t('component_test.inputs.disabled_label')}</label>
+              <Input disabled placeholder={t('component_test.inputs.disabled_placeholder')} />
             </div>
 
             <div className="max-w-sm space-y-2">
-              <label className="text-sm font-medium">Input with Error</label>
-              <Input className="border-red-500" placeholder="Error state" />
-              <p className="text-xs text-red-500">Invalid input value</p>
+              <label className="text-sm font-medium">{t('component_test.inputs.error_label')}</label>
+              <Input className="border-red-500" placeholder={t('component_test.inputs.error_placeholder')} />
+              <p className="text-xs text-red-500">{t('component_test.inputs.error_msg')}</p>
             </div>
           </CardContent>
         </Card>
@@ -105,21 +107,21 @@ export default function ComponentTestPage() {
         <div className="grid gap-4 md:grid-cols-2">
           <Card>
             <CardHeader>
-              <CardTitle>Simple Card</CardTitle>
-              <CardDescription>Basic card with header and content</CardDescription>
+              <CardTitle>{t('component_test.cards.simple_title')}</CardTitle>
+              <CardDescription>{t('component_test.cards.simple_desc')}</CardDescription>
             </CardHeader>
             <CardContent>
-              <p>This is the content within the card body.</p>
+              <p>{t('component_test.cards.simple_content')}</p>
             </CardContent>
           </Card>
 
           <Card className="bg-muted">
             <CardHeader>
-              <CardTitle>Muted Card</CardTitle>
-              <CardDescription>Card with muted background</CardDescription>
+              <CardTitle>{t('component_test.cards.muted_title')}</CardTitle>
+              <CardDescription>{t('component_test.cards.muted_desc')}</CardDescription>
             </CardHeader>
             <CardContent>
-              <p>Content on a muted background surface.</p>
+              <p>{t('component_test.cards.muted_content')}</p>
             </CardContent>
           </Card>
         </div>

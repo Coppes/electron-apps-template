@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Minus, Square, X, Copy } from '@phosphor-icons/react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils/cn';
 
 /**
@@ -9,6 +10,7 @@ import { cn } from '../../utils/cn';
 import PropTypes from 'prop-types';
 
 export function WindowControls({ className }) {
+  const { t } = useTranslation('common');
   const [isMaximized, setIsMaximized] = useState(false);
 
   useEffect(() => {
@@ -54,14 +56,14 @@ export function WindowControls({ className }) {
       <button
         onClick={handleMinimize}
         className="h-full px-4 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-none"
-        title="Minimize"
+        title={t('window.controls.minimize')}
       >
         <Minus size={16} className="text-gray-600 dark:text-gray-300" />
       </button>
       <button
         onClick={handleMaximize}
         className="h-full px-4 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-none"
-        title={isMaximized ? "Restore" : "Maximize"}
+        title={isMaximized ? t('window.controls.restore') : t('window.controls.maximize')}
       >
         {isMaximized ? (
           <Copy size={16} className="text-gray-600 dark:text-gray-300" /> // Using Copy as "Restore" look-alike or separate Restore icon
@@ -72,7 +74,7 @@ export function WindowControls({ className }) {
       <button
         onClick={handleClose}
         className="h-full px-4 hover:bg-red-500 hover:text-white transition-colors focus:outline-none group"
-        title="Close"
+        title={t('window.controls.close')}
       >
         <X size={16} className="text-gray-600 dark:text-gray-300 group-hover:text-white" />
       </button>

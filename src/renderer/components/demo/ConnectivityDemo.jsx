@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
 import Button from '../ui/Button';
 import SyncQueueViewer from '../features/data-management/SyncQueueViewer';
@@ -8,6 +9,7 @@ import SyncQueueViewer from '../features/data-management/SyncQueueViewer';
  * Demonstrates online/offline behavior and sync queue functionality
  */
 export default function ConnectivityDemo() {
+  const { t } = useTranslation('connectivity');
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [syncStats, setSyncStats] = useState({ pending: 0, completed: 0, failed: 0 });
   const [manualOffline, setManualOffline] = useState(false);
@@ -22,7 +24,7 @@ export default function ConnectivityDemo() {
     // Simulate sync stats updates
     const interval = setInterval(() => {
       if (window.electronAPI?.data?.getSyncStats) {
-        window.electronAPI.data.getSyncStats().then(setSyncStats).catch(() => {});
+        window.electronAPI.data.getSyncStats().then(setSyncStats).catch(() => { });
       }
     }, 2000);
 
@@ -65,18 +67,18 @@ export default function ConnectivityDemo() {
       {/* Connection Status */}
       <Card>
         <CardHeader>
-          <CardTitle>Connection Status</CardTitle>
-          <CardDescription>Current network and connectivity state</CardDescription>
+          <CardTitle>{t('demo.status_title')}</CardTitle>
+          <CardDescription>{t('demo.status_desc')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center gap-4">
             <div className={`w-4 h-4 rounded-full ${effectiveOnline ? 'bg-green-500' : 'bg-red-500'}`} />
             <div>
               <div className="font-semibold">
-                {effectiveOnline ? 'Online' : 'Offline'}
+                {effectiveOnline ? t('demo.online') : t('demo.offline')}
               </div>
               <div className="text-sm text-muted-foreground">
-                {manualOffline ? 'Manual offline mode' : isOnline ? 'Network connected' : 'Network disconnected'}
+                {manualOffline ? t('demo.manual_mode') : isOnline ? t('demo.connected') : t('demo.disconnected')}
               </div>
             </div>
           </div>
@@ -85,7 +87,7 @@ export default function ConnectivityDemo() {
             variant="outline"
             onClick={handleToggleManualOffline}
           >
-            {manualOffline ? 'Enable Network' : 'Simulate Offline Mode'}
+            {manualOffline ? t('demo.enable_net') : t('demo.sim_offline')}
           </Button>
         </CardContent>
       </Card>
@@ -93,22 +95,22 @@ export default function ConnectivityDemo() {
       {/* Sync Statistics */}
       <Card>
         <CardHeader>
-          <CardTitle>Sync Statistics</CardTitle>
-          <CardDescription>Operations queue status</CardDescription>
+          <CardTitle>{t('demo.stats_title')}</CardTitle>
+          <CardDescription>{t('demo.stats_desc')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-3 gap-4">
             <div className="text-center p-4 border border-border rounded">
               <div className="text-2xl font-bold">{syncStats.pending}</div>
-              <div className="text-sm text-muted-foreground">Pending</div>
+              <div className="text-sm text-muted-foreground">{t('demo.pending')}</div>
             </div>
             <div className="text-center p-4 border border-border rounded">
               <div className="text-2xl font-bold text-green-600">{syncStats.completed}</div>
-              <div className="text-sm text-muted-foreground">Completed</div>
+              <div className="text-sm text-muted-foreground">{t('demo.completed')}</div>
             </div>
             <div className="text-center p-4 border border-border rounded">
               <div className="text-2xl font-bold text-red-600">{syncStats.failed}</div>
-              <div className="text-sm text-muted-foreground">Failed</div>
+              <div className="text-sm text-muted-foreground">{t('demo.failed')}</div>
             </div>
           </div>
 
@@ -117,14 +119,14 @@ export default function ConnectivityDemo() {
               onClick={handleTriggerSync}
               disabled={!effectiveOnline || syncStats.pending === 0}
             >
-              Trigger Sync
+              {t('demo.trigger_sync')}
             </Button>
             <Button
               variant="outline"
               onClick={handleClearQueue}
               disabled={syncStats.pending === 0}
             >
-              Clear Queue
+              {t('demo.clear_queue')}
             </Button>
           </div>
         </CardContent>
@@ -133,8 +135,8 @@ export default function ConnectivityDemo() {
       {/* Sync Queue Viewer */}
       <Card>
         <CardHeader>
-          <CardTitle>Sync Queue</CardTitle>
-          <CardDescription>Pending operations in the sync queue</CardDescription>
+          <CardTitle>{t('demo.queue_title')}</CardTitle>
+          <CardDescription>{t('demo.queue_desc')}</CardDescription>
         </CardHeader>
         <CardContent>
           <SyncQueueViewer />

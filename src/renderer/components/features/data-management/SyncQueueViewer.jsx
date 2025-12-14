@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import PropTypes from 'prop-types';
 
 /**
@@ -6,19 +7,14 @@ import PropTypes from 'prop-types';
  * View and manage sync queue operations
  */
 export default function SyncQueueViewer() {
+  const { t } = useTranslation('data_management');
   const [operations, setOperations] = useState([]);
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState('all');
 
-  useEffect(() => {
-    loadQueueData();
-    const interval = setInterval(loadQueueData, 5000); // Refresh every 5s
-    return () => clearInterval(interval);
-  }, []);
-
-  const loadQueueData = async () => {
+  const loadQueueData = useCallback(async () => {
     try {
       setError(null);
       const [queueStatus, queueOperations] = await Promise.all([
@@ -28,11 +24,17 @@ export default function SyncQueueViewer() {
       setStatus(queueStatus);
       setOperations(queueOperations);
     } catch (err) {
-      setError(`Failed to load sync queue: ${err.message}`);
+      setError(t('sync_queue.error_load', { error: err.message }));
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
+
+  useEffect(() => {
+    loadQueueData();
+    const interval = setInterval(loadQueueData, 5000); // Refresh every 5s
+    return () => clearInterval(interval);
+  }, [loadQueueData]);
 
   const handleProcessQueue = async () => {
     try {
@@ -40,7 +42,7 @@ export default function SyncQueueViewer() {
       await window.electronAPI.data.processSyncQueue();
       await loadQueueData();
     } catch (err) {
-      setError(`Failed to process queue: ${err.message}`);
+      setError(t('sync_queue.error_process', { error: err.message }));
     }
   };
 
@@ -50,7 +52,7 @@ export default function SyncQueueViewer() {
       await window.electronAPI.data.retrySyncOperation({ operationId });
       await loadQueueData();
     } catch (err) {
-      setError(`Failed to retry operation: ${err.message}`);
+      setError(t('sync_queue.error_retry', { error: err.message }));
     }
   };
 
@@ -75,7 +77,7 @@ export default function SyncQueueViewer() {
     return (
       <div className="p-6 text-center">
         <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <p className="mt-2 text-gray-600 dark:text-gray-400">Loading sync queue...</p>
+        <p className="mt-2 text-gray-600 dark:text-gray-400">{t('sync_queue.loading')}</p>
       </div>
     );
   }
@@ -83,9 +85,9 @@ export default function SyncQueueViewer() {
   return (
     <div className="p-6 max-w-6xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Sync Queue</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t('sync_queue.title')}</h1>
         <p className="text-gray-600 dark:text-gray-400">
-          Monitor and manage offline synchronization operations
+          {t('sync_queue.subtitle')}
         </p>
       </div>
 
@@ -93,27 +95,27 @@ export default function SyncQueueViewer() {
       {status && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <StatusCard
-            title="Total Operations"
+            title={t('sync_queue.total')}
             value={status.totalOperations}
             icon="📊"
             color="blue"
           />
           <StatusCard
-            title="Pending"
+            title={t('sync_queue.pending')}
             value={statusCounts.pending}
             icon="⏳"
             color="yellow"
             onClick={() => setFilter('pending')}
           />
           <StatusCard
-            title="Synced"
+            title={t('sync_queue.synced')}
             value={statusCounts.synced}
             icon="✅"
             color="green"
             onClick={() => setFilter('synced')}
           />
           <StatusCard
-            title="Failed"
+            title={t('sync_queue.failed')}
             value={statusCounts.failed}
             icon="❌"
             color="red"
@@ -128,24 +130,24 @@ export default function SyncQueueViewer() {
           onClick={handleProcessQueue}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
         >
-          Process Queue Now
+          {t('sync_queue.process_now')}
         </button>
         <button
           onClick={loadQueueData}
           className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
         >
-          Refresh
+          {t('sync_queue.refresh')}
         </button>
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
         >
-          <option value="all">All Status</option>
-          <option value="pending">Pending</option>
-          <option value="syncing">Syncing</option>
-          <option value="synced">Synced</option>
-          <option value="failed">Failed</option>
+          <option value="all">{t('sync_queue.filter_all')}</option>
+          <option value="pending">{t('sync_queue.pending')}</option>
+          <option value="syncing">{t('sync_queue.syncing')}</option>
+          <option value="synced">{t('sync_queue.synced')}</option>
+          <option value="failed">{t('sync_queue.failed')}</option>
         </select>
       </div>
 
@@ -172,7 +174,7 @@ export default function SyncQueueViewer() {
               d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
             />
           </svg>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">No operations found</p>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">{t('sync_queue.no_operations')}</p>
         </div>
       ) : (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
@@ -181,22 +183,22 @@ export default function SyncQueueViewer() {
               <thead className="bg-gray-50 dark:bg-gray-900">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Operation
+                    {t('sync_queue.table.operation')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Type
+                    {t('sync_queue.table.type')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Status
+                    {t('sync_queue.table.status')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Retries
+                    {t('sync_queue.table.retries')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Timestamp
+                    {t('sync_queue.table.timestamp')}
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Actions
+                    {t('sync_queue.table.actions')}
                   </th>
                 </tr>
               </thead>
@@ -206,6 +208,7 @@ export default function SyncQueueViewer() {
                     key={operation.id}
                     operation={operation}
                     onRetry={handleRetryOperation}
+                    t={t}
                   />
                 ))}
               </tbody>
@@ -251,7 +254,7 @@ function StatusCard({ title, value, icon, color, onClick }) {
  * OperationRow Component
  * Single operation in the sync queue table
  */
-function OperationRow({ operation, onRetry }) {
+function OperationRow({ operation, onRetry, t }) {
   const statusColors = {
     pending: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200',
     syncing: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200',
@@ -297,7 +300,7 @@ function OperationRow({ operation, onRetry }) {
             onClick={() => onRetry(operation.id)}
             className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
           >
-            Retry
+            {t('sync_queue.retry')}
           </button>
         )}
       </td>
@@ -324,4 +327,5 @@ OperationRow.propTypes = {
     error: PropTypes.string,
   }).isRequired,
   onRetry: PropTypes.func.isRequired,
+  t: PropTypes.func.isRequired,
 };

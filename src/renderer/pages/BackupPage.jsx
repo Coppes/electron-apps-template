@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import PropTypes from 'prop-types';
 import { Clock } from '@phosphor-icons/react';
 
@@ -7,6 +8,7 @@ import { Clock } from '@phosphor-icons/react';
  * Manages backup creation, restoration, and deletion with list view
  */
 export default function BackupPage() {
+  const { t } = useTranslation('data_management');
   const [backups, setBackups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -14,12 +16,6 @@ export default function BackupPage() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [schedule, setSchedule] = useState('never');
-
-  // Load backups and settings on mount
-  useEffect(() => {
-    loadBackups();
-    loadSchedule();
-  }, []);
 
   const loadSchedule = async () => {
     try {
@@ -43,22 +39,29 @@ export default function BackupPage() {
         // In a real app, this would also notify the main process to reschedule
       }
     } catch (err) {
-      setError(`Failed to save schedule: ${err.message}`);
+      setError(t('backups.error_save_schedule', { error: err.message }));
     }
   };
 
-  const loadBackups = async () => {
+
+  const loadBackups = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       const result = await window.electronAPI.data.listBackups();
       setBackups(result.backups || []);
     } catch (err) {
-      setError(`Failed to load backups: ${err.message}`);
+      setError(t('backups.error_load', { error: err.message }));
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
+
+  // Load backups and settings on mount
+  useEffect(() => {
+    loadBackups();
+    loadSchedule();
+  }, [loadBackups]);
 
   const handleCreateBackup = async () => {
     try {
@@ -70,17 +73,17 @@ export default function BackupPage() {
         includeSecureStorage: true,
       });
 
-      setSuccess(`Backup created successfully: ${result.filename}`);
+      setSuccess(t('backups.success_create', { filename: result.filename }));
       await loadBackups();
     } catch (err) {
-      setError(`Failed to create backup: ${err.message}`);
+      setError(t('backups.error_create', { error: err.message }));
     } finally {
       setCreating(false);
     }
   };
 
   const handleRestoreBackup = async (filename) => {
-    if (!confirm(`Restore backup "${filename}"? This will replace current data.`)) {
+    if (!confirm(t('backups.confirm_restore', { filename }))) {
       return;
     }
 
@@ -90,21 +93,21 @@ export default function BackupPage() {
       setSuccess(null);
 
       await window.electronAPI.data.restoreBackup(filename);
-      setSuccess(`Backup restored successfully: ${filename}`);
+      setSuccess(t('backups.success_restore', { filename }));
 
       // Reload app data after restore
       setTimeout(() => {
         window.location.reload();
       }, 2000);
     } catch (err) {
-      setError(`Failed to restore backup: ${err.message}`);
+      setError(t('backups.error_restore', { error: err.message }));
     } finally {
       setRestoring(false);
     }
   };
 
   const handleDeleteBackup = async (filename) => {
-    if (!confirm(`Delete backup "${filename}"? This cannot be undone.`)) {
+    if (!confirm(t('backups.confirm_delete', { filename }))) {
       return;
     }
 
@@ -113,10 +116,10 @@ export default function BackupPage() {
       setSuccess(null);
 
       await window.electronAPI.data.deleteBackup(filename);
-      setSuccess(`Backup deleted: ${filename}`);
+      setSuccess(t('backups.success_delete', { filename }));
       await loadBackups();
     } catch (err) {
-      setError(`Failed to delete backup: ${err.message}`);
+      setError(t('backups.error_delete', { error: err.message }));
     }
   };
 
@@ -137,10 +140,10 @@ export default function BackupPage() {
       <div className="flex justify-between items-start mb-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Backup Management
+            {t('backups.title')}
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Create, restore, and manage your application backups
+            {t('backups.subtitle')}
           </p>
         </div>
 
@@ -148,17 +151,17 @@ export default function BackupPage() {
         <div className="flex items-center gap-3 bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
           <Clock className="w-5 h-5 text-gray-500" />
           <div className="flex flex-col">
-            <label htmlFor="schedule" className="text-xs font-medium text-gray-500 uppercase">Auto-Backup</label>
+            <label htmlFor="schedule" className="text-xs font-medium text-gray-500 uppercase">{t('backups.auto_backup')}</label>
             <select
               id="schedule"
               value={schedule}
               onChange={handleScheduleChange}
               className="bg-transparent text-sm font-medium focus:outline-none cursor-pointer text-gray-900 dark:text-white"
             >
-              <option value="never">Never</option>
-              <option value="daily">Daily</option>
-              <option value="weekly">Weekly</option>
-              <option value="monthly">Monthly</option>
+              <option value="never">{t('backups.schedule.never')}</option>
+              <option value="daily">{t('backups.schedule.daily')}</option>
+              <option value="weekly">{t('backups.schedule.weekly')}</option>
+              <option value="monthly">{t('backups.schedule.monthly')}</option>
             </select>
           </div>
         </div>
@@ -171,14 +174,14 @@ export default function BackupPage() {
           disabled={creating || restoring}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
         >
-          {creating ? 'Creating...' : 'Create Backup'}
+          {creating ? t('backups.creating') : t('backups.create_btn')}
         </button>
         <button
           onClick={loadBackups}
           disabled={loading || creating || restoring}
           className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
-          {loading ? 'Refreshing...' : 'Refresh List'}
+          {loading ? t('backups.refreshing') : t('backups.refresh_btn')}
         </button>
       </div>
 
@@ -199,7 +202,7 @@ export default function BackupPage() {
       {loading && backups.length === 0 ? (
         <div className="text-center py-8">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">Loading backups...</p>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">{t('backups.loading')}</p>
         </div>
       ) : backups.length === 0 ? (
         <div className="text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-lg">
@@ -216,8 +219,8 @@ export default function BackupPage() {
               d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
             />
           </svg>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">No backups found</p>
-          <p className="text-sm text-gray-500 dark:text-gray-500">Create your first backup to get started</p>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">{t('backups.no_backups')}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-500">{t('backups.no_backups_hint')}</p>
         </div>
       ) : (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
@@ -225,19 +228,19 @@ export default function BackupPage() {
             <thead className="bg-gray-50 dark:bg-gray-900">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Filename
+                  {t('backups.table.filename')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Date
+                  {t('backups.table.date')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Size
+                  {t('backups.table.size')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Type
+                  {t('backups.table.type')}
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Actions
+                  {t('backups.table.actions')}
                 </th>
               </tr>
             </thead>
@@ -251,6 +254,7 @@ export default function BackupPage() {
                   disabled={creating || restoring}
                   // formatDate={formatDate}
                   formatFileSize={formatFileSize}
+                  t={t}
                 />
               ))}
             </tbody>
@@ -265,7 +269,7 @@ export default function BackupPage() {
  * BackupRow Component
  * Single row in the backup list table
  */
-function BackupRow({ backup, onRestore, onDelete, disabled, formatFileSize }) {
+function BackupRow({ backup, onRestore, onDelete, disabled, formatFileSize, t }) {
   return (
     <tr className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
       <td className="px-6 py-4 whitespace-nowrap">
@@ -294,14 +298,14 @@ function BackupRow({ backup, onRestore, onDelete, disabled, formatFileSize }) {
           disabled={disabled}
           className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 disabled:opacity-50 disabled:cursor-not-allowed mr-4"
         >
-          Restore
+          {t('backups.action_restore')}
         </button>
         <button
           onClick={() => onDelete(backup.filename)}
           disabled={disabled}
           className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Delete
+          {t('backups.action_delete')}
         </button>
       </td>
     </tr>
@@ -320,4 +324,5 @@ BackupRow.propTypes = {
   disabled: PropTypes.bool,
   formatFileSize: PropTypes.func.isRequired,
   // formatDate: PropTypes.func.isRequired,
+  t: PropTypes.func.isRequired,
 };

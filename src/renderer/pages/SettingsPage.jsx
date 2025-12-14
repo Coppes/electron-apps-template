@@ -16,7 +16,7 @@ const SettingsPage = () => {
   const { settings, updateSetting, loading } = useSettings();
   const { userOverrides, importOverrides } = useShortcutContext();
   const { execute, undo, redo, canUndo, canRedo } = useHistory();
-  const { t } = useTranslation('settings');
+  const { t } = useTranslation(['settings', 'common']);
   const { openTab } = useTab();
   const [saveMessage, setSaveMessage] = useState('');
   const [testText, setTestText] = useState("");
@@ -32,7 +32,7 @@ const SettingsPage = () => {
   // }, [testText]);
 
   if (loading) {
-    return <div className="p-6">Loading settings...</div>;
+    return <div className="p-6">{t('loading')}</div>;
   }
 
 
@@ -60,13 +60,13 @@ const SettingsPage = () => {
       const result = await window.electronAPI.data.export(filePath, exportData);
 
       if (result.success) {
-        setSaveMessage(`✓ Exported to ${result.filePath} `);
+        setSaveMessage(t('messages.export_success', { path: result.filePath }));
       } else {
-        setSaveMessage(`✗ Export failed: ${result.error} `);
+        setSaveMessage(t('messages.export_fail', { error: result.error }));
       }
     } catch (error) {
       // console.error('Export error:', error);
-      setSaveMessage(`✗ Export error: ${error.message} `);
+      setSaveMessage(t('messages.export_error', { error: error.message }));
     } finally {
       setTimeout(() => setSaveMessage(''), 3000);
     }
@@ -116,14 +116,14 @@ const SettingsPage = () => {
         }
 
         if (importedCount > 0) {
-          setSaveMessage('✓ Settings imported successfully');
+          setSaveMessage(t('messages.import_success'));
         } else {
-          setSaveMessage('⚠ No valid settings found in file');
+          setSaveMessage(t('messages.import_fail'));
         }
       }
     } catch (error) {
       // console.error('Import error:', error);
-      setSaveMessage(`✗ Import failed: ${error.message} `);
+      setSaveMessage(t('messages.import_error', { error: error.message }));
     } finally {
       setTimeout(() => setSaveMessage(''), 3000);
     }
@@ -151,10 +151,10 @@ const SettingsPage = () => {
         <h1 className="text-3xl font-bold">{t('title', 'Settings')}</h1>
         <div className="flex gap-2">
           <Button onClick={handleImportSettings} variant="outline">
-            Import Settings
+            {t('import')}
           </Button>
           <Button onClick={handleExportSettings} variant="outline">
-            Export Settings
+            {t('export')}
           </Button>
         </div>
       </div>
@@ -280,7 +280,7 @@ const SettingsPage = () => {
         </CardHeader>
         <CardContent>
           <Button onClick={() => openTab({ id: 'shortcuts', title: 'Shortcuts', type: 'shortcuts' })}>
-            View Shortcuts
+            {t('shortcuts.view')}
           </Button>
         </CardContent>
       </Card>
@@ -294,8 +294,8 @@ const SettingsPage = () => {
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label>Notifications</Label>
-              <div className="text-sm text-muted-foreground">Enable desktop notifications</div>
+              <Label>{t('system.notifications')}</Label>
+              <div className="text-sm text-muted-foreground">{t('system.notifications_desc')}</div>
             </div>
             <Switch
               checked={settings.notifications}
@@ -305,8 +305,8 @@ const SettingsPage = () => {
 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label>Auto Start</Label>
-              <div className="text-sm text-muted-foreground">Launch on system startup</div>
+              <Label>{t('system.autostart')}</Label>
+              <div className="text-sm text-muted-foreground">{t('system.autostart_desc')}</div>
             </div>
             <Switch
               checked={settings.autoStart}
@@ -322,7 +322,7 @@ const SettingsPage = () => {
           <CardTitle>{t('about.title', 'About')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">Version 1.0.0</p>
+          <p className="text-sm text-muted-foreground">{t('common:version')} 1.0.0</p>
         </CardContent>
       </Card>
     </div>

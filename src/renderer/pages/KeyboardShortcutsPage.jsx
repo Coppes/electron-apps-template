@@ -7,6 +7,7 @@ import Button from '../components/ui/Button';
 
 // Simple key recorder component
 const ShortcutRecorder = ({ value, onSave, onCancel, hasError }) => {
+  const { t } = useTranslation('common');
   const [keys, setKeys] = useState(value || '');
   const [recording, setRecording] = useState(true);
 
@@ -49,11 +50,11 @@ const ShortcutRecorder = ({ value, onSave, onCancel, hasError }) => {
           ${hasError ? 'border-destructive text-destructive bg-destructive/10' : 'bg-muted border-input'}
           ${recording ? 'border-primary ring-1 ring-primary animate-pulse bg-background' : ''}
         `}
-        title={hasError ? "Invalid shortcut. Click to retry." : "Click to record new shortcut"}
+        title={hasError ? t('shortcuts.invalid') : t('shortcuts.record_tooltip')}
       >
-        {recording ? 'Press keys...' : (keys || 'Press keys...')}
+        {recording ? t('shortcuts.press_keys') : (keys || t('shortcuts.press_keys'))}
       </div>
-      <Button size="sm" variant="ghost" onClick={onCancel}>Cancel</Button>
+      <Button size="sm" variant="ghost" onClick={onCancel}>{t('shortcuts.cancel')}</Button>
     </div>
   );
 };
@@ -85,10 +86,10 @@ const KeyboardShortcutsPage = () => {
     <div className="p-8 max-w-4xl mx-auto space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">{t('nav.items.settings')} / Keyboard Shortcuts</h1>
-          <p className="text-muted-foreground">Customize your keyboard shortcuts</p>
+          <h1 className="text-3xl font-bold">{t('nav.items.settings')} / {t('shortcuts.title')}</h1>
+          <p className="text-muted-foreground">{t('shortcuts.subtitle')}</p>
         </div>
-        <Button variant="outline" onClick={resetToDefaults}>Reset to Defaults</Button>
+        <Button variant="outline" onClick={resetToDefaults}>{t('shortcuts.reset')}</Button>
       </div>
 
       {error && (
@@ -135,7 +136,7 @@ const KeyboardShortcutsPage = () => {
 
             {shortcuts.length === 0 && (
               <div className="p-8 text-center text-muted-foreground">
-                No shortcuts registered.
+                {t('shortcuts.no_shortcuts')}
               </div>
             )}
           </div>

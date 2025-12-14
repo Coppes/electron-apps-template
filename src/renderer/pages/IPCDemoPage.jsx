@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import IPCDemo from '../components/demo/IPCDemo';
 
 /**
@@ -6,37 +7,38 @@ import IPCDemo from '../components/demo/IPCDemo';
  * Page wrapper for IPC communication demonstration
  */
 export default function IPCDemoPage() {
+  const { t } = useTranslation('ipc');
   return (
     <div className="container mx-auto p-6 max-w-6xl">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">IPC Communication Demo</h1>
+        <h1 className="text-3xl font-bold mb-2">{t('title')}</h1>
         <p className="text-muted-foreground">
-          Explore all available IPC APIs and their usage patterns
+          {t('description')}
         </p>
       </div>
 
       <IPCDemo />
 
       <div className="mt-8 p-4 bg-muted rounded-lg">
-        <h2 className="text-lg font-semibold mb-2">IPC Architecture</h2>
+        <h2 className="text-lg font-semibold mb-2">{t('architecture.title')}</h2>
         <p className="text-sm text-muted-foreground mb-4">
-          All communication between renderer and main process follows these security principles:
+          {t('architecture.intro')}
         </p>
         <ul className="list-disc list-inside text-sm space-y-1 text-muted-foreground">
-          <li>All APIs exposed through window.electronAPI</li>
-          <li>Input validation on both renderer and main process</li>
-          <li>Error handling with sanitized error messages</li>
-          <li>No direct Node.js access in renderer process</li>
-          <li>Context isolation enabled for security</li>
+          <li>{t('architecture.exposed')}</li>
+          <li>{t('architecture.validation')}</li>
+          <li>{t('architecture.error_handling')}</li>
+          <li>{t('architecture.no_node')}</li>
+          <li>{t('architecture.context')}</li>
         </ul>
 
-        <h3 className="text-md font-semibold mt-4 mb-2">Security Best Practices</h3>
+        <h3 className="text-md font-semibold mt-4 mb-2">{t('security.title')}</h3>
         <ul className="list-disc list-inside text-sm space-y-1 text-muted-foreground">
-          <li>Never expose entire modules or arbitrary code execution</li>
-          <li>Always validate and sanitize inputs</li>
-          <li>Use explicit allow-lists for file paths and operations</li>
-          <li>Implement proper error handling</li>
-          <li>Log all security-relevant operations</li>
+          <li>{t('security.no_exec')}</li>
+          <li>{t('security.validate')}</li>
+          <li>{t('security.allow_lists')}</li>
+          <li>{t('security.errors')}</li>
+          <li>{t('security.logging')}</li>
         </ul>
       </div>
     </div>

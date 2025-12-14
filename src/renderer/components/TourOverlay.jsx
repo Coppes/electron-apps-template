@@ -1,8 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useTour } from '../contexts/TourContext';
 import { CaretLeft, CaretRight, X, Check } from '@phosphor-icons/react';
+import { useTranslation } from 'react-i18next';
 
 export const TourOverlay = () => {
+  const { t } = useTranslation('common');
   const { isOpen, currentStep, steps, nextStep, prevStep, closeTour } = useTour();
   const [targetRect, setTargetRect] = useState(null);
   const step = steps[currentStep];
@@ -206,7 +208,7 @@ export const TourOverlay = () => {
 
         <div className="flex justify-between items-center mt-4 pt-2 border-t border-gray-100 dark:border-gray-700">
           <div className="text-xs text-gray-400 font-medium tracking-wide">
-            STEP {currentStep + 1} OF {steps.length}
+            {t('tour.step_progress', { current: currentStep + 1, total: steps.length })}
           </div>
 
           <div className="flex gap-2">
@@ -215,7 +217,7 @@ export const TourOverlay = () => {
                 onClick={prevStep}
                 className="px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white flex items-center gap-1 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700"
               >
-                <CaretLeft size={14} /> Back
+                <CaretLeft size={14} /> {t('tour.back')}
               </button>
             )}
 
@@ -223,7 +225,7 @@ export const TourOverlay = () => {
               onClick={nextStep}
               className="px-4 py-1.5 text-sm font-medium bg-blue-600 text-white rounded-md hover:bg-blue-700 active:bg-blue-800 flex items-center gap-1 transition-colors shadow-sm"
             >
-              {isLastStep ? 'Finish' : 'Next'}
+              {isLastStep ? t('tour.finish') : t('tour.next')}
               {isLastStep ? <Check size={14} /> : <CaretRight size={14} />}
             </button>
           </div>

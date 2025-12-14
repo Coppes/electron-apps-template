@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Monitor, Cards, Chat, Lock, FloppyDisk } from '@phosphor-icons/react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
 import Button from '../ui/Button';
@@ -10,6 +11,7 @@ import Separator from '../ui/Separator';
  * Demonstrates IPC communication patterns and APIs
  */
 export default function IPCDemo() {
+  const { t } = useTranslation('ipc');
   const [activeSection, setActiveSection] = useState('app');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -19,7 +21,7 @@ export default function IPCDemo() {
   const callAPI = async (apiCall, description) => {
     try {
       setLoading(true);
-      setResult({ type: 'loading', text: `Calling ${description}...` });
+      setResult({ type: 'loading', text: t('demo.result.loading', { desc: description }) });
       const data = await apiCall();
       setResult({ type: 'success', data, description });
     } catch (error) {
@@ -30,11 +32,11 @@ export default function IPCDemo() {
   };
 
   const sections = [
-    { id: 'app', label: 'App APIs', icon: Monitor },
-    { id: 'window', label: 'Window APIs', icon: Cards },
-    { id: 'dialog', label: 'Dialog APIs', icon: Chat },
-    { id: 'storage', label: 'Storage APIs', icon: Lock },
-    { id: 'data', label: 'Data APIs', icon: FloppyDisk },
+    { id: 'app', label: t('demo.sections.app'), icon: Monitor },
+    { id: 'window', label: t('demo.sections.window'), icon: Cards },
+    { id: 'dialog', label: t('demo.sections.dialog'), icon: Chat },
+    { id: 'storage', label: t('demo.sections.storage'), icon: Lock },
+    { id: 'data', label: t('demo.sections.data'), icon: FloppyDisk },
   ];
 
   return (
@@ -61,14 +63,14 @@ export default function IPCDemo() {
       {result && (
         <Card>
           <CardHeader>
-            <CardTitle>Result: {result.description}</CardTitle>
+            <CardTitle>{t('demo.result.title', { desc: result.description })}</CardTitle>
           </CardHeader>
           <CardContent>
             {result.type === 'loading' && (
               <div className="text-muted-foreground">{result.text}</div>
             )}
             {result.type === 'error' && (
-              <div className="text-red-600">Error: {result.text}</div>
+              <div className="text-red-600">{t('demo.result.error', { error: result.text })}</div>
             )}
             {result.type === 'success' && (
               <pre className="bg-muted p-3 rounded text-sm overflow-x-auto">
@@ -83,45 +85,45 @@ export default function IPCDemo() {
       {activeSection === 'app' && (
         <Card>
           <CardHeader>
-            <CardTitle>App APIs</CardTitle>
-            <CardDescription>Application-level information and controls</CardDescription>
+            <CardTitle>{t('demo.app.title')}</CardTitle>
+            <CardDescription>{t('demo.app.description')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
             <Button
               onClick={() => callAPI(
                 () => window.electronAPI.app.getVersion(),
-                'Get Version'
+                t('demo.app.get_version')
               )}
               disabled={loading}
             >
-              Get App Version
+              {t('demo.app.get_version')}
             </Button>
             <Button
               onClick={() => callAPI(
                 () => window.electronAPI.app.getPath('userData'),
-                'Get User Data Path'
+                t('demo.app.get_path')
               )}
               disabled={loading}
             >
-              Get User Data Path
+              {t('demo.app.get_path')}
             </Button>
             <Button
               onClick={() => callAPI(
                 () => window.electronAPI.app.getPlatform(),
-                'Get Platform'
+                t('demo.app.get_platform')
               )}
               disabled={loading}
             >
-              Get Platform
+              {t('demo.app.get_platform')}
             </Button>
             <Button
               onClick={() => callAPI(
                 () => window.electronAPI.app.isPackaged(),
-                'Check If Packaged'
+                t('demo.app.is_packaged')
               )}
               disabled={loading}
             >
-              Is Packaged?
+              {t('demo.app.is_packaged')}
             </Button>
           </CardContent>
         </Card>
@@ -131,51 +133,51 @@ export default function IPCDemo() {
       {activeSection === 'window' && (
         <Card>
           <CardHeader>
-            <CardTitle>Window APIs</CardTitle>
-            <CardDescription>Window management and controls</CardDescription>
+            <CardTitle>{t('demo.window.title')}</CardTitle>
+            <CardDescription>{t('demo.window.description')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
             <Button
               onClick={() => callAPI(
                 async () => {
                   await window.electronAPI.window.minimize();
-                  return { message: 'Window minimized' };
+                  return { message: t('demo.window.msg_minimized') };
                 },
-                'Minimize Window'
+                t('demo.window.minimize')
               )}
               disabled={loading}
             >
-              Minimize Window
+              {t('demo.window.minimize')}
             </Button>
             <Button
               onClick={() => callAPI(
                 async () => {
                   await window.electronAPI.window.toggleMaximize();
-                  return { message: 'Window toggled maximize' };
+                  return { message: t('demo.window.msg_maximized') };
                 },
-                'Toggle Maximize'
+                t('demo.window.toggle_max')
               )}
               disabled={loading}
             >
-              Toggle Maximize
+              {t('demo.window.toggle_max')}
             </Button>
             <Button
               onClick={() => callAPI(
                 () => window.electronAPI.window.getBounds(),
-                'Get Window Bounds'
+                t('demo.window.get_bounds')
               )}
               disabled={loading}
             >
-              Get Window Bounds
+              {t('demo.window.get_bounds')}
             </Button>
             <Button
               onClick={() => callAPI(
                 () => window.electronAPI.window.getDisplay(),
-                'Get Display Info'
+                t('demo.window.get_display')
               )}
               disabled={loading}
             >
-              Get Display Info
+              {t('demo.window.get_display')}
             </Button>
           </CardContent>
         </Card>
@@ -185,44 +187,44 @@ export default function IPCDemo() {
       {activeSection === 'dialog' && (
         <Card>
           <CardHeader>
-            <CardTitle>Dialog APIs</CardTitle>
-            <CardDescription>System dialogs for file and folder selection</CardDescription>
+            <CardTitle>{t('demo.dialog.title')}</CardTitle>
+            <CardDescription>{t('demo.dialog.description')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
             <Button
               onClick={() => callAPI(
                 () => window.electronAPI.dialog.openFile({
-                  title: 'Select a file',
+                  title: t('demo.dialog.select_file'),
                   properties: ['openFile'],
                 }),
-                'Open File Dialog'
+                t('demo.dialog.open_file')
               )}
               disabled={loading}
             >
-              Open File Dialog
+              {t('demo.dialog.open_file')}
             </Button>
             <Button
               onClick={() => callAPI(
                 () => window.electronAPI.dialog.openFolder({
-                  title: 'Select a folder',
+                  title: t('demo.dialog.select_folder'),
                 }),
-                'Open Folder Dialog'
+                t('demo.dialog.open_folder')
               )}
               disabled={loading}
             >
-              Open Folder Dialog
+              {t('demo.dialog.open_folder')}
             </Button>
             <Button
               onClick={() => callAPI(
                 () => window.electronAPI.dialog.saveFile({
-                  title: 'Save file',
+                  title: t('demo.dialog.save_file_title'),
                   defaultPath: 'document.txt',
                 }),
-                'Save File Dialog'
+                t('demo.dialog.save_file')
               )}
               disabled={loading}
             >
-              Save File Dialog
+              {t('demo.dialog.save_file')}
             </Button>
           </CardContent>
         </Card>
@@ -232,18 +234,18 @@ export default function IPCDemo() {
       {activeSection === 'storage' && (
         <Card>
           <CardHeader>
-            <CardTitle>Storage APIs</CardTitle>
-            <CardDescription>Secure storage operations</CardDescription>
+            <CardTitle>{t('demo.storage.title')}</CardTitle>
+            <CardDescription>{t('demo.storage.description')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Input
-                placeholder="Key"
+                placeholder={t('demo.storage.key_placeholder')}
                 value={storageKey}
                 onChange={(e) => setStorageKey(e.target.value)}
               />
               <Input
-                placeholder="Value"
+                placeholder={t('demo.storage.value_placeholder')}
                 value={storageValue}
                 onChange={(e) => setStorageValue(e.target.value)}
               />
@@ -255,38 +257,38 @@ export default function IPCDemo() {
               <Button
                 onClick={() => callAPI(
                   () => window.electronAPI.store.set(storageKey, storageValue),
-                  `Set '${storageKey}'`
+                  t('demo.storage.action_set', { key: storageKey })
                 )}
                 disabled={loading || !storageKey}
               >
-                Set Value
+                {t('demo.storage.set_val')}
               </Button>
               <Button
                 onClick={() => callAPI(
                   () => window.electronAPI.store.get(storageKey),
-                  `Get '${storageKey}'`
+                  t('demo.storage.action_get', { key: storageKey })
                 )}
                 disabled={loading || !storageKey}
               >
-                Get Value
+                {t('demo.storage.get_val')}
               </Button>
               <Button
                 onClick={() => callAPI(
                   () => window.electronAPI.store.delete(storageKey),
-                  `Delete '${storageKey}'`
+                  t('demo.storage.action_del', { key: storageKey })
                 )}
                 disabled={loading || !storageKey}
               >
-                Delete Value
+                {t('demo.storage.del_val')}
               </Button>
               <Button
                 onClick={() => callAPI(
                   () => window.electronAPI.store.has(storageKey),
-                  `Has '${storageKey}'`
+                  t('demo.storage.action_has', { key: storageKey })
                 )}
                 disabled={loading || !storageKey}
               >
-                Check If Exists
+                {t('demo.storage.check_exists')}
               </Button>
             </div>
           </CardContent>
@@ -297,36 +299,36 @@ export default function IPCDemo() {
       {activeSection === 'data' && (
         <Card>
           <CardHeader>
-            <CardTitle>Data APIs</CardTitle>
-            <CardDescription>Data management operations</CardDescription>
+            <CardTitle>{t('demo.data.title')}</CardTitle>
+            <CardDescription>{t('demo.data.description')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
             <Button
               onClick={() => callAPI(
                 () => window.electronAPI.data.listBackups(),
-                'List Backups'
+                t('demo.data.list_backups')
               )}
               disabled={loading}
             >
-              List Backups
+              {t('demo.data.list_backups')}
             </Button>
             <Button
               onClick={() => callAPI(
                 () => window.electronAPI.data.createBackup({ includeSecureStorage: false }),
-                'Create Backup'
+                t('demo.data.create_backup')
               )}
               disabled={loading}
             >
-              Create Backup
+              {t('demo.data.create_backup')}
             </Button>
             <Button
               onClick={() => callAPI(
                 () => window.electronAPI.data.validateBackup({ filename: 'latest' }),
-                'Validate Latest Backup'
+                t('demo.data.action_validate')
               )}
               disabled={loading}
             >
-              Validate Backup
+              {t('demo.data.validate_backup')}
             </Button>
           </CardContent>
         </Card>

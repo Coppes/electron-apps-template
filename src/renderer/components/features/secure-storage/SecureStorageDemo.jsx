@@ -7,9 +7,11 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { LockKey, Warning, XCircle, CheckCircle, Info } from '@phosphor-icons/react';
 
 export default function SecureStorageDemo() {
+  const { t } = useTranslation();
   const [key, setKey] = useState('');
   const [value, setValue] = useState('');
   const [retrievedValue, setRetrievedValue] = useState('');
@@ -23,27 +25,27 @@ export default function SecureStorageDemo() {
         const available = await window.api.secureStore.isAvailable();
         setIsAvailable(available);
         if (!available) {
-          setStatus({ type: 'warning', message: 'Encrypted storage is not available on this platform' });
+          setStatus({ type: 'warning', message: t('secure_storage.demo.messages.avail_warning') });
         }
       } catch (error) {
-        setStatus({ type: 'error', message: `Error checking availability: ${error.message}` });
+        setStatus({ type: 'error', message: t('secure_storage.demo.messages.avail_error', { error: error.message }) });
       }
     }
     checkAvailability();
-  }, []);
+  }, [t]);
 
   const handleStore = async () => {
     if (!key.trim() || !value.trim()) {
-      setStatus({ type: 'error', message: 'Please enter both key and value' });
+      setStatus({ type: 'error', message: t('secure_storage.demo.messages.enter_both') });
       return;
     }
 
     try {
       await window.api.secureStore.set(key, value);
-      setStatus({ type: 'success', message: `Successfully stored "${key}"` });
+      setStatus({ type: 'success', message: t('secure_storage.demo.messages.stored', { key }) });
       setValue(''); // Clear value for security
     } catch (error) {
-      setStatus({ type: 'error', message: `Error storing: ${error.message}` });
+      setStatus({ type: 'error', message: t('secure_storage.demo.messages.store_error', { error: error.message }) });
     }
   };
 
@@ -57,13 +59,13 @@ export default function SecureStorageDemo() {
       const result = await window.api.secureStore.get(key);
       if (result !== null) {
         setRetrievedValue(result);
-        setStatus({ type: 'success', message: `Retrieved value for "${key}"` });
+        setStatus({ type: 'success', message: t('secure_storage.demo.messages.retrieved_success', { key }) });
       } else {
         setRetrievedValue('');
-        setStatus({ type: 'info', message: `No value found for "${key}"` });
+        setStatus({ type: 'info', message: t('secure_storage.demo.messages.not_found', { key }) });
       }
     } catch (error) {
-      setStatus({ type: 'error', message: `Error retrieving: ${error.message}` });
+      setStatus({ type: 'error', message: t('secure_storage.demo.messages.retrieve_error', { error: error.message }) });
       setRetrievedValue('');
     }
   };
@@ -76,10 +78,10 @@ export default function SecureStorageDemo() {
 
     try {
       await window.api.secureStore.delete(key);
-      setStatus({ type: 'success', message: `Deleted "${key}"` });
+      setStatus({ type: 'success', message: t('secure_storage.demo.messages.deleted', { key }) });
       setRetrievedValue('');
     } catch (error) {
-      setStatus({ type: 'error', message: `Error deleting: ${error.message}` });
+      setStatus({ type: 'error', message: t('secure_storage.demo.messages.delete_error', { error: error.message }) });
     }
   };
 
@@ -91,9 +93,9 @@ export default function SecureStorageDemo() {
 
     try {
       const exists = await window.api.secureStore.has(key);
-      setStatus({ type: 'success', message: exists ? `"${key}" exists` : `"${key}" does not exist` });
+      setStatus({ type: 'success', message: exists ? t('secure_storage.demo.messages.exists', { key }) : t('secure_storage.demo.messages.not_exists', { key }) });
     } catch (error) {
-      setStatus({ type: 'error', message: `Error checking: ${error.message}` });
+      setStatus({ type: 'error', message: t('secure_storage.demo.messages.check_error', { error: error.message }) });
     }
   };
 
@@ -107,9 +109,9 @@ export default function SecureStorageDemo() {
         <div className="status-message warning">
           <div className="flex items-center gap-2 mb-2">
             <Warning className="w-5 h-5" />
-            <span>Encrypted storage is not available on this platform.</span>
+            <span>{t('secure_storage.demo.unavailable')}</span>
           </div>
-          <p>Encryption requires:</p>
+          <p>{t('secure_storage.demo.requirements')}</p>
           <ul>
             <li>macOS: Keychain access</li>
             <li>Windows: DPAPI</li>
@@ -124,56 +126,55 @@ export default function SecureStorageDemo() {
     <div className="secure-storage-demo">
       <h2 className="flex items-center gap-2">
         <LockKey className="w-6 h-6 text-primary" />
-        Secure Storage Demo
+        {t('secure_storage.title')}
       </h2>
 
       <div className="info-box">
         <p>
-          This demo shows how to securely store sensitive data like API keys,
-          tokens, and credentials using OS-level encryption.
+          {t('secure_storage.demo.description')}
         </p>
       </div>
 
       <div className="form-group">
-        <label htmlFor="key">Key:</label>
+        <label htmlFor="key">{t('secure_storage.demo.key_label')}</label>
         <input
           id="key"
           type="text"
           value={key}
           onChange={(e) => setKey(e.target.value)}
-          placeholder="e.g., apiKey, authToken"
+          placeholder={t('secure_storage.demo.key_placeholder')}
         />
       </div>
 
       <div className="form-group">
-        <label htmlFor="value">Value (sensitive data):</label>
+        <label htmlFor="value">{t('secure_storage.demo.value_label')}</label>
         <input
           id="value"
           type="password"
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          placeholder="Enter sensitive value to store"
+          placeholder={t('secure_storage.demo.value_placeholder')}
         />
       </div>
 
       <div className="button-group">
         <button onClick={handleStore} disabled={!isAvailable}>
-          Store
+          {t('secure_storage.demo.store')}
         </button>
         <button onClick={handleRetrieve} disabled={!isAvailable}>
-          Retrieve
+          {t('secure_storage.demo.retrieve')}
         </button>
         <button onClick={handleCheck} disabled={!isAvailable}>
-          Check Exists
+          {t('secure_storage.demo.check')}
         </button>
         <button onClick={handleDelete} disabled={!isAvailable}>
-          Delete
+          {t('secure_storage.demo.delete')}
         </button>
       </div>
 
       {retrievedValue && (
         <div className="retrieved-value">
-          <label>Retrieved Value:</label>
+          <label>{t('secure_storage.demo.retrieved')}</label>
           <code>{retrievedValue}</code>
         </div>
       )}
@@ -193,14 +194,14 @@ export default function SecureStorageDemo() {
       <div className="security-notes">
         <h3 className="flex items-center gap-2">
           <LockKey className="w-4 h-4" />
-          Security Notes:
+          {t('secure_storage.demo.security_notes')}
         </h3>
         <ul>
-          <li>Data is encrypted using OS-level encryption (Keychain/DPAPI/libsecret)</li>
-          <li>Encryption keys are managed by the operating system</li>
-          <li>Values are never logged or exposed in production</li>
-          <li>Use for: API keys, auth tokens, credentials, secrets</li>
-          <li>Don&apos;t use for: Large files, frequently accessed data, non-sensitive data</li>
+          <li>{t('secure_storage.demo.note_encryption')}</li>
+          <li>{t('secure_storage.demo.note_management')}</li>
+          <li>{t('secure_storage.demo.note_logs')}</li>
+          <li>{t('secure_storage.demo.note_use_cases')}</li>
+          <li>{t('secure_storage.demo.note_limitations')}</li>
         </ul>
       </div>
 

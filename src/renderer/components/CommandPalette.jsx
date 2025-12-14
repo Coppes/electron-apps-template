@@ -95,7 +95,7 @@ const CommandPalette = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <Command
-              label="Global Command Menu"
+              label={t('command.menu_label', 'Global Command Menu')}
               loop
               onKeyDown={(e) => {
                 if (e.key === 'Escape') setIsOpen(false);
@@ -167,10 +167,10 @@ const CommandPalette = () => {
               </Command.List>
 
               <div className="border-t border-white/10 bg-zinc-900/50 px-4 py-2 text-xs text-zinc-500 flex justify-between items-center">
-                <span>{Object.values(groupedCommands).flat().length} commands available</span>
+                <span>{t('command.footer.count', { count: Object.values(groupedCommands).flat().length })}</span>
                 <div className="flex gap-4">
-                  <div className="flex items-center gap-1"><CommandIcon className="w-3 h-3" /> <span>to select</span></div>
-                  <div className="flex items-center gap-1"><span className="font-mono">↵</span> <span>to execute</span></div>
+                  <div className="flex items-center gap-1"><CommandIcon className="w-3 h-3" /> <span>{t('command.footer.select')}</span></div>
+                  <div className="flex items-center gap-1"><span className="font-mono">↵</span> <span>{t('command.footer.execute')}</span></div>
                 </div>
               </div>
             </Command>

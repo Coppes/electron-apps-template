@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { FloppyDisk, DownloadSimple, Paperclip, FileArchive } from '@phosphor-icons/react';
+import { useTranslation } from 'react-i18next';
+import { FloppyDisk, DownloadSimple, Paperclip, FileArchive, Eye } from '@phosphor-icons/react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
 import Button from '../ui/Button';
 import Switch from '../ui/Switch';
@@ -14,6 +15,7 @@ import useDragDrop from '../../hooks/useDragDrop';
  * Demonstrates backup, import/export, file watching, and drag-drop features
  */
 export default function DataManagementDemo() {
+  const { t } = useTranslation('data_management');
   const [activeTab, setActiveTab] = useState('backup');
   const [backups, setBackups] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -45,10 +47,10 @@ export default function DataManagementDemo() {
 
       // Handle File Deletion
       if (eventData.type === 'unlink' || eventData.type === 'delete') {
-        setMessage({ type: 'error', text: `File deleted externally: ${eventData.path}` });
+        setMessage({ type: 'error', text: t('demo.file_watch.deleted_error', { path: eventData.path }) });
         window.electronAPI?.notifications?.show({
-          title: 'File Deleted',
-          body: `The file ${eventData.path} was deleted externally.`,
+          title: t('demo.file_watch.deleted_notification_title'),
+          body: t('demo.file_watch.deleted_notification_body', { path: eventData.path }),
           urgency: 'critical'
         }).catch(() => { }); // console.error
         return;
@@ -57,12 +59,12 @@ export default function DataManagementDemo() {
       // Handle Auto-Reload or Notification
       if (autoReload && eventData.type === 'changed') {
         // Simulate auto-reload
-        setMessage({ type: 'success', text: `File changed. Auto-reloaded: ${eventData.path}` });
+        setMessage({ type: 'success', text: t('demo.file_watch.reload_success', { path: eventData.path }) });
       } else {
         // Show native notification
         window.electronAPI?.notifications?.show({
-          title: 'File Update Detected',
-          body: `File ${eventData.type === 'rename' ? 'renamed' : 'changed'}: ${eventData.path}`,
+          title: t('demo.file_watch.update_notification_title'),
+          body: t('demo.file_watch.update_notification_body', { type: eventData.type === 'rename' ? 'renamed' : 'changed', path: eventData.path }),
           silent: true
         }).catch(() => { }); // err => console.error('Failed to show notification:', err)
       }
@@ -85,7 +87,7 @@ export default function DataManagementDemo() {
     loadSchedule();
 
     return () => cleanup?.();
-  }, [autoReload]); // added autoReload dependency for closure
+  }, [autoReload, t]); // added autoReload dependency for closure
 
   const calculateNextBackup = (sch) => {
     if (sch === 'never') {
@@ -131,10 +133,10 @@ export default function DataManagementDemo() {
       const result = await window.electronAPI.data.createBackup({
         includeSecureStorage: true,
       });
-      setMessage({ type: 'success', text: `Backup created: ${result.filename}` });
+      setMessage({ type: 'success', text: t('demo.backup.create_success', { filename: result.filename }) });
       await loadBackups();
     } catch (error) {
-      setMessage({ type: 'error', text: `Failed to create backup: ${error.message}` });
+      setMessage({ type: 'error', text: t('demo.backup.create_error', { error: error.message }) });
     } finally {
       setLoading(false);
     }
@@ -147,7 +149,7 @@ export default function DataManagementDemo() {
       await window.electronAPI.data.restoreBackup({ filename });
       setMessage({ type: 'success', text: `Restored from: ${filename}` });
     } catch (error) {
-      setMessage({ type: 'error', text: `Failed to restore: ${error.message}` });
+      setMessage({ type: 'error', text: t('demo.backup.restore_error', { error: error.message }) });
     } finally {
       setLoading(false);
     }
@@ -166,13 +168,13 @@ export default function DataManagementDemo() {
       if (filePath) {
         const result = await window.electronAPI.data.export(filePath, exportData);
         if (result.success) {
-          setMessage({ type: 'success', text: `Data exported to: ${filePath}` });
+          setMessage({ type: 'success', text: t('demo.import_export.export_success', { path: filePath }) });
         } else {
           throw new Error(result.error || 'Export failed');
         }
       }
     } catch (error) {
-      setMessage({ type: 'error', text: `Failed to export: ${error.message}` });
+      setMessage({ type: 'error', text: t('demo.import_export.export_error', { error: error.message }) });
     } finally {
       setLoading(false);
     }
@@ -191,13 +193,13 @@ export default function DataManagementDemo() {
       if (filePath) {
         const result = await window.electronAPI.data.import(filePath);
         if (result.success) {
-          setMessage({ type: 'success', text: `Data imported successfully` });
+          setMessage({ type: 'success', text: t('demo.import_export.import_success') });
         } else {
           throw new Error(result.error || 'Import failed');
         }
       }
     } catch (error) {
-      setMessage({ type: 'error', text: `Failed to import: ${error.message}` });
+      setMessage({ type: 'error', text: t('demo.import_export.import_error', { error: error.message }) });
     } finally {
       setLoading(false);
     }
@@ -215,10 +217,10 @@ export default function DataManagementDemo() {
       if (filePath) {
         await window.electronAPI.file.watchStart(filePath);
         setWatchedPath(filePath);
-        setMessage({ type: 'success', text: `Watching: ${filePath}` });
+        setMessage({ type: 'success', text: t('demo.file_watch.watch_success', { path: filePath }) });
       }
     } catch (error) {
-      setMessage({ type: 'error', text: `Failed to watch folder: ${error.message}` });
+      setMessage({ type: 'error', text: t('demo.file_watch.watch_error', { error: error.message }) });
     } finally {
       setLoading(false);
     }
@@ -230,32 +232,33 @@ export default function DataManagementDemo() {
       await window.electronAPI.file.watchStop(watchedPath);
       setWatchedPath('');
       setFileEvents([]);
-      setMessage({ type: 'success', text: 'Stopped watching folder' });
+      setMessage({ type: 'success', text: t('demo.file_watch.stop_success') });
     } catch (error) {
-      setMessage({ type: 'error', text: `Failed to unwatch: ${error.message}` });
+      setMessage({ type: 'error', text: t('demo.file_watch.stop_error', { error: error.message }) });
     }
   };
 
   const handleFileDrop = async (files) => {
-    setMessage({ type: 'info', text: `Received ${files.length} file(s)` });
+    setMessage({ type: 'info', text: t('demo.drag_drop.received', { count: files.length }) });
   };
 
   const handleDragStart = (e, backup) => {
     e.preventDefault();
     if (!backup.path) {
-      setMessage({ type: 'error', text: 'Backup file path not available for drag' });
+      setMessage({ type: 'error', text: t('demo.drag_drop.path_missing') });
       return;
     }
 
     // We can provide a custom icon path here if we had one
     startDrag(backup.path);
-    setMessage({ type: 'info', text: `Dragging ${backup.filename}...` });
+    setMessage({ type: 'info', text: t('demo.drag_drop.dragging', { filename: backup.filename }) });
   };
 
   const tabs = [
-    { id: 'backup', label: 'Backup & Restore', icon: FloppyDisk },
-    { id: 'import-export', label: 'Import & Export', icon: DownloadSimple },
-    { id: 'drag-drop', label: 'Drag & Drop', icon: Paperclip },
+    { id: 'backup', label: t('demo.tabs.backup'), icon: FloppyDisk },
+    { id: 'import-export', label: t('demo.tabs.import_export'), icon: DownloadSimple },
+    { id: 'file-watch', label: t('demo.tabs.file_watch'), icon: Eye },
+    { id: 'drag-drop', label: t('demo.tabs.drag_drop'), icon: Paperclip },
   ];
 
   return (
@@ -314,24 +317,24 @@ export default function DataManagementDemo() {
                   onChange={handleScheduleChange}
                   aria-label="Backup Schedule Frequency"
                 >
-                  <option value="never">Never</option>
-                  <option value="daily">Daily</option>
-                  <option value="weekly">Weekly</option>
-                  <option value="monthly">Monthly</option>
+                  <option value="never">{t('demo.backup.schedule.never')}</option>
+                  <option value="daily">{t('demo.backup.schedule.daily')}</option>
+                  <option value="weekly">{t('demo.backup.schedule.weekly')}</option>
+                  <option value="monthly">{t('demo.backup.schedule.monthly')}</option>
                 </select>
                 {nextBackup && (
                   <div className="text-xs text-muted-foreground mt-1 text-right w-full absolute -bottom-5 right-0 px-3">
-                    Next: {nextBackup.toLocaleDateString()}
+                    {t('demo.backup.schedule.next', { date: nextBackup.toLocaleDateString() })}
                   </div>
                 )}
               </div>
 
               <div className="flex gap-2">
                 <Button onClick={handleCreateBackup} disabled={loading}>
-                  {loading ? 'Creating...' : 'Create Backup'}
+                  {loading ? t('demo.backup.creating') : t('demo.backup.create_btn')}
                 </Button>
                 <Button variant="outline" onClick={loadBackups} disabled={loading}>
-                  Refresh
+                  {t('demo.backup.refresh')}
                 </Button>
               </div>
             </div>
@@ -339,9 +342,9 @@ export default function DataManagementDemo() {
             <Separator />
 
             <div>
-              <h3 className="font-semibold mb-2">Available Backups</h3>
+              <h3 className="font-semibold mb-2">{t('demo.backup.available_backups')}</h3>
               {backups.length === 0 ? (
-                <p className="text-muted-foreground">No backups found</p>
+                <p className="text-muted-foreground">{t('demo.backup.no_backups')}</p>
               ) : (
                 <div className="space-y-2">
                   {backups.map((backup) => (
@@ -358,7 +361,7 @@ export default function DataManagementDemo() {
                         onClick={() => handleRestoreBackup(backup.filename)}
                         disabled={loading}
                       >
-                        Restore
+                        {t('demo.backup.restore_btn')}
                       </Button>
                     </div>
                   ))}
@@ -373,12 +376,12 @@ export default function DataManagementDemo() {
       {activeTab === 'import-export' && (
         <Card>
           <CardHeader>
-            <CardTitle>Import & Export</CardTitle>
-            <CardDescription>Export and import data in various formats</CardDescription>
+            <CardTitle>{t('demo.import_export.title')}</CardTitle>
+            <CardDescription>{t('demo.import_export.description')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <h3 className="font-semibold mb-2">Export Data</h3>
+              <h3 className="font-semibold mb-2">{t('demo.import_export.export_section')}</h3>
               <div className="space-y-2">
                 <textarea
                   className="w-full p-2 border border-border rounded font-mono text-sm"
@@ -394,7 +397,7 @@ export default function DataManagementDemo() {
                   }}
                 />
                 <Button onClick={handleExportData} disabled={loading}>
-                  Export to File
+                  {t('demo.import_export.export_btn')}
                 </Button>
               </div>
             </div>
@@ -402,9 +405,9 @@ export default function DataManagementDemo() {
             <Separator />
 
             <div>
-              <h3 className="font-semibold mb-2">Import Data</h3>
+              <h3 className="font-semibold mb-2">{t('demo.import_export.import_section')}</h3>
               <Button onClick={handleImportData} disabled={loading}>
-                Import from File
+                {t('demo.import_export.import_btn')}
               </Button>
             </div>
           </CardContent>
@@ -415,17 +418,17 @@ export default function DataManagementDemo() {
       {activeTab === 'file-watch' && (
         <Card>
           <CardHeader>
-            <CardTitle>File Watching</CardTitle>
-            <CardDescription>Monitor file system changes in real-time</CardDescription>
+            <CardTitle>{t('demo.file_watch.title')}</CardTitle>
+            <CardDescription>{t('demo.file_watch.description')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex gap-2">
               <Button onClick={handleWatchFolder} disabled={loading || !!watchedPath}>
-                {watchedPath ? 'Watching...' : 'Select Folder to Watch'}
+                {watchedPath ? t('demo.file_watch.watching_btn') : t('demo.file_watch.select_folder')}
               </Button>
               {watchedPath && (
                 <Button variant="outline" onClick={handleUnwatchFolder}>
-                  Stop Watching
+                  {t('demo.file_watch.stop_watch')}
                 </Button>
               )}
             </div>
@@ -433,22 +436,22 @@ export default function DataManagementDemo() {
             {watchedPath && (
               <div className="flex flex-col gap-4">
                 <div className="text-sm text-muted-foreground bg-muted p-2 rounded">
-                  Watching: <span className="font-mono">{watchedPath}</span>
+                  {t('demo.file_watch.watching_label')} <span className="font-mono">{watchedPath}</span>
                 </div>
               </div>
             )}
 
             <div className="flex items-center space-x-2 pt-2">
               <Switch id="auto-reload" checked={autoReload} onCheckedChange={setAutoReload} />
-              <Label htmlFor="auto-reload">Auto-reload on external changes (Bypass conflict dialog)</Label>
+              <Label htmlFor="auto-reload">{t('demo.file_watch.auto_reload')}</Label>
             </div>
 
             <Separator />
 
             <div>
-              <h3 className="font-semibold mb-2">File Events</h3>
+              <h3 className="font-semibold mb-2">{t('demo.file_watch.events_title')}</h3>
               {fileEvents.length === 0 ? (
-                <p className="text-muted-foreground">No events yet</p>
+                <p className="text-muted-foreground">{t('demo.file_watch.no_events')}</p>
               ) : (
                 <div className="space-y-1 max-h-64 overflow-y-auto">
                   {fileEvents.map((event, idx) => (
@@ -468,12 +471,12 @@ export default function DataManagementDemo() {
       {activeTab === 'drag-drop' && (
         <Card>
           <CardHeader>
-            <CardTitle>Drag & Drop</CardTitle>
-            <CardDescription>Test file drag and drop functionality</CardDescription>
+            <CardTitle>{t('demo.drag_drop.title')}</CardTitle>
+            <CardDescription>{t('demo.drag_drop.description')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div>
-              <h3 className="font-semibold mb-2 text-sm">Drop Files Here</h3>
+              <h3 className="font-semibold mb-2 text-sm">{t('demo.drag_drop.drop_title')}</h3>
               <DropZone
                 onDrop={handleFileDrop}
                 accept={['.txt', '.json', '.md']}
@@ -484,14 +487,14 @@ export default function DataManagementDemo() {
             <Separator />
 
             <div>
-              <h3 className="font-semibold mb-2 text-sm">Drag From App (Backups)</h3>
+              <h3 className="font-semibold mb-2 text-sm">{t('demo.drag_drop.drag_from')}</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Drag the backup files below to your desktop or file explorer.
+                {t('demo.drag_drop.drag_desc')}
               </p>
 
               {backups.length === 0 ? (
                 <div className="p-4 border border-dashed rounded text-center text-sm text-muted-foreground">
-                  No backups available to drag. Create a backup first.
+                  {t('demo.drag_drop.no_drag')}
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

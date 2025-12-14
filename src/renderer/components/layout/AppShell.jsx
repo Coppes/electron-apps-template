@@ -28,7 +28,7 @@ import TabContent from '../TabContent';
 import * as ContextMenu from '../ui/ContextMenu';
 import { useTabContext } from '../../contexts/TabContext';
 
-const SidebarNavButton = ({ active, onClick, icon: Icon, label, id, addTab, type, ...props }) => {
+const SidebarNavButton = ({ active, onClick, icon: Icon, label, id, addTab, type, t, ...props }) => {
   const handleOpenNew = () => {
     addTab({ id: `${id}-${Date.now()}`, title: label, type: type || id });
   };
@@ -52,10 +52,10 @@ const SidebarNavButton = ({ active, onClick, icon: Icon, label, id, addTab, type
       </ContextMenu.ContextMenuTrigger>
       <ContextMenu.ContextMenuContent>
         <ContextMenu.ContextMenuItem onClick={handleOpenNew}>
-          Open in New Tab
+          {t('sidebar.open_new_tab')}
         </ContextMenu.ContextMenuItem>
         <ContextMenu.ContextMenuItem onClick={handleOpenSplit}>
-          Open in Split View
+          {t('sidebar.open_split_view')}
         </ContextMenu.ContextMenuItem>
       </ContextMenu.ContextMenuContent>
     </ContextMenu.ContextMenu>
@@ -69,7 +69,8 @@ SidebarNavButton.propTypes = {
   label: PropTypes.string.isRequired,
   id: PropTypes.string.isRequired,
   addTab: PropTypes.func.isRequired,
-  type: PropTypes.string
+  type: PropTypes.string,
+  t: PropTypes.func.isRequired
 };
 
 const AppShell = () => {
@@ -173,7 +174,7 @@ const AppShell = () => {
         updateNotification({
           content: (
             <div className="flex items-center gap-2 px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 rounded animate-pulse">
-              <span className="text-xs font-medium">⚠️ File Changed: {path.split(/[/\\]/).pop()}</span>
+              <span className="text-xs font-medium">{t('notifications.file_changed', { file: path.split(/[/\\]/).pop() })}</span>
             </div>
           )
         });
@@ -187,9 +188,8 @@ const AppShell = () => {
       });
     }
     return () => {
-      if (cleanupFileListener) cleanupFileListener();
     };
-  }, [updateNotification]);
+  }, [updateNotification, t]);
 
 
 
@@ -221,6 +221,7 @@ const AppShell = () => {
                   id="home"
                   addTab={addTab}
                   type="home"
+                  t={t}
                 />
 
                 {/* Demos Section */}
@@ -236,6 +237,7 @@ const AppShell = () => {
                       label={t('nav.items.data_mgmt')}
                       id="data-management-demo"
                       addTab={addTab}
+                      t={t}
                     />
                     <SidebarNavButton
                       active={activeTabId === 'connectivity-demo'}
@@ -244,6 +246,7 @@ const AppShell = () => {
                       label={t('nav.items.connectivity')}
                       id="connectivity-demo"
                       addTab={addTab}
+                      t={t}
                     />
                     <SidebarNavButton
                       active={activeTabId === 'ipc-demo'}
@@ -252,6 +255,7 @@ const AppShell = () => {
                       label={t('nav.items.ipc')}
                       id="ipc-demo"
                       addTab={addTab}
+                      t={t}
                     />
                     <SidebarNavButton
                       active={activeTabId === 'secure-storage-demo'}
@@ -260,6 +264,7 @@ const AppShell = () => {
                       label={t('nav.items.secure_storage')}
                       id="secure-storage-demo"
                       addTab={addTab}
+                      t={t}
                     />
                     <SidebarNavButton
                       active={activeTabId === 'os-integration-demo'}
@@ -268,6 +273,7 @@ const AppShell = () => {
                       label={t('nav.items.os_integration')}
                       id="os-integration-demo"
                       addTab={addTab}
+                      t={t}
                     />
                   </div>
                 </div>
@@ -285,6 +291,7 @@ const AppShell = () => {
                       label={t('nav.items.backups')}
                       id="backups"
                       addTab={addTab}
+                      t={t}
                     />
                     <SidebarNavButton
                       active={activeTabId === 'sync'}
@@ -293,6 +300,7 @@ const AppShell = () => {
                       label={t('nav.items.sync_queue')}
                       id="sync"
                       addTab={addTab}
+                      t={t}
                     />
                   </div>
                 </div>
@@ -311,6 +319,7 @@ const AppShell = () => {
                       id="settings"
                       addTab={addTab}
                       data-tour="settings-link"
+                      t={t}
                     />
                     <SidebarNavButton
                       active={activeTabId === 'about'}
@@ -319,6 +328,7 @@ const AppShell = () => {
                       label={t('nav.items.about')}
                       id="about"
                       addTab={addTab}
+                      t={t}
                     />
                   </div>
                 </div>
@@ -337,14 +347,16 @@ const AppShell = () => {
                         label={t('nav.items.test_playground')}
                         id="test"
                         addTab={addTab}
+                        t={t}
                       />
                       <SidebarNavButton
                         active={activeTabId === 'component-test'}
-                        onClick={() => nav('component-test', 'UI Playground')}
+                        onClick={() => nav('component-test', t('nav.items.ui_playground'))}
                         icon={Flask}
-                        label="UI Playground"
+                        label={t('nav.items.ui_playground')}
                         id="component-test"
                         addTab={addTab}
+                        t={t}
                       />
                     </div>
                   </div>
@@ -353,7 +365,7 @@ const AppShell = () => {
             </ContextMenu.ContextMenuTrigger>
             <ContextMenu.ContextMenuContent>
               <ContextMenu.ContextMenuItem onClick={handleToggleSidebar}>
-                {sidebarWidth > 50 ? 'Collapse Sidebar' : 'Expand Sidebar'}
+                {sidebarWidth > 50 ? t('sidebar.collapse') : t('sidebar.expand')}
               </ContextMenu.ContextMenuItem>
             </ContextMenu.ContextMenuContent>
           </ContextMenu.ContextMenu>
@@ -399,7 +411,7 @@ const AppShell = () => {
               {dragTarget === 'secondary' && (
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none bg-background/50 backdrop-blur-[1px]">
                   <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium shadow-sm">
-                    Open in Split View
+                    {t('sidebar.open_split_view')}
                   </span>
                 </div>
               )}

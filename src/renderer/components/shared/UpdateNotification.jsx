@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import PropTypes from 'prop-types';
 import { Alert, AlertTitle, AlertDescription } from '../ui/Alert';
 import Button from '../ui/Button';
@@ -18,6 +19,7 @@ import Button from '../ui/Button';
  * @param {Function} props.onDismiss - Handler for dismiss action
  */
 export function UpdateNotification({ updateInfo, status, progress, onInstall, onDismiss }) {
+  const { t } = useTranslation('common');
   if (!updateInfo || !status) {
     return null;
   }
@@ -27,23 +29,23 @@ export function UpdateNotification({ updateInfo, status, progress, onInstall, on
       case 'available':
         return (
           <>
-            <AlertTitle>Update Available</AlertTitle>
+            <AlertTitle>{t('update.available.title')}</AlertTitle>
             <AlertDescription>
               <p className="mb-3">
-                Version {updateInfo.version} is available. Would you like to download it now?
+                {t('update.available.message', { version: updateInfo.version })}
               </p>
               {updateInfo.releaseNotes && (
                 <details className="mb-3 text-xs">
-                  <summary className="cursor-pointer hover:underline">What&apos;s new?</summary>
+                  <summary className="cursor-pointer hover:underline">{t('update.available.release_notes')}</summary>
                   <div className="mt-2 whitespace-pre-wrap">{updateInfo.releaseNotes}</div>
                 </details>
               )}
               <div className="flex gap-2">
                 <Button size="sm" onClick={onInstall}>
-                  Download
+                  {t('update.download_btn')}
                 </Button>
                 <Button size="sm" variant="outline" onClick={onDismiss}>
-                  Later
+                  {t('update.later')}
                 </Button>
               </div>
             </AlertDescription>
@@ -53,10 +55,10 @@ export function UpdateNotification({ updateInfo, status, progress, onInstall, on
       case 'downloading':
         return (
           <>
-            <AlertTitle>Downloading Update</AlertTitle>
+            <AlertTitle>{t('update.download.title')}</AlertTitle>
             <AlertDescription>
               <p className="mb-2">
-                Downloading version {updateInfo.version}...
+                {t('update.download.message', { version: updateInfo.version })}
               </p>
               {progress && (
                 <div className="mb-3">
@@ -75,7 +77,7 @@ export function UpdateNotification({ updateInfo, status, progress, onInstall, on
                 </div>
               )}
               <Button size="sm" variant="outline" onClick={onDismiss}>
-                Hide
+                {t('update.download.hide')}
               </Button>
             </AlertDescription>
           </>
@@ -84,18 +86,17 @@ export function UpdateNotification({ updateInfo, status, progress, onInstall, on
       case 'ready':
         return (
           <>
-            <AlertTitle>Update Ready to Install</AlertTitle>
+            <AlertTitle>{t('update.ready.title')}</AlertTitle>
             <AlertDescription>
               <p className="mb-3">
-                Version {updateInfo.version} has been downloaded and is ready to install. 
-                The application will restart.
+                {t('update.ready.message', { version: updateInfo.version })}
               </p>
               <div className="flex gap-2">
                 <Button size="sm" onClick={onInstall}>
-                  Install & Restart
+                  {t('update.ready.install')}
                 </Button>
                 <Button size="sm" variant="outline" onClick={onDismiss}>
-                  Later
+                  {t('update.later')}
                 </Button>
               </div>
             </AlertDescription>
@@ -153,10 +154,10 @@ UpdateNotification.propTypes = {
  */
 function formatBytes(bytes) {
   if (!bytes || bytes === 0) return '0 B';
-  
+
   const k = 1024;
   const sizes = ['B', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  
+
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
 }

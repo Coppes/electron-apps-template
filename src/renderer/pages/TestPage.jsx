@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
+import { useTranslation } from 'react-i18next';
 
 /**
  * TestPage Component
  * General-purpose test playground for ad-hoc testing
  */
 export default function TestPage() {
+  const { t } = useTranslation('common');
   const [activeTab, setActiveTab] = useState('quick');
   const [inputValue, setInputValue] = useState('');
   const [results, setResults] = useState([]);
@@ -28,7 +30,7 @@ export default function TestPage() {
     try {
       setLoading(true);
       addResult('info', `Testing: ${inputValue}`);
-      
+
       // Example: test app version
       if (inputValue === 'version') {
         const version = await window.electronAPI.app.getVersion();
@@ -56,17 +58,17 @@ export default function TestPage() {
   };
 
   const tabs = [
-    { id: 'quick', label: '⚡ Quick Test' },
-    { id: 'api', label: '🔌 API Test' },
-    { id: 'console', label: '📟 Console' },
+    { id: 'quick', label: t('test_playground.tabs.quick') },
+    { id: 'api', label: t('test_playground.tabs.api') },
+    { id: 'console', label: t('test_playground.tabs.console') },
   ];
 
   return (
     <div className="container mx-auto p-6 max-w-6xl">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">Test Playground</h1>
+        <h1 className="text-3xl font-bold mb-2">{t('test_playground.title')}</h1>
         <p className="text-muted-foreground">
-          Ad-hoc testing and experimentation area
+          {t('test_playground.description')}
         </p>
       </div>
 
@@ -88,26 +90,26 @@ export default function TestPage() {
         {activeTab === 'quick' && (
           <Card>
             <CardHeader>
-              <CardTitle>Quick Test</CardTitle>
-              <CardDescription>Run quick tests with simple input</CardDescription>
+              <CardTitle>{t('test_playground.quick.title')}</CardTitle>
+              <CardDescription>{t('test_playground.quick.description')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex gap-2">
                 <Input
-                  placeholder="Enter test input (try 'version' or 'storage:key')"
+                  placeholder={t('test_playground.quick.placeholder')}
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleQuickTest()}
                   className="flex-1"
                 />
                 <Button onClick={handleQuickTest} disabled={loading || !inputValue}>
-                  {loading ? 'Testing...' : 'Test'}
+                  {loading ? t('test_playground.quick.testing_btn') : t('test_playground.quick.test_btn')}
                 </Button>
               </div>
 
               <div className="flex gap-2">
                 <Button variant="outline" onClick={handleClearResults}>
-                  Clear Results
+                  {t('test_playground.quick.clear_btn')}
                 </Button>
               </div>
             </CardContent>
@@ -118,15 +120,15 @@ export default function TestPage() {
         {activeTab === 'api' && (
           <Card>
             <CardHeader>
-              <CardTitle>API Test</CardTitle>
-              <CardDescription>Test specific API endpoints</CardDescription>
+              <CardTitle>{t('test_playground.api.title')}</CardTitle>
+              <CardDescription>{t('test_playground.api.description')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                Use the IPC Demo page for comprehensive API testing
+                {t('test_playground.api.hint')}
               </p>
               <Button variant="outline">
-                Go to IPC Demo →
+                {t('test_playground.api.go_ipc')}
               </Button>
             </CardContent>
           </Card>
@@ -136,22 +138,21 @@ export default function TestPage() {
         {activeTab === 'console' && (
           <Card>
             <CardHeader>
-              <CardTitle>Console Output</CardTitle>
-              <CardDescription>View test results and logs</CardDescription>
+              <CardTitle>{t('test_playground.console.title')}</CardTitle>
+              <CardDescription>{t('test_playground.console.description')}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-2 max-h-96 overflow-y-auto">
                 {results.length === 0 ? (
-                  <p className="text-muted-foreground text-sm">No results yet</p>
+                  <p className="text-muted-foreground text-sm">{t('test_playground.console.no_results')}</p>
                 ) : (
                   results.map(result => (
                     <div
                       key={result.id}
-                      className={`p-3 rounded border ${
-                        result.type === 'error' ? 'border-red-500 bg-red-50' :
-                        result.type === 'success' ? 'border-green-500 bg-green-50' :
-                        'border-border bg-muted'
-                      }`}
+                      className={`p-3 rounded border ${result.type === 'error' ? 'border-red-500 bg-red-50' :
+                          result.type === 'success' ? 'border-green-500 bg-green-50' :
+                            'border-border bg-muted'
+                        }`}
                     >
                       <div className="flex items-center justify-between mb-1">
                         <span className="font-semibold text-sm">
