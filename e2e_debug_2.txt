@@ -1,0 +1,187 @@
+
+> electron-apps-template@1.0.0 test:e2e
+> npm run build && playwright test
+
+
+> electron-apps-template@1.0.0 build
+> electron-vite build
+
+vite v7.2.7 building ssr environment for production...
+transforming...
+✓ 1985 modules transformed.
+rendering chunks...
+[plugin vite:reporter] 
+(!) /Users/yuricoppe/Code/electron-apps-template/src/main/window-manager.js is dynamically imported by /Users/yuricoppe/Code/electron-apps-template/src/main.js but also statically imported by /Users/yuricoppe/Code/electron-apps-template/src/main/ipc/handlers/shortcuts.js, /Users/yuricoppe/Code/electron-apps-template/src/main/ipc/handlers/tray.js, /Users/yuricoppe/Code/electron-apps-template/src/main/lifecycle.js, /Users/yuricoppe/Code/electron-apps-template/src/main/notifications.js, /Users/yuricoppe/Code/electron-apps-template/src/main/progress.js, /Users/yuricoppe/Code/electron-apps-template/src/main/splash.js, dynamic import will not move module into another chunk.
+
+out/main/chunks/adm-zip-ZIpwWwvl.js     93.89 kB
+out/main/chunks/index-DAGJjE2d.js      323.73 kB
+out/main/chunks/main-C5pOFwek.js       500.11 kB
+out/main/index.js                    1,627.83 kB
+✓ built in 2.07s
+vite v7.2.7 building ssr environment for production...
+transforming...
+✓ 2 modules transformed.
+rendering chunks...
+out/preload/index.cjs  32.51 kB
+✓ built in 9ms
+vite v7.2.7 building client environment for production...
+transforming...
+✓ 5155 modules transformed.
+rendering chunks...
+../../out/renderer/index.html                                     0.42 kB
+../../out/renderer/static/splash.html                             2.14 kB
+../../out/renderer/assets/index-CHc61nzN.css                     64.13 kB
+../../out/renderer/assets/errors-CyB-36l4.js                      0.05 kB
+../../out/renderer/assets/errors-CAWzL9-L.js                      0.05 kB
+../../out/renderer/assets/Separator-CTPGfOLS.js                   0.82 kB
+../../out/renderer/assets/Input-C3JDiOKP.js                       1.26 kB
+../../out/renderer/assets/onboarding-BvodOboS.js                  1.47 kB
+../../out/renderer/assets/onboarding-BJi8On0X.js                  1.56 kB
+../../out/renderer/assets/connectivity-BIETKdGV.js                1.74 kB
+../../out/renderer/assets/settings-s57n4MxI.js                    1.74 kB
+../../out/renderer/assets/settings-B_RXiKCc.js                    1.92 kB
+../../out/renderer/assets/connectivity-C3W834F1.js                1.96 kB
+../../out/renderer/assets/Label-CXzRARkl.js                       2.02 kB
+../../out/renderer/assets/Clock.es-kUvmrIXB.js                    2.44 kB
+../../out/renderer/assets/Card-DSnAXu2X.js                        2.47 kB
+../../out/renderer/assets/ipc-BteIlXlu.js                         2.78 kB
+../../out/renderer/assets/Monitor.es-DXSdMOx7.js                  2.79 kB
+../../out/renderer/assets/ipc-D3ggp8KD.js                         3.10 kB
+../../out/renderer/assets/KeyboardShortcutsPage-B80GkxVf.js       5.77 kB
+../../out/renderer/assets/data_management-ehqxcO7P.js             6.50 kB
+../../out/renderer/assets/TestPage-O8E2UvAJ.js                    7.11 kB
+../../out/renderer/assets/data_management-CNCPEF9Z.js             7.13 kB
+../../out/renderer/assets/AboutPage-knABPMFS.js                   7.56 kB
+../../out/renderer/assets/ComponentTestPage-DEw1VV-W.js           7.57 kB
+../../out/renderer/assets/ConnectivityDemoPage-EI6tpw4R.js        7.88 kB
+../../out/renderer/assets/DropZone-Js2o898y.js                    8.48 kB
+../../out/renderer/assets/common-B43l8Xtb.js                     10.64 kB
+../../out/renderer/assets/common-Dh_QrymR.js                     11.56 kB
+../../out/renderer/assets/BackupPage-CatBZCos.js                 13.34 kB
+../../out/renderer/assets/HomePage-C14Z6ifH.js                   13.41 kB
+../../out/renderer/assets/SyncQueueViewer-VtGc0MC0.js            13.93 kB
+../../out/renderer/assets/IPCDemoPage-Zs5OwcEb.js                21.14 kB
+../../out/renderer/assets/SettingsPage-BgDel1JN.js               22.19 kB
+../../out/renderer/assets/SecureStorageDemoPage-KB_NFKjN.js      27.81 kB
+../../out/renderer/assets/DataManagementDemoPage-BIz42k5y.js     37.80 kB
+../../out/renderer/assets/OSIntegrationDemoPage-kkNZyvpE.js     104.43 kB
+../../out/renderer/assets/index-CdRwHqVO.js                   1,135.94 kB
+✓ built in 1.68s
+
+Running 4 tests using 1 worker
+
+Checking windows: 0
+Checking windows: 3
+Window URL: file:///Users/yuricoppe/Code/electron-apps-template/out/renderer/static/splash.html
+Window URL: devtools://devtools/bundled/devtools_app.html?remoteBase=https://chrome-devtools-frontend.appspot.com/serve_file/@6c39e35d1fa8da72b1a4322d84a75da1f60325d5/&can_dock=true&toolbarColor=rgba(223,223,223,1)&textColor=rgba(0,0,0,1)&experiments=true
+Window URL: file:///Users/yuricoppe/Code/electron-apps-template/out/renderer/index.html
+  ✘  1 test/e2e/app-launch.spec.js:62:3 › Application Launch › should launch main window (1.2s)
+Checking windows: 0
+Checking windows: 4
+Window URL: file:///Users/yuricoppe/Code/electron-apps-template/out/renderer/static/splash.html
+Window URL: devtools://devtools/bundled/devtools_app.html?remoteBase=https://chrome-devtools-frontend.appspot.com/serve_file/@6c39e35d1fa8da72b1a4322d84a75da1f60325d5/&can_dock=true&toolbarColor=rgba(223,223,223,1)&textColor=rgba(0,0,0,1)&experiments=true
+Window URL: file:///Users/yuricoppe/Code/electron-apps-template/out/renderer/index.html
+  ✘  2 test/e2e/app-launch.spec.js:62:3 › Application Launch › should launch main window (retry #1) (1.0s)
+Checking windows: 0
+Checking windows: 4
+Window URL: file:///Users/yuricoppe/Code/electron-apps-template/out/renderer/static/splash.html
+Window URL: devtools://devtools/bundled/devtools_app.html?remoteBase=https://chrome-devtools-frontend.appspot.com/serve_file/@6c39e35d1fa8da72b1a4322d84a75da1f60325d5/&can_dock=true&toolbarColor=rgba(223,223,223,1)&textColor=rgba(0,0,0,1)&experiments=true
+Window URL: file:///Users/yuricoppe/Code/electron-apps-template/out/renderer/index.html
+  ✓  3 test/e2e/app-launch.spec.js:74:3 › Application Launch › should expose electronAPI in renderer (1.1s)
+  ✘  4 test/e2e/window-management.spec.js:49:3 › Window Management › should minimize and restore window (1.2s)
+  ✘  5 test/e2e/window-management.spec.js:49:3 › Window Management › should minimize and restore window (retry #1) (1.1s)
+  ✓  6 test/e2e/window-management.spec.js:68:3 › Window Management › should maximize and unmaximize window (1.3s)
+
+
+  1) test/e2e/app-launch.spec.js:62:3 › Application Launch › should launch main window ─────────────
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      64 |     const win = await app.browserWindow(firstWindow);
+      65 |     const isVisible = await win.evaluate(browserWindow => browserWindow.isVisible());
+    > 66 |     expect(isVisible).toBe(true);
+         |                       ^
+      67 |
+      68 |     // Check title (might be default title if not set yet, or defined in HTML)
+      69 |     const title = await firstWindow.title();
+        at /Users/yuricoppe/Code/electron-apps-template/test/e2e/app-launch.spec.js:66:23
+
+    Error Context: test-results/app-launch-Application-Launch-should-launch-main-window/error-context.md
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      64 |     const win = await app.browserWindow(firstWindow);
+      65 |     const isVisible = await win.evaluate(browserWindow => browserWindow.isVisible());
+    > 66 |     expect(isVisible).toBe(true);
+         |                       ^
+      67 |
+      68 |     // Check title (might be default title if not set yet, or defined in HTML)
+      69 |     const title = await firstWindow.title();
+        at /Users/yuricoppe/Code/electron-apps-template/test/e2e/app-launch.spec.js:66:23
+
+    Error Context: test-results/app-launch-Application-Launch-should-launch-main-window-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/app-launch-Application-Launch-should-launch-main-window-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/app-launch-Application-Launch-should-launch-main-window-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) test/e2e/window-management.spec.js:49:3 › Window Management › should minimize and restore window 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mfalse[39m
+    Received: [31mtrue[39m
+
+      63 |     await win.evaluate(w => w.restore());
+      64 |     const isMinimizedFinal = await win.evaluate(w => w.isMinimized());
+    > 65 |     expect(isMinimizedFinal).toBe(false);
+         |                              ^
+      66 |   });
+      67 |
+      68 |   test('should maximize and unmaximize window', async () => {
+        at /Users/yuricoppe/Code/electron-apps-template/test/e2e/window-management.spec.js:65:30
+
+    Error Context: test-results/window-management-Window-M-8b085-minimize-and-restore-window/error-context.md
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      58 |     // Check minimized state
+      59 |     const isMinimized = await win.evaluate(w => w.isMinimized());
+    > 60 |     expect(isMinimized).toBe(true);
+         |                         ^
+      61 |
+      62 |     // Restore
+      63 |     await win.evaluate(w => w.restore());
+        at /Users/yuricoppe/Code/electron-apps-template/test/e2e/window-management.spec.js:60:25
+
+    Error Context: test-results/window-management-Window-M-8b085-minimize-and-restore-window-retry1/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/window-management-Window-M-8b085-minimize-and-restore-window-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/window-management-Window-M-8b085-minimize-and-restore-window-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    test/e2e/app-launch.spec.js:62:3 › Application Launch › should launch main window ──────────────
+    test/e2e/window-management.spec.js:49:3 › Window Management › should minimize and restore window 
+  2 passed (8.3s)

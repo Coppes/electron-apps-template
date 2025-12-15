@@ -89,7 +89,7 @@ export class WindowManager {
    * @returns {string} Preload script path
    */
   getPreloadPath() {
-    if (app.isPackaged) {
+    if (app.isPackaged || process.env.E2E_TEST_BUILD) {
       return join(__dirname, '../preload/index.cjs');
     } else {
       return join(process.cwd(), 'out/preload/index.cjs');
@@ -103,12 +103,15 @@ export class WindowManager {
    */
   loadContent(window, type) {
     if (type === WINDOW_TYPES.SPLASH) {
-      if (isDevelopment()) {
+      if (isDevelopment() && !process.env.E2E_TEST_BUILD) {
         const url = 'http://localhost:5173/static/splash.html';
         window.loadURL(url);
         logger.debug(`Splash window loaded URL: ${url}`);
       } else {
-        const splashPath = join(__dirname, '../../renderer/static/splash.html');
+        const splashPath = join(__dirname, '../renderer/static/splash.html');
+        // When running from out/main/index.js in E2E, __dirname is .../out/main
+        // We need .../out/renderer/static/splash.html
+        // ../renderer points to .../out/renderer. Correct!
         window.loadFile(splashPath);
         logger.debug(`Splash window loaded file: ${splashPath}`);
       }
@@ -117,12 +120,12 @@ export class WindowManager {
 
     const devMode = isDevelopment();
 
-    if (devMode) {
+    if (devMode && !process.env.E2E_TEST_BUILD) {
       const url = `http://localhost:5173`;
       window.loadURL(url);
       logger.debug(`Window loaded URL: ${url}`);
     } else {
-      const filePath = join(__dirname, '../../renderer/index.html');
+      const filePath = join(__dirname, '../renderer/index.html');
       window.loadFile(filePath);
       logger.debug(`Window loaded file: ${filePath}`);
     }

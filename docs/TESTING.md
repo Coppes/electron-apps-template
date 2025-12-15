@@ -21,7 +21,7 @@ This project uses **Vitest** as the test framework with comprehensive test cover
 - **Main Process Tests**: Node.js environment for Electron main process modules
 - **Renderer Process Tests**: jsdom environment for React components
 - **Integration Tests**: Testing cross-process communication
-- **E2E Tests**: End-to-end testing with Playwright (planned)
+- **E2E Tests**: End-to-end testing with Playwright
 
 ## Test Structure
 
@@ -49,7 +49,7 @@ test/
 │       ├── security.navigation.test.js
 │       └── security.permissions.test.js
 ├── integration/                      # Integration tests (planned)
-└── e2e/                              # E2E tests (planned)
+└── e2e/                              # E2E tests
 ```
 
 ## Running Tests
@@ -59,6 +59,7 @@ test/
 ```bash
 npm test                    # Run all tests in watch mode
 npm run test:unit           # Run unit tests only
+npm run test:e2e            # Run E2E tests
 npm run test:coverage       # Run tests with coverage report
 ```
 
