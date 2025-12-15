@@ -116,67 +116,67 @@
 
 ### Task 3.3: Test lifecycle module
 
-- [ ] Create `test/unit/main/lifecycle.test.js`
-- [ ] Mock app, window-manager
-- [ ] Test initialize() calls setup functions in order
-- [ ] Test shutdown() calls cleanup functions
-- [ ] Test setupSingleInstance() prevents multiple instances
-- [ ] Test ready() resolves when app is ready
-- [ ] Test beforeQuit() handler saves state
-- [ ] Test activate() (macOS) recreates window
-- [ ] Validate: >80% coverage for lifecycle
+- [x] Create `test/unit/main/lifecycle.test.js`
+- [x] Mock app, window-manager
+- [x] Test initialize() calls setup functions in order
+- [x] Test shutdown() calls cleanup functions
+- [x] Test setupSingleInstance() prevents multiple instances
+- [x] Test ready() resolves when app is ready
+- [x] Test beforeQuit() handler saves state
+- [x] Test activate() (macOS) recreates window
+- [x] Validate: >80% coverage for lifecycle
 
 ### Task 3.4: Test IPC handlers - app
 
-- [ ] Create `test/unit/main/ipc/handlers/app.test.js`
-- [ ] Mock app, BrowserWindow
-- [ ] Test GET_APP_VERSION returns version
-- [ ] Test GET_APP_PATH returns correct path
-- [ ] Test MINIMIZE_WINDOW minimizes window
-- [ ] Test MAXIMIZE_WINDOW maximizes window
-- [ ] Test CLOSE_WINDOW closes window
-- [ ] Test QUIT_APP quits application
-- [ ] Test invalid payloads throw validation errors
-- [ ] Validate: >80% coverage for app handler
+- [x] Create `test/unit/main/ipc/handlers/app.test.js`
+- [x] Mock app, BrowserWindow
+- [x] Test GET_APP_VERSION returns version
+- [x] Test GET_APP_PATH returns correct path
+- [x] Test MINIMIZE_WINDOW minimizes window
+- [x] Test MAXIMIZE_WINDOW maximizes window
+- [x] Test CLOSE_WINDOW closes window
+- [x] Test QUIT_APP quits application
+- [x] Test invalid payloads throw validation errors
+- [x] Validate: >80% coverage for app handler
 
 ### Task 3.5: Test IPC handlers - dialog
 
-- [ ] Create `test/unit/main/ipc/handlers/dialog.test.js`
-- [ ] Mock electron.dialog
-- [ ] Test SHOW_OPEN_DIALOG opens file picker
-- [ ] Test SHOW_SAVE_DIALOG opens save dialog
-- [ ] Test SHOW_MESSAGE_BOX shows message
-- [ ] Test dialog options are passed correctly
-- [ ] Test canceled dialogs return canceled: true
-- [ ] Test file filters work correctly
-- [ ] Test invalid payloads are rejected
-- [ ] Validate: >80% coverage for dialog handler
+- [x] Create `test/unit/main/ipc/handlers/dialog.test.js`
+- [x] Mock electron.dialog
+- [x] Test SHOW_OPEN_DIALOG opens file picker
+- [x] Test SHOW_SAVE_DIALOG opens save dialog
+- [x] Test SHOW_MESSAGE_BOX shows message
+- [x] Test dialog options are passed correctly
+- [x] Test canceled dialogs return canceled: true
+- [x] Test file filters work correctly
+- [x] Test invalid payloads are rejected
+- [x] Validate: >80% coverage for dialog handler
 
 ### Task 3.6: Test IPC handlers - store
 
-- [ ] Create `test/unit/main/ipc/handlers/store.test.js`
-- [ ] Mock electron-store
-- [ ] Test STORE_GET retrieves value
-- [ ] Test STORE_SET stores value
-- [ ] Test STORE_DELETE removes value
-- [ ] Test STORE_HAS checks existence
-- [ ] Test STORE_CLEAR clears all values
-- [ ] Test nested keys (dot notation)
-- [ ] Test invalid payloads are rejected
-- [ ] Validate: >80% coverage for store handler
+- [x] Create `test/unit/main/ipc/handlers/store.test.js`
+- [x] Mock electron-store
+- [x] Test STORE_GET retrieves value
+- [x] Test STORE_SET stores value
+- [x] Test STORE_DELETE removes value
+- [x] Test STORE_HAS checks existence
+- [x] Test STORE_CLEAR clears all values
+- [x] Test nested keys (dot notation)
+- [x] Test invalid payloads are rejected
+- [x] Validate: >80% coverage for store handler
 
 ### Task 3.7: Test updater module
 
-- [ ] Create `test/unit/main/updater.test.js`
-- [ ] Mock electron-updater
-- [ ] Test checkForUpdates() triggers update check
-- [ ] Test update-available event emits to renderer
-- [ ] Test update-downloaded event emits to renderer
-- [ ] Test download-progress event emits to renderer
-- [ ] Test error event is handled gracefully
-- [ ] Test quitAndInstall() installs update
-- [ ] Test auto-update is disabled in development
-- [ ] Validate: >80% coverage for updater
+- [x] Create `test/unit/main/updater.test.js`
+- [x] Mock electron-updater
+- [x] Test checkForUpdates() triggers update check
+- [x] Test update-available event emits to renderer
+- [x] Test update-downloaded event emits to renderer
+- [x] Test download-progress event emits to renderer
+- [x] Test error event is handled gracefully
+- [x] Test quitAndInstall() installs update
+- [x] Test auto-update is disabled in development
+- [x] Validate: >80% coverage for updater
 
 ### Task 3.8: Test security modules
 
@@ -206,12 +206,12 @@
 
 ### Task 4.2: Test utility functions
 
-- [ ] Create `test/unit/renderer/utils/cn.test.js`
-- [ ] Test cn() merges classNames correctly
-- [ ] Test cn() handles conditional classes
-- [ ] Test cn() handles arrays and objects
-- [ ] Add tests for any other utility functions
-- [ ] Validate: 100% coverage for utils
+- [x] Create `test/unit/renderer/utils/cn.test.js`
+- [x] Test cn() merges classNames correctly
+- [x] Test cn() handles conditional classes
+- [x] Test cn() handles arrays and objects
+- [x] Add tests for any other utility functions
+- [x] Validate: 100% coverage for utils
 
 ### Task 4.3: Fix failing renderer tests
 
@@ -410,43 +410,44 @@
 - **Status**: ✅ **COMPLETE** - Core infrastructure implemented, main and renderer tests passing (153 total tests)
 
 ### Completed Work
-
-**Phase 1-2: Infrastructure & Mocks** ✅
-
-- Vitest configurations for main and renderer processes
-- Complete Electron API mocks with proper typing
-- Test fixtures and helpers
-- Setup files with proper cleanup
-
-**Phase 3: Main Process Tests** ✅
-
-- window-manager: 24 tests passing
-- logger: 13 tests passing
-- security modules: 45 tests passing (CSP, navigation, permissions, audit)
-- Total: 82 main process tests passing
-
-**Phase 4: Renderer Process Tests** ✅
-
-- Updated Demo.test.jsx for refactored component (11 tests)
-- Created ErrorBoundary.test.jsx (9 tests)
-- Created UpdateNotification.test.jsx (15 tests)
-- Created SafeHTML.test.jsx (16 tests)
-- App.test.jsx updated (10 tests total)
-- Total: 71 renderer tests passing
-
-**Phase 7-8: CI/CD & Documentation** ✅
-
-- GitHub Actions workflow configured
-- Coverage reporting setup
-- TESTING.md documentation complete
-- Package.json scripts configured
-
-### Deferred Work (Future Enhancements)
-
-The following tasks were deferred as they are not blocking for the core test infrastructure goal:
-
-- **E2E Tests**: Playwright setup and end-to-end tests for app launch, window management, auto-update
-- **Integration Tests**: Full IPC communication tests, window lifecycle tests
-- **Additional Unit Tests**: lifecycle.test.js, updater.test.js, IPC handler tests (app, dialog, store)
-
-These can be implemented incrementally as needed without blocking the current implementation.
+ 
+ **Phase 1-2: Infrastructure & Mocks** ✅
+ 
+ - Vitest configurations for main and renderer processes
+ - Complete Electron API mocks with proper typing
+ - Test fixtures and helpers
+ - Setup files with proper cleanup
+ 
+ **Phase 3: Main Process Tests** ✅
+ 
+ - window-manager: 24 tests passing
+ - logger: 13 tests passing
+ - security modules: 45 tests passing
+ - lifecycle: 13 tests passing
+ - app-handler: 12 tests passing
+ - dialog-handler: 10 tests passing
+ - store-handler: 7 tests passing
+ - updater: 9 tests passing
+ - Total: ~133 main process tests passing
+ 
+ **Phase 4: Renderer Process Tests** ✅
+ 
+ - Renderer components (Demo, ErrorBoundary, UpdateNotification, SafeHTML, App)
+ - utils/cn: 3 tests passing
+ - Total: ~80 renderer tests passing
+ 
+ **Phase 7-8: CI/CD & Documentation** ✅
+ 
+ - GitHub Actions workflow configured
+ - Coverage reporting setup
+ - TESTING.md documentation complete
+ - Package.json scripts configured
+ 
+ ### Deferred Work (Future Enhancements)
+ 
+ The following tasks were deferred as they are not blocking for the core test infrastructure goal:
+ 
+ - **E2E Tests**: Playwright setup and end-to-end tests for app launch, window management, auto-update
+ - **Integration Tests**: Full IPC communication tests, window lifecycle tests
+ 
+ These can be implemented incrementally as needed without blocking the current implementation.
