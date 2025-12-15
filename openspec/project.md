@@ -17,14 +17,22 @@ Modern, secure, and scalable Electron + React boilerplate for desktop apps. Focu
 - **electron-vite** v4.0.1 - Fast Vite-based build tool
 - **Vite** v7.2.2 - Development server with HMR
 - **Babel** v7.28.5 - ES6+ transpilation (env + react presets)
+- **Storybook** v10.1.8 - UI component documentation and testing
 
 ### UI & Styling
 
 - **Tailwind CSS** v4.1.17 - Utility-first CSS with dark/light theme support
 - **shadcn/ui** - Radix UI primitives (@radix-ui/react-*)
-  - Dialog, Dropdown Menu, Slot components
+- **@phosphor-icons/react** v2.1.10 - Icon library
+- **framer-motion** v12.23.26 - Animations and gestures
 - **class-variance-authority** v0.7.1 - Component variants
 - **clsx** v2.1.1 + **tailwind-merge** v3.3.1 - Class name utilities
+
+### Internationalization
+
+- **i18next** v25.7.2 - I18n framework
+- **react-i18next** v16.4.0 - React bindings for i18n
+- **i18next-resources-to-backend** - Lazy loading of translations
 
 ### Testing
 
@@ -80,10 +88,17 @@ Modern, secure, and scalable Electron + React boilerplate for desktop apps. Focu
 - **config.js**: Centralized configuration (window defaults, CSP, etc.)
 - **logger.js**: Structured logging with electron-log
 - **menu.js**: Application menu with platform-specific variants
+- **tray.js**: System tray icon and context menu management
+- **shortcuts.js**: Global keyboard shortcuts (accelerators) registry
+- **notifications.js**: Native OS notifications handler
+- **recent-docs.js**: OS Recent Documents integration
+- **progress.js**: Taskbar/Dock progress indicator
+- **splash.js**: Splash screen management
 - **dev-tools.js**: Development tools (React DevTools, HMR, performance monitoring)
 - **error-handler.js**: Global error handling, crash reporting
 - **updater.js**: Auto-update with electron-updater
 - **crash-reporter.js**: Crash reporting configuration
+- **workers/**: Worker threads for CPU-intensive tasks
 
 #### Security (src/main/security/)
 
@@ -104,11 +119,13 @@ Modern, secure, and scalable Electron + React boilerplate for desktop apps. Focu
   - `app.js`: App info (version, path, quit, relaunch, platform, updates)
   - `log.js`: Remote logging from renderer
   - `system.js`: System information
+  - `workers.js`: Worker thread management
+  - `tray.js`: Tray management
 
 #### Preload (src/preload.js)
 
 - **contextBridge**: Exposes secure API to renderer
-- **APIs**: windowAPI, storeAPI, dialogAPI, appAPI, systemAPI, logAPI, eventsAPI, updateAPI
+- **APIs**: windowAPI, storeAPI, dialogAPI, appAPI, systemAPI, logAPI, eventsAPI, updateAPI, trayAPI, shortcutsAPI
 - **Backward Compatibility**: Legacy methods (setTitle, openFile) for migration
 
 #### Renderer (src/renderer/)
@@ -117,8 +134,12 @@ Modern, secure, and scalable Electron + React boilerplate for desktop apps. Focu
 - **App.jsx**: Root component with routing/layout
 - **components/**:
   - `layout/`: AppShell (sidebar layout)
-  - `pages/`: HomePage, DemoPage, SettingsPage, AboutPage
-  - `ui/`: Reusable UI components (Button, Input, Card, etc.)
+  - `pages/`: HomePage, DemoPage, SettingsPage, AboutPage, DataManagementPage, OSIntegrationPage
+  - `ui/`: Reusable UI components (Button, Input, Card, ContextMenu, Slider, Table, Tooltip, etc.)
+  - `CommandPalette.jsx`: 'Cmd+K' command interface
+  - `StatusBar.jsx`: Bottom status bar
+  - `TabBar.jsx`: Multi-tab interface
+  - `TourOverlay.jsx`: Onboarding tour
   - `Demo.jsx`: Demonstrates window and dialog APIs
   - `ErrorBoundary.jsx`: React error boundary with logging
   - `UpdateNotification.jsx`: Auto-update UI
@@ -154,7 +175,7 @@ Modern, secure, and scalable Electron + React boilerplate for desktop apps. Focu
 ### Security Conventions
 
 - **Context Isolation**: ALWAYS enabled (contextIsolation: true)
-- **Node Integration**: ALWAYS disabled (nodeIntegration: false)
+- **Node Integration**: ALWAYS disabled in renderer (nodeIntegration: false)
 - **Sandbox**: Enabled for renderer
 - **CSP**: Strict policy, no unsafe-inline, no unsafe-eval
 - **IPC**: Only via contextBridge, schema-validated
@@ -179,43 +200,55 @@ src/
 ├── main.js                    # Electron main entry
 ├── preload.js                 # Context bridge
 ├── common/
-│   ├── constants.js          # IPC channels, constants
-│   └── types.js              # Type definitions
+│   ├── constants.js           # IPC channels, constants
+│   └── types.js               # Type definitions
 ├── css/
-│   └── globals.css           # Tailwind + CSS variables
+│   └── globals.css            # Tailwind + CSS variables
 ├── main/
-│   ├── window-manager.js     # Window management
-│   ├── lifecycle.js          # App lifecycle
-│   ├── config.js             # Configuration
-│   ├── logger.js             # Logging
-│   ├── menu.js               # Application menu
-│   ├── error-handler.js      # Error handling
-│   ├── updater.js            # Auto-updates
-│   ├── crash-reporter.js     # Crash reporting
-│   ├── dev-tools.js          # Dev utilities
+│   ├── window-manager.js      # Window management
+│   ├── lifecycle.js           # App lifecycle
+│   ├── config.js              # Configuration
+│   ├── logger.js              # Logging
+│   ├── menu.js                # Application menu
+│   ├── tray.js                # System tray
+│   ├── shortcuts.js           # Global shortcuts
+│   ├── notifications.js       # Native notifications
+│   ├── recent-docs.js         # Recent documents
+│   ├── progress.js            # Dock/Taskbar progress
+│   ├── splash.js              # Splash screen
+│   ├── error-handler.js       # Error handling
+│   ├── updater.js             # Auto-updates
+│   ├── crash-reporter.js      # Crash reporting
+│   ├── dev-tools.js           # Dev utilities
 │   ├── ipc/
-│   │   ├── bridge.js         # IPC registration
-│   │   ├── schema.js         # Validation schemas
-│   │   └── handlers/         # IPC handlers
-│   └── security/
-│       ├── csp.js            # CSP policy
-│       ├── navigation-guard.js
-│       ├── permissions.js
-│       └── audit-log.js
-└── renderer/
-    ├── index.html
-    ├── index.js
-    ├── App.jsx
-    ├── components/
-    │   ├── layout/
-    │   ├── pages/
-    │   ├── ui/
-    │   ├── Demo.jsx
-    │   ├── ErrorBoundary.jsx
-    │   ├── UpdateNotification.jsx
-    │   └── SafeHTML.jsx
-    └── utils/
-        └── cn.js             # className utilities
+│   │   ├── bridge.js          # IPC registration
+│   │   ├── schema.js          # Validation schemas
+│   │   └── handlers/          # IPC handlers
+│   ├── security/
+│   │   ├── csp.js             # CSP policy
+│   │   ├── navigation-guard.js
+│   │   ├── permissions.js
+│   │   └── audit-log.js
+│   └── workers/               # Background workers
+├── renderer/
+│   ├── index.html
+│   ├── index.js
+│   ├── App.jsx
+│   ├── components/
+│   │   ├── layout/
+│   │   ├── pages/
+│   │   ├── ui/                # UI Components (Button, Input, Alert, ContextMenu, etc.)
+│   │   ├── CommandPalette.jsx # Command Palette
+│   │   ├── StatusBar.jsx      # Status Bar
+│   │   ├── TabBar.jsx         # Tabs
+│   │   ├── TourOverlay.jsx    # Onboarding
+│   │   ├── Demo.jsx
+│   │   ├── ErrorBoundary.jsx
+│   │   ├── UpdateNotification.jsx
+│   │   └── SafeHTML.jsx
+│   └── utils/
+│       └── cn.js              # className utilities
+└── stories/                   # Storybook stories
 
 test/
 ├── setup/                     # Test configuration
