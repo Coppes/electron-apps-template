@@ -13,6 +13,7 @@
     "test:main": "vitest --config vitest.config.main.js",
     "test:renderer": "vitest --config vitest.config.renderer.js",
     "test:unit": "vitest run --config vitest.config.main.js && vitest run --config vitest.config.renderer.js",
+    "test:integration": "vitest run --config vitest.config.main.js test/integration/",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest --watch",
     "test:ui": "vitest --ui",
