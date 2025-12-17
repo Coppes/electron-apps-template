@@ -12,30 +12,30 @@ import { config } from './config.js';
  * Initialize crash reporting service
  * Only initializes if enabled in config and DSN is provided
  */
-export function initializeCrashReporting() {
-  if (!config.crashReporting.enabled) {
+export function initializeCrashReporting(configuration = config) {
+  if (!configuration.crashReporting.enabled) {
     logger.info('Crash reporting disabled');
     return;
   }
 
-  if (!config.crashReporting.dsn) {
+  if (!configuration.crashReporting.dsn) {
     logger.warn('Crash reporting enabled but no DSN configured');
     return;
   }
 
   try {
     Sentry.init({
-      dsn: config.crashReporting.dsn,
-      environment: config.crashReporting.environment,
+      dsn: configuration.crashReporting.dsn,
+      environment: configuration.crashReporting.environment,
       release: `${app.getName()}@${app.getVersion()}`,
-      sampleRate: config.crashReporting.sampleRate,
-      attachStacktrace: config.crashReporting.attachStacktrace,
-      
+      sampleRate: configuration.crashReporting.sampleRate,
+      attachStacktrace: configuration.crashReporting.attachStacktrace,
+
       // Sanitize events before sending
       beforeSend(event) {
         return sanitizeEvent(event);
       },
-      
+
       // Disable automatic breadcrumb collection for screenshots
       integrations: (integrations) => {
         return integrations.filter(integration => {
@@ -62,7 +62,7 @@ export function initializeCrashReporting() {
  * @param {Object} event - Sentry event object
  * @returns {Object|null} Sanitized event or null to drop
  */
-function sanitizeEvent(event) {
+export function sanitizeEvent(event) {
   try {
     // Sanitize file paths - replace username
     if (event.exception?.values) {
@@ -78,6 +78,11 @@ function sanitizeEvent(event) {
           });
         }
       });
+    }
+
+    // Sanitize top-level message
+    if (event.message) {
+      event.message = sanitizeFilePath(event.message);
     }
 
     // Sanitize breadcrumbs
@@ -96,6 +101,11 @@ function sanitizeEvent(event) {
     // Sanitize contexts
     if (event.contexts) {
       event.contexts = sanitizeObject(event.contexts);
+    }
+
+    // Sanitize extra data
+    if (event.extra) {
+      event.extra = redactEnvironmentVariables(event.extra);
     }
 
     // Redact environment variables
@@ -117,19 +127,19 @@ function sanitizeEvent(event) {
  */
 function sanitizeFilePath(path) {
   if (typeof path !== 'string') return path;
-  
+
   // Replace home directory paths
   const homePatterns = [
     /\/Users\/[^/]+/g,           // macOS: /Users/username
     /\/home\/[^/]+/g,            // Linux: /home/username
     /C:\\Users\\[^\\]+/g,         // Windows: C:\Users\username
   ];
-  
+
   let sanitized = path;
   homePatterns.forEach(pattern => {
     sanitized = sanitized.replace(pattern, '[user]');
   });
-  
+
   return sanitized;
 }
 
@@ -147,13 +157,13 @@ function redactEnvironmentVariables(env) {
     /^AWS_/i,
     /^SENTRY_DSN$/i,
   ];
-  
+
   const redacted = {};
   for (const [key, value] of Object.entries(env)) {
     const isSensitive = sensitivePatterns.some(pattern => pattern.test(key));
     redacted[key] = isSensitive ? '[REDACTED]' : value;
   }
-  
+
   return redacted;
 }
 
@@ -164,11 +174,11 @@ function redactEnvironmentVariables(env) {
  */
 function sanitizeObject(obj) {
   if (!obj || typeof obj !== 'object') return obj;
-  
+
   if (Array.isArray(obj)) {
     return obj.map(item => sanitizeObject(item));
   }
-  
+
   const sanitized = {};
   for (const [key, value] of Object.entries(obj)) {
     if (typeof value === 'string') {
@@ -179,7 +189,7 @@ function sanitizeObject(obj) {
       sanitized[key] = value;
     }
   }
-  
+
   return sanitized;
 }
 
@@ -202,24 +212,24 @@ export function reportError(error, context = {}) {
       context,
     });
   }
-  
+
   // Send to Sentry if enabled
   if (!config.crashReporting.enabled) {
     return;
   }
-  
+
   try {
     Sentry.withScope(scope => {
       // Add custom context
       Object.entries(context).forEach(([key, value]) => {
         scope.setContext(key, value);
       });
-      
+
       // Add tags
       if (context.type) {
         scope.setTag('error.type', context.type);
       }
-      
+
       // Capture exception
       if (error instanceof Error) {
         Sentry.captureException(error);
@@ -244,7 +254,7 @@ export function addBreadcrumb(breadcrumb) {
   if (!config.crashReporting.enabled) {
     return;
   }
-  
+
   try {
     Sentry.addBreadcrumb({
       message: breadcrumb.message,
@@ -268,7 +278,7 @@ export function setUserContext(user) {
   if (!config.crashReporting.enabled) {
     return;
   }
-  
+
   try {
     Sentry.setUser({
       id: user.id,
@@ -287,7 +297,7 @@ export function clearUserContext() {
   if (!config.crashReporting.enabled) {
     return;
   }
-  
+
   try {
     Sentry.setUser(null);
   } catch (error) {

@@ -307,3 +307,22 @@ npm outdated
 ---
 
 **Segurança é uma responsabilidade contínua. Revise este documento regularmente.**
+
+## Observability & Privacy
+
+### Relatórios de Erros (Crash Reporting)
+
+O sistema de relatórios de erros (Sentry) foi configurado com privacidade em mente:
+
+1. **Opt-in por Padrão**: O envio de relatórios é desabilitado por padrão (`enabled: false` em `config.js`).
+2. **Sanitização de Dados**:
+   - Caminhos de arquivos locais são sanitizados (e.g., `/Users/username` -> `/Users/[user]`).
+   - Variáveis de ambiente sensíveis (terminadas em `_KEY`, `_SECRET`, etc.) são redigidas (`[REDACTED]`).
+   - PII (Informação Pessoalmente Identificável) é removida dos breadcrumbs.
+3. **Privacidade do Usuário**:
+   - IDs de usuário são anônimos se coletados.
+   - Nenhuma informação de contato (email, IP) é enviada por padrão.
+
+Para garantir conformidade com LGPD/GDPR:
+- Solicite consentimento explícito antes de habilitar o crash reporting.
+- Permita que o usuário retire o consentimento a qualquer momento.
