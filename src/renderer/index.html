@@ -1,12 +1,39 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Electron + React Template</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="./index.js"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Electron + React Template</title>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script>
+    // Mock Electron API for browser-based testing (MemLab, Storybook)
+    if (!window.electron) {
+      console.log('Injecting Electron Mocks (index.html)...');
+      window.electron = {
+        ipcRenderer: {
+          on: () => { },
+          removeListener: () => { },
+          removeAllListeners: () => { },
+          invoke: () => Promise.resolve(),
+          send: () => { }
+        }
+      };
+      window.electronAPI = {
+        events: {
+          onMenuAction: () => () => { },
+          onUpdateAvailable: () => () => { },
+          onUpdateDownloaded: () => () => { },
+        },
+        file: { onFileChanged: () => () => { } },
+        window: { close: () => { } }
+      };
+    }
+  </script>
+  <script type="module" src="./index.js"></script>
+</body>
+
 </html>

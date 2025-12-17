@@ -1,0 +1,43 @@
+name: Memory Leak Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 0 * * *' # Run daily
+
+jobs:
+  memory-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Linux dependencies (Electron)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb libgbm-dev libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 libxkbcommon-x11-0 libxcomposite-dev libxdamage-dev libxrandr-dev libgbm-dev libasound2
+
+      - name: Build application
+        run: npm run build
+
+      - name: Run MemLab tests
+        run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" npm run test:memory
+        continue-on-error: true # For now, don't fail build if memory test fails, allowing us to see results
+
+      - name: Upload memory report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: memory-report
+          path: .memlab
