@@ -35,10 +35,12 @@ npm run test:memory
 This will launch the app and run defined scenarios (in `scenarios/`).
 
 ### Writing Scenarios
-Create a new file in `scenarios/` (e.g., `my-feature.js`):
+Create a new file in `test/scenarios/` with a `.cjs` extension (e.g., `my-feature.cjs`). We use `.cjs` format to support MemLab's loader within our ESM project.
+
 ```javascript
 module.exports = {
-  name: 'MyFeatureLeakCheck',
+  name: () => 'MyFeatureLeakCheck',
+  url: () => 'http://localhost:5173',
   action: async (page) => {
     // Perform action that opens/creates things
     await page.click('#open-feature');
@@ -47,7 +49,7 @@ module.exports = {
     // Reverse action (close/cleanup)
     await page.click('#close-feature');
   },
-  repeat: 3,
+  repeat: () => 3,
 };
 ```
 MemLab will run `action` -> `back` repeatedly and check if memory grows.

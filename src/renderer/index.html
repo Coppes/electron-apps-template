@@ -23,13 +23,60 @@
         }
       };
       window.electronAPI = {
+        app: {
+          getVersion: () => Promise.resolve('1.0.0'),
+          installUpdate: () => Promise.resolve(),
+        },
+        data: {
+          createBackup: () => Promise.resolve(),
+          listBackups: () => Promise.resolve([]),
+          restoreBackup: () => Promise.resolve(),
+          exportData: () => Promise.resolve(),
+          importData: () => Promise.resolve(),
+          watchPath: () => Promise.resolve(),
+          unwatchPath: () => Promise.resolve(),
+          export: () => Promise.resolve(),
+          import: () => Promise.resolve(),
+          deleteBackup: () => Promise.resolve(),
+          exportPreset: () => Promise.resolve(),
+          onConnectivityChanged: () => () => { },
+        },
+        dialog: {
+          showSaveDialog: () => Promise.resolve({ filePath: 'mock/path', canceled: false }),
+          showOpenDialog: () => Promise.resolve({ filePaths: ['mock/path'], canceled: false }),
+          message: () => Promise.resolve(),
+        },
         events: {
           onMenuAction: () => () => { },
+          onFileChange: () => () => { },
           onUpdateAvailable: () => () => { },
           onUpdateDownloaded: () => () => { },
+          onUpdateProgress: () => () => { },
+          onUpdateError: () => () => { },
         },
         file: { onFileChanged: () => () => { } },
-        window: { close: () => { } }
+        i18n: {
+          getLanguage: () => Promise.resolve('en'),
+        },
+        log: {
+          error: () => { },
+          info: () => { },
+          warn: () => { },
+        },
+        store: {
+          get: () => Promise.resolve(null),
+          set: () => Promise.resolve(),
+        },
+        storage: {
+          get: () => Promise.resolve('mock-value'),
+          set: () => Promise.resolve(),
+          rotateKey: () => Promise.resolve(),
+        },
+        window: {
+          minimize: () => { },
+          maximize: () => { },
+          close: () => { },
+        }
       };
     }
   </script>

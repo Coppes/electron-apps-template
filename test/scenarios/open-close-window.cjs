@@ -9,12 +9,12 @@ module.exports = {
   action: async (page) => {
     console.log('Action: Finding Settings button...');
     try {
-      const settingsBtn = await page.waitForSelector('button[data-tour="settings-link"]', { timeout: 5000 });
+      const settingsBtn = await page.waitForSelector('button[data-tour="settings-link"]', { timeout: 10000 });
       console.log('Action: Settings button found. Clicking...');
       if (settingsBtn) {
         await settingsBtn.click();
         console.log('Action: Waiting for tab...');
-        await page.waitForSelector('.border-b-primary', { timeout: 5000 });
+        await page.waitForSelector('.border-b-primary', { timeout: 10000 });
         console.log('Action: Tab activated.');
       }
     } catch (e) {

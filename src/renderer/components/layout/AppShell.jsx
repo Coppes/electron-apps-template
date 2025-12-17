@@ -221,6 +221,7 @@ const AppShell = () => {
                   id="home"
                   addTab={addTab}
                   type="home"
+                  data-testid="nav-home"
                   t={t}
                 />
 
@@ -237,6 +238,7 @@ const AppShell = () => {
                       label={t('nav.items.data_mgmt')}
                       id="data-management-demo"
                       addTab={addTab}
+                      data-testid="nav-data-management"
                       t={t}
                     />
                     <SidebarNavButton
