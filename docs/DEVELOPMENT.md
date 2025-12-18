@@ -219,7 +219,24 @@ console.log('Log do renderer');
 npm start  # Veja no console que abrir
 ```
 
+### Testando Notificações de Update
+
+Para simular um update disponível em desenvolvimento:
+
+1. Abra o DevTools (F12)
+2. No console do Renderer, execute:
+   ```javascript
+   // Simular update disponível
+   window.dispatchEvent(new CustomEvent('update-available', { 
+     detail: { version: '2.0.0', releaseNotes: 'New features!' } 
+   }));
+   ```
+   *Nota: O listener no `App.jsx` precisa estar ouvindo eventos do DOM para isso funcionar, ou use o IPC mock se disponível.*
+   
+   Alternativamente, utilize a API de debug (se implementada) ou chame o handler diretamente via console se exposto.
+
 ## Variáveis de Ambiente
+
 
 Crie um arquivo `.env.local`:
 

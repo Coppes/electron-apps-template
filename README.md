@@ -466,7 +466,24 @@ await window.electronAPI.recentDocs.add('/path/to/file.txt');
 await window.electronAPI.recentDocs.clear();
 ```
 
+## 📊 Logging & Diagnostics
+
+The template includes a comprehensive logging system accessible from the renderer:
+
+```javascript
+// Log at different levels
+await window.electronAPI.log.info('User action completed', { action: 'save' });
+await window.electronAPI.log.warn('Disk space low', { space: '500MB' });
+await window.electronAPI.log.error('Failed to save', error);
+
+// Logs are written to:
+// macOS: ~/Library/Logs/<app-name>/main.log
+// Windows: %USERPROFILE%\AppData\Roaming\<app-name>\logs\main.log
+// Linux: ~/.config/<app-name>/logs/main.log
+```
+
 ## 📦 Building & Distribution
+
 
 The template uses Electron Forge with makers for multiple platforms:
 

@@ -323,6 +323,16 @@ O sistema de relatórios de erros (Sentry) foi configurado com privacidade em me
    - IDs de usuário são anônimos se coletados.
    - Nenhuma informação de contato (email, IP) é enviada por padrão.
 
+### Configuração Segura (DSN)
+
+Nunca commite o DSN do Sentry no código. Use variáveis de ambiente:
+
+1. Adicione ao `.env` (não versionado):
+   ```
+   SENTRY_DSN=https://example@ingest.sentry.io/123
+   ```
+2. O template carrega automaticamente via `dotenv`.
+
 Para garantir conformidade com LGPD/GDPR:
 - Solicite consentimento explícito antes de habilitar o crash reporting.
 - Permita que o usuário retire o consentimento a qualquer momento.

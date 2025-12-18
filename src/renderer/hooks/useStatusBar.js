@@ -63,9 +63,15 @@ export function useStatusBar(item) {
   }, [updateItem]);
 
   // Update item when props change
+  // Update item when props change
   useEffect(() => {
-    handleUpdate(item);
-  }, [item.content, item.position, item.priority, handleUpdate]); // Removed item from deps
+    handleUpdate({
+      id: item.id,
+      content: item.content,
+      position: item.position,
+      priority: item.priority,
+    });
+  }, [item.id, item.content, item.position, item.priority, handleUpdate]);
 
   return {
     update: handleUpdate,

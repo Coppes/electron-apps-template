@@ -144,8 +144,27 @@ A aplicação abrirá com DevTools automaticamente habilitado.
 - ✅ **React Testing Library**: testes de componentes
 - ✅ **Webpack**: build otimizado
 - ✅ **Electron Forge**: packaging simplificado
+- ✅ **Auto-Updater**: configuração pronta (electron-updater)
+
+### 🔄 Auto-Update (Configuração)
+
+O sistema de auto-update já vem configurado. Para habilitar:
+
+1. Gere os certificados (para macOS/Windows)
+2. Configure o `publish` no `package.json` ou `forge.config.js`:
+   ```json
+   "publish": [
+     {
+       "provider": "github",
+       "owner": "seu-usuario",
+       "repo": "seu-repo"
+     }
+   ]
+   ```
+3. A aplicação buscará updates automaticamente na inicialização.
 
 ### 📦 Dependências
+
 
 - ✅ React 18.3.1
 - ✅ Electron 32.0.0
