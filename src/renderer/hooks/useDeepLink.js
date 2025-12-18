@@ -51,6 +51,13 @@ export function useDeepLink() {
                 }
               } catch (err) {
                 console.error('Failed to open deep link file:', err);
+                if (window.electronAPI?.notification) {
+                  window.electronAPI.notification.show({
+                    title: 'File Open Error',
+                    body: `Failed to open file: ${err.message}`,
+                    urgency: 'normal'
+                  });
+                }
               }
             }
             break;
@@ -88,9 +95,23 @@ export function useDeepLink() {
 
           default:
             console.warn('Unknown deep link route:', route);
+            if (window.electronAPI?.notification) {
+              window.electronAPI.notification.show({
+                title: 'Invalid Link',
+                body: `Unknown action: ${route}`,
+                urgency: 'normal'
+              });
+            }
         }
       } catch (error) {
         console.error('Error handling deep link:', error);
+        if (window.electronAPI?.notification) {
+          window.electronAPI.notification.show({
+            title: 'Deep Link Error',
+            body: `Failed to handle link: ${error.message}`,
+            urgency: 'normal'
+          });
+        }
       }
     });
 

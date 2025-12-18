@@ -27,6 +27,9 @@ describe('useDeepLink', () => {
       file: {
         validatePath: vi.fn().mockResolvedValue({ exists: true }),
       },
+      notification: {
+        show: vi.fn(),
+      },
     };
   });
 
@@ -126,6 +129,31 @@ describe('useDeepLink', () => {
 
     expect(mockAddTab).not.toHaveBeenCalled();
     expect(consoleSpy).toHaveBeenCalledWith('Unknown deep link route:', 'unknown-route');
+    expect(window.electronAPI.notification.show).toHaveBeenCalledWith(expect.objectContaining({
+      title: 'Invalid Link',
+      body: expect.stringContaining('Unknown action'),
+    }));
+    consoleSpy.mockRestore();
+  });
+
+  it('should notify on file open error', async () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
+    window.electronAPI.file.validatePath.mockRejectedValue(new Error('File access denied'));
+
+    renderHook(() => useDeepLink());
+
+    await act(async () => {
+      await mockOnReceivedCallback({
+        route: 'open-file',
+        params: { file: '/protected/doc.txt' },
+        pathParams: {},
+      });
+    });
+
+    expect(window.electronAPI.notification.show).toHaveBeenCalledWith(expect.objectContaining({
+      title: 'File Open Error',
+      body: expect.stringContaining('File access denied'),
+    }));
     consoleSpy.mockRestore();
   });
 });
