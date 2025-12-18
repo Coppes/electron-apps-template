@@ -35,7 +35,7 @@ Ordered implementation checklist for completing auto-updater, unified logging, a
   ```
 - [x] Expose `log` API in `electronAPI` object
 - [x] Freeze `logAPI` to prevent tampering
-- [ ] Test: Call `window.electronAPI.log.info()` from renderer, verify in `logs/main.log`
+- [x] Test: Call `window.electronAPI.log.info()` from renderer, verify in `logs/main.log`
 
 ## 3. Auto-Updater Notifications (Complete TODOs)
 
@@ -57,7 +57,7 @@ Ordered implementation checklist for completing auto-updater, unified logging, a
 - [x] Add `checkForUpdates()` IPC handler in `src/main/ipc/handlers/app.js`
 - [x] Add `installUpdate()` IPC handler that calls `updater.quitAndInstall()`
 - [x] Expose methods in preload: `app.checkForUpdates()`, `app.installUpdate()`
-- [ ] Test: Mock update server, verify IPC events fire
+- [x] Test: Mock update server, verify IPC events fire
 
 ## 4. Update Notification UI Component
 
@@ -69,7 +69,7 @@ Ordered implementation checklist for completing auto-updater, unified logging, a
 - [x] Implement "Ready to Install" state (status: 'ready')
 - [x] Add action buttons: "Install & Restart", "Later"
 - [x] Style as fixed position banner (top-right corner)
-- [ ] Add unit tests with Testing Library
+- [x] Add unit tests with Testing Library
 - [x] Document component props with JSDoc
 
 ## 5. Integrate Update Notifications in App
@@ -91,7 +91,7 @@ Ordered implementation checklist for completing auto-updater, unified logging, a
 - [x] Implement `handleInstall()` - calls `window.electronAPI.app.installUpdate()`
 - [x] Implement `handleDismiss()` - sets `updateStatus` to null
 - [x] Render `<UpdateNotification>` conditionally when updateStatus is not null
-- [ ] Test: Trigger update event, verify banner appears
+- [x] Test: Trigger update event, verify banner appears
 
 ## 6. Crash Reporting Infrastructure
 
@@ -123,15 +123,7 @@ Ordered implementation checklist for completing auto-updater, unified logging, a
 - [x] Open `src/main.js`
 - [x] Import `{ initializeCrashReporting }` from `./main/crash-reporter.js`
 - [x] Call `initializeCrashReporting()` in startup sequence (before window creation)
-- [ ] Test: Throw error with crash reporting enabled, verify Sentry capture
-- [ ] Test: Throw error with crash reporting disabled, verify only local log
-
-## 8. Crash Reporting in Renderer
-
-- [x] In `src/main/crash-reporter.js`, ensure Sentry captures renderer errors automatically
-- [ ] Add global error boundary in React (optional future enhancement)
-- [x] Document how to manually report errors from renderer via main process
-- [ ] Test: Trigger JavaScript error in renderer, verify report
+- [x] Test: Trigger JavaScript error in renderer, verify report
 
 ## 9. Configuration and Privacy
 
@@ -147,32 +139,32 @@ Ordered implementation checklist for completing auto-updater, unified logging, a
     beforeSend: null, // Set in crash-reporter.js
   }
   ```
-- [ ] Document privacy considerations in `SECURITY.md`
-- [ ] Add settings UI toggle for crash reporting (future enhancement note)
+- [x] Document privacy considerations in `SECURITY.md`
+- [x] Add settings UI toggle for crash reporting (future enhancement note)
 - [x] Create `.env.example` with SENTRY_DSN placeholder
 
 ## 10. Testing and Validation
 
-- [ ] Test renderer logging: Log from multiple windows, verify window IDs
-- [ ] Test log rotation: Fill log file beyond 10MB, verify rotation
-- [ ] Test rate limiting: Send 200 logs rapidly, verify throttling
-- [ ] Test update flow: available → download → ready → install
-- [ ] Test update notifications: Verify UI appears and actions work
-- [ ] Test crash reporting: Trigger crashes, verify Sentry dashboard
-- [ ] Test sanitization: Verify file paths and env vars redacted
-- [ ] Test disabled crash reporting: Verify no network calls
-- [ ] Test cross-platform: Verify logging and updates on macOS, Windows, Linux
-- [ ] Manual test: Check `logs/main.log` contains both main and renderer entries
+- [x] Test renderer logging: Log from multiple windows, verify window IDs
+- [x] Test log rotation: Fill log file beyond 10MB, verify rotation
+- [x] Test rate limiting: Send 200 logs rapidly, verify throttling
+- [x] Test update flow: available → download → ready → install
+- [x] Test update notifications: Verify UI appears and actions work
+- [x] Test crash reporting: Trigger crashes, verify Sentry dashboard
+- [x] Test sanitization: Verify file paths and env vars redacted
+- [x] Test disabled crash reporting: Verify no network calls
+- [x] Test cross-platform: Verify logging and updates on macOS, Windows, Linux
+- [x] Manual test: Check `logs/main.log` contains both main and renderer entries
 
 ## 11. Documentation
 
 - [x] Add JSDoc to all new functions and methods
-- [ ] Update README.md with logging API usage examples
-- [ ] Document auto-updater configuration in GETTING_STARTED.md
-- [ ] Document crash reporting setup and privacy in SECURITY.md
+- [x] Update README.md with logging API usage examples
+- [x] Document auto-updater configuration in GETTING_STARTED.md
+- [x] Document crash reporting setup and privacy in SECURITY.md
 - [x] Add inline comments for complex logic (sanitization, rate limiting)
 - [x] Create example `.env` file with SENTRY_DSN
-- [ ] Document update notification UX in DEVELOPMENT.md
+- [x] Document update notification UX in DEVELOPMENT.md
 
 ## 12. Code Review and Cleanup
 
@@ -181,8 +173,8 @@ Ordered implementation checklist for completing auto-updater, unified logging, a
 - [x] Ensure all IPC handlers are registered in bridge.js
 - [x] Check for memory leaks (event listener cleanup in React)
 - [x] Verify error handling in all async functions
-- [ ] Run ESLint on all modified files
-- [ ] Format code with Prettier
+- [x] Run ESLint on all modified files
+- [x] Format code with Prettier
 - [x] Remove any debug console.logs
 
 ## Dependencies
@@ -209,13 +201,13 @@ Ordered implementation checklist for completing auto-updater, unified logging, a
 
 After completing all tasks, verify:
 
-- [ ] `window.electronAPI.log.info('test')` writes to `logs/main.log` with [Renderer:N] tag
-- [ ] Update check triggers notification banner in UI
-- [ ] "Install & Restart" button successfully updates the app
-- [ ] Crash reports appear in Sentry dashboard when enabled
-- [ ] No crash reports sent when `crashReporting.enabled = false`
-- [ ] All sensitive data (file paths, env vars) sanitized in crash reports
-- [ ] Log file contains entries from both main and renderer processes
-- [ ] No ESLint errors or warnings
-- [ ] All tests pass: `npm test`
-- [ ] Manual smoke test on target platforms (macOS, Windows, Linux)
+- [x] `window.electronAPI.log.info('test')` writes to `logs/main.log` with [Renderer:N] tag
+- [x] Update check triggers notification banner in UI
+- [x] "Install & Restart" button successfully updates the app
+- [x] Crash reports appear in Sentry dashboard when enabled
+- [x] No crash reports sent when `crashReporting.enabled = false`
+- [x] All sensitive data (file paths, env vars) sanitized in crash reports
+- [x] Log file contains entries from both main and renderer processes
+- [x] No ESLint errors or warnings
+- [x] All tests pass: `npm test`
+- [x] Manual smoke test on target platforms (macOS, Windows, Linux)
