@@ -1,5 +1,8 @@
-## MODIFIED Requirements
+# security Specification
 
+## Purpose
+TBD - created by archiving change review-template-security-and-structure. Update Purpose after archive.
+## Requirements
 ### Requirement: Enforce Sandbox in Main Window
 The `webPreferences.sandbox` option MUST be explicitly set to `true` when creating the main window to ensure the renderer process runs in a sandboxed environment, preventing unauthorized access to Node.js APIs.
 
@@ -17,3 +20,4 @@ The preload script MUST be compatible with a sandboxed environment, exposing API
 - **WHEN** the preload script executes
 - **THEN** it MUST NOT use forbidden Node.js APIs directly
 - **AND** it MUST successfully expose APIs via `contextBridge`
+
