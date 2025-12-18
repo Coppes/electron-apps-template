@@ -88,6 +88,17 @@ const storeAPI = {
    * @returns {Promise<boolean>} True if key exists
    */
   has: (key) => ipcRenderer.invoke(IPC_CHANNELS.STORE_HAS, { key }).then(r => r.exists),
+
+  /**
+   * Listen for store changes
+   * @param {Function} callback - Callback function
+   * @returns {Function} Cleanup function
+   */
+  onStoreChanged: (callback) => {
+    const listener = (event, data) => callback(data);
+    ipcRenderer.on(IPC_CHANNELS.STORE_CHANGED, listener);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.STORE_CHANGED, listener);
+  },
 };
 
 /**

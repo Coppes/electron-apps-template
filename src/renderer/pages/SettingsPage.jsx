@@ -10,7 +10,8 @@ import Switch from '../components/ui/Switch';
 import Label from '../components/ui/Label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card';
 import { cn } from '../utils/cn';
-import { Monitor, Sun, Moon } from '@phosphor-icons/react';
+import { Monitor, Sun, Moon, SpeakerHigh, SpeakerSlash } from '@phosphor-icons/react';
+import ThemeEditor from '../components/ThemeEditor';
 
 const SettingsPage = () => {
   const { settings, updateSetting, loading } = useSettings();
@@ -206,11 +207,38 @@ const SettingsPage = () => {
               </Button>
             </div>
           </div>
+
+          <div className="mt-6 pt-4 border-t border-border">
+            <ThemeEditor />
+          </div>
+        </CardContent >
+      </Card >
+
+      {/* Audio */}
+      < Card >
+        <CardHeader>
+          <CardTitle>Audio & Sound</CardTitle>
+          <CardDescription>Manage sound effects and volume.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {settings.audio?.muted ? <SpeakerSlash className="w-5 h-5" /> : <SpeakerHigh className="w-5 h-5" />}
+              <div className="space-y-0.5">
+                <Label>Mute All Sounds</Label>
+                <div className="text-sm text-muted-foreground">Disable all application sound effects</div>
+              </div>
+            </div>
+            <Switch
+              checked={settings.audio?.muted || false}
+              onCheckedChange={(checked) => updateSetting('audio', { ...settings.audio, muted: checked })}
+            />
+          </div>
         </CardContent>
-      </Card>
+      </Card >
 
       {/* Language */}
-      <Card>
+      < Card >
         <CardHeader>
           <CardTitle>{t('language.title', 'Language')}</CardTitle>
           <CardDescription>{t('language.description', 'Select display language.')}</CardDescription>
@@ -231,10 +259,10 @@ const SettingsPage = () => {
             </Button>
           </div>
         </CardContent>
-      </Card>
+      </Card >
 
       {/* History & Undo */}
-      <Card>
+      < Card >
         <CardHeader>
           <CardTitle>{t('history.title', 'History & Undo')}</CardTitle>
           <CardDescription>{t('history.description', 'Manage undo/redo limits and test functionality.')}</CardDescription>
@@ -270,10 +298,10 @@ const SettingsPage = () => {
             </p>
           </div>
         </CardContent>
-      </Card>
+      </Card >
 
       {/* Shortcuts */}
-      <Card>
+      < Card >
         <CardHeader>
           <CardTitle>{t('shortcuts.title', 'Keyboard Shortcuts')}</CardTitle>
           <CardDescription>{t('shortcuts.description', 'View and customize keyboard shortcuts.')}</CardDescription>
@@ -283,10 +311,10 @@ const SettingsPage = () => {
             {t('shortcuts.view')}
           </Button>
         </CardContent>
-      </Card>
+      </Card >
 
       {/* System */}
-      <Card>
+      < Card >
         <CardHeader>
           <CardTitle>{t('system.title', 'System')}</CardTitle>
           <CardDescription>{t('system.description', 'System configurations.')}</CardDescription>
@@ -314,18 +342,18 @@ const SettingsPage = () => {
             />
           </div>
         </CardContent>
-      </Card>
+      </Card >
 
       {/* About */}
-      <Card>
+      < Card >
         <CardHeader>
           <CardTitle>{t('about.title', 'About')}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">{t('common:version')} 1.0.0</p>
         </CardContent>
-      </Card>
-    </div>
+      </Card >
+    </div >
   );
 };
 

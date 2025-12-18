@@ -11,7 +11,9 @@ export const SettingsProvider = ({ children }) => {
     language: 'en',
     notifications: true,
     autoStart: false,
-    hasCompletedTour: false
+    hasCompletedTour: false,
+    audio: { muted: false, volume: 100 },
+    customThemes: {}
   });
   const [loading, setLoading] = useState(true);
   const { i18n } = useTranslation();
@@ -32,6 +34,8 @@ export const SettingsProvider = ({ children }) => {
           const savedNotif = await window.electronAPI.store.get('notifications');
           const savedAuto = await window.electronAPI.store.get('autoStart');
           const savedTour = await window.electronAPI.store.get('hasCompletedTour');
+          const savedAudio = await window.electronAPI.store.get('audio');
+          const savedCustomThemes = await window.electronAPI.store.get('customThemes');
 
           // Legacy support (if migration didn't run or verify)
           const legacyTheme = await window.electronAPI.store.get('theme');
@@ -42,7 +46,9 @@ export const SettingsProvider = ({ children }) => {
             language: savedLang,
             notifications: savedNotif ?? true,
             autoStart: savedAuto ?? false,
-            hasCompletedTour: savedTour ?? false
+            hasCompletedTour: savedTour ?? false,
+            audio: savedAudio || { muted: false, volume: 100 },
+            customThemes: savedCustomThemes || {}
           });
 
           // Sync i18n
@@ -57,6 +63,18 @@ export const SettingsProvider = ({ children }) => {
       }
     };
     loadSettings();
+
+    // Listen for remote changes
+    let cleanupListener = () => { };
+    if (window.electronAPI?.store?.onStoreChanged) {
+      cleanupListener = window.electronAPI.store.onStoreChanged(() => {
+        loadSettings();
+      });
+    }
+
+    return () => {
+      cleanupListener();
+    };
   }, [i18n]);
 
   // Apply Theme
@@ -65,8 +83,32 @@ export const SettingsProvider = ({ children }) => {
     const root = document.documentElement;
 
     const applyTheme = (t) => {
-      const isDark = t === 'dark' || (t === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-      root.classList.toggle('dark', isDark);
+      // Clear custom properties
+      const cssVars = [
+        '--background', '--foreground', '--card', '--card-foreground',
+        '--popover', '--popover-foreground', '--primary', '--primary-foreground',
+        '--secondary', '--secondary-foreground', '--muted', '--muted-foreground',
+        '--accent', '--accent-foreground', '--destructive', '--destructive-foreground',
+        '--border', '--input', '--ring'
+      ];
+      cssVars.forEach(v => root.style.removeProperty(v));
+
+      if (['light', 'dark', 'system'].includes(t)) {
+        const isDark = t === 'dark' || (t === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        root.classList.toggle('dark', isDark);
+      } else {
+        // Custom theme
+        const customTheme = settings.customThemes?.[t];
+        if (customTheme && customTheme.colors) {
+          Object.entries(customTheme.colors).forEach(([key, val]) => {
+            root.style.setProperty(key, val);
+          });
+          // Ensure dark mode class is handled if custom theme specifies a base
+          // For now, let's assume custom themes handle their own contrast or we default to light base?
+          // removing 'dark' class to let CSS vars take over completely on top of light base
+          root.classList.remove('dark');
+        }
+      }
     };
 
     applyTheme(theme);
@@ -78,7 +120,7 @@ export const SettingsProvider = ({ children }) => {
       mediaQuery.addEventListener('change', handler);
       return () => mediaQuery.removeEventListener('change', handler);
     }
-  }, [settings.appearance]);
+  }, [settings.appearance, settings.customThemes]);
 
   const updateSetting = async (path, value) => {
     // path could be 'appearance.theme' or 'notifications'

@@ -28,7 +28,8 @@ export class WindowManager {
    * @returns {BrowserWindow} Created window instance
    */
   createWindow(type = WINDOW_TYPES.MAIN, customOptions = {}) {
-    logger.info(`Creating window of type: ${type}`);
+    const { route, ...browserWindowOptions } = customOptions;
+    logger.info(`Creating window of type: ${type}${route ? ` with route: ${route}` : ''}`);
 
     // Validate window type
     if (!Object.values(WINDOW_TYPES).includes(type)) {
@@ -45,6 +46,7 @@ export class WindowManager {
     const windowOptions = {
       ...defaultConfig,
       ...savedState,
+      ...savedState,
       ...customOptions,
       // Custom Title Bar: Remove frame on Windows/Linux (macOS uses titleBarStyle: hidden from config)
       frame: process.platform === 'darwin' ? true : false,
@@ -55,7 +57,7 @@ export class WindowManager {
         enableRemoteModule: false,
         sandbox: true,
         preload: this.getPreloadPath(),
-        ...customOptions.webPreferences,
+        ...browserWindowOptions.webPreferences,
       },
     };
 
@@ -79,7 +81,7 @@ export class WindowManager {
     this.setupWindowHandlers(windowId);
 
     // Load content
-    this.loadContent(window, type);
+    this.loadContent(window, type, route);
 
     return window;
   }
@@ -101,7 +103,7 @@ export class WindowManager {
    * @param {BrowserWindow} window - Window instance
    * @param {string} _type - Window type (unused, reserved for future use)
    */
-  loadContent(window, type) {
+  loadContent(window, type, route) {
     if (type === WINDOW_TYPES.SPLASH) {
       if (isDevelopment() && !process.env.E2E_TEST_BUILD) {
         const url = 'http://localhost:5173/static/splash.html';
@@ -121,13 +123,17 @@ export class WindowManager {
     const devMode = isDevelopment();
 
     if (devMode && !process.env.E2E_TEST_BUILD) {
-      const url = `http://localhost:5173`;
+      const url = `http://localhost:5173${route ? '/#' + route : ''}`;
       window.loadURL(url);
       logger.debug(`Window loaded URL: ${url}`);
     } else {
       const filePath = join(__dirname, '../renderer/index.html');
-      window.loadFile(filePath);
-      logger.debug(`Window loaded file: ${filePath}`);
+      if (route) {
+        window.loadFile(filePath, { hash: route });
+      } else {
+        window.loadFile(filePath);
+      }
+      logger.debug(`Window loaded file: ${filePath}${route ? '#' + route : ''}`);
     }
   }
 
@@ -348,6 +354,14 @@ export class WindowManager {
       }
     }
     return null;
+  }
+  /**
+   * Create an auxiliary window
+   * @param {string} route - Route to load (e.g., '/popout/123')
+   * @returns {BrowserWindow} Created window instance
+   */
+  createAuxiliaryWindow(route) {
+    return this.createWindow(WINDOW_TYPES.AUXILIARY, { route });
   }
 }
 

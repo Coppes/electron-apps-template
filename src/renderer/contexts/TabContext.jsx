@@ -1,5 +1,9 @@
+
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
+
+import { useSettings } from './SettingsContext';
+import { useSound } from '../hooks/useSound';
 
 export const TabContext = createContext({
   tabs: [],
@@ -8,6 +12,7 @@ export const TabContext = createContext({
   closeTab: () => { },
   setActiveTab: () => { },
   updateTab: () => { },
+  resetTabs: () => { },
 });
 
 export const useTabContext = () => useContext(TabContext);
@@ -25,15 +30,25 @@ export const TabProvider = ({ children }) => {
   const [activeGroup, setActiveGroup] = useState('primary'); // 'primary' | 'secondary'
   const [draggingTab, setDraggingTab] = useState(null); // { id, group, index }
 
+  /* -------------------------------------------------------------------------------------------------
+   * Sound Hook
+   * -----------------------------------------------------------------------------------------------*/
+  const { playSound } = useSound();
+
+  /* -------------------------------------------------------------------------------------------------
+   * Actions
+   * -----------------------------------------------------------------------------------------------*/
   const addTab = useCallback((tab, targetGroup = 'primary') => {
     if (targetGroup === 'primary') {
       setTabs((prev) => {
         const existing = prev.find((t) => t.id === tab.id);
         if (existing) return prev;
-        return [...prev, tab];
+        const newTabs = [...prev, tab];
+        return newTabs;
       });
       setActiveTabId(tab.id);
       setActiveGroup('primary');
+      playSound('click');
     } else {
       setSecondaryTabs((prev) => {
         const existing = prev.find((t) => t.id === tab.id);
@@ -43,6 +58,18 @@ export const TabProvider = ({ children }) => {
       setSecondaryActiveTabId(tab.id);
       setIsSplit(true);
       setActiveGroup('secondary');
+      playSound('click');
+    }
+  }, [playSound]);
+
+  const resetTabs = useCallback((newTabs) => {
+    setTabs(newTabs);
+    if (newTabs.length > 0) {
+      setActiveTabId(newTabs[0].id);
+      setActiveGroup('primary');
+      setIsSplit(false);
+      setSecondaryTabs([]);
+      setSecondaryActiveTabId(null);
     }
   }, []);
 
@@ -58,10 +85,10 @@ export const TabProvider = ({ children }) => {
         // Let's ensure Home is always open if empty
         return [{ id: 'home', title: 'Home', type: 'page', data: {} }];
       }
-
+      playSound('click');
       return newTabs;
     });
-  }, [activeTabId]);
+  }, [activeTabId, playSound]);
 
   const updateTab = useCallback((id, updates) => {
     setTabs((prev) => prev.map((t) => (t.id === id ? { ...t, ...updates } : t)));
@@ -70,7 +97,8 @@ export const TabProvider = ({ children }) => {
   const closeAllTabs = useCallback(() => {
     setTabs([{ id: 'home', title: 'Home', type: 'page', data: {} }]);
     setActiveTabId('home');
-  }, []);
+    playSound('click');
+  }, [playSound]);
 
   const closeOtherTabs = useCallback((keepId) => {
     // Check where the tab is
@@ -87,8 +115,9 @@ export const TabProvider = ({ children }) => {
       setActiveTabId(tabToKeep.id);
       setSecondaryActiveTabId(null);
       setActiveGroup('primary');
+      playSound('click');
     }
-  }, [tabs, secondaryTabs]);
+  }, [tabs, secondaryTabs, playSound]);
 
   const reorderTab = useCallback((fromIndex, toIndex, group = 'primary') => {
     const updateFn = group === 'primary' ? setTabs : setSecondaryTabs;
@@ -101,9 +130,10 @@ export const TabProvider = ({ children }) => {
       // Clamp toIndex
       const targetIndex = Math.max(0, Math.min(toIndex, newTabs.length));
       newTabs.splice(targetIndex, 0, movedTab);
+      playSound('click');
       return newTabs;
     });
-  }, []);
+  }, [playSound]);
 
 
 
@@ -116,7 +146,8 @@ export const TabProvider = ({ children }) => {
       setSecondaryActiveTabId(null);
       setActiveGroup('primary');
     }
-  }, [isSplit, secondaryTabs]);
+    playSound('click');
+  }, [isSplit, secondaryTabs, playSound]);
 
   const moveTabToGroup = useCallback((tabId, targetGroup) => {
     // 1. Identify source group and tab object
@@ -181,7 +212,8 @@ export const TabProvider = ({ children }) => {
     }
 
     setActiveGroup(targetGroup);
-  }, [tabs, secondaryTabs, activeTabId, secondaryActiveTabId]);
+    playSound('click');
+  }, [tabs, secondaryTabs, activeTabId, secondaryActiveTabId, playSound]);
 
 
 
@@ -248,6 +280,7 @@ export const TabProvider = ({ children }) => {
         updateTab,
         closeAllTabs,
         closeOtherTabs,
+        resetTabs,
         reorderTab,
         // Split View
         isSplit,

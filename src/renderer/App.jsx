@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import AppShell from './components/layout/AppShell';
+import PopoutLayout from './components/layout/PopoutLayout';
+import { useTabContext } from './contexts/TabContext';
+import WhatsNewModal from './components/WhatsNewModal';
 
 import { UpdateNotification } from './components/shared/UpdateNotification';
 import ErrorBoundary from './components/shared/ErrorBoundary';
@@ -17,6 +20,8 @@ import { useDeepLink } from './hooks/useDeepLink';
 
 
 function App() {
+  const { resetTabs } = useTabContext();
+  const [isPopout, setIsPopout] = useState(false);
   const [updateInfo, setUpdateInfo] = useState(null);
 
   const [updateStatus, setUpdateStatus] = useState(null);
@@ -28,7 +33,25 @@ function App() {
   useDataMenu();
 
   // Initialize deep link handler
+  // Initialize deep link handler
   useDeepLink();
+
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash && hash.startsWith('#/popout')) {
+      setIsPopout(true);
+      // Robust hash parsing: #/popout/type/id or #/popout/id
+      const route = hash.substring(1); // /popout/...
+      const segments = route.split('/').filter(Boolean); // ['popout', 'type', 'id']
+
+      if (segments.length >= 2) {
+        let type = segments[1];
+        let id = segments[2] || type;
+
+        resetTabs([{ id, type, title: id, data: {} }]);
+      }
+    }
+  }, [resetTabs]);
 
 
   useEffect(() => {
@@ -106,13 +129,21 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <AppShell>
-        <TabContent />
-      </AppShell>
+      {isPopout ? (
+        <PopoutLayout>
+          {/* Content rendered via TabContent inside PopoutLayout */}
+        </PopoutLayout>
+      ) : (
+        <AppShell>
+          <TabContent />
+        </AppShell>
+      )}
 
       <CommandPalette />
       <Onboarding />
-      <TourOverlay />
+      <WhatsNewModal />
+
+      {/* Notification Toast */}
       <ConnectivityStatus />
 
       {updateStatus && (

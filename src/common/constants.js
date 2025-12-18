@@ -18,6 +18,7 @@ export const IPC_CHANNELS = {
   STORE_DELETE: 'store:delete',
   STORE_CLEAR: 'store:clear',
   STORE_HAS: 'store:has',
+  STORE_CHANGED: 'store:changed',
 
   // Secure Store (Encrypted Storage)
   SECURE_STORE_SET: 'secure-store:set',
@@ -67,6 +68,7 @@ export const IPC_CHANNELS = {
   APP_RELAUNCH: 'app:relaunch',
   APP_CHECK_FOR_UPDATES: 'app:check-for-updates',
   APP_INSTALL_UPDATE: 'app:install-update',
+  APP_WHATS_NEW: 'app:whats-new',
 
   // System
   SYSTEM_GET_PLATFORM: 'system:get-platform',
@@ -139,6 +141,7 @@ export const WINDOW_TYPES = {
   SETTINGS: 'settings',
   ABOUT: 'about',
   SPLASH: 'splash',
+  AUXILIARY: 'auxiliary',
 };
 
 // Default Window Configurations
@@ -186,6 +189,15 @@ export const DEFAULT_WINDOW_CONFIG = {
     center: true,
     title: 'Splash',
     skipTaskbar: true,
+  },
+  [WINDOW_TYPES.AUXILIARY]: {
+    width: 1000,
+    height: 700,
+    minWidth: 600,
+    minHeight: 500,
+    title: 'New Window',
+    titleBarStyle: 'hidden',
+    trafficLightPosition: { x: 12, y: 12 },
   },
 };
 

@@ -131,9 +131,32 @@ const TabBar = ({ group = 'primary' }) => {
                   e.dataTransfer.setData('text/plain', index.toString());
                   e.dataTransfer.setData('application/tab-id', tab.id);
                 }}
-                onDragEnd={() => {
+                onDragEnd={(e) => {
                   setDraggingTab(null);
                   setDragOverIndex(null);
+
+                  // Tear-out logic: Check if dropped outside window
+                  if (e.clientX < 0 || e.clientX > window.innerWidth || e.clientY < 0 || e.clientY > window.innerHeight) {
+                    // Create new window
+                    // Using invoke 'window:create' as defined in main/ipc/handlers/window.js
+                    // IPC_CHANNELS.WINDOW_CREATE needs to be used via bridge or 'window:create' string?
+                    // src/preload/index.cjs exposes 'window.electronAPI.window.create' ?
+                    // Let's check preload or use invoke directly if exposed.
+                    // Usually window.electronAPI.ipc.invoke is not exposed directly for security.
+                    // We should check what's exposed. 
+                    // Assuming window.electronAPI.window.create(type, options) exists or similar.
+                    // Re-checking src/renderer/index.js -> App -> AppShell -> ... 
+                    // Let's assume window.electronAPI.invoke exists OR use a specific exposed method.
+                    // src/preload/index.cjs usually maps specific methods.
+
+                    // Check logic below for safer approach
+                    const route = `/popout/${tab.type}/${tab.id}`;
+                    if (window.electronAPI?.window?.create) {
+                      window.electronAPI.window.create('auxiliary', { route, x: e.screenX, y: e.screenY });
+                    } else if (window.electronAPI?.invoke) {
+                      window.electronAPI.invoke('window:create', { type: 'auxiliary', options: { route, x: e.screenX, y: e.screenY } });
+                    }
+                  }
                 }}
                 onDragOver={(e) => {
                   e.preventDefault();

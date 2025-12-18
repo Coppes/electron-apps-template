@@ -1,4 +1,5 @@
 import Store from 'electron-store';
+import { BrowserWindow } from 'electron';
 import { logger } from '../../logger.js';
 import { createErrorResponse, createSuccessResponse } from '../bridge.js';
 import { IPC_CHANNELS } from '../../../common/constants.js';
@@ -55,6 +56,12 @@ export function setStoreHandler() {
   return async (event, { key, value }) => {
     try {
       store.set(key, value);
+      // Broadcast change
+      BrowserWindow.getAllWindows().forEach(win => {
+        if (!win.isDestroyed()) {
+          win.webContents.send(IPC_CHANNELS.STORE_CHANGED, { key, value });
+        }
+      });
       return createSuccessResponse();
     } catch (error) {
       logger.error('Failed to set in store', error);
@@ -70,6 +77,11 @@ export function deleteStoreHandler() {
   return async (event, { key }) => {
     try {
       store.delete(key);
+      BrowserWindow.getAllWindows().forEach(win => {
+        if (!win.isDestroyed()) {
+          win.webContents.send(IPC_CHANNELS.STORE_CHANGED, { key, deleted: true });
+        }
+      });
       return createSuccessResponse();
     } catch (error) {
       logger.error('Failed to delete from store', error);
@@ -85,6 +97,11 @@ export function clearStoreHandler() {
   return async () => {
     try {
       store.clear();
+      BrowserWindow.getAllWindows().forEach(win => {
+        if (!win.isDestroyed()) {
+          win.webContents.send(IPC_CHANNELS.STORE_CHANGED, { cleared: true });
+        }
+      });
       return createSuccessResponse();
     } catch (error) {
       logger.error('Failed to clear store', error);

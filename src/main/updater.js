@@ -1,4 +1,5 @@
-import { BrowserWindow } from 'electron';
+import { BrowserWindow, app } from 'electron';
+import { store } from './ipc/handlers/store.js';
 import { IPC_CHANNELS } from '../common/constants.js';
 import { logger } from './logger.js';
 import { config } from './config.js';
@@ -22,6 +23,7 @@ class Updater {
   async initialize() {
     if (!config.updates.enabled) {
       logger.info('Auto-updater disabled');
+      this.checkVersion();
       return;
     }
 
@@ -39,6 +41,8 @@ class Updater {
 
       // Setup event handlers
       this.setupEventHandlers();
+
+      this.checkVersion();
 
       logger.info('Auto-updater initialized', {
         autoDownload: config.updates.autoDownload,
@@ -232,6 +236,33 @@ class Updater {
       this.updateCheckInterval = null;
       logger.info('Periodic update checks stopped');
     }
+  }
+
+  /**
+   * Check if version changed and set flag in store
+   */
+  checkVersion() {
+    try {
+      const currentVersion = app.getVersion();
+      const lastRunVersion = store.get('lastRunVersion');
+
+      if (!lastRunVersion || this.compareVersions(currentVersion, lastRunVersion) > 0) {
+        logger.info(`App updated from ${lastRunVersion} to ${currentVersion}`);
+        store.set('pendingWhatsNew', currentVersion);
+        store.set('lastRunVersion', currentVersion);
+      }
+    } catch (error) {
+      logger.error('Failed to check version', error);
+    }
+  }
+
+  /**
+   * Simple semantic version comparison
+   * Returns > 0 if v1 > v2
+   */
+  compareVersions(v1, v2) {
+    if (!v1 || !v2) return 0;
+    return v1.localeCompare(v2, undefined, { numeric: true, sensitivity: 'base' });
   }
 }
 

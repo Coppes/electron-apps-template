@@ -47,7 +47,7 @@ describe('WindowManager', () => {
     // Reset mocks
     vi.clearAllMocks();
     BrowserWindow.getAllWindows.mockReturnValue([]);
-    
+
     // Set default app.isPackaged
     mockApp.isPackaged = false;
 
@@ -111,7 +111,7 @@ describe('WindowManager', () => {
       const { WindowManager } = await import('../../../src/main/window-manager.js');
       const { isDevelopment } = await import('../../../src/main/config.js');
       isDevelopment.mockReturnValueOnce(true);
-      
+
       const devWindowManager = new WindowManager();
       const window = devWindowManager.createWindow();
 
@@ -122,11 +122,26 @@ describe('WindowManager', () => {
       const { WindowManager } = await import('../../../src/main/window-manager.js');
       const { isDevelopment } = await import('../../../src/main/config.js');
       isDevelopment.mockReturnValueOnce(false);
-      
+
       const prodWindowManager = new WindowManager();
       const window = prodWindowManager.createWindow();
 
       expect(window.loadFile).toHaveBeenCalled();
+    });
+  });
+
+  describe('createAuxiliaryWindow', () => {
+    it('should create auxiliary window with route', () => {
+      const route = '/test-route';
+      // Mock createWindow to verify it's called
+      const createWindowSpy = vi.spyOn(windowManager, 'createWindow');
+
+      const window = windowManager.createAuxiliaryWindow(route);
+
+      expect(createWindowSpy).toHaveBeenCalledWith(WINDOW_TYPES.AUXILIARY, expect.objectContaining({
+        route
+      }));
+      expect(window).toBeInstanceOf(BrowserWindow);
     });
   });
 
