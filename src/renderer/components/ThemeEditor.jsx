@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useSettings } from '../contexts/SettingsContext';
 import Button from './ui/Button';
 import { useTranslation } from 'react-i18next';
+import { hexToHsl, hslToHex } from '../utils/colors';
 
 const ThemeEditor = () => {
-  const { settings, updateSettings } = useSettings();
+  const { settings, updateSetting } = useSettings();
   const { t } = useTranslation();
 
   // Initial colors from existing custom theme or defaults
+  // We keep internal state as HEX for the color picker
   const [colors, setColors] = useState({
     '--background': '#ffffff',
     '--foreground': '#0f172a',
@@ -15,16 +17,20 @@ const ThemeEditor = () => {
     '--primary-foreground': '#f8fafc',
     '--muted': '#f1f5f9',
     '--muted-foreground': '#64748b',
-    '--border': '#e2e8f0',
-    ...(settings?.customThemes?.custom?.colors || {})
+    '--border': '#e2e8f0'
   });
 
   // Update local state when settings change (e.g. initial load)
   useEffect(() => {
     if (settings?.customThemes?.custom?.colors) {
+      const loadedColors = {};
+      Object.entries(settings.customThemes.custom.colors).forEach(([key, val]) => {
+        // Convert stored HSL back to Hex for the inputs
+        loadedColors[key] = val.startsWith('#') ? val : hslToHex(val);
+      });
       setColors(prev => ({
         ...prev,
-        ...settings.customThemes.custom.colors
+        ...loadedColors
       }));
     }
   }, [settings?.customThemes]);
@@ -34,15 +40,21 @@ const ThemeEditor = () => {
   };
 
   const handleSave = () => {
+    // Convert all to HSL before saving
+    const hslColors = {};
+    Object.entries(colors).forEach(([key, val]) => {
+      hslColors[key] = val.startsWith('#') ? hexToHsl(val) : val;
+    });
+
     const newThemes = {
       ...settings.customThemes,
       custom: {
         name: 'Custom Theme',
-        colors
+        colors: hslColors
       }
     };
-    updateSettings('customThemes', newThemes);
-    updateSettings('appearance', { ...settings.appearance, theme: 'custom' });
+    updateSetting('customThemes', newThemes);
+    updateSetting('appearance.theme', 'custom');
   };
 
   return (
@@ -56,7 +68,7 @@ const ThemeEditor = () => {
               <div className="relative w-8 h-8 rounded-md overflow-hidden border border-border shrink-0">
                 <input
                   type="color"
-                  value={colors[key]}
+                  value={colors[key].startsWith('#') ? colors[key] : '#000000'}
                   onChange={(e) => handleChange(key, e.target.value)}
                   className="absolute inset-[-4px] w-[calc(100%+8px)] h-[calc(100%+8px)] cursor-pointer p-0 m-0"
                 />

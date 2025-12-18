@@ -352,7 +352,35 @@ const SettingsPage = () => {
         <CardContent>
           <p className="text-sm text-muted-foreground">{t('common:version')} 1.0.0</p>
         </CardContent>
-      </Card >
+      </Card>
+
+      {/* Development Tools */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Development Tools</CardTitle>
+          <CardDescription>Helpers for testing and debugging.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label>Reset "What's New"</Label>
+              <div className="text-sm text-muted-foreground">Force the "What's New" modal to appear on next restart.</div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={async () => {
+                if (window.electronAPI?.store) {
+                  await window.electronAPI.store.set('pendingWhatsNew', '1.0.0-test');
+                  alert("Flag set! Restart the app to see the modal.");
+                }
+              }}
+            >
+              Reset Status
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div >
   );
 };

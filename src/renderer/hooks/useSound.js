@@ -1,11 +1,16 @@
 import { useCallback } from 'react';
 import { useSettings } from '../contexts/SettingsContext';
 
+import successSound from '../assets/sounds/success.mp3';
+import errorSound from '../assets/sounds/error.mp3';
+import clickSound from '../assets/sounds/click.mp3';
+import notificationSound from '../assets/sounds/notification.mp3';
+
 const SOUNDS = {
-  success: '/sounds/success.mp3',
-  error: '/sounds/error.mp3',
-  click: '/sounds/click.mp3',
-  notification: '/sounds/notification.mp3',
+  success: successSound,
+  error: errorSound,
+  click: clickSound,
+  notification: notificationSound,
 };
 
 /**
