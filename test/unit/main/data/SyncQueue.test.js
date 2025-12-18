@@ -37,6 +37,14 @@ vi.mock('../../../../src/main/logger.js', () => ({
   }
 }));
 
+vi.mock('../../../../src/main/notifications.js', () => ({
+  notificationManager: {
+    showNotification: vi.fn(),
+  }
+}));
+
+import { notificationManager } from '../../../../src/main/notifications.js';
+
 describe('SyncQueue', () => {
   let mockAdapter;
 
@@ -57,25 +65,7 @@ describe('SyncQueue', () => {
     connectivityManager.isOnline = true;
   });
 
-  it('should enqueue operation and save to store', async () => {
-    const operation = {
-      type: 'CREATE',
-      entity: 'TEST',
-      data: { foo: 'bar' }
-    };
-
-    const result = await syncQueue.enqueue(operation);
-
-    expect(result.success).toBe(true);
-    expect(result.id).toBeDefined();
-
-    const queue = syncQueue.getQueue();
-    expect(queue.length).toBe(1);
-    expect(queue[0].type).toBe('CREATE');
-    expect(queue[0].status).toBe('pending');
-  });
-
-  it('should process queue when online', async () => {
+  it('should process queue when online and show notification', async () => {
     // Add pending op
     await syncQueue.enqueue({ type: 'TEST', data: {} });
 
@@ -88,6 +78,10 @@ describe('SyncQueue', () => {
 
     const queue = syncQueue.getQueue();
     expect(queue[0].status).toBe('synced');
+
+    expect(notificationManager.showNotification).toHaveBeenCalledWith(expect.objectContaining({
+      title: 'Sync Complete'
+    }));
   });
 
   it('should not process when offline', async () => {

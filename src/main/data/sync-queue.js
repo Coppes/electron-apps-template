@@ -6,6 +6,7 @@
 import Store from 'electron-store';
 import { logger } from '../logger.js';
 import connectivityManager from './connectivity-manager.js';
+import { notificationManager } from '../notifications.js';
 
 const QUEUE_KEY = 'syncQueue';
 const MAX_QUEUE_SIZE = 10000;
@@ -28,7 +29,7 @@ export class SyncQueue {
     this.adapter = options.adapter || null; // Backend adapter
     this.processing = false;
     this.autoSync = options.autoSync !== false;
-    
+
     // Listen for connectivity changes
     if (this.autoSync) {
       connectivityManager.addListener((online) => {
@@ -45,7 +46,7 @@ export class SyncQueue {
   async initialize() {
     // Load queue from store
     const queue = this.getQueue();
-    
+
     logger.info('Sync queue initialized', {
       operations: queue.length,
       maxSize: this.maxQueueSize
@@ -162,7 +163,7 @@ export class SyncQueue {
     this.processing = true;
     const startTime = Date.now(); // Start profiling
     const startMemory = process.memoryUsage();
-    
+
     logger.info('Starting queue processing', {
       memory: {
         heapUsed: Math.round(startMemory.heapUsed / 1024 / 1024) + ' MB',
@@ -178,7 +179,7 @@ export class SyncQueue {
       // Filter pending operations ready to process
       const pendingOps = queue.filter(op => {
         if (op.status !== 'pending') return false;
-        
+
         // Skip if max retries exceeded
         if (op.retries >= this.maxRetries) {
           op.status = 'failed';
@@ -186,25 +187,25 @@ export class SyncQueue {
           failed++;
           return false;
         }
-        
+
         // Check backoff delay
         if (op.lastAttempt) {
           const delay = this.calculateBackoff(op.retries);
           const timeSinceLastAttempt = Date.now() - op.lastAttempt;
           if (timeSinceLastAttempt < delay) return false;
         }
-        
+
         return true;
       });
 
       // Process in batches with concurrency limit
       for (let i = 0; i < pendingOps.length; i += BATCH_SIZE) {
         const batch = pendingOps.slice(i, i + BATCH_SIZE);
-        
+
         // Process batch with concurrency limit
         for (let j = 0; j < batch.length; j += CONCURRENT_LIMIT) {
           const chunk = batch.slice(j, j + CONCURRENT_LIMIT);
-          
+
           await Promise.all(chunk.map(async (operation) => {
             try {
               operation.lastAttempt = Date.now();
@@ -216,14 +217,14 @@ export class SyncQueue {
                 operation.status = 'synced';
                 operation.syncedAt = Date.now();
                 processed++;
-                
+
                 logger.info('Operation synced', {
                   id: operation.id,
                   type: operation.type
                 });
               } else {
                 operation.error = result.error;
-                
+
                 logger.warn('Operation sync failed', {
                   id: operation.id,
                   error: result.error,
@@ -232,7 +233,7 @@ export class SyncQueue {
               }
             } catch (error) {
               operation.error = error.message;
-              
+
               logger.error('Operation sync error:', {
                 id: operation.id,
                 error: error.message
@@ -240,7 +241,7 @@ export class SyncQueue {
             }
           }));
         }
-        
+
         // Save progress after each batch
         this.saveQueue(queue);
       }
@@ -272,6 +273,23 @@ export class SyncQueue {
         global.gc();
       }
 
+      // Notify if items were processed or failed
+      if (processed > 0) {
+        notificationManager.showNotification({
+          title: 'Sync Complete',
+          body: `Successfully synced ${processed} item${processed === 1 ? '' : 's'}${failed > 0 ? `. ${failed} failed.` : '.'}`,
+          urgency: 'normal'
+        });
+      }
+
+      if (failed > 0 && processed === 0) {
+        notificationManager.showNotification({
+          title: 'Sync Warning',
+          body: `Failed to sync ${failed} item${failed === 1 ? '' : 's'}. Will retry later.`,
+          urgency: 'normal'
+        });
+      }
+
       return {
         success: true,
         processed,
@@ -280,6 +298,13 @@ export class SyncQueue {
       };
     } catch (error) {
       logger.error('Queue processing failed:', error);
+
+      notificationManager.showNotification({
+        title: 'Sync Failed',
+        body: `Sync process encountered an error: ${error.message}`,
+        urgency: 'critical'
+      });
+
       return {
         success: false,
         error: error.message
@@ -310,7 +335,7 @@ export class SyncQueue {
    */
   getStatus() {
     const queue = this.getQueue();
-    
+
     const status = {
       total: queue.length,
       pending: 0,
@@ -362,7 +387,7 @@ export class SyncQueue {
   async clear() {
     this.saveQueue([]);
     logger.info('Queue cleared');
-    
+
     return {
       success: true
     };

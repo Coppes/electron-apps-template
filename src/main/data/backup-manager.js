@@ -12,6 +12,7 @@ import { createHash } from 'crypto';
 import Store from 'electron-store';
 import { logger } from '../logger.js';
 import { getZipWorkerPool } from '../workers/worker-pool.js';
+import { notificationManager } from '../notifications.js';
 
 const store = new Store();
 const BACKUP_METADATA_KEY = 'backup:history';
@@ -140,6 +141,12 @@ export class BackupManager {
 
       logger.info(`Backup created successfully: ${backupFilename} (${manifest.size} bytes)`);
 
+      notificationManager.showNotification({
+        title: 'Backup Successful',
+        body: `Backup created: ${backupFilename}`,
+        urgency: 'normal'
+      });
+
       return {
         success: true,
         backup: {
@@ -150,6 +157,13 @@ export class BackupManager {
       };
     } catch (error) {
       logger.error('Backup creation failed:', error);
+
+      notificationManager.showNotification({
+        title: 'Backup Failed',
+        body: `Failed to create backup: ${error.message}`,
+        urgency: 'critical'
+      });
+
       throw error;
     }
   }
@@ -475,6 +489,12 @@ export class BackupManager {
         }
       }
 
+      notificationManager.showNotification({
+        title: 'Restore Successful',
+        body: `Data restored from ${filename}`,
+        urgency: 'critical' // Critical because it initiates restart/reload usually
+      });
+
       return {
         success: true,
         message: 'Backup restored successfully',
@@ -482,6 +502,13 @@ export class BackupManager {
       };
     } catch (error) {
       logger.error(`Failed to restore backup ${filename}:`, error);
+
+      notificationManager.showNotification({
+        title: 'Restore Failed',
+        body: `Failed to restore ${filename}: ${error.message}`,
+        urgency: 'critical'
+      });
+
       throw error;
     } finally {
       // Cleanup temp directory

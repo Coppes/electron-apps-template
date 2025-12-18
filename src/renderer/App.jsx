@@ -13,6 +13,8 @@ import { TourOverlay } from './components/TourOverlay';
 import i18n from './i18n';
 
 import { useDataMenu } from './hooks/useDataMenu';
+import { useDeepLink } from './hooks/useDeepLink';
+
 
 function App() {
   const [updateInfo, setUpdateInfo] = useState(null);
@@ -24,6 +26,10 @@ function App() {
 
   // Initialize data menu handlers
   useDataMenu();
+
+  // Initialize deep link handler
+  useDeepLink();
+
 
   useEffect(() => {
     // Initialize language from store

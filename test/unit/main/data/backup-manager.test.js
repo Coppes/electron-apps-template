@@ -8,6 +8,15 @@ import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
 
+// Mock notifications
+vi.mock('../../../../src/main/notifications.js', () => ({
+  notificationManager: {
+    showNotification: vi.fn(),
+  }
+}));
+
+import { notificationManager } from '../../../../src/main/notifications.js';
+
 // Mock electron
 vi.mock('electron', () => ({
   app: {
@@ -31,7 +40,7 @@ vi.mock('electron-store', () => {
   const storeData = {
     'backup:history': []
   };
-  
+
   return {
     default: class Store {
       constructor() {
@@ -64,7 +73,7 @@ describe('BackupManager', () => {
   beforeEach(async () => {
     testDir = path.join(os.tmpdir(), `test-backup-${Date.now()}`);
     await fs.mkdir(testDir, { recursive: true });
-    
+
     backupManager = new BackupManager({
       backupDir: testDir,
       maxBackups: 5
@@ -87,36 +96,48 @@ describe('BackupManager', () => {
     });
   });
 
+  // Mock notifications
+
+  // ... (existing mocks)
+
+  // ...
+
   describe('createBackup', () => {
-    it('should create a backup with metadata', async () => {
+    it('should create a backup with metadata and show notification', async () => {
       const result = await backupManager.createBackup({ type: 'manual' });
-      
+
       expect(result.success).toBe(true);
       expect(result.backup).toHaveProperty('filename');
       expect(result.backup).toHaveProperty('path');
       expect(result.backup).toHaveProperty('timestamp');
+      expect(notificationManager.showNotification).toHaveBeenCalledWith(expect.objectContaining({
+        title: 'Backup Successful'
+      }));
     });
 
     it('should include manifest in backup', async () => {
       const result = await backupManager.createBackup({ type: 'auto' });
-      
+
       expect(result.backup).toHaveProperty('version');
       expect(result.backup).toHaveProperty('platform');
       expect(result.backup.includes).toBeDefined();
     });
 
-    it('should handle backup creation errors gracefully', async () => {
+    it('should handle backup creation errors gracefully and show failure notification', async () => {
       // Force an error by using invalid path
       const badManager = new BackupManager({ backupDir: '/invalid/path/\0bad' });
-      
+
       await expect(badManager.createBackup()).rejects.toThrow();
+      expect(notificationManager.showNotification).toHaveBeenCalledWith(expect.objectContaining({
+        title: 'Backup Failed'
+      }));
     });
   });
 
   describe('listBackups', () => {
     it('should return empty list when no backups exist', async () => {
       const result = await backupManager.listBackups();
-      
+
       expect(result.success).toBe(true);
       expect(Array.isArray(result.backups)).toBe(true);
       expect(result.backups.length).toBe(0);
@@ -125,9 +146,9 @@ describe('BackupManager', () => {
     it('should list available backups', async () => {
       // Create a backup first
       await backupManager.createBackup({ type: 'manual' });
-      
+
       const result = await backupManager.listBackups();
-      
+
       expect(result.success).toBe(true);
       expect(result.backups.length).toBeGreaterThan(0);
     });
@@ -138,16 +159,16 @@ describe('BackupManager', () => {
       // Create backup
       const createResult = await backupManager.createBackup({ type: 'manual' });
       const filename = createResult.backup.filename;
-      
+
       // Delete it
       const deleteResult = await backupManager.deleteBackup(filename);
-      
+
       expect(deleteResult.success).toBe(true);
     });
 
     it('should handle non-existent backup deletion', async () => {
       const result = await backupManager.deleteBackup('nonexistent.zip');
-      
+
       // Should fail gracefully
       expect(result.success).toBe(false);
     });
@@ -161,9 +182,9 @@ describe('BackupManager', () => {
         // Small delay to ensure different timestamps
         await new Promise(resolve => setTimeout(resolve, 10));
       }
-      
+
       const result = await backupManager.listBackups();
-      
+
       // Should only keep maxBackups (5)
       expect(result.backups.length).toBeLessThanOrEqual(5);
     });
@@ -174,9 +195,9 @@ describe('BackupManager', () => {
       // Create a test file
       const testFile = path.join(testDir, 'test.txt');
       await fs.writeFile(testFile, 'test content');
-      
+
       const checksum = await backupManager.calculateChecksum(testFile);
-      
+
       expect(checksum).toBeDefined();
       expect(typeof checksum).toBe('string');
       expect(checksum.length).toBe(64); // SHA-256 produces 64 hex characters

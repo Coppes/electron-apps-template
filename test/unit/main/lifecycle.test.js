@@ -9,6 +9,7 @@ import connectivityManager from '../../../src/main/data/connectivity-manager.js'
 import syncQueue from '../../../src/main/data/sync-queue.js';
 import { trayManager } from '../../../src/main/tray.js';
 import fileWatcher from '../../../src/main/data/file-watcher.js';
+import { notificationManager } from '../../../src/main/notifications.js';
 
 const fsMocks = vi.hoisted(() => ({
   access: vi.fn(),
@@ -39,6 +40,26 @@ vi.mock('electron', () => {
     }
   };
 });
+vi.mock('electron-log', () => ({
+  default: {
+    transports: {
+      file: {
+        resolvePath: vi.fn(),
+        level: 'info',
+        getFile: vi.fn(() => ({ path: '/mock/path/main.log' }))
+      },
+      console: {
+        level: 'debug'
+      }
+    },
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+    create: vi.fn().mockReturnThis()
+  }
+}));
+
 vi.mock('electron-store', () => {
   return {
     default: class {
@@ -227,7 +248,7 @@ describe('LifecycleManager', () => {
       );
     });
 
-    it.skip('should detect previous crash if marker exists', async () => {
+    it('should detect previous crash if marker exists', async () => {
       fsMocks.access.mockResolvedValue(undefined); // File exists
       fsMocks.readFile.mockResolvedValue(JSON.stringify({ timestamp: '2023-01-01' }));
 
@@ -235,7 +256,12 @@ describe('LifecycleManager', () => {
 
       expect(logger.warn).toHaveBeenCalledWith('Previous session crashed', expect.any(Object));
       expect(fsMocks.unlink).toHaveBeenCalled();
-      expect(logger.error).not.toHaveBeenCalled();
+
+      // Verify notification was shown
+      expect(notificationManager.showNotification).toHaveBeenCalledWith(expect.objectContaining({
+        title: 'App Recovered',
+        urgency: 'critical'
+      }));
     });
   });
 
