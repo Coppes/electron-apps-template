@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { useIpcListener } from '../../src/hooks/useIpcListener';
+import { useIpcListener } from '../../../../src/hooks/useIpcListener';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 describe('useIpcListener', () => {

@@ -12,7 +12,6 @@ export function useDeepLink() {
   useEffect(() => {
     // Listen for deep link events
     const cleanup = window.electronAPI.deepLink.onReceived(async (data) => {
-      console.log('Deep link received:', data);
       const { route, pathParams, params } = data;
 
       try {
@@ -50,7 +49,6 @@ export function useDeepLink() {
                   });
                 }
               } catch (err) {
-                console.error('Failed to open deep link file:', err);
                 if (window.electronAPI?.notification) {
                   window.electronAPI.notification.show({
                     title: 'File Open Error',
@@ -94,6 +92,7 @@ export function useDeepLink() {
             break;
 
           default:
+            // eslint-disable-next-line no-console
             console.warn('Unknown deep link route:', route);
             if (window.electronAPI?.notification) {
               window.electronAPI.notification.show({
@@ -104,7 +103,6 @@ export function useDeepLink() {
             }
         }
       } catch (error) {
-        console.error('Error handling deep link:', error);
         if (window.electronAPI?.notification) {
           window.electronAPI.notification.show({
             title: 'Deep Link Error',

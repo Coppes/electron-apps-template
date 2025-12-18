@@ -164,9 +164,8 @@ const AppShell = () => {
 
   // Listen for file changes
   useEffect(() => {
-    let cleanupFileListener;
     if (window.electronAPI?.file?.onFileChanged) {
-      cleanupFileListener = window.electronAPI.file.onFileChanged((data) => {
+      window.electronAPI.file.onFileChanged((data) => {
         // data can be { filePath, event } or just filePath depending on implementation
         // Assuming data object or string
         const path = typeof data === 'string' ? data : data.filePath;

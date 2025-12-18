@@ -12,7 +12,12 @@ vi.mock('electron', () => ({
   app: {
     getPath: vi.fn().mockReturnValue('/mock/path'),
     getVersion: vi.fn(),
-  }
+    getName: vi.fn().mockReturnValue('Test App'),
+  },
+  Notification: class {
+    show = vi.fn();
+    on = vi.fn();
+  },
 }));
 
 vi.mock('electron-store', () => {

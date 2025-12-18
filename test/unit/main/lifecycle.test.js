@@ -83,7 +83,7 @@ vi.mock('../../../src/main/window-manager.js', () => ({
 }));
 vi.mock('../../../src/main/notifications.js', () => ({
   notificationManager: {
-    showNotification: vi.fn().mockResolvedValue()
+    showNotification: vi.fn(() => Promise.resolve())
   }
 }));
 vi.mock('../../../src/main/logger.js');
@@ -255,6 +255,7 @@ describe('LifecycleManager', () => {
       await lifecycleManager.checkCrashRecovery();
 
       expect(logger.warn).toHaveBeenCalledWith('Previous session crashed', expect.any(Object));
+      expect(logger.error).not.toHaveBeenCalled(); // Ensure no errors occurred
       expect(fsMocks.unlink).toHaveBeenCalled();
 
       // Verify notification was shown

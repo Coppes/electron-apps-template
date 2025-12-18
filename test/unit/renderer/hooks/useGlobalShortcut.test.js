@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { useGlobalShortcut } from '../../src/hooks/useGlobalShortcut';
+import { useGlobalShortcut } from '../../../../src/hooks/useGlobalShortcut';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 describe('useGlobalShortcut', () => {

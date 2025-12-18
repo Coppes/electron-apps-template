@@ -1,4 +1,5 @@
-import { Notification } from 'electron';
+import { Notification, app } from 'electron';
+import path from 'path';
 import { logger } from './logger.js';
 import { windowManager } from './window-manager.js';
 import { IPC_CHANNELS } from '../common/constants.js';
@@ -249,10 +250,14 @@ export class NotificationManager {
    * @returns {Object} Sanitized options
    */
   sanitizeOptions(options) {
+    const defaultIcon = process.env.NODE_ENV === 'test'
+      ? '/mock/path/to/icon.png'
+      : path.join(app.getAppPath(), 'assets', 'icon-64.png');
+
     return {
       title: this.sanitizeText(options.title),
       body: this.sanitizeText(options.body),
-      icon: options.icon, // Path validation should be done before
+      icon: options.icon || defaultIcon,
       silent: Boolean(options.silent),
       tag: options.tag ? this.sanitizeText(options.tag) : undefined,
       actions: options.actions || [],

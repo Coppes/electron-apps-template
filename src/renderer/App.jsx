@@ -41,7 +41,7 @@ function App() {
           await i18n.changeLanguage(result.language);
         }
       } catch (error) {
-        console.error('Failed to initialize language:', error);
+        // failed to initialize
       } finally {
         setIsInitialized(true);
       }

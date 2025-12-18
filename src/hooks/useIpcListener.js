@@ -14,7 +14,6 @@ export function useIpcListener(channel, listener) {
 
   useEffect(() => {
     if (!window.electron || !window.electron.ipcRenderer) {
-      console.warn('IPC renderer not available');
       return;
     }
 
@@ -27,14 +26,13 @@ export function useIpcListener(channel, listener) {
     window.electron.ipcRenderer.on(channel, eventHandler);
 
     return () => {
+      if (!window.electron || !window.electron.ipcRenderer) return;
+
       // Remove specific listener
-      // Note: This assumes exposeInMainWorld exposes removeListener or similar.
-      // If using the standard pattern where 'on' returns a cleanup function or we need removeListener:
       if (window.electron.ipcRenderer.removeListener) {
         window.electron.ipcRenderer.removeListener(channel, eventHandler);
       } else {
         // Fallback or specific implementation check
-        // Often context bridges expose a specific 'off' or return a disposer
         window.electron.ipcRenderer.removeAllListeners(channel);
       }
     };

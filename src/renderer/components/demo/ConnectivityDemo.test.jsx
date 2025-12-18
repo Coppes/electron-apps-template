@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import ConnectivityDemo from './ConnectivityDemo';
 
 // Mock SyncQueueViewer since it's a child component

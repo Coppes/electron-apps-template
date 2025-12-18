@@ -26,6 +26,11 @@ vi.mock('electron', () => ({
   app: {
     getPath: vi.fn().mockReturnValue('/mock/path'),
     getVersion: vi.fn().mockReturnValue('1.0.0'),
+    getName: vi.fn().mockReturnValue('Test App'),
+  },
+  Notification: class {
+    show = vi.fn();
+    on = vi.fn();
   },
   ipcMain: {
     handle: vi.fn(),

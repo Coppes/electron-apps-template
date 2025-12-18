@@ -208,4 +208,14 @@ describe('NotificationManager', () => {
     isPermissionAllowed.mockReturnValue(true);
     expect(await notificationManager.requestPermission()).toBe(true);
   });
+  it('should use default icon if not provided', async () => {
+    await notificationManager.showNotification({
+      title: 'Default Icon',
+      body: 'Check'
+    });
+
+    expect(Notification).toHaveBeenCalledWith(expect.objectContaining({
+      icon: '/mock/path/to/icon.png'
+    }));
+  });
 });

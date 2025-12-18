@@ -36,6 +36,7 @@ export const ShortcutProvider = ({ children }) => {
       // Check for conflicts
       const isConflict = filtered.some(s => s.keys.toLowerCase() === shortcut.keys.toLowerCase());
       if (isConflict) {
+        // eslint-disable-next-line no-console
         console.warn(`Shortcut conflict detected: ${shortcut.keys} is already bound.`);
         // Ideally we would trigger UI warning here or return failure
       }

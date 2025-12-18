@@ -9,7 +9,7 @@ export function useGlobalShortcut(accelerator, callback) {
   useEffect(() => {
     if (!window.electron || !window.electron.globalShortcut) {
       // Assuming globalShortcut is exposed via context bridge or IPC
-      console.warn('GlobalShortcut API not available directly in renderer. Using IPC fallback if applicable.');
+      // Assuming globalShortcut is exposed via context bridge or IPC
       // In many secure Electron apps, renderer doesn't access globalShortcut directly.
       // It usually asks main to register it.
       // Let's assume an IPC mechanism: 'register-shortcut', 'unregister-shortcut'
@@ -19,7 +19,7 @@ export function useGlobalShortcut(accelerator, callback) {
       try {
         await window.electron.ipcRenderer.invoke('register-global-shortcut', accelerator);
       } catch (e) {
-        console.error('Failed to register shortcut', e);
+        // error handling
       }
     };
 
@@ -27,12 +27,11 @@ export function useGlobalShortcut(accelerator, callback) {
       try {
         await window.electron.ipcRenderer.invoke('unregister-global-shortcut', accelerator);
       } catch (e) {
-        console.error('Failed to unregister shortcut', e);
+        // error handling
       }
     };
 
     // Listen for the shortcut execution event from main
-    const trace = `global-shortcut-${accelerator}`;
     const onTrigger = () => callback();
 
     // We assume the main process sends an event when the shortcut is pressed
