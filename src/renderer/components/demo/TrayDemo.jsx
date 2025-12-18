@@ -142,7 +142,34 @@ export default function TrayDemo() {
           <WarningCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
           <p className="text-sm text-blue-800 dark:text-blue-200">{status}</p>
         </div>
-      )}
+      {/* Status Icons */}
+      <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+        <h3 className="font-semibold mb-3 text-gray-900 dark:text-white">Status Icons (Dynamic)</h3>
+        <p className="text-sm text-gray-600 mb-3">Update the tray icon to reflect application state.</p>
+        <div className="flex flex-wrap gap-2">
+          {['normal', 'offline', 'error', 'sync'].map((s) => (
+            <button
+              key={s}
+              onClick={async () => {
+                try {
+                  if (window.electronAPI.os?.setTrayStatus) {
+                    await window.electronAPI.os.setTrayStatus(s);
+                    setStatus(`Tray icon updated to: ${s}`);
+                  } else {
+                    setStatus('OS API not available');
+                  }
+                } catch (err) {
+                  setStatus(`Error: ${err.message}`);
+                }
+              }}
+              disabled={!trayExists}
+              className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded border border-gray-300 dark:border-gray-600 disabled:opacity-50 capitalized"
+            >
+              {s.charAt(0).toUpperCase() + s.slice(1)}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* Tooltip Configuration */}
       <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">

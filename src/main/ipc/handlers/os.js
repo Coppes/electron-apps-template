@@ -1,0 +1,18 @@
+import { ipcMain } from 'electron';
+import { setDockBadge, setDockMenu } from '../../dock.js';
+import { trayManager } from '../../tray.js';
+
+export const osHandlers = {
+  'dock:set-badge': async (event, { text }) => {
+    setDockBadge(text);
+    return { success: true };
+  },
+  'dock:set-menu': async (event, { template }) => {
+    setDockMenu(template);
+    return { success: true };
+  },
+  'tray:set-status': async (event, { status }) => {
+    trayManager.updateStatus(status);
+    return { success: true };
+  }
+};

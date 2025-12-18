@@ -849,6 +849,32 @@ const pluginsAPI = {
 };
 
 /**
+ * OS Integration API
+ */
+const osAPI = {
+  // Dock
+  setDockBadge: (text) => ipcRenderer.invoke('dock:set-badge', { text }),
+  setDockMenu: (template) => ipcRenderer.invoke('dock:set-menu', { template }),
+
+  // Tray
+  setTrayStatus: (status) => ipcRenderer.invoke('tray:set-status', { status }),
+
+  // Power Monitor
+  onPowerStatusChange: (callback) => {
+    const listener = (event, status) => callback(status);
+    ipcRenderer.on('power:status-change', listener);
+    return () => ipcRenderer.removeListener('power:status-change', listener);
+  },
+
+  // File Associations
+  onFileOpened: (callback) => {
+    const listener = (event, { filePath, content }) => callback({ filePath, content });
+    ipcRenderer.on('app:file-opened', listener);
+    return () => ipcRenderer.removeListener('app:file-opened', listener);
+  }
+};
+
+/**
  * Complete Electron API surface exposed to renderer
  */
 const electronAPI = {
@@ -868,6 +894,7 @@ const electronAPI = {
   recentDocs: recentDocsAPI,
   notifications: notificationsAPI,
   deepLink: deepLinkAPI,
+  os: osAPI,
 
   i18n: i18nAPI,
   plugins: pluginsAPI,
@@ -915,4 +942,5 @@ Object.freeze(recentDocsAPI);
 Object.freeze(notificationsAPI);
 Object.freeze(deepLinkAPI);
 Object.freeze(i18nAPI);
+Object.freeze(osAPI);
 

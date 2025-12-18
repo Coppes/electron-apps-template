@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Tray, Command, Pulse, Bell, Clock } from '@phosphor-icons/react';
+import { Tray, Command, Pulse, Bell, Clock, Lightning } from '@phosphor-icons/react';
 import TrayDemo from './TrayDemo';
+import DockPowerDemo from './DockPowerDemo';
 import ShortcutsDemo from './ShortcutsDemo';
 import ProgressDemo from './ProgressDemo';
 import NotificationsDemo from './NotificationsDemo';
@@ -15,6 +16,7 @@ export default function OSIntegrationDemo() {
 
   const tabs = [
     { id: 'tray', label: 'System Tray', icon: Tray, component: TrayDemo },
+    { id: 'dock-power', label: 'Dock & Power', icon: Lightning, component: DockPowerDemo },
     { id: 'shortcuts', label: 'Shortcuts', icon: Command, component: ShortcutsDemo },
     { id: 'progress', label: 'Progress & Badge', icon: Pulse, component: ProgressDemo },
     { id: 'notifications', label: 'Notifications', icon: Bell, component: NotificationsDemo },

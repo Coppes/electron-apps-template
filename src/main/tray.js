@@ -137,6 +137,32 @@ export class TrayManager {
   }
 
   /**
+   * Update tray icon based on status
+   * @param {string} status - Status string (e.g. 'offline', 'error', 'sync')
+   */
+  updateStatus(status) {
+    if (!status || status === 'normal') {
+      return this.setIcon(this.getTrayIconPath());
+    }
+
+    const assetsPath = app.isPackaged
+      ? join(process.resourcesPath, 'assets')
+      : join(app.getAppPath(), 'assets');
+
+    // Attempt to load specific status icon
+    // Naming convention: tray-{status}.png
+    const iconName = `tray-${status}.png`;
+    const iconPath = join(assetsPath, iconName);
+
+    if (fs.existsSync(iconPath)) {
+      return this.setIcon(iconPath);
+    } else {
+      logger.warn('Status icon not found, fallback to default', { status, iconPath });
+      return this.setIcon(this.getTrayIconPath());
+    }
+  }
+
+  /**
    * Set tray tooltip
    * @param {string} tooltip - Tooltip text
    * @returns {boolean} Success status

@@ -1,4 +1,4 @@
-import { BrowserWindow, screen, app } from 'electron';
+import { BrowserWindow, screen, app, Menu, MenuItem } from 'electron';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import Store from 'electron-store';
@@ -57,6 +57,7 @@ export class WindowManager {
         enableRemoteModule: false,
         sandbox: true,
         preload: this.getPreloadPath(),
+        spellcheck: true,
         ...browserWindowOptions.webPreferences,
       },
     };
@@ -167,6 +168,21 @@ export class WindowManager {
     // Log blur events
     window.on('blur', () => {
       logger.debug(`Window ${windowId} blurred`);
+    });
+
+    // Spellchecker context menu
+    window.webContents.on('context-menu', (event, params) => {
+      const { dictionarySuggestions } = params;
+      if (dictionarySuggestions && dictionarySuggestions.length > 0) {
+        const menu = new Menu();
+        dictionarySuggestions.forEach(suggestion => {
+          menu.append(new MenuItem({
+            label: suggestion,
+            click: () => window.webContents.replaceMisspelling(suggestion)
+          }));
+        });
+        menu.popup();
+      }
     });
   }
 

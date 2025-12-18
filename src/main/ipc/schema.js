@@ -588,6 +588,39 @@ export const traySchema = {
       error: { type: 'string', required: false },
     },
   },
+
+  'tray:set-status': {
+    input: {
+      status: { type: 'string', required: true },
+    },
+    output: {
+      success: { type: 'boolean', required: true },
+      error: { type: 'string', required: false },
+    },
+  },
+};
+
+/**
+ * Dock handlers
+ */
+export const dockSchema = {
+  'dock:set-badge': {
+    input: {
+      text: { type: 'string', required: true },
+    },
+    output: {
+      success: { type: 'boolean', required: true },
+    },
+  },
+
+  'dock:set-menu': {
+    input: {
+      template: { type: 'array', required: true },
+    },
+    output: {
+      success: { type: 'boolean', required: true },
+    },
+  },
 };
 
 /**
@@ -701,5 +734,6 @@ export const ipcSchema = {
   ...progressSchema,
   ...i18nSchema,
   ...pluginsSchema,
+  ...dockSchema,
 };
 

@@ -21,6 +21,9 @@ import { i18nHandlers } from './ipc/handlers/i18n.js';
 import { createPluginHandlers } from './ipc/handlers/plugins.js';
 import { trayManager } from './tray.js';
 import { shortcutManager } from './shortcuts.js';
+import { setupFileHandlers } from './file-handlers.js';
+import { setupPowerMonitor } from './power.js';
+import { osHandlers } from './ipc/handlers/os.js';
 import connectivityManager from './data/connectivity-manager.js';
 import syncQueue from './data/sync-queue.js';
 import fileWatcher from './data/file-watcher.js';
@@ -142,6 +145,7 @@ export class LifecycleManager {
       ...notificationHandlers,
       ...i18nHandlers,
       ...createPluginHandlers(),
+      ...osHandlers,
     };
 
     registerHandlers(ipcSchema, handlers);
@@ -202,6 +206,9 @@ export class LifecycleManager {
       }
 
       logger.info('OS integration initialized');
+
+      // Setup Power Monitor broadcast
+      setupPowerMonitor();
 
       // Setup file handling (open-file)
       this.setupFileHandling();
@@ -479,30 +486,7 @@ export class LifecycleManager {
    * Setup file handling (macOS open-file, etc.)
    */
   setupFileHandling() {
-    app.on('open-file', async (event, path) => {
-      event.preventDefault();
-      logger.info('Opening file from OS', { path });
-
-      const mainWindow = windowManager.getWindowByType('main');
-      if (mainWindow) {
-        if (mainWindow.window.isMinimized()) mainWindow.window.restore();
-        windowManager.focusWindow(mainWindow.id);
-
-        try {
-          const content = await fs.readFile(path, 'utf-8');
-          mainWindow.webContents.send('file:opened', { filePath: path, content });
-          addRecentDocument(path);
-        } catch (error) {
-          logger.error('Failed to read opened file', { path, error });
-        }
-      } else {
-        // Store for when window is ready? 
-        // For now, simplify. If no window, we might need to handle on ready.
-        // But mostly open-file happens when app is running or launching.
-        // If launching, window creation will follow.
-        // TODO: Handle startup file open
-      }
-    });
+    setupFileHandlers(windowManager);
   }
 
   /**
