@@ -18,7 +18,7 @@ When asked to enter "Debug Mode", follow this sequence:
 ## Testing Strategy
 - **Unit/Integration**: Use **Vitest** (`npm run test:unit`).
 - **E2E**: Use **Playwright** (`npm run test:e2e`).
-- **Memory**: Use **MemLab** (`npm run test:memory`).
+- **Memory**: Use **Hybrid Playwright + MemLab** (`npm run test:memory`).
 - **Coverage**: Aim for >80% coverage on core modules.
 
 ## Testing Rules

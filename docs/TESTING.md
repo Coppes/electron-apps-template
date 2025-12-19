@@ -22,6 +22,7 @@ This project uses **Vitest** as the test framework with comprehensive test cover
 - **Renderer Process Tests**: jsdom environment for React components
 - **Integration Tests**: Testing cross-process communication
 - **E2E Tests**: End-to-end testing with Playwright
+- **Memory Tests**: Leak detection with Hybrid Playwright + MemLab
 
 ## Test Structure
 
@@ -60,6 +61,7 @@ test/
 npm test                    # Run all tests in watch mode
 npm run test:unit           # Run unit tests only
 npm run test:e2e            # Run E2E tests
+npm run test:memory         # Run memory leak tests
 npm run test:coverage       # Run tests with coverage report
 ```
 

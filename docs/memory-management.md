@@ -25,30 +25,43 @@ We enforce `react-hooks/exhaustive-deps` as an **error**. Do not ignore this rul
 ### 4. DOM Nodes
 Avoid detaching DOM nodes and keeping references to them in JS variables. If you create a ref to an element, ensure React manages its lifecycle.
 
-## Automated Testing (MemLab)
-We use **MemLab** to automatically detect leaks.
+## Automated Memory Testing (Hybrid)
+We use a **Hybrid approach** utilizing **Playwright** to drive the application and **MemLab** to analyze heap snapshots.
 
 ### Running Tests Locally
 ```bash
 npm run test:memory
 ```
-This will launch the app and run defined scenarios (in `scenarios/`).
+This command:
+1. Starts the `dev` server (if not running).
+2. Launches a headless Chromium instance (via Playwright).
+3. Executes scenarios defined in `test/memory/scenarios/`.
+4. Captures heap snapshots via Chrome/Electron Debugging Protocol (CDP).
+5. Analyzes snapshots for memory leaks using MemLab CLI.
 
 ### Writing Scenarios
-Create a new file in `test/scenarios/` with a `.cjs` extension (e.g., `my-feature.cjs`). We use `.cjs` format to support MemLab's loader within our ESM project.
+Create a new file in `test/memory/scenarios/` with a `.cjs` extension (e.g., `my-feature.cjs`).
+**Note**: Files *must* be `.cjs` (CommonJS) to generate valid snapshots compatible with MemLab's analysis tools.
 
 ```javascript
 module.exports = {
   name: () => 'MyFeatureLeakCheck',
-  url: () => 'http://localhost:5173',
+  // Use a cache-busting param to ensure fresh index.html (mock injection)
+  url: () => `http://localhost:5173?t=${Date.now()}`,
+  
   action: async (page) => {
-    // Perform action that opens/creates things
+    // Use standard Playwright API
     await page.click('#open-feature');
+    await page.waitForSelector('.feature-modal', { state: 'visible' });
   },
+  
   back: async (page) => {
     // Reverse action (close/cleanup)
-    await page.click('#close-feature');
+    const closeBtn = page.locator('#close-feature');
+    await closeBtn.click();
+    await page.waitForSelector('.feature-modal', { state: 'hidden' });
   },
+  
   repeat: () => 3,
 };
 ```

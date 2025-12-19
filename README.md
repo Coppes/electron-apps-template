@@ -529,7 +529,7 @@ npm run test:ui
 # Run End-to-End (E2E) tests (Playwright)
 npm run test:e2e
 
-# Run Memory Leak tests (MemLab)
+# Run Memory Leak tests (Hybrid Playwright + MemLab)
 # Note: Requires app running on localhost:5173
 npm run test:memory
 ```
