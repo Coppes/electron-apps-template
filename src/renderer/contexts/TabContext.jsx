@@ -2,7 +2,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
-import { useSettings } from './SettingsContext';
 import { useSound } from '../hooks/useSound';
 
 export const TabContext = createContext({

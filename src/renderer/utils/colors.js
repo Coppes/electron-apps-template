@@ -17,13 +17,13 @@ export function hexToHsl(hex) {
   r /= 255;
   g /= 255;
   b /= 255;
-  
-  let cmin = Math.min(r,g,b),
-      cmax = Math.max(r,g,b),
-      delta = cmax - cmin,
-      h = 0,
-      s = 0,
-      l = 0;
+
+  const cmin = Math.min(r, g, b),
+    cmax = Math.max(r, g, b),
+    delta = cmax - cmin;
+  let h = 0,
+    s = 0,
+    l = 0;
 
   if (delta === 0)
     h = 0;
@@ -41,7 +41,7 @@ export function hexToHsl(hex) {
 
   l = (cmax + cmin) / 2;
   s = delta === 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
-  
+
   s = +(s * 100).toFixed(1);
   l = +(l * 100).toFixed(1);
 
@@ -59,18 +59,18 @@ export function hslToHex(hsl) {
   if (hsl.startsWith('#')) return hsl;
 
   let [h, s, l] = hsl.split(' ').map(v => parseFloat(v));
-  
+
   // Normalization
   // s and l are percentages in css var 
   s /= 100;
   l /= 100;
 
-  let c = (1 - Math.abs(2 * l - 1)) * s,
-      x = c * (1 - Math.abs(((h / 60) % 2) - 1)),
-      m = l - c/2,
-      r = 0,
-      g = 0,
-      b = 0;
+  const c = (1 - Math.abs(2 * l - 1)) * s,
+    x = c * (1 - Math.abs(((h / 60) % 2) - 1)),
+    m = l - c / 2;
+  let r = 0,
+    g = 0,
+    b = 0;
 
   if (0 <= h && h < 60) {
     r = c; g = x; b = 0;
@@ -85,7 +85,7 @@ export function hslToHex(hsl) {
   } else if (300 <= h && h < 360) {
     r = c; g = 0; b = x;
   }
-  
+
   r = Math.round((r + m) * 255).toString(16);
   g = Math.round((g + m) * 255).toString(16);
   b = Math.round((b + m) * 255).toString(16);

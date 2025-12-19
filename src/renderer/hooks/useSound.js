@@ -27,6 +27,7 @@ export function useSound() {
 
     const src = SOUNDS[type];
     if (!src) {
+      // eslint-disable-next-line no-console
       console.warn(`Sound type "${type}" not found`);
       return;
     }
@@ -35,12 +36,13 @@ export function useSound() {
       const audio = new Audio(src);
       // audio.volume = globalVolume; 
       audio.volume = 0.5; // Fixed volume for now as volume control implementation is bonus
-      audio.play().catch(err => {
+      audio.play().catch(() => {
         // Auto-play policy might block this if not triggered by user interaction
         // or if file is missing
         // console.debug('Failed to play sound (expected if assets missing):', err);
       });
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error playing sound', error);
     }
   }, [isMuted]);
