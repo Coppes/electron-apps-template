@@ -22,3 +22,10 @@ description: Design System rules
 - **No Inline Styles**: Avoid `style={{...}}` unless dynamic.
 - **Consistency**: Use design tokens (colors, spacing) from `tailwind.config.js` (implied v4 theme).
 - **Feedback**: Interactive elements must have hover/focus/active states.
+
+## Storybook
+- **Stories**: All UI components MUST have a corresponding `.stories.jsx` file.
+- **Location**: Stories reside alongside the component (e.g., `Button.stories.jsx`).
+- **Format**: Use Component Story Format (CSF) 3.
+- **Args**: Define controls for all component props.
+- **Documentation**: Use JSDoc/Auto-docs tags for automated documentation generation.
