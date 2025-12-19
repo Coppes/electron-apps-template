@@ -25,6 +25,10 @@ vi.mock('electron', () => {
         isMaximized: vi.fn(),
         getBounds: vi.fn(() => ({ x: 0, y: 0, width: 800, height: 600 })),
         isDestroyed: vi.fn(() => false),
+        webContents: {
+          on: vi.fn(),
+          replaceMisspelling: vi.fn(),
+        },
       };
     }),
   };

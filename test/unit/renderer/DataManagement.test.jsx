@@ -58,15 +58,15 @@ describe('Data Management UI', () => {
   describe('SettingsPage Import/Export', () => {
     it('should render Data Management section', async () => {
       render(
-        <TabProvider>
-          <SettingsProvider>
+        <SettingsProvider>
+          <TabProvider>
             <ShortcutProvider>
               <HistoryProvider>
                 <SettingsPage />
               </HistoryProvider>
             </ShortcutProvider>
-          </SettingsProvider>
-        </TabProvider>
+          </TabProvider>
+        </SettingsProvider>
       );
       // Wait for settings to load
       await waitFor(() => {
@@ -77,15 +77,15 @@ describe('Data Management UI', () => {
 
     it('should trigger Export Data flow', async () => {
       render(
-        <TabProvider>
-          <SettingsProvider>
+        <SettingsProvider>
+          <TabProvider>
             <ShortcutProvider>
               <HistoryProvider>
                 <SettingsPage />
               </HistoryProvider>
             </ShortcutProvider>
-          </SettingsProvider>
-        </TabProvider>
+          </TabProvider>
+        </SettingsProvider>
       );
 
       // Mock store.get to ensure it resolves

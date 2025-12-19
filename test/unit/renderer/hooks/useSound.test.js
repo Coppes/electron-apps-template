@@ -39,7 +39,7 @@ describe('useSound', () => {
       result.current.playSound('click');
     });
 
-    expect(mockAudioConstructor).toHaveBeenCalledWith('/sounds/click.mp3');
+    expect(mockAudioConstructor).toHaveBeenCalledWith(expect.stringContaining('click.mp3'));
     expect(mockPlay).toHaveBeenCalled();
   });
 

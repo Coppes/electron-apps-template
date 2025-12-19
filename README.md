@@ -525,6 +525,13 @@ npm run test:coverage
 
 # Open interactive test UI
 npm run test:ui
+
+# Run End-to-End (E2E) tests (Playwright)
+npm run test:e2e
+
+# Run Memory Leak tests (MemLab)
+# Note: Requires app running on localhost:5173
+npm run test:memory
 ```
 
 **Test Coverage**: The project maintains >80% test coverage for critical modules including:

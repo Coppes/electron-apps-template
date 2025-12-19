@@ -142,6 +142,7 @@ export default function TrayDemo() {
           <WarningCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
           <p className="text-sm text-blue-800 dark:text-blue-200">{status}</p>
         </div>
+      )}
       {/* Status Icons */}
       <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
         <h3 className="font-semibold mb-3 text-gray-900 dark:text-white">Status Icons (Dynamic)</h3>

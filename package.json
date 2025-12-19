@@ -10,7 +10,7 @@
     "preview": "electron-vite preview",
     "lint": "eslint src --ext .js,.jsx",
     "test": "npm run test:unit",
-    "test:memory": "npx wait-on http://localhost:5173 && memlab run --scenario test/scenarios/open-close-window.cjs && memlab run --scenario test/scenarios/navigate-pages.cjs",
+    "test:memory": "npx wait-on http://localhost:5173 && node scripts/run-memory-test.cjs",
     "test:main": "vitest --config vitest.config.main.js",
     "test:renderer": "vitest --config vitest.config.renderer.js",
     "test:unit": "vitest run --config vitest.config.main.js && vitest run --config vitest.config.renderer.js",

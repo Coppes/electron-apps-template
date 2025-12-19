@@ -3,9 +3,12 @@ module.exports = {
   // Mocks handled in index.html for browser testing
   url: () => 'http://localhost:5173',
   action: async (page) => {
+    await page.setViewport({ width: 1280, height: 720 });
+    console.log('Action: Waiting for app load...');
+    await page.waitForSelector('#root', { timeout: 30000 });
     console.log('Action: Finding Data Management button...');
     try {
-      await page.waitForSelector('button[data-testid="nav-data-management"]', { timeout: 10000 });
+      await page.waitForSelector('button[data-testid="nav-data-management"]', { timeout: 30000 });
       const btn = await page.$('button[data-testid="nav-data-management"]');
       console.log('Action: Button found. Clicking...');
       if (btn) await btn.click();

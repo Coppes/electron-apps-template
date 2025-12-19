@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TabProvider, useTabContext } from '../contexts/TabContext';
 import { StatusBarProvider } from '../contexts/StatusBarContext';
+import { SettingsProvider } from '../contexts/SettingsContext';
 import { CommandProvider } from '../contexts/CommandContext';
 
 // We don't need to mock child components if we don't render them.
@@ -47,12 +48,14 @@ const TestDriver = () => {
 
 const TestApp = () => (
   <StatusBarProvider>
-    <CommandProvider>
-      <TabProvider>
-        {/* We ONLY render the driver, no real UI components that might cause JSDOM issues */}
-        <TestDriver />
-      </TabProvider>
-    </CommandProvider>
+    <SettingsProvider>
+      <CommandProvider>
+        <TabProvider>
+          {/* We ONLY render the driver, no real UI components that might cause JSDOM issues */}
+          <TestDriver />
+        </TabProvider>
+      </CommandProvider>
+    </SettingsProvider>
   </StatusBarProvider>
 );
 

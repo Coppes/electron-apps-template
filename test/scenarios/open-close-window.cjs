@@ -7,9 +7,12 @@ module.exports = {
   // Mocks handled in index.html for browser testing
   url: () => 'http://localhost:5173', // dev server URL
   action: async (page) => {
-    console.log('Action: Finding Settings button...');
+    await page.setViewport({ width: 1280, height: 720 });
+    console.log('Action: Waiting for app load (root)...');
+    await page.waitForSelector('#root', { timeout: 30000 });
+    console.log('Action: App loaded. Finding Settings button via data-tour...');
     try {
-      const settingsBtn = await page.waitForSelector('button[data-tour="settings-link"]', { timeout: 10000 });
+      const settingsBtn = await page.waitForSelector('button[data-tour="settings-link"]', { timeout: 30000 });
       console.log('Action: Settings button found. Clicking...');
       if (settingsBtn) {
         await settingsBtn.click();

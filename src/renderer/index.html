@@ -56,7 +56,7 @@
         },
         file: { onFileChanged: () => () => { } },
         i18n: {
-          getLanguage: () => Promise.resolve('en'),
+          getLanguage: () => Promise.resolve({ success: true, language: 'en' }),
         },
         log: {
           error: () => { },

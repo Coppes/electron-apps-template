@@ -39,7 +39,7 @@ const WhatsNewModal = () => {
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-2">
               <Sparkle className="w-6 h-6 text-yellow-500" />
-              <Dialog.Title className="text-xl font-bold">What's New in v{version}</Dialog.Title>
+              <Dialog.Title className="text-xl font-bold">What&apos;s New in v{version}</Dialog.Title>
             </div>
 
             <div className="space-y-3 text-sm text-foreground/80">

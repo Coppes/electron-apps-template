@@ -28,10 +28,13 @@ const ThemeEditor = () => {
         // Convert stored HSL back to Hex for the inputs
         loadedColors[key] = val.startsWith('#') ? val : hslToHex(val);
       });
-      setColors(prev => ({
-        ...prev,
-        ...loadedColors
-      }));
+      setColors(prev => {
+        const newColors = { ...prev, ...loadedColors };
+        if (JSON.stringify(prev) !== JSON.stringify(newColors)) {
+          return newColors;
+        }
+        return prev;
+      });
     }
   }, [settings?.customThemes]);
 

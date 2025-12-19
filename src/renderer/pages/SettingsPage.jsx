@@ -363,8 +363,8 @@ const SettingsPage = () => {
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label>Reset "What's New"</Label>
-              <div className="text-sm text-muted-foreground">Force the "What's New" modal to appear on next restart.</div>
+              <Label>Reset &quot;What&apos;s New&quot;</Label>
+              <div className="text-sm text-muted-foreground">Force the &quot;What&apos;s New&quot; modal to appear on next restart.</div>
             </div>
             <Button
               variant="outline"

@@ -73,7 +73,7 @@ SidebarNavButton.propTypes = {
   t: PropTypes.func.isRequired
 };
 
-const AppShell = () => {
+const AppShell = ({ children }) => {
   const [sidebarWidth, setSidebarWidth] = useState(250);
   const [resizingTarget, setResizingTarget] = useState(null); // 'sidebar' | 'split' | null
   const [splitRatio, setSplitRatio] = useState(0.5);
@@ -320,6 +320,7 @@ const AppShell = () => {
                       id="settings"
                       addTab={addTab}
                       data-tour="settings-link"
+                      data-testid="nav-settings"
                       t={t}
                     />
                     <SidebarNavButton
