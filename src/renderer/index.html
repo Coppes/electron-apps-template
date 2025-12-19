@@ -39,7 +39,12 @@
           import: () => Promise.resolve(),
           deleteBackup: () => Promise.resolve(),
           exportPreset: () => Promise.resolve(),
+          exportPreset: () => Promise.resolve(),
           onConnectivityChanged: () => () => { },
+          getConnectivityStatus: () => Promise.resolve('online'),
+        },
+        deepLink: {
+          onReceived: () => () => { },
         },
         dialog: {
           showSaveDialog: () => Promise.resolve({ filePath: 'mock/path', canceled: false }),
@@ -57,6 +62,11 @@
         file: { onFileChanged: () => () => { } },
         i18n: {
           getLanguage: () => Promise.resolve({ success: true, language: 'en' }),
+        },
+        ipc: {
+          onReceived: () => () => { },
+          send: () => { },
+          invoke: () => Promise.resolve(),
         },
         log: {
           error: () => { },
