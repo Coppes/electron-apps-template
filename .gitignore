@@ -38,3 +38,6 @@ Thumbs.db
 
 *storybook.log
 storybook-static
+
+# Memory Test Output
+test/memory/out/
