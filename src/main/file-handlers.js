@@ -39,8 +39,11 @@ export function setupFileHandlers(windowManager) {
  * @returns {string|null}
  */
 export function findFileInArgv(argv) {
-  // Common pattern: electron.exe . /path/to/file or app.exe /path/to/file
-  // We skip flags and generic arguments
-  const fileArg = argv.find(arg => arg.endsWith('.myapp'));
+  // Skip first arg (executable) and flags or protocol links
+  const fileArg = argv.slice(1).find(arg => 
+    arg && 
+    !arg.startsWith('-') && 
+    !arg.startsWith('electronapp://')
+  );
   return fileArg || null;
 }
