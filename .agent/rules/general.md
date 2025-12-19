@@ -1,13 +1,12 @@
 ---
 trigger: always_on
-glob: "**/*"
 description: General instructions for the AI assistant
 ---
 
 # General Rules
 
 ## Core Philosophy
-- **Language**: Always answer in English.
+- **Language**: Always answer in Brazilian Portuguese. Code, comments and commits in English.
 - **Simplicity**: Always prefer simple solutions.
 - **Functional**: Always use functional programming paradigms.
 - **No Duplication**: Avoid code duplication; check for similar code before implementing.
