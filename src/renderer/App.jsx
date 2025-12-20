@@ -11,8 +11,6 @@ import ConnectivityStatus from './components/shared/ConnectivityStatus';
 import CommandPalette from './components/CommandPalette';
 import TabContent from './components/TabContent';
 import Onboarding from './components/Onboarding';
-import { TourOverlay } from './components/TourOverlay';
-
 import i18n from './i18n';
 
 import { useDataMenu } from './hooks/useDataMenu';
@@ -45,8 +43,8 @@ function App() {
       const segments = route.split('/').filter(Boolean); // ['popout', 'type', 'id']
 
       if (segments.length >= 2) {
-        let type = segments[1];
-        let id = segments[2] || type;
+        const type = segments[1];
+        const id = segments[2] || type;
 
         resetTabs([{ id, type, title: id, data: {} }]);
       }

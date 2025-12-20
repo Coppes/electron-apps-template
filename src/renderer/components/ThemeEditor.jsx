@@ -28,6 +28,7 @@ const ThemeEditor = () => {
         // Convert stored HSL back to Hex for the inputs
         loadedColors[key] = val.startsWith('#') ? val : hslToHex(val);
       });
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setColors(prev => {
         const newColors = { ...prev, ...loadedColors };
         if (JSON.stringify(prev) !== JSON.stringify(newColors)) {

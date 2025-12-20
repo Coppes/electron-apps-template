@@ -58,7 +58,10 @@ export function hslToHex(hsl) {
   // Simple check if it's already hex
   if (hsl.startsWith('#')) return hsl;
 
-  let [h, s, l] = hsl.split(' ').map(v => parseFloat(v));
+  const parts = hsl.split(' ').map(v => parseFloat(v));
+  const h = parts[0];
+  let s = parts[1];
+  let l = parts[2];
 
   // Normalization
   // s and l are percentages in css var 

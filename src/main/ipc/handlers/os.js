@@ -1,4 +1,3 @@
-import { ipcMain } from 'electron';
 import { setDockBadge, setDockMenu } from '../../dock.js';
 import { trayManager } from '../../tray.js';
 
