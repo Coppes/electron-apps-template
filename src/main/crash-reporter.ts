@@ -222,12 +222,17 @@ export function reportError(error, context = {}) {
     Sentry.withScope(scope => {
       // Add custom context
       Object.entries(context).forEach(([key, value]) => {
-        scope.setContext(key, value);
+        if (value && typeof value === 'object') {
+          scope.setContext(key, value as Record<string, any>);
+        } else {
+          // Primitive values can't be set as context directly in some Sentry SDK versions, but let's try or wrap
+          scope.setContext(key, { value });
+        }
       });
 
       // Add tags
-      if (context.type) {
-        scope.setTag('error.type', context.type);
+      if (typeof context === 'object' && context !== null && 'type' in context) {
+        scope.setTag('error.type', (context as any).type);
       }
 
       // Capture exception

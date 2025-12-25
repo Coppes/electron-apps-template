@@ -10,10 +10,7 @@ import { Transform } from 'stream';
  * JSON Handler
  */
 export const jsonHandler = {
-  /**
-   * Export data to JSON string
-   */
-  async export(data, options = {}) {
+  async export(data: any, options: any = {}): Promise<string> {
     const { pretty = true } = options;
     return JSON.stringify(data, null, pretty ? 2 : 0);
   },
@@ -21,12 +18,12 @@ export const jsonHandler = {
   /**
    * Export data to stream (for large datasets)
    */
-  async exportStream(data, options = {}, writeStream) {
+  async exportStream(data: any, options: any = {}, writeStream: any): Promise<void> {
     const { pretty = true } = options;
     const jsonString = JSON.stringify(data, null, pretty ? 2 : 0);
-    
-    return new Promise((resolve, reject) => {
-      writeStream.write(jsonString, (error) => {
+
+    return new Promise<void>((resolve, reject) => {
+      writeStream.write(jsonString, (error: Error | null | undefined) => {
         if (error) reject(error);
         else {
           writeStream.end();
@@ -52,7 +49,7 @@ export const jsonHandler = {
    */
   async importStream(readStream) {
     const chunks = [];
-    
+
     const collectTransform = new Transform({
       transform(chunk, encoding, callback) {
         chunks.push(chunk);
@@ -61,7 +58,7 @@ export const jsonHandler = {
     });
 
     await pipeline(readStream, collectTransform);
-    
+
     const content = Buffer.concat(chunks).toString('utf8');
     return JSON.parse(content);
   },

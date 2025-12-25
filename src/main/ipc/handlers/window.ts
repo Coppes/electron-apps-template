@@ -4,6 +4,8 @@ import { createErrorResponse, createSuccessResponse } from '../bridge.ts';
 import { IPC_CHANNELS } from '../../../common/constants.ts';
 import { setProgress, clearProgress } from '../../progress.ts';
 
+import { WindowManager } from '../../window-manager.ts';
+
 /**
  * Window management IPC handlers
  */
@@ -12,14 +14,14 @@ import { setProgress, clearProgress } from '../../progress.ts';
  * Create window handler
  * @param {WindowManager} windowManager - Window manager instance
  */
-export function createWindowHandler(windowManager) {
-  return async (event, { type, options = {} }) => {
+export function createWindowHandler(windowManager: WindowManager) {
+  return async (event: Electron.IpcMainInvokeEvent, { type, options = {} }: { type: string; options?: any }) => {
     try {
       const window = windowManager.createWindow(type, options);
       return createSuccessResponse({
         windowId: window.id,
       });
-    } catch (error) {
+    } catch (error: any) {
       logger.error('Failed to create window', error);
       return createErrorResponse(error.message, 'WINDOW_CREATE_FAILED');
     }
@@ -30,8 +32,8 @@ export function createWindowHandler(windowManager) {
  * Close window handler
  * @param {WindowManager} windowManager - Window manager instance
  */
-export function closeWindowHandler(windowManager) {
-  return async (event, { windowId } = {}) => {
+export function closeWindowHandler(windowManager: WindowManager) {
+  return async (event: Electron.IpcMainInvokeEvent, { windowId }: { windowId?: number } = {}) => {
     try {
       let id = windowId;
       if (!id) {
@@ -45,7 +47,7 @@ export function closeWindowHandler(windowManager) {
 
       const success = windowManager.closeWindow(id);
       return createSuccessResponse({ closed: success });
-    } catch (error) {
+    } catch (error: any) {
       logger.error('Failed to close window', error);
       return createErrorResponse(error.message, 'WINDOW_CLOSE_FAILED');
     }
@@ -56,7 +58,7 @@ export function closeWindowHandler(windowManager) {
  * Minimize window handler
  */
 export function minimizeWindowHandler() {
-  return async (event, { windowId } = {}) => {
+  return async (event: Electron.IpcMainInvokeEvent, { windowId }: { windowId?: number } = {}) => {
     try {
       const window = windowId
         ? BrowserWindow.fromId(windowId)
@@ -68,7 +70,7 @@ export function minimizeWindowHandler() {
       }
 
       return createErrorResponse('Window not found', 'WINDOW_NOT_FOUND');
-    } catch (error) {
+    } catch (error: any) {
       logger.error('Failed to minimize window', error);
       return createErrorResponse(error.message, 'WINDOW_MINIMIZE_FAILED');
     }
@@ -79,7 +81,7 @@ export function minimizeWindowHandler() {
  * Maximize/unmaximize window handler
  */
 export function maximizeWindowHandler() {
-  return async (event, { windowId } = {}) => {
+  return async (event: Electron.IpcMainInvokeEvent, { windowId }: { windowId?: number } = {}) => {
     try {
       const window = windowId
         ? BrowserWindow.fromId(windowId)
@@ -95,7 +97,7 @@ export function maximizeWindowHandler() {
       }
 
       return createErrorResponse('Window not found', 'WINDOW_NOT_FOUND');
-    } catch (error) {
+    } catch (error: any) {
       logger.error('Failed to maximize window', error);
       return createErrorResponse(error.message, 'WINDOW_MAXIMIZE_FAILED');
     }
@@ -106,8 +108,8 @@ export function maximizeWindowHandler() {
  * Get window state handler
  * @param {WindowManager} windowManager - Window manager instance
  */
-export function getWindowStateHandler(windowManager) {
-  return async (event, { windowId } = {}) => {
+export function getWindowStateHandler(windowManager: WindowManager) {
+  return async (event: Electron.IpcMainInvokeEvent, { windowId }: { windowId?: number } = {}) => {
     try {
       const window = windowId
         ? windowManager.getWindow(windowId)
@@ -178,11 +180,12 @@ export function createWindowHandlers(windowManager) {
  * Set progress handler
  */
 function progressSetHandler() {
-  return async (event, { value, windowId, state }) => {
+  return async (event: Electron.IpcMainInvokeEvent, { value, windowId, state }: any) => {
     try {
-      const success = setProgress(value, { windowId, state });
+      // Cast to any to satisfy explicit typing in progress.set
+      const success = setProgress(value, { windowId, state } as any);
       return createSuccessResponse({ success });
-    } catch (error) {
+    } catch (error: any) {
       logger.error('Failed to set progress', error);
       return createErrorResponse(error.message, 'PROGRESS_SET_FAILED');
     }
@@ -193,11 +196,11 @@ function progressSetHandler() {
  * Clear progress handler
  */
 function progressClearHandler() {
-  return async (event, { windowId } = {}) => {
+  return async (event: Electron.IpcMainInvokeEvent, { windowId }: { windowId?: number } = {}) => {
     try {
       const success = clearProgress(windowId);
       return createSuccessResponse({ success });
-    } catch (error) {
+    } catch (error: any) {
       logger.error('Failed to clear progress', error);
       return createErrorResponse(error.message, 'PROGRESS_CLEAR_FAILED');
     }

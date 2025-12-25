@@ -3,7 +3,12 @@ import { forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import { cn } from '../../utils/cn';
 
-const Separator = forwardRef(
+export interface SeparatorProps extends React.HTMLAttributes<HTMLDivElement> {
+  orientation?: 'horizontal' | 'vertical';
+  decorative?: boolean;
+}
+
+const Separator = forwardRef<HTMLDivElement, SeparatorProps>(
   ({ className, orientation = 'horizontal', decorative = true, ...props }, ref) => {
     return (
       <div

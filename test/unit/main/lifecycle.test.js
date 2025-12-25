@@ -1,15 +1,15 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { app } from 'electron';
 import fs from 'fs/promises';
-import { lifecycleManager } from '../../../src/main/lifecycle.js';
-import { windowManager } from '../../../src/main/window-manager.js';
-import { logger } from '../../../src/main/logger.js';
-import { splashManager } from '../../../src/main/splash.js';
-import connectivityManager from '../../../src/main/data/connectivity-manager.js';
-import syncQueue from '../../../src/main/data/sync-queue.js';
-import { trayManager } from '../../../src/main/tray.js';
-import fileWatcher from '../../../src/main/data/file-watcher.js';
-import { notificationManager } from '../../../src/main/notifications.js';
+import { lifecycleManager } from '../../../src/main/lifecycle.ts';
+import { windowManager } from '../../../src/main/window-manager.ts';
+import { logger } from '../../../src/main/logger.ts';
+import { splashManager } from '../../../src/main/splash.ts';
+import connectivityManager from '../../../src/main/data/connectivity-manager.ts';
+import syncQueue from '../../../src/main/data/sync-queue.ts';
+import { trayManager } from '../../../src/main/tray.ts';
+import fileWatcher from '../../../src/main/data/file-watcher.ts';
+import { notificationManager } from '../../../src/main/notifications.ts';
 
 const fsMocks = vi.hoisted(() => ({
   access: vi.fn(),
@@ -27,19 +27,26 @@ vi.mock('fs/promises', () => ({
 vi.mock('electron', () => {
   return {
     app: {
+      getName: vi.fn(() => 'Test App'),
       getVersion: vi.fn(() => '1.0.0'),
       getPath: vi.fn(() => '/mock/user/data'),
       requestSingleInstanceLock: vi.fn(),
       on: vi.fn(),
       setAsDefaultProtocolClient: vi.fn(),
       isDefaultProtocolClient: vi.fn(),
-      quit: vi.fn()
+      quit: vi.fn(),
+      getAppPath: vi.fn(() => '/app'),
+      isPackaged: false
     },
     BrowserWindow: {
       fromWebContents: vi.fn()
+    },
+    nativeImage: {
+      createFromPath: vi.fn(() => ({}))
     }
   };
 });
+
 vi.mock('electron-log', () => ({
   default: {
     transports: {
@@ -72,7 +79,8 @@ vi.mock('electron-store', () => {
     }
   };
 });
-vi.mock('../../../src/main/window-manager.js', () => ({
+
+vi.mock('../../../src/main/window-manager.ts', () => ({
   windowManager: {
     createWindow: vi.fn(),
     getWindowByType: vi.fn(),
@@ -81,23 +89,84 @@ vi.mock('../../../src/main/window-manager.js', () => ({
     closeAllWindows: vi.fn()
   }
 }));
-vi.mock('../../../src/main/notifications.js', () => ({
+
+vi.mock('../../../src/main/notifications.ts', () => ({
   notificationManager: {
     showNotification: vi.fn(() => Promise.resolve())
   }
 }));
-vi.mock('../../../src/main/logger.js');
-vi.mock('../../../src/main/splash.js');
-vi.mock('../../../src/main/menu.js');
-vi.mock('../../../src/main/ipc/bridge.js');
-vi.mock('../../../src/main/ipc/handlers/log.js');
-vi.mock('../../../src/main/data/connectivity-manager.js');
-vi.mock('../../../src/main/data/sync-queue.js');
-vi.mock('../../../src/main/tray.js');
-vi.mock('../../../src/main/shortcuts.js');
-vi.mock('../../../src/main/data/file-watcher.js');
-// vi.mock('../../../src/main/notifications.js'); // Duplicate
-vi.mock('../../../src/main/config.js', () => ({
+
+vi.mock('../../../src/main/logger.ts', () => ({
+  logger: {
+    info: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn()
+  }
+}));
+
+vi.mock('../../../src/main/splash.ts', () => ({
+  splashManager: {
+    show: vi.fn(),
+    fadeOut: vi.fn(),
+    destroy: vi.fn()
+  }
+}));
+
+vi.mock('../../../src/main/menu.ts', () => ({
+  menuManager: {
+    createApplicationMenu: vi.fn()
+  },
+  setupMenu: vi.fn()
+}));
+
+vi.mock('../../../src/main/ipc/bridge.ts', () => ({
+  initializeIpcBridge: vi.fn(),
+  registerHandlers: vi.fn()
+}));
+
+vi.mock('../../../src/main/ipc/handlers/log.ts', () => ({
+  registerLogHandlers: vi.fn()
+}));
+
+vi.mock('../../../src/main/data/connectivity-manager.ts', () => ({
+  default: {
+    initialize: vi.fn(),
+    cleanup: vi.fn(),
+    on: vi.fn(),
+    off: vi.fn()
+  }
+}));
+
+vi.mock('../../../src/main/data/sync-queue.ts', () => ({
+  default: {
+    initialize: vi.fn()
+  }
+}));
+
+vi.mock('../../../src/main/tray.ts', () => ({
+  trayManager: {
+    initialize: vi.fn(),
+    destroy: vi.fn()
+  }
+}));
+
+vi.mock('../../../src/main/shortcuts.ts', () => ({
+  shortcutManager: {
+    registerAll: vi.fn(),
+    unregisterAll: vi.fn(),
+    cleanup: vi.fn()
+  }
+}));
+
+vi.mock('../../../src/main/data/file-watcher.ts', () => ({
+  default: {
+    initialize: vi.fn(),
+    cleanup: vi.fn()
+  }
+}));
+
+vi.mock('../../../src/main/config.ts', () => ({
   config: {
     env: 'production',
     singleInstance: { enabled: true },

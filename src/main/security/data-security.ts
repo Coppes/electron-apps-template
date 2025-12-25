@@ -7,7 +7,7 @@ import path from 'path';
 import { app } from 'electron';
 
 // Security configuration with platform-specific adjustments
-const FORBIDDEN_PATHS = process.platform === 'win32' 
+const FORBIDDEN_PATHS = process.platform === 'win32'
   ? ['C:\\Windows\\System32', 'C:\\Windows\\SysWOW64', 'C:\\Program Files']
   : ['/etc', '/sys', '/proc', '/dev', '/boot', '/root'];
 
@@ -27,13 +27,32 @@ const ALLOWED_EXTENSIONS = [
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
 const MAX_PATH_LENGTH = 260; // Windows MAX_PATH limit
 
+export interface SecurityValidationOptions {
+  allowedExtensions?: string[];
+  maxSize?: number;
+  allowAbsolute?: boolean;
+  allowRelative?: boolean;
+  mustBeInUserData?: boolean;
+}
+
+export type SecurityValidationResult =
+  | { valid: false; error: string; code: string; allowedExtensions?: string[] }
+  | { valid: true; resolvedPath: string; normalizedPath: string; extension: string; maxSize: number };
+
+export interface ImportSchema {
+  maxRecords?: number;
+  maxStringLength?: number;
+}
+
+export interface RateLimiterOptions {
+  maxRequests?: number;
+  windowMs?: number;
+}
+
 /**
  * Validate file path for security vulnerabilities
- * @param {string} filePath - Path to validate
- * @param {object} options - Validation options
- * @returns {object} Validation result
  */
-export function validateFilePath(filePath, options = {}) {
+export function validateFilePath(filePath: string, options: SecurityValidationOptions = {}): SecurityValidationResult {
   const {
     allowedExtensions = ALLOWED_EXTENSIONS,
     maxSize = MAX_FILE_SIZE,
@@ -52,7 +71,7 @@ export function validateFilePath(filePath, options = {}) {
 
   // Normalize path
   const normalizedPath = path.normalize(filePath);
-  
+
   // Check for path traversal
   if (normalizedPath.includes('..')) {
     return {
@@ -93,10 +112,10 @@ export function validateFilePath(filePath, options = {}) {
   }
 
   // Check against forbidden system paths
-  const isForbidden = FORBIDDEN_PATHS.some(forbiddenPath => 
+  const isForbidden = FORBIDDEN_PATHS.some(forbiddenPath =>
     resolvedPath.toLowerCase().startsWith(forbiddenPath.toLowerCase())
   );
-  
+
   if (isForbidden) {
     return {
       valid: false,
@@ -147,13 +166,11 @@ export function validateFilePath(filePath, options = {}) {
 
 /**
  * Sanitize filename for safe storage
- * @param {string} filename - Filename to sanitize
- * @returns {string} Sanitized filename
  */
-export function sanitizeFilename(filename) {
+export function sanitizeFilename(filename: string): string {
   // Remove path components
   const basename = path.basename(filename);
-  
+
   // Remove dangerous characters (control characters hex 00-1F and special chars)
   // eslint-disable-next-line no-control-regex
   const sanitized = basename.replace(/[\x00-\x1f<>:"|?*]/g, '')
@@ -172,10 +189,8 @@ export function sanitizeFilename(filename) {
 
 /**
  * Sanitize HTML/Markdown content to prevent XSS
- * @param {string} content - Content to sanitize
- * @returns {string} Sanitized content
  */
-export function sanitizeContent(content) {
+export function sanitizeContent(content: any): string {
   if (typeof content !== 'string') {
     return '';
   }
@@ -193,11 +208,8 @@ export function sanitizeContent(content) {
 
 /**
  * Validate imported data structure
- * @param {any} data - Data to validate
- * @param {object} schema - Expected schema
- * @returns {object} Validation result
  */
-export function validateImportData(data, schema = {}) {
+export function validateImportData(data: any, schema: ImportSchema = {}): { valid: boolean; error?: string; code?: string } {
   const { maxRecords = 10000, maxStringLength = 1000000 } = schema;
 
   // Check if data is array
@@ -240,7 +252,11 @@ export function validateImportData(data, schema = {}) {
  * Rate limiter for file operations
  */
 export class RateLimiter {
-  constructor(options = {}) {
+  private maxRequests: number;
+  private windowMs: number;
+  private requests: Map<string, number[]>;
+
+  constructor(options: RateLimiterOptions = {}) {
     this.maxRequests = options.maxRequests || 10;
     this.windowMs = options.windowMs || 1000; // 1 second
     this.requests = new Map(); // key -> array of timestamps
@@ -248,15 +264,13 @@ export class RateLimiter {
 
   /**
    * Check if request is allowed
-   * @param {string} key - Unique identifier for rate limit (e.g., operation type)
-   * @returns {boolean} True if allowed
    */
-  isAllowed(key) {
+  isAllowed(key: string): boolean {
     const now = Date.now();
     const requests = this.requests.get(key) || [];
 
     // Filter out old requests outside the window
-    const validRequests = requests.filter(timestamp => 
+    const validRequests = requests.filter(timestamp =>
       now - timestamp < this.windowMs
     );
 
@@ -274,13 +288,11 @@ export class RateLimiter {
 
   /**
    * Get remaining requests for a key
-   * @param {string} key - Unique identifier
-   * @returns {number} Remaining requests
    */
-  getRemaining(key) {
+  getRemaining(key: string): number {
     const now = Date.now();
     const requests = this.requests.get(key) || [];
-    const validRequests = requests.filter(timestamp => 
+    const validRequests = requests.filter(timestamp =>
       now - timestamp < this.windowMs
     );
     return Math.max(0, this.maxRequests - validRequests.length);
@@ -288,16 +300,15 @@ export class RateLimiter {
 
   /**
    * Reset rate limit for a key
-   * @param {string} key - Unique identifier
    */
-  reset(key) {
+  reset(key: string): void {
     this.requests.delete(key);
   }
 
   /**
    * Clear all rate limits
    */
-  clearAll() {
+  clearAll(): void {
     this.requests.clear();
   }
 }

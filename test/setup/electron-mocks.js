@@ -99,6 +99,8 @@ export const mockApp = {
   off: vi.fn(),
   requestSingleInstanceLock: vi.fn(() => true),
   setAppUserModelId: vi.fn(),
+  setAsDefaultProtocolClient: vi.fn(),
+  isDefaultProtocolClient: vi.fn(() => true),
 };
 
 // Mock dialog
@@ -160,6 +162,24 @@ export const mockMenu = {
   buildFromTemplate: vi.fn(() => ({})),
   setApplicationMenu: vi.fn(),
   getApplicationMenu: vi.fn(() => null),
+  append: vi.fn(),
+  popup: vi.fn(),
+};
+
+// Mock MenuItem
+export class MenuItem {
+  constructor(options) {
+    this.options = options;
+  }
+}
+
+// Mock globalShortcut
+export const mockGlobalShortcut = {
+  register: vi.fn(),
+  registerAll: vi.fn(),
+  isRegistered: vi.fn(),
+  unregister: vi.fn(),
+  unregisterAll: vi.fn(),
 };
 
 // Mock Tray
@@ -170,6 +190,7 @@ export class Tray {
     this.setContextMenu = vi.fn();
     this.destroy = vi.fn();
     this.on = vi.fn();
+    this.setImage = vi.fn();
   }
 }
 
@@ -231,8 +252,9 @@ export const mockElectron = {
   session: mockSession,
   shell: mockShell,
   Menu: mockMenu,
+  MenuItem,
+  globalShortcut: mockGlobalShortcut,
   Tray,
-  Notification,
   Notification,
   screen: mockScreen,
   safeStorage: mockSafeStorage,

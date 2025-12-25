@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { BrowserWindow } from 'electron';
-import { logger } from '../../../../../src/main/logger.js';
-import { IPC_CHANNELS } from '../../../../../src/common/constants.js';
+import { logger } from '../../../../../src/main/logger.ts';
+import { IPC_CHANNELS } from '../../../../../src/common/constants.ts';
 
 // Mock electron
 vi.mock('electron', () => ({
@@ -11,10 +11,15 @@ vi.mock('electron', () => ({
   BrowserWindow: {
     fromWebContents: vi.fn(),
   },
+  app: {
+    getPath: vi.fn(() => '/logs'),
+    getName: vi.fn(() => 'Test App'),
+    getVersion: vi.fn(() => '1.0.0')
+  }
 }));
 
 // Mock logger
-vi.mock('../../../../../src/main/logger.js', () => ({
+vi.mock('../../../../../src/main/logger.ts', () => ({
   logger: {
     debug: vi.fn(),
     info: vi.fn(),
@@ -23,16 +28,7 @@ vi.mock('../../../../../src/main/logger.js', () => ({
   },
 }));
 
-// Import the module under test
-// We need to use dynamic import because it has side effects (setInterval) or depends on mocks
-// But for now we'll import it directly, assuming mocks are hoisted.
-// Actually, since it has top-level execution (setInterval), it's better to import it.
-// However, the module exports 'registerLogHandlers' but doesn't export the handlers directly.
-// We can test via the registered handlers or inspect the module if we export them.
-// The file `src/main/ipc/handlers/log.js` exports `registerLogHandlers` but not the handle functions (they are local).
-// BUT, `ipcMain.handle` is called with them. We can capture them from the mock.
-
-import { registerLogHandlers } from '../../../../../src/main/ipc/handlers/log.js';
+import { registerLogHandlers } from '../../../../../src/main/ipc/handlers/log.ts';
 
 describe('Log IPC Handlers', () => {
   let handlers = {};
@@ -40,15 +36,6 @@ describe('Log IPC Handlers', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
 
-    // Capture handlers when registered
-    // ipcMain is already imported and mocked at the top level if we change the import
-    // But we need to access the mock instance.
-    // Let's rely on the mock hoisted behavior.
-
-    // const electron = require('electron'); // This works with vi.mock usually
-    // IF the failing line is here, maybe require('electron') is returning undefined?
-
-    // Let's try consistent import
     const electron = await import('electron');
     electron.ipcMain.handle.mockImplementation((channel, handler) => {
       handlers[channel] = handler;
@@ -133,10 +120,6 @@ describe('Log IPC Handlers', () => {
       for (let i = 0; i < 100; i++) {
         await invokeHandler(IPC_CHANNELS.LOG_INFO, `msg ${i}`, {}, winId);
       }
-      // logger.info is mocked, we can check calls but better check result of last call
-      // or check that logger was called 100 times *for this window*?
-      // Since logger mock is shared, previous tests called it. 
-      // We'll rely on result.success
 
       // Send 101st log (blocked)
       const result = await invokeHandler(IPC_CHANNELS.LOG_INFO, 'msg 101', {}, winId);
@@ -144,8 +127,6 @@ describe('Log IPC Handlers', () => {
       expect(result.success).toBe(false);
       expect(result.error).toBe('Rate limit exceeded');
     });
-
-    // Reset test removed as it requires mocking module-level timer which is hard here.
 
     it('should track limits separately per window', async () => {
       const winA = 30;

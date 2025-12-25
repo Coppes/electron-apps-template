@@ -1,5 +1,6 @@
-import { ipcMain } from 'electron';
+import { ipcMain, IpcMainInvokeEvent } from 'electron';
 import { logger } from '../logger.ts';
+import { IPCSchema, IPCResponse, ValidationError } from '../../common/types.ts';
 
 /**
  * IPC Bridge - Validates and routes IPC calls
@@ -7,12 +8,12 @@ import { logger } from '../logger.ts';
 
 /**
  * Validate input against schema
- * @param {*} input - Input value to validate
- * @param {Object} schema - Schema definition
+ * @param {any} input - Input value to validate
+ * @param {Record<string, any>} schema - Schema definition
  * @returns {Object} Validation result {valid: boolean, errors: Array}
  */
-function validateInput(input, schema) {
-  const errors = [];
+function validateInput(input: any, schema: Record<string, any>): { valid: boolean; errors: ValidationError[] } {
+  const errors: ValidationError[] = [];
 
   // If no schema, accept any input
   if (!schema || Object.keys(schema).length === 0) {
@@ -22,7 +23,7 @@ function validateInput(input, schema) {
   // Check required fields
   for (const [field, rules] of Object.entries(schema)) {
     const value = input?.[field];
-    
+
     if (rules.required && (value === undefined || value === null)) {
       errors.push({
         field,
@@ -60,12 +61,12 @@ function validateInput(input, schema) {
 
 /**
  * Validate output against schema
- * @param {*} output - Output value to validate
- * @param {Object} schema - Schema definition
+ * @param {any} output - Output value to validate
+ * @param {Record<string, any>} schema - Schema definition
  * @returns {Object} Validation result {valid: boolean, errors: Array}
  */
-function validateOutput(output, schema) {
-  const errors = [];
+function validateOutput(output: any, schema: Record<string, any>): { valid: boolean; errors: ValidationError[] } {
+  const errors: ValidationError[] = [];
 
   if (!schema || Object.keys(schema).length === 0) {
     return { valid: true, errors: [] };
@@ -73,7 +74,7 @@ function validateOutput(output, schema) {
 
   for (const [field, rules] of Object.entries(schema)) {
     const value = output?.[field];
-    
+
     if (rules.required && (value === undefined || value === null)) {
       errors.push({
         field,
@@ -93,13 +94,13 @@ function validateOutput(output, schema) {
 /**
  * Register IPC handler with validation
  * @param {string} channel - IPC channel name
- * @param {Object} schema - Channel schema
+ * @param {IPCSchema} schema - Channel schema
  * @param {Function} handler - Handler function
  */
-export function registerHandler(channel, schema, handler) {
+export function registerHandler(channel: string, schema: IPCSchema, handler: (event: IpcMainInvokeEvent, ...args: any[]) => Promise<any>) {
   ipcMain.handle(channel, async (event, ...args) => {
     const startTime = Date.now();
-    
+
     try {
       // Parse input (first arg is typically the input object)
       const input = args[0];
@@ -144,7 +145,7 @@ export function registerHandler(channel, schema, handler) {
       }
 
       return result;
-    } catch (error) {
+    } catch (error: any) {
       logger.error(`IPC handler error for ${channel}`, error);
       return {
         success: false,
@@ -160,15 +161,15 @@ export function registerHandler(channel, schema, handler) {
 
 /**
  * Register multiple handlers from schema
- * @param {Object} schema - Schema with handlers
- * @param {Object} handlers - Handler functions keyed by channel
+ * @param {Record<string, IPCSchema>} schema - Schema with handlers
+ * @param {Record<string, Function>} handlers - Handler functions keyed by channel
  */
-export function registerHandlers(schema, handlers) {
+export function registerHandlers(schema: Record<string, IPCSchema>, handlers: Record<string, any>) {
   let registered = 0;
 
   for (const [channel, channelSchema] of Object.entries(schema)) {
     const handler = handlers[channel];
-    
+
     if (!handler) {
       logger.warn(`No handler provided for channel: ${channel}`);
       continue;
@@ -185,7 +186,7 @@ export function registerHandlers(schema, handlers) {
  * Remove IPC handler
  * @param {string} channel - Channel name
  */
-export function removeHandler(channel) {
+export function removeHandler(channel: string) {
   ipcMain.removeHandler(channel);
   logger.debug(`Removed IPC handler: ${channel}`);
 }
@@ -203,9 +204,9 @@ export function removeAllHandlers() {
  * Create standard error response
  * @param {string} message - Error message
  * @param {string} [code] - Error code
- * @returns {Object} Error response
+ * @returns {IPCResponse} Error response
  */
-export function createErrorResponse(message, code = 'ERROR') {
+export function createErrorResponse(message: string, code = 'ERROR'): IPCResponse {
   return {
     success: false,
     error: message,
@@ -215,12 +216,12 @@ export function createErrorResponse(message, code = 'ERROR') {
 
 /**
  * Create standard success response
- * @param {Object} data - Response data
- * @returns {Object} Success response
+ * @param {T} data - Response data
+ * @returns {IPCResponse<T>} Success response
  */
-export function createSuccessResponse(data = {}) {
+export function createSuccessResponse<T>(data: T = {} as T): IPCResponse<T> {
   return {
     success: true,
-    ...data,
-  };
+    data,
+  }; // Explicitly construct to match IPCResponse interface
 }

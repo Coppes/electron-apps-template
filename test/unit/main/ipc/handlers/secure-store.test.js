@@ -5,7 +5,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Mock encrypted storage module BEFORE imports
-vi.mock('../../../../../src/main/security/encrypted-storage.js', () => ({
+vi.mock('../../../../../src/main/security/encrypted-storage.ts', () => ({
   encryptAndStore: vi.fn(),
   retrieveAndDecrypt: vi.fn(),
   deleteEncrypted: vi.fn(),
@@ -13,7 +13,7 @@ vi.mock('../../../../../src/main/security/encrypted-storage.js', () => ({
   isEncryptionAvailable: vi.fn(() => true),
 }));
 
-vi.mock('../../../../../src/main/logger.js', () => ({
+vi.mock('../../../../../src/main/logger.ts', () => ({
   logger: {
     info: vi.fn(),
     debug: vi.fn(),
@@ -29,8 +29,8 @@ import {
   handleSecureStoreDelete,
   handleSecureStoreHas,
   handleSecureStoreIsAvailable,
-} from '../../../../../src/main/ipc/handlers/secure-store.js';
-import * as encryptedStorage from '../../../../../src/main/security/encrypted-storage.js';
+} from '../../../../../src/main/ipc/handlers/secure-store.ts';
+import * as encryptedStorage from '../../../../../src/main/security/encrypted-storage.ts';
 
 describe('Secure Store IPC Handlers', () => {
   const mockEvent = {};
@@ -43,7 +43,7 @@ describe('Secure Store IPC Handlers', () => {
   describe('handleSecureStoreSet', () => {
     it('should store encrypted value successfully', async () => {
       encryptedStorage.encryptAndStore.mockReturnValue({ success: true });
-      
+
       const result = await handleSecureStoreSet(mockEvent, {
         key: 'apiKey',
         value: 'secret123',
@@ -56,7 +56,7 @@ describe('Secure Store IPC Handlers', () => {
     it('should handle complex object values', async () => {
       const value = { username: 'user', password: 'pass' };
       encryptedStorage.encryptAndStore.mockReturnValue({ success: true });
-      
+
       const result = await handleSecureStoreSet(mockEvent, {
         key: 'credentials',
         value,
@@ -96,7 +96,7 @@ describe('Secure Store IPC Handlers', () => {
 
     it('should return error when encryption is unavailable', async () => {
       encryptedStorage.isEncryptionAvailable.mockReturnValue(false);
-      
+
       const result = await handleSecureStoreSet(mockEvent, {
         key: 'apiKey',
         value: 'secret',
@@ -110,7 +110,7 @@ describe('Secure Store IPC Handlers', () => {
       encryptedStorage.encryptAndStore.mockImplementation(() => {
         throw new Error('Encryption failed');
       });
-      
+
       const result = await handleSecureStoreSet(mockEvent, {
         key: 'apiKey',
         value: 'secret',
@@ -124,7 +124,7 @@ describe('Secure Store IPC Handlers', () => {
   describe('handleSecureStoreGet', () => {
     it('should retrieve encrypted value successfully', async () => {
       encryptedStorage.retrieveAndDecrypt.mockReturnValue('secret123');
-      
+
       const result = await handleSecureStoreGet(mockEvent, { key: 'apiKey' });
 
       expect(result).toBe('secret123');
@@ -133,7 +133,7 @@ describe('Secure Store IPC Handlers', () => {
 
     it('should return null for non-existent key', async () => {
       encryptedStorage.retrieveAndDecrypt.mockReturnValue(null);
-      
+
       const result = await handleSecureStoreGet(mockEvent, { key: 'nonexistent' });
 
       expect(result).toBeNull();
@@ -142,7 +142,7 @@ describe('Secure Store IPC Handlers', () => {
     it('should retrieve complex objects', async () => {
       const value = { username: 'user', password: 'pass' };
       encryptedStorage.retrieveAndDecrypt.mockReturnValue(value);
-      
+
       const result = await handleSecureStoreGet(mockEvent, { key: 'credentials' });
 
       expect(result).toEqual(value);
@@ -156,7 +156,7 @@ describe('Secure Store IPC Handlers', () => {
       encryptedStorage.retrieveAndDecrypt.mockImplementation(() => {
         throw new Error('Decryption failed');
       });
-      
+
       await expect(
         handleSecureStoreGet(mockEvent, { key: 'apiKey' })
       ).rejects.toThrow('Failed to retrieve encrypted value');
@@ -166,7 +166,7 @@ describe('Secure Store IPC Handlers', () => {
   describe('handleSecureStoreDelete', () => {
     it('should delete encrypted value successfully', async () => {
       encryptedStorage.deleteEncrypted.mockReturnValue({ success: true });
-      
+
       const result = await handleSecureStoreDelete(mockEvent, { key: 'apiKey' });
 
       expect(result).toEqual({ success: true });
@@ -175,7 +175,7 @@ describe('Secure Store IPC Handlers', () => {
 
     it('should be idempotent (succeed even if key does not exist)', async () => {
       encryptedStorage.deleteEncrypted.mockReturnValue({ success: true });
-      
+
       const result = await handleSecureStoreDelete(mockEvent, { key: 'nonexistent' });
 
       expect(result).toEqual({ success: true });
@@ -192,7 +192,7 @@ describe('Secure Store IPC Handlers', () => {
       encryptedStorage.deleteEncrypted.mockImplementation(() => {
         throw new Error('Delete failed');
       });
-      
+
       const result = await handleSecureStoreDelete(mockEvent, { key: 'apiKey' });
 
       expect(result.success).toBe(false);
@@ -203,7 +203,7 @@ describe('Secure Store IPC Handlers', () => {
   describe('handleSecureStoreHas', () => {
     it('should return true for existing key', async () => {
       encryptedStorage.hasEncrypted.mockReturnValue(true);
-      
+
       const result = await handleSecureStoreHas(mockEvent, { key: 'apiKey' });
 
       expect(result).toBe(true);
@@ -212,7 +212,7 @@ describe('Secure Store IPC Handlers', () => {
 
     it('should return false for non-existent key', async () => {
       encryptedStorage.hasEncrypted.mockReturnValue(false);
-      
+
       const result = await handleSecureStoreHas(mockEvent, { key: 'nonexistent' });
 
       expect(result).toBe(false);
@@ -228,7 +228,7 @@ describe('Secure Store IPC Handlers', () => {
       encryptedStorage.hasEncrypted.mockImplementation(() => {
         throw new Error('Check failed');
       });
-      
+
       const result = await handleSecureStoreHas(mockEvent, { key: 'apiKey' });
 
       expect(result).toBe(false);
@@ -238,7 +238,7 @@ describe('Secure Store IPC Handlers', () => {
   describe('handleSecureStoreIsAvailable', () => {
     it('should return true when encryption is available', async () => {
       encryptedStorage.isEncryptionAvailable.mockReturnValue(true);
-      
+
       const result = await handleSecureStoreIsAvailable(mockEvent, {});
 
       expect(result).toBe(true);
@@ -246,7 +246,7 @@ describe('Secure Store IPC Handlers', () => {
 
     it('should return false when encryption is unavailable', async () => {
       encryptedStorage.isEncryptionAvailable.mockReturnValue(false);
-      
+
       const result = await handleSecureStoreIsAvailable(mockEvent, {});
 
       expect(result).toBe(false);
@@ -256,7 +256,7 @@ describe('Secure Store IPC Handlers', () => {
       encryptedStorage.isEncryptionAvailable.mockImplementation(() => {
         throw new Error('Check failed');
       });
-      
+
       const result = await handleSecureStoreIsAvailable(mockEvent, {});
 
       expect(result).toBe(false);

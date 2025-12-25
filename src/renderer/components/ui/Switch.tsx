@@ -3,7 +3,12 @@ import { forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import { cn } from '../../utils/cn';
 
-const Switch = forwardRef(
+export interface SwitchProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'onChange'> {
+  checked?: boolean;
+  onCheckedChange?: (checked: boolean) => void;
+}
+
+const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
   ({ className, checked, onCheckedChange, disabled, ...props }, ref) => {
     return (
       <button

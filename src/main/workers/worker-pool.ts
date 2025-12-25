@@ -16,13 +16,19 @@ const __dirname = path.dirname(__filename);
  * Manages a pool of worker threads
  */
 export class WorkerPool {
-  constructor(workerPath, poolSize = 2) {
+  private workerPath: string;
+  private poolSize: number;
+  private workers: Worker[];
+  private availableWorkers: Worker[];
+  private taskQueue: any[];
+
+  constructor(workerPath: string, poolSize: number = 2) {
     this.workerPath = workerPath;
     this.poolSize = poolSize;
     this.workers = [];
     this.availableWorkers = [];
     this.taskQueue = [];
-    
+
     this.initialize();
   }
 
@@ -42,11 +48,11 @@ export class WorkerPool {
       worker.on('exit', (code) => {
         if (code !== 0) {
           logger.error(`Worker stopped with exit code ${code}`);
-          
+
           // Remove from pools
           this.workers = this.workers.filter(w => w !== worker);
           this.availableWorkers = this.availableWorkers.filter(w => w !== worker);
-          
+
           // Replace with new worker
           const newWorker = new Worker(this.workerPath);
           this.workers.push(newWorker);
@@ -80,7 +86,7 @@ export class WorkerPool {
    */
   runTask(task) {
     const worker = this.availableWorkers.shift();
-    
+
     if (!worker) {
       this.taskQueue.push(task);
       return;
@@ -109,10 +115,10 @@ export class WorkerPool {
     const cleanup = () => {
       worker.removeListener('message', messageHandler);
       worker.removeListener('error', errorHandler);
-      
+
       // Return worker to pool
       this.availableWorkers.push(worker);
-      
+
       // Process next queued task
       if (this.taskQueue.length > 0) {
         const nextTask = this.taskQueue.shift();
@@ -136,7 +142,7 @@ export class WorkerPool {
     this.workers = [];
     this.availableWorkers = [];
     this.taskQueue = [];
-    
+
     logger.info('Worker pool terminated');
   }
 
@@ -184,17 +190,17 @@ export function getCsvWorkerPool() {
  */
 export async function terminateAllPools() {
   const terminations = [];
-  
+
   if (zipWorkerPool) {
     terminations.push(zipWorkerPool.terminate());
     zipWorkerPool = null;
   }
-  
+
   if (csvWorkerPool) {
     terminations.push(csvWorkerPool.terminate());
     csvWorkerPool = null;
   }
-  
+
   await Promise.all(terminations);
 }
 

@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "composite": true,
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "bundler",
@@ -9,7 +8,9 @@
     "types": [
       "node",
       "vite/client"
-    ]
+    ],
+    "noEmit": true,
+    "allowImportingTsExtensions": true
   },
   "include": [
     "src/main",

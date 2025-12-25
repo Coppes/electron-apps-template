@@ -1,3 +1,4 @@
+import { BrowserWindow } from 'electron';
 import { windowManager } from './window-manager.ts';
 import { logger } from './logger.ts';
 
@@ -6,6 +7,8 @@ import { logger } from './logger.ts';
  * Handles creation, display, and cleanup of the splash screen
  */
 export class SplashManager {
+  private splashWindow: BrowserWindow | null;
+
   constructor() {
     this.splashWindow = null;
   }

@@ -1,11 +1,6 @@
-/**
- * Import/Export Manager
- * Handles data portability in multiple formats
- */
-
 import path from 'path';
 import fs from 'fs/promises';
-import { createReadStream, createWriteStream } from 'fs';
+import { createReadStream, createWriteStream, ReadStream, WriteStream } from 'fs';
 import { logger } from '../logger.ts';
 import jsonHandler from './format-handlers/json-handler.ts';
 import csvHandler from './format-handlers/csv-handler.ts';
@@ -14,11 +9,51 @@ import markdownHandler from './format-handlers/markdown-handler.ts';
 // File size thresholds
 const STREAMING_THRESHOLD = 10 * 1024 * 1024; // 10MB - use streaming for files larger than this
 
+export interface FormatHandler {
+  validate(data: any): { valid: boolean; error?: string };
+  export(data: any, options?: any): Promise<string | Buffer>;
+  exportStream?(data: any, options: any, writeStream: WriteStream): Promise<void>;
+  import(content: string, options?: any): Promise<any>;
+  importStream?(readStream: ReadStream, options: any): Promise<any>;
+}
+
+export interface ExportPreset {
+  (): Promise<any>;
+}
+
+export interface ProgressData {
+  phase: 'start' | 'exporting' | 'importing' | 'complete';
+  progress: number;
+  bytes?: number;
+  total?: number;
+}
+
+export interface ExportOptions {
+  format?: string;
+  onProgress?: (progress: ProgressData) => void;
+  [key: string]: any;
+}
+
+export interface ImportOptions {
+  format?: string;
+  onProgress?: (progress: ProgressData) => void;
+  [key: string]: any;
+}
+
+export interface ConversionOptions extends ImportOptions {
+  fromFormat?: string;
+  toFormat: string;
+}
+
 /**
  * ImportExportManager Class
  * Manages format handlers and data transformation
  */
 export class ImportExportManager {
+  private handlers: Map<string, FormatHandler>;
+  private presets: Map<string, ExportPreset>;
+  private maxFileSize: number;
+
   constructor() {
     this.handlers = new Map();
     this.presets = new Map();
@@ -27,21 +62,16 @@ export class ImportExportManager {
 
   /**
    * Register an export preset
-   * @param {string} name - Preset name
-   * @param {function} dataProvider - Async function returning data to export
    */
-  registerPreset(name, dataProvider) {
+  registerPreset(name: string, dataProvider: ExportPreset): void {
     this.presets.set(name, dataProvider);
     logger.debug(`Registered export preset: ${name}`);
   }
 
   /**
    * Execute export using a preset
-   * @param {string} filePath - Destination path
-   * @param {string} presetName - Name of the preset
-   * @param {object} options - Export options
    */
-  async exportPreset(filePath, presetName, options = {}) {
+  async exportPreset(filePath: string, presetName: string, options: ExportOptions = {}) {
     const dataProvider = this.presets.get(presetName);
     if (!dataProvider) {
       return {
@@ -53,7 +83,7 @@ export class ImportExportManager {
     try {
       const data = await dataProvider();
       return this.export(filePath, data, options);
-    } catch (error) {
+    } catch (error: any) {
       logger.error(`Failed to execute preset ${presetName}:`, error);
       return {
         success: false,
@@ -64,10 +94,8 @@ export class ImportExportManager {
 
   /**
    * Register a format handler
-   * @param {string} format - Format name (json, csv, md)
-   * @param {object} handler - Handler object with export/import methods
    */
-  registerHandler(format, handler) {
+  registerHandler(format: string, handler: FormatHandler): void {
     this.handlers.set(format.toLowerCase(), handler);
     logger.debug(`Registered format handler: ${format}`);
   }
@@ -75,16 +103,16 @@ export class ImportExportManager {
   /**
    * Get handler for format
    */
-  getHandler(format) {
+  getHandler(format: string): FormatHandler | undefined {
     return this.handlers.get(format.toLowerCase());
   }
 
   /**
    * Auto-detect format from file extension
    */
-  detectFormat(filePath) {
+  detectFormat(filePath: string): string | null {
     const ext = path.extname(filePath).toLowerCase();
-    const formatMap = {
+    const formatMap: Record<string, string> = {
       '.json': 'json',
       '.csv': 'csv',
       '.md': 'markdown',
@@ -95,12 +123,8 @@ export class ImportExportManager {
 
   /**
    * Export data to file
-   * @param {string} filePath - Destination file path
-   * @param {any} data - Data to export
-   * @param {object} options - Export options
-   * @returns {Promise<object>} Result
    */
-  async export(filePath, data, options = {}) {
+  async export(filePath: string, data: any, options: ExportOptions = {}) {
     try {
       const { format: specifiedFormat, onProgress, ...handlerOptions } = options;
 
@@ -142,11 +166,7 @@ export class ImportExportManager {
 
       // Use streaming for large exports
       if (exported.length > STREAMING_THRESHOLD && handler.exportStream) {
-        await new Promise((resolve, reject) => {
-          // The following lines were part of the edit instruction but are syntactically incorrect
-          // and do not fit the context of createWriteStream.
-          // const bytesWritten = fs.writeSync(fd, buffer, 0, buffer.length, position);
-          // position += bytesWritten; = 0;
+        await new Promise<void>((resolve, reject) => {
           const totalBytes = exported.length; // Approximate if string, precise if buffer
 
           if (onProgress) {
@@ -163,14 +183,21 @@ export class ImportExportManager {
           writeStream.on('finish', resolve);
           writeStream.on('error', reject);
 
-          handler.exportStream(data, handlerOptions, writeStream)
-            .then(() => {
-              if (onProgress) onProgress({ phase: 'exporting', progress: 100, bytes: totalBytes });
-            });
+          if (handler.exportStream) {
+            handler.exportStream(data, handlerOptions, writeStream)
+              .then(() => {
+                if (onProgress) onProgress({ phase: 'exporting', progress: 100, bytes: totalBytes });
+              })
+              .catch(reject);
+          } else {
+            // Fallback if exportStream is missing but check passed (should not happen due to check above)
+            reject(new Error('Export stream handler missing'));
+          }
         });
       } else {
         // Write to file directly for small files
-        await fs.writeFile(filePath, exported, 'utf8');
+        // handle exported being buffer or string
+        await fs.writeFile(filePath, exported);
         if (onProgress) onProgress({ phase: 'exporting', progress: 100, bytes: exported.length });
       }
 
@@ -184,7 +211,7 @@ export class ImportExportManager {
         format,
         size: exported.length
       };
-    } catch (error) {
+    } catch (error: any) {
       logger.error('Export failed:', error);
       return {
         success: false,
@@ -195,11 +222,8 @@ export class ImportExportManager {
 
   /**
    * Import data from file
-   * @param {string} filePath - Source file path
-   * @param {object} options - Import options (including onProgress)
-   * @returns {Promise<object>} Result with data
    */
-  async import(filePath, options = {}) {
+  async import(filePath: string, options: ImportOptions = {}) {
     try {
       const { onProgress } = options;
 
@@ -257,9 +281,11 @@ export class ImportExportManager {
             });
           }
 
-          handler.importStream(readStream, handlerOptions)
-            .then(resolve)
-            .catch(reject);
+          if (handler.importStream) {
+            handler.importStream(readStream, handlerOptions)
+              .then(resolve)
+              .catch(reject);
+          }
         });
       } else {
         // Read file directly for small files
@@ -278,7 +304,7 @@ export class ImportExportManager {
         format,
         path: filePath
       };
-    } catch (error) {
+    } catch (error: any) {
       logger.error('Import failed:', error);
       return {
         success: false,
@@ -289,12 +315,8 @@ export class ImportExportManager {
 
   /**
    * Convert file from one format to another
-   * @param {string} sourcePath - Source file path
-   * @param {string} targetPath - Destination file path
-   * @param {object} options - Conversion options (fromFormat, toFormat)
-   * @returns {Promise<object>} Result
    */
-  async convert(sourcePath, targetPath, options = {}) {
+  async convert(sourcePath: string, targetPath: string, options: ConversionOptions = { toFormat: 'json' }) {
     try {
       const { fromFormat, toFormat, ...otherOptions } = options;
 
@@ -336,7 +358,7 @@ export class ImportExportManager {
         fromFormat: importResult.format,
         toFormat: exportResult.format
       };
-    } catch (error) {
+    } catch (error: any) {
       logger.error('Conversion failed:', error);
       return {
         success: false,
@@ -348,14 +370,14 @@ export class ImportExportManager {
   /**
    * List available presets
    */
-  listPresets() {
+  listPresets(): string[] {
     return Array.from(this.presets.keys());
   }
 
   /**
    * List available formats
    */
-  listFormats() {
+  listFormats(): string[] {
     return Array.from(this.handlers.keys());
   }
 }
@@ -364,6 +386,7 @@ export class ImportExportManager {
 const importExportManager = new ImportExportManager();
 
 // Register built-in handlers
+// handlers need to implement FormatHandler interface which I'm sure they do not strictly yet (any), but that's ok for now
 importExportManager.registerHandler('json', jsonHandler);
 importExportManager.registerHandler('csv', csvHandler);
 importExportManager.registerHandler('markdown', markdownHandler);

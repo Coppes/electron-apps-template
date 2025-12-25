@@ -9,10 +9,17 @@ import { isDevelopment } from './config.ts';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+import { WindowOptions, WindowState } from '../common/types.ts';
+
+// ... imports
+
 /**
  * Window Manager - Centralized window lifecycle and state management
  */
 export class WindowManager {
+  private windows: Map<number, { window: BrowserWindow; type: string }>;
+  private store: Store;
+
   constructor() {
     this.windows = new Map();
     this.store = new Store({
@@ -27,7 +34,13 @@ export class WindowManager {
    * @param {Object} [customOptions] - Custom window options
    * @returns {BrowserWindow} Created window instance
    */
-  createWindow(type = WINDOW_TYPES.MAIN, customOptions = {}) {
+  /**
+   * Create a new window with specified type and options
+   * @param {string} type - Window type (main, settings, about)
+   * @param {Object} [customOptions] - Custom window options
+   * @returns {BrowserWindow} Created window instance
+   */
+  createWindow(type = WINDOW_TYPES.MAIN, customOptions: Partial<WindowOptions> & { route?: string } = {}) {
     const { route, ...browserWindowOptions } = customOptions;
     logger.info(`Creating window of type: ${type}${route ? ` with route: ${route}` : ''}`);
 
@@ -43,27 +56,26 @@ export class WindowManager {
     const savedState = this.restoreState(type);
 
     // Merge configurations
-    const windowOptions = {
+    const windowOptions: Electron.BrowserWindowConstructorOptions = {
       ...defaultConfig,
-      ...savedState,
-      ...savedState,
-      ...customOptions,
+      ...(savedState || {}),
+      ...browserWindowOptions,
       // Custom Title Bar: Remove frame on Windows/Linux (macOS uses titleBarStyle: hidden from config)
       frame: process.platform === 'darwin' ? true : false,
       titleBarOverlay: process.platform === 'win32' ? false : undefined, // We are building a custom React titlebar, so disable native overlay
       webPreferences: {
         contextIsolation: true,
         nodeIntegration: false,
-        enableRemoteModule: false,
         sandbox: true,
         preload: this.getPreloadPath(),
         spellcheck: true,
-        ...browserWindowOptions.webPreferences,
+        ...(browserWindowOptions.webPreferences || {}),
       },
-    };
+    } as Electron.BrowserWindowConstructorOptions;
 
     // Validate window bounds
-    this.validateBounds(windowOptions);
+    // Cast to any to assume validation logic handles the structure
+    this.validateBounds(windowOptions as any);
 
     // Create window
     const window = new BrowserWindow(windowOptions);
@@ -102,9 +114,10 @@ export class WindowManager {
   /**
    * Load content into window based on type
    * @param {BrowserWindow} window - Window instance
-   * @param {string} _type - Window type (unused, reserved for future use)
+   * @param {string} type - Window type
+   * @param {string} [route] - Optional route
    */
-  loadContent(window, type, route) {
+  loadContent(window: BrowserWindow, type: string, route?: string) {
     if (type === WINDOW_TYPES.SPLASH) {
       if (isDevelopment() && !process.env.E2E_TEST_BUILD) {
         const url = 'http://localhost:5173/static/splash.html';
@@ -142,7 +155,7 @@ export class WindowManager {
    * Setup event handlers for window lifecycle
    * @param {number} windowId - Window ID
    */
-  setupWindowHandlers(windowId) {
+  setupWindowHandlers(windowId: number) {
     const windowInfo = this.windows.get(windowId);
     if (!windowInfo) return;
 
@@ -190,7 +203,7 @@ export class WindowManager {
    * Save window state to persistent storage
    * @param {number} windowId - Window ID
    */
-  saveState(windowId) {
+  saveState(windowId: number) {
     const windowInfo = this.windows.get(windowId);
     if (!windowInfo) return;
 
@@ -215,10 +228,10 @@ export class WindowManager {
   /**
    * Restore window state from persistent storage
    * @param {string} type - Window type
-   * @returns {Object|null} Restored state or null
+   * @returns {WindowState|null} Restored state or null
    */
-  restoreState(type) {
-    const state = this.store.get(`windowState.${type}`);
+  restoreState(type: string): WindowState | null {
+    const state = this.store.get(`windowState.${type}`) as WindowState | undefined;
 
     if (!state) {
       logger.debug(`No saved state found for window type: ${type}`);

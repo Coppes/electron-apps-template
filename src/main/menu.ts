@@ -1,4 +1,4 @@
-import { Menu, app, shell } from 'electron';
+import { Menu, app, shell, MenuItemConstructorOptions } from 'electron';
 import { logger } from './logger.ts';
 
 /**
@@ -255,7 +255,9 @@ export function createMenuTemplate(windowManager) {
  */
 export function setupMenu(windowManager) {
   const template = createMenuTemplate(windowManager);
-  const menu = Menu.buildFromTemplate(template);
+  // Explicitly cast to MenuItemConstructorOptions[] to resolve strict type mismatch
+  // The structure is correct but TS inference on deep nested objects can be tricky with Electron types
+  const menu = Menu.buildFromTemplate(template as MenuItemConstructorOptions[]);
   Menu.setApplicationMenu(menu);
   logger.info('Application menu initialized');
 }

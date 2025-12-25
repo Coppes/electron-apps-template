@@ -31,6 +31,7 @@ import { splashManager } from './splash.ts';
 import { notificationManager } from './notifications.ts';
 import { addRecentDocument } from './recent-docs.ts';
 import { config, loadEnvironmentOverrides } from './config.ts';
+import { BrowserWindow } from 'electron'; // Assuming BrowserWindow is needed for the new property
 
 /**
  * Application Lifecycle Manager
@@ -38,7 +39,12 @@ import { config, loadEnvironmentOverrides } from './config.ts';
  */
 
 export class LifecycleManager {
+  private mainWindow: BrowserWindow | null;
+  private isShuttingDown: boolean;
+  private crashMarkerPath: string;
+
   constructor() {
+    this.mainWindow = null;
     this.isShuttingDown = false;
     this.crashMarkerPath = join(app.getPath('userData'), '.crash-marker');
   }
@@ -89,14 +95,14 @@ export class LifecycleManager {
 
       // Wait for main window to load with timeout
       await Promise.race([
-        new Promise((resolve) => {
+        new Promise<void>((resolve) => {
           if (mainWindow.webContents.isLoading()) {
-            mainWindow.webContents.once('did-finish-load', resolve);
+            mainWindow.webContents.once('did-finish-load', () => resolve());
           } else {
             resolve();
           }
         }),
-        new Promise(resolve => setTimeout(resolve, 10000)) // 10s safety timeout
+        new Promise<void>(resolve => setTimeout(resolve, 10000)) // 10s safety timeout
       ]);
 
       // Ensure minimum splash time
@@ -196,7 +202,7 @@ export class LifecycleManager {
                 });
               }
             },
-            action
+            action as string
           );
 
           if (registered) {
@@ -304,7 +310,6 @@ export class LifecycleManager {
     }
 
     // Handle second instance attempt
-    // Handle second instance attempt
     app.on('second-instance', async (event, commandLine, workingDirectory) => {
       logger.info('Second instance attempt detected', {
         commandLine,
@@ -314,7 +319,8 @@ export class LifecycleManager {
       // Focus the main window
       const mainWindow = windowManager.getWindowByType('main');
       if (mainWindow) {
-        if (mainWindow.window.isMinimized()) mainWindow.window.restore();
+        if (mainWindow.isMinimized()) mainWindow.restore();
+        mainWindow.focus();
         windowManager.focusWindow(mainWindow.id);
 
         const possibleFile = findFileInArgv(commandLine);

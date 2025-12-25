@@ -3,7 +3,15 @@ import { forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import { cn } from '../../utils/cn';
 
-const Slider = forwardRef(
+export interface SliderProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
+  onChange?: (value: number) => void;
+  min?: number;
+  max?: number;
+  step?: number;
+  value?: number;
+}
+
+const Slider = forwardRef<HTMLInputElement, SliderProps>(
   ({ className, min = 0, max = 100, step = 1, value, onChange, ...props }, ref) => {
     return (
       <input

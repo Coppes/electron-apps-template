@@ -1,165 +1,185 @@
 /**
- * JSDoc type definitions for IPC schemas and application types
+ * TypeScript definitions for IPC schemas and application types
  */
 
-/**
- * @typedef {Object} IPCSchema
- * @property {Object} input - Input parameter schema
- * @property {Object} output - Output parameter schema
- * @property {Function} handler - Handler function for the IPC channel
- */
+export interface IPCSchema {
+  input: Record<string, any>;
+  output: Record<string, any>;
+  handler?: Function;
+}
 
-/**
- * @typedef {Object} WindowState
- * @property {number} x - Window x position
- * @property {number} y - Window y position
- * @property {number} width - Window width
- * @property {number} height - Window height
- * @property {boolean} isMaximized - Whether window is maximized
- * @property {boolean} isFullScreen - Whether window is in fullscreen
- */
+export interface WindowState {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  isMaximized: boolean;
+  isFullScreen: boolean;
+}
 
-/**
- * @typedef {Object} WindowOptions
- * @property {string} type - Window type (main, settings, about)
- * @property {number} [width] - Window width
- * @property {number} [height] - Window height
- * @property {number} [minWidth] - Minimum window width
- * @property {number} [minHeight] - Minimum window height
- * @property {number} [maxWidth] - Maximum window width
- * @property {number} [maxHeight] - Maximum window height
- * @property {string} [title] - Window title
- * @property {boolean} [resizable] - Whether window is resizable
- * @property {boolean} [frame] - Whether window has a frame
- * @property {boolean} [show] - Whether to show window immediately
- */
+export interface WindowOptions extends Electron.BrowserWindowConstructorOptions {
+  type: string;
+}
 
-/**
- * @typedef {Object} IPCResponse
- * @property {boolean} success - Whether the operation was successful
- * @property {*} [data] - Response data
- * @property {string} [error] - Error message if failed
- * @property {string} [code] - Error code if failed
- */
+export interface IPCResponse<T = any> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  code?: string;
+}
 
-/**
- * @typedef {Object} ValidationError
- * @property {string} field - Field that failed validation
- * @property {string} expected - Expected type or value
- * @property {*} received - Actual value received
- * @property {string} message - Error message
- */
+export interface ValidationError {
+  field: string;
+  expected: string;
+  received: any;
+  message: string;
+}
 
-/**
- * @typedef {Object} FileDialogResult
- * @property {boolean} canceled - Whether dialog was canceled
- * @property {string} [filePath] - Selected file path
- * @property {string} [content] - File content if read
- * @property {string} [error] - Error message if failed
- */
+export interface FileDialogResult {
+  canceled: boolean;
+  filePath?: string;
+  content?: string;
+  error?: string;
+}
 
-/**
- * @typedef {Object} VersionInfo
- * @property {string} electron - Electron version
- * @property {string} chrome - Chrome version
- * @property {string} node - Node.js version
- * @property {string} v8 - V8 version
- * @property {string} app - Application version
- */
+export interface VersionInfo {
+  electron: string;
+  chrome: string;
+  node: string;
+  v8: string;
+  app: string;
+}
 
-/**
- * @typedef {Object} UpdateInfo
- * @property {string} version - Update version
- * @property {string} releaseDate - Release date
- * @property {string} [releaseNotes] - Release notes
- * @property {number} [size] - Update size in bytes
- */
+export interface UpdateInfo {
+  version: string;
+  releaseDate: string;
+  releaseNotes?: string;
+  size?: number;
+}
 
-/**
- * @typedef {Object} LogEntry
- * @property {string} level - Log level (debug, info, warn, error)
- * @property {string} message - Log message
- * @property {Object} [meta] - Additional metadata
- * @property {string} timestamp - ISO timestamp
- */
+export interface LogEntry {
+  level: 'debug' | 'info' | 'warn' | 'error';
+  message: string;
+  meta?: Record<string, any>;
+  timestamp: string;
+}
 
-/**
- * @typedef {Object} ErrorReport
- * @property {string} message - Error message
- * @property {string} stack - Error stack trace
- * @property {string} version - App version
- * @property {string} platform - Operating system platform
- * @property {Object} [context] - Additional context
- */
+export interface ErrorReport {
+  message: string;
+  stack: string;
+  version: string;
+  platform: string;
+  context?: Record<string, any>;
+}
 
-/**
- * @typedef {Object} CSPPolicy
- * @property {string[]} 'default-src' - Default source policy
- * @property {string[]} 'script-src' - Script source policy
- * @property {string[]} 'style-src' - Style source policy
- * @property {string[]} 'img-src' - Image source policy
- * @property {string[]} 'font-src' - Font source policy
- * @property {string[]} 'connect-src' - Connection source policy
- */
+export interface CSPPolicy {
+  'default-src': string[];
+  'script-src': string[];
+  'style-src': string[];
+  'img-src': string[];
+  'font-src': string[];
+  'connect-src': string[];
+  [key: string]: string[];
+}
 
-/**
- * @typedef {Object} TrayMenuItem
- * @property {string} id - Unique item ID
- * @property {string} label - Menu item label
- * @property {string} [type] - Menu item type (normal, separator, submenu, checkbox, radio)
- * @property {string} [accelerator] - Keyboard accelerator
- * @property {boolean} [enabled] - Whether item is enabled
- * @property {boolean} [visible] - Whether item is visible
- * @property {boolean} [checked] - Whether item is checked (for checkbox/radio)
- * @property {TrayMenuItem[]} [submenu] - Submenu items
- */
+export interface TrayMenuItem {
+  id: string;
+  label: string;
+  type?: 'normal' | 'separator' | 'submenu' | 'checkbox' | 'radio';
+  accelerator?: string;
+  enabled?: boolean;
+  visible?: boolean;
+  checked?: boolean;
+  submenu?: TrayMenuItem[];
+  click?: () => void; // Added for usage in Renderer
+}
 
-/**
- * @typedef {Object} ShortcutInfo
- * @property {string} accelerator - Keyboard accelerator (e.g., "CommandOrControl+Shift+K")
- * @property {string} description - Shortcut description
- * @property {boolean} registered - Whether shortcut is currently registered
- */
+export interface ShortcutInfo {
+  accelerator: string;
+  description: string;
+  registered: boolean;
+}
 
-/**
- * @typedef {Object} ProgressOptions
- * @property {number} [windowId] - Window ID (defaults to main window)
- * @property {number} value - Progress value (0.0-1.0, or -1 for indeterminate)
- * @property {'normal'|'paused'|'error'|'indeterminate'} [state] - Progress state (Windows only)
- */
+export interface ProgressOptions {
+  windowId?: number;
+  value: number;
+  state?: 'normal' | 'paused' | 'error' | 'indeterminate';
+}
 
-/**
- * @typedef {Object} NotificationOptions
- * @property {string} title - Notification title
- * @property {string} body - Notification body text
- * @property {string} [icon] - Path to notification icon
- * @property {boolean} [silent] - Whether to play sound
- * @property {string} [tag] - Notification tag for replacement
- * @property {NotificationAction[]} [actions] - Action buttons
- * @property {number} [timeoutMs] - Auto-close timeout
- */
+export interface NotificationAction {
+  type: string;
+  text: string;
+}
 
-/**
- * @typedef {Object} NotificationAction
- * @property {string} type - Action type/id
- * @property {string} text - Action button text
- */
+export interface NotificationOptions {
+  title: string;
+  body: string;
+  icon?: string;
+  silent?: boolean;
+  tag?: string;
+  actions?: NotificationAction[];
+  timeoutMs?: number;
+  urgency?: 'normal' | 'critical' | 'low';
+  timeoutType?: 'default' | 'never';
+}
 
-/**
- * @typedef {Object} NotificationInfo
- * @property {string} id - Notification ID
- * @property {string} title - Notification title
- * @property {string} body - Notification body
- * @property {string} timestamp - ISO timestamp
- * @property {boolean} clicked - Whether notification was clicked
- */
+export interface NotificationInfo {
+  id: string;
+  title: string;
+  body: string;
+  timestamp: string;
+  clicked: boolean;
+}
 
-/**
- * @typedef {Object} DeepLinkData
- * @property {string} url - Full URL received
- * @property {string} protocol - Protocol scheme
- * @property {string} host - URL host/action
- * @property {string} path - URL path
- * @property {Object<string, string>} params - Parsed query parameters
- * @property {Object<string, string>} pathParams - Extracted path parameters
- */
+
+export interface DeepLinkData {
+  url: string;
+  protocol: string;
+  host: string;
+  path: string;
+  params: Record<string, string>;
+  pathParams: Record<string, string>;
+}
+
+// Data Management Types
+export interface BackupManifest {
+  version: string;
+  type: string;
+  timestamp: string;
+  platform: string;
+  includes: string[];
+  checksum?: string;
+  size?: number;
+}
+
+export interface BackupOptions {
+  type?: 'manual' | 'auto';
+  includeDatabase?: boolean;
+  useWorker?: boolean;
+  includeUserFiles?: boolean;
+  backupDir?: string;
+  maxBackups?: number;
+}
+
+export interface BackupMetadata extends BackupManifest {
+  filename: string;
+  path?: string;
+}
+
+export interface SyncOperation {
+  id: string;
+  type: string;
+  entity: string;
+  data?: any;
+  timestamp: number;
+}
+
+export interface SyncResult {
+  success: boolean;
+  id?: string;
+  error?: string;
+}
+
+export interface DataAdapter {
+  sync(operation: SyncOperation): Promise<SyncResult>;
+}

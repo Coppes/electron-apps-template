@@ -21,7 +21,7 @@ export const csvHandler = {
   /**
    * Export data to CSV string
    */
-  async export(data, options = {}) {
+  async export(data: any, options: any = {}): Promise<string> {
     const {
       headers = true,
       delimiter = ',',
@@ -57,7 +57,7 @@ export const csvHandler = {
   /**
    * Export data to stream (for large datasets)
    */
-  async exportStream(data, options = {}, writeStream) {
+  async exportStream(data: any, options: any = {}, writeStream: any): Promise<void> {
     const {
       headers = true,
       delimiter = ',',
@@ -85,7 +85,7 @@ export const csvHandler = {
   /**
    * Import data from CSV string
    */
-  async import(content, options = {}) {
+  async import(content: string, options: any = {}): Promise<any> {
     const {
       headers = true,
       delimiter = ',',
@@ -114,7 +114,7 @@ export const csvHandler = {
       });
 
       return records;
-    } catch (error) {
+    } catch (error: any) {
       throw new Error(`Invalid CSV: ${error.message}`);
     }
   },
@@ -122,7 +122,7 @@ export const csvHandler = {
   /**
    * Import data from stream (for large files)
    */
-  async importStream(readStream, options = {}) {
+  async importStream(readStream: any, options: any = {}): Promise<any> {
     const {
       headers = true,
       delimiter = ',',
@@ -146,7 +146,7 @@ export const csvHandler = {
     });
 
     await pipeline(readStream, parser, collectTransform);
-    
+
     return records;
   },
 

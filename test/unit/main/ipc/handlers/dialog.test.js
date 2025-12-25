@@ -1,33 +1,24 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { dialog, BrowserWindow } from 'electron';
 import fs from 'fs/promises';
-import { createDialogHandlers } from '../../../../../src/main/ipc/handlers/dialog.js';
-import { IPC_CHANNELS } from '../../../../../src/common/constants.js';
+import { createDialogHandlers } from '../../../../../src/main/ipc/handlers/dialog.ts';
+import { IPC_CHANNELS } from '../../../../../src/common/constants.ts';
 
-// Mock dependencies
-// Mock dependencies
-vi.mock('electron', () => {
-  return {
-    dialog: {
-      showOpenDialog: vi.fn(),
-      showSaveDialog: vi.fn(),
-      showMessageBox: vi.fn(),
-      showErrorBox: vi.fn()
-    },
-    BrowserWindow: {
-      fromWebContents: vi.fn()
-    }
-  };
-});
+// Using global electron mock for dialog and BrowserWindow
+
 vi.mock('fs/promises');
-vi.mock('../../../../../src/main/logger.js', () => ({
+vi.mock('../../../../../src/main/logger.ts', () => ({
   logger: {
-    error: vi.fn()
-  }
+    error: vi.fn(),
+    info: vi.fn(),
+    debug: vi.fn(),
+    warn: vi.fn(),
+  },
 }));
-vi.mock('../../../../../src/main/recent-docs.js', () => ({
+
+vi.mock('../../../../../src/main/recent-docs.ts', () => ({
   addRecentDocument: vi.fn(),
-  clearRecentDocuments: vi.fn()
+  clearRecentDocuments: vi.fn(),
 }));
 
 describe('Dialog IPC Handlers', () => {
@@ -50,21 +41,24 @@ describe('Dialog IPC Handlers', () => {
     it('should open file dialog and return content', async () => {
       dialog.showOpenDialog.mockResolvedValue({
         canceled: false,
-        filePaths: ['/path/to/file.txt']
+        filePaths: ['/path/to/file.txt'],
       });
 
       const handler = handlers[IPC_CHANNELS.DIALOG_OPEN_FILE];
       const result = await handler(mockEvent, { options: { title: 'Open' } });
 
-      expect(dialog.showOpenDialog).toHaveBeenCalledWith(mockWindow, expect.objectContaining({
-        title: 'Open',
-        properties: expect.arrayContaining(['openFile'])
-      }));
+      expect(dialog.showOpenDialog).toHaveBeenCalledWith(
+        mockWindow,
+        expect.objectContaining({
+          title: 'Open',
+          properties: expect.arrayContaining(['openFile']),
+        })
+      );
       expect(fs.readFile).toHaveBeenCalledWith('/path/to/file.txt', 'utf-8');
       expect(result).toEqual({
         canceled: false,
         filePath: '/path/to/file.txt',
-        content: 'file content'
+        content: 'file content',
       });
     });
 
@@ -81,7 +75,7 @@ describe('Dialog IPC Handlers', () => {
     it('should handle read errors', async () => {
       dialog.showOpenDialog.mockResolvedValue({
         canceled: false,
-        filePaths: ['/path/to/file.txt']
+        filePaths: ['/path/to/file.txt'],
       });
       fs.readFile.mockRejectedValue(new Error('Read failed'));
 
@@ -90,7 +84,7 @@ describe('Dialog IPC Handlers', () => {
 
       expect(result).toEqual({
         canceled: false,
-        error: 'Read failed'
+        error: 'Read failed',
       });
     });
   });
@@ -99,22 +93,29 @@ describe('Dialog IPC Handlers', () => {
     it('should save file dialog and write content', async () => {
       dialog.showSaveDialog.mockResolvedValue({
         canceled: false,
-        filePath: '/path/to/save.txt'
+        filePath: '/path/to/save.txt',
       });
 
       const handler = handlers[IPC_CHANNELS.DIALOG_SAVE_FILE];
       const result = await handler(mockEvent, {
         options: { title: 'Save' },
-        content: 'new content'
+        content: 'new content',
       });
 
-      expect(dialog.showSaveDialog).toHaveBeenCalledWith(mockWindow, expect.objectContaining({
-        title: 'Save'
-      }));
-      expect(fs.writeFile).toHaveBeenCalledWith('/path/to/save.txt', 'new content', 'utf-8');
+      expect(dialog.showSaveDialog).toHaveBeenCalledWith(
+        mockWindow,
+        expect.objectContaining({
+          title: 'Save',
+        })
+      );
+      expect(fs.writeFile).toHaveBeenCalledWith(
+        '/path/to/save.txt',
+        'new content',
+        'utf-8'
+      );
       expect(result).toEqual({
         canceled: false,
-        filePath: '/path/to/save.txt'
+        filePath: '/path/to/save.txt',
       });
     });
 
@@ -131,7 +132,7 @@ describe('Dialog IPC Handlers', () => {
     it('should handle write errors', async () => {
       dialog.showSaveDialog.mockResolvedValue({
         canceled: false,
-        filePath: '/path/to/save.txt'
+        filePath: '/path/to/save.txt',
       });
       fs.writeFile.mockRejectedValue(new Error('Write failed'));
 
@@ -140,7 +141,7 @@ describe('Dialog IPC Handlers', () => {
 
       expect(result).toEqual({
         canceled: false,
-        error: 'Write failed'
+        error: 'Write failed',
       });
     });
   });
@@ -151,10 +152,13 @@ describe('Dialog IPC Handlers', () => {
 
       const handler = handlers[IPC_CHANNELS.DIALOG_MESSAGE];
       const result = await handler(mockEvent, {
-        options: { message: 'Hello' }
+        options: { message: 'Hello' },
       });
 
-      expect(dialog.showMessageBox).toHaveBeenCalledWith(mockWindow, { message: 'Hello' });
+      expect(dialog.showMessageBox).toHaveBeenCalledWith(
+        mockWindow,
+        { message: 'Hello' }
+      );
       expect(result).toEqual({ response: 1 });
     });
   });
@@ -165,10 +169,13 @@ describe('Dialog IPC Handlers', () => {
 
       const result = await handler(mockEvent, {
         title: 'Error',
-        content: 'Something went wrong'
+        content: 'Something went wrong',
       });
 
-      expect(dialog.showErrorBox).toHaveBeenCalledWith('Error', 'Something went wrong');
+      expect(dialog.showErrorBox).toHaveBeenCalledWith(
+        'Error',
+        'Something went wrong'
+      );
       expect(result.success).toBe(true);
     });
   });

@@ -3,30 +3,24 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { BackupManager } from '../../../../src/main/data/backup-manager.js';
+import { BackupManager } from '../../../../src/main/data/backup-manager.ts';
 import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
 
 // Mock notifications
-vi.mock('../../../../src/main/notifications.js', () => ({
+vi.mock('../../../../src/main/notifications.ts', () => ({
   notificationManager: {
     showNotification: vi.fn(),
   }
 }));
 
-import { notificationManager } from '../../../../src/main/notifications.js';
+import { notificationManager } from '../../../../src/main/notifications.ts';
 
-// Mock electron
-vi.mock('electron', () => ({
-  app: {
-    getPath: vi.fn(() => '/mock/path'),
-    getVersion: vi.fn(() => '1.0.0')
-  }
-}));
+// Using global electron mock
 
 // Mock logger
-vi.mock('../../../../src/main/logger.js', () => ({
+vi.mock('../../../../src/main/logger.ts', () => ({
   logger: {
     info: vi.fn(),
     error: vi.fn(),
@@ -57,7 +51,7 @@ vi.mock('electron-store', () => {
 });
 
 // Mock worker pool
-vi.mock('../../../../src/main/workers/worker-pool.js', () => ({
+vi.mock('../../../../src/main/workers/worker-pool.ts', () => ({
   getZipWorkerPool: vi.fn(() => ({
     execute: vi.fn(async () => ({
       checksum: 'mock-checksum',
@@ -95,12 +89,6 @@ describe('BackupManager', () => {
       expect(stats.isDirectory()).toBe(true);
     });
   });
-
-  // Mock notifications
-
-  // ... (existing mocks)
-
-  // ...
 
   describe('createBackup', () => {
     it('should create a backup with metadata and show notification', async () => {

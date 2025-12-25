@@ -13,7 +13,7 @@ vi.mock('electron', () => ({
 }));
 
 // Mock logger
-vi.mock('../../../src/main/logger.js', () => ({
+vi.mock('../../../src/main/logger.ts', () => ({
   logger: {
     debug: vi.fn(),
     info: vi.fn(),
@@ -23,7 +23,7 @@ vi.mock('../../../src/main/logger.js', () => ({
 }));
 
 // Import after mocking
-const { registerHandler, registerHandlers } = await import('../../../src/main/ipc/bridge.js');
+const { registerHandler, registerHandlers } = await import('../../../src/main/ipc/bridge.ts');
 
 describe('IPC Bridge', () => {
   beforeEach(() => {
@@ -50,7 +50,7 @@ describe('IPC Bridge', () => {
 
       // Test with missing required field
       const result = await registeredHandler({}, { name: 'John' });
-      
+
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
       expect(handler).not.toHaveBeenCalled();
@@ -73,7 +73,7 @@ describe('IPC Bridge', () => {
 
       // Test with wrong type
       const result = await registeredHandler({}, { count: 'not a number' });
-      
+
       expect(result.success).toBe(false);
       expect(result.error).toBe('Validation failed');
       expect(result.details).toBeDefined();
@@ -97,7 +97,7 @@ describe('IPC Bridge', () => {
 
       // Test without optional field
       const result = await registeredHandler({}, { required: 'value' });
-      
+
       expect(result.success).toBe(true);
       // Handler is called with (event, input), event is the first arg
       expect(handler).toHaveBeenCalledWith(expect.anything(), { required: 'value' });
@@ -170,7 +170,7 @@ describe('IPC Bridge', () => {
 
       const registeredHandler = ipcMain.handle.mock.calls[0][1];
       const result = await registeredHandler({}, {});
-      
+
       expect(result.success).toBe(false);
       expect(result.error).toBe('Handler returned invalid output');
       expect(result.details).toBeDefined();
@@ -185,15 +185,15 @@ describe('IPC Bridge', () => {
         },
       };
 
-      const handler = vi.fn().mockResolvedValue({ 
-        success: true, 
-        message: 'Done' 
+      const handler = vi.fn().mockResolvedValue({
+        success: true,
+        message: 'Done'
       });
       registerHandler('test:channel', schema, handler);
 
       const registeredHandler = ipcMain.handle.mock.calls[0][1];
       const result = await registeredHandler({}, {});
-      
+
       expect(result.success).toBe(true);
       expect(result.message).toBe('Done');
     });
@@ -213,7 +213,7 @@ describe('IPC Bridge', () => {
 
       const registeredHandler = ipcMain.handle.mock.calls[0][1];
       const result = await registeredHandler({}, {});
-      
+
       expect(result.success).toBe(false);
       expect(result.error).toContain('Handler error');
     });
@@ -233,7 +233,7 @@ describe('IPC Bridge', () => {
 
       const registeredHandler = ipcMain.handle.mock.calls[0][1];
       const result = await registeredHandler({}, {});
-      
+
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
     });
@@ -297,7 +297,7 @@ describe('IPC Bridge', () => {
 
       const registeredHandler = ipcMain.handle.mock.calls[0][1];
       await registeredHandler({}, { anything: 'goes' });
-      
+
       expect(handler).toHaveBeenCalled();
     });
 
@@ -315,7 +315,7 @@ describe('IPC Bridge', () => {
       registerHandler('test:channel', schema, handler);
 
       const registeredHandler = ipcMain.handle.mock.calls[0][1];
-      
+
       // Test with undefined
       await registeredHandler({}, { value: undefined });
       expect(handler).toHaveBeenCalledTimes(1);

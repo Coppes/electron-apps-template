@@ -2,48 +2,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { app, Menu, Tray, Notification } from 'electron';
 
-// Mock Electron
-vi.mock('electron', () => ({
-  app: {
-    getVersion: vi.fn(() => '1.0.0'),
-    getName: vi.fn(() => 'Test App'),
-    getPath: vi.fn((name) => `/tmp/${name}`),
-    setAsDefaultProtocolClient: vi.fn(),
-    isDefaultProtocolClient: vi.fn(() => true),
-    on: vi.fn(),
-    quit: vi.fn(),
-    isPackaged: false,
-    getAppPath: vi.fn(() => '/app')
-  },
-  Menu: {
-    buildFromTemplate: vi.fn(template => ({ template, popup: vi.fn() })),
-    setApplicationMenu: vi.fn()
-  },
-  Tray: vi.fn().mockImplementation(() => ({
-    setToolTip: vi.fn(),
-    setContextMenu: vi.fn(),
-    on: vi.fn(),
-    setImage: vi.fn(),
-    destroy: vi.fn(),
-  })),
-  Notification: vi.fn().mockImplementation(() => ({
-    show: vi.fn(),
-    on: vi.fn(),
-    close: vi.fn()
-  })),
-  nativeImage: {
-    createFromPath: vi.fn(() => ({ isEmpty: vi.fn(() => false) }))
-  },
-  globalShortcut: {
-    register: vi.fn(() => true),
-    isRegistered: vi.fn(() => false),
-    unregister: vi.fn(),
-    unregisterAll: vi.fn()
-  }
-}));
-
 // Mock logger
-vi.mock('../../src/main/logger.js', () => ({
+vi.mock('../../src/main/logger.ts', () => ({
   logger: {
     info: vi.fn(),
     warn: vi.fn(),
@@ -65,7 +25,7 @@ const mockMainWindow = {
   setProgressBar: vi.fn()
 };
 
-vi.mock('../../src/main/window-manager.js', () => ({
+vi.mock('../../src/main/window-manager.ts', () => ({
   windowManager: {
     getWindowByType: vi.fn(() => mockMainWindow),
     focusWindow: vi.fn(),
@@ -74,7 +34,7 @@ vi.mock('../../src/main/window-manager.js', () => ({
 }));
 
 // Mock dependencies
-vi.mock('../../src/main/config.js', () => ({
+vi.mock('../../src/main/config.ts', () => ({
   config: {
     osIntegration: {
       tray: { enabled: true },
@@ -90,7 +50,7 @@ vi.mock('fs', () => ({
   existsSync: vi.fn(() => true)
 }));
 
-vi.mock('../../src/common/constants.js', async (importOriginal) => {
+vi.mock('../../src/common/constants.ts', async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
@@ -107,7 +67,7 @@ vi.mock('electron-store', () => {
       constructor() {
         this.store = {};
       }
-      get(key) { return this.store[key]; }
+      get(key, defaultValue) { return this.store[key] ?? defaultValue; }
       set(key, val) { this.store[key] = val; }
       delete(key) { delete this.store[key]; }
       clear() { this.store = {}; }
@@ -116,11 +76,11 @@ vi.mock('electron-store', () => {
 });
 
 // Import what we are testing
-import { lifecycleManager } from '../../src/main/lifecycle.js';
-import { trayManager } from '../../src/main/tray.js';
-import { shortcutManager } from '../../src/main/shortcuts.js';
-import { notificationManager } from '../../src/main/notifications.js';
-import { windowManager } from '../../src/main/window-manager.js';
+import { lifecycleManager } from '../../src/main/lifecycle.ts';
+import { trayManager } from '../../src/main/tray.ts';
+import { shortcutManager } from '../../src/main/shortcuts.ts';
+import { notificationManager } from '../../src/main/notifications.ts';
+import { windowManager } from '../../src/main/window-manager.ts';
 
 describe('OS Integration Integration Tests', () => {
 

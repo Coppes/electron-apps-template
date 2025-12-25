@@ -5,7 +5,16 @@ import { logger } from '../logger.ts';
 
 import { isDevelopment } from '../config.ts';
 
+interface Plugin {
+  filename: string;
+  content: string;
+}
+
 class PluginManager {
+  private pluginsDir: string;
+  private devPluginsDir: string;
+  private plugins: Plugin[];
+
   constructor() {
     this.pluginsDir = path.join(app.getPath('userData'), 'plugins');
     // Using process.cwd() might point to project root in dev

@@ -145,6 +145,7 @@ export const config = {
     environment: getEnvironment(),
     sampleRate: 1.0,
     attachStacktrace: true,
+    attachScreenshot: false,
   },
 
   // Feature Flags
@@ -175,19 +176,19 @@ export function loadEnvironmentOverrides() {
   // Log level override
   if (process.env.APP_LOGGING_LEVEL) {
     config.logging.level = process.env.APP_LOGGING_LEVEL;
-    overrides.logging_level = process.env.APP_LOGGING_LEVEL;
+    (overrides as any).logging_level = process.env.APP_LOGGING_LEVEL;
   }
 
   // Updates enabled override
   if (process.env.APP_UPDATES_ENABLED !== undefined) {
     config.updates.enabled = process.env.APP_UPDATES_ENABLED === 'true';
-    overrides.updates_enabled = config.updates.enabled;
+    (overrides as any).updates_enabled = config.updates.enabled;
   }
 
   // Single instance override
   if (process.env.APP_SINGLE_INSTANCE !== undefined) {
     config.singleInstance.enabled = process.env.APP_SINGLE_INSTANCE === 'true';
-    overrides.single_instance = config.singleInstance.enabled;
+    (overrides as any).single_instance = config.singleInstance.enabled;
   }
 
   return overrides;

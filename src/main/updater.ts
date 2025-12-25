@@ -11,6 +11,10 @@ import { notificationManager } from './notifications.ts';
  */
 
 class Updater {
+  private updateCheckInterval: NodeJS.Timeout | null;
+  private updateAvailable: boolean;
+  private autoUpdater: any; // Type from dynamic import
+
   constructor() {
     this.updateCheckInterval = null;
     this.updateAvailable = false;

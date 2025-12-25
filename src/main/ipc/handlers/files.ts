@@ -25,14 +25,31 @@ const ALLOWED_EXTENSIONS = [
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB default
 const FALLBACK_ICON = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==';
 
+interface FileMetadata {
+  path: string;
+  name: string;
+  extension: string;
+  size?: number;
+  modified?: Date;
+}
+
+type ValidationResult =
+  | { valid: false; error: string; code?: string }
+  | { valid: true; metadata: FileMetadata };
+
+interface ValidationOptions {
+  allowedExtensions?: string[];
+  maxSize?: number;
+  mustExist?: boolean;
+}
 /**
  * Validate file path for security (wrapper for centralized security module)
  * Prevents path traversal, checks extensions and size limits
  * @param {string} filePath - Path to validate
  * @param {object} options - Validation options
- * @returns {Promise<{valid: boolean, error?: string, metadata?: object}>}
+ * @returns {Promise<ValidationResult>}
  */
-export async function validateFilePath(filePath, options = {}) {
+export async function validateFilePath(filePath: string, options: ValidationOptions = {}): Promise<ValidationResult> {
   const {
     allowedExtensions = ALLOWED_EXTENSIONS,
     maxSize = MAX_FILE_SIZE,
@@ -48,7 +65,12 @@ export async function validateFilePath(filePath, options = {}) {
   });
 
   if (!securityResult.valid) {
-    return securityResult;
+    const failure = securityResult as { valid: false; error: string };
+    return {
+      valid: false,
+      error: failure.error || 'Invalid path',
+      code: 'INVALID_PATH'
+    };
   }
 
   const { resolvedPath } = securityResult;
@@ -87,7 +109,7 @@ export async function validateFilePath(filePath, options = {}) {
           modified: stats.mtime
         }
       };
-    } catch (error) {
+    } catch (error: any) {
       return {
         valid: false,
         error: `File does not exist or is not accessible: ${error.message}`,
@@ -131,29 +153,41 @@ export async function handleFileDrop(event, payload) {
 
   logger.info(`Processing dropped files: ${filePaths.length} files`);
 
-  const results = [];
-  for (const filePath of filePaths) {
-    const validation = await validateFilePath(filePath, options);
-    results.push(validation);
+  const validationPromises = filePaths.map(filePath => validateFilePath(filePath, options));
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  const results: ValidationResult[] = await Promise.all(validationPromises);
 
-    if (!validation.valid) {
-      logger.warn(`File validation failed for ${filePath}: ${validation.error}`);
+  // Log warnings for all invalid files after processing all
+  results.forEach((r, i) => {
+    if (!r.valid) {
+      // Explicit cast to narrow union
+      const failure = r as { valid: false; error: string };
+      logger.warn(`File validation failed for ${filePaths[i]}: ${failure.error}`);
     }
-  }
+  });
 
-  const validFiles = results.filter(r => r.valid);
-  const invalidFiles = results.filter(r => !r.valid);
+  const invalidFilesList = results
+    .map((r, i) => {
+      if (!r.valid) {
+        // Explicitly cast to help TS if needed, though narrowing should work
+        const failure = r as { valid: false; error: string };
+        return { path: filePaths[i], error: failure.error };
+      }
+      return null;
+    })
+    .filter((item): item is { path: string; error: string } => item !== null);
+
+  const validFiles = results
+    .filter((r): r is { valid: true; metadata: FileMetadata } => r.valid)
+    .map(r => r.metadata); // map after narrowing
 
   return {
     success: true,
-    validFiles: validFiles.map(f => f.metadata),
-    invalidFiles: invalidFiles.map((f, i) => ({
-      path: filePaths[i],
-      error: f.error
-    })),
+    validFiles: validFiles.map((f: any) => f.metadata),
+    invalidFiles: invalidFilesList,
     total: filePaths.length,
     valid: validFiles.length,
-    invalid: invalidFiles.length
+    invalid: invalidFilesList.length
   };
 }
 
@@ -175,9 +209,10 @@ export async function handleDragStart(event, payload) {
     const validation = await validateFilePath(filePath, { mustExist: true });
 
     if (!validation.valid) {
+      const failure = validation as { valid: false; error: string };
       return {
         success: false,
-        error: validation.error
+        error: failure.error
       };
     }
 
@@ -191,8 +226,9 @@ export async function handleDragStart(event, payload) {
     }
 
     // Start native drag operation
-    const dragOptions = {
-      file: validation.metadata.path
+    const dragOptions: { file: string; icon: Electron.NativeImage } = {
+      file: validation.metadata.path,
+      icon: nativeImage.createEmpty() // Placeholder, will be set below
     };
 
     if (icon) {
@@ -217,7 +253,7 @@ export async function handleDragStart(event, payload) {
       success: true,
       file: validation.metadata
     };
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Drag start error:', error);
     return {
       success: false,
@@ -241,11 +277,20 @@ export async function handleValidateFilePath(event, payload) {
 
   const validation = await validateFilePath(filePath, options);
 
-  return {
-    success: validation.valid,
-    error: validation.error,
-    metadata: validation.metadata
-  };
+  if (validation.valid) {
+    return {
+      success: true,
+      error: undefined,
+      metadata: validation.metadata
+    };
+  } else {
+    const failure = validation as { valid: false; error: string };
+    return {
+      success: false,
+      error: failure.error,
+      metadata: undefined
+    };
+  }
 }
 
 /**

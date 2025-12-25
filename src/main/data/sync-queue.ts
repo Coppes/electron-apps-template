@@ -1,12 +1,13 @@
-/**
- * Sync Queue
- * Manages offline operations with retry logic and exponential backoff
- */
-
 import Store from 'electron-store';
 import { logger } from '../logger.ts';
 import connectivityManager from './connectivity-manager.ts';
 import { notificationManager } from '../notifications.ts';
+import {
+  SyncOperation,
+  DataAdapter,
+  SyncResult,
+  IPCResponse
+} from '../../common/types.ts';
 
 const QUEUE_KEY = 'syncQueue';
 const MAX_QUEUE_SIZE = 10000;
@@ -17,12 +18,44 @@ const PURGE_AFTER_DAYS = 7;
 const BATCH_SIZE = 10; // Process max 10 operations at once
 const CONCURRENT_LIMIT = 3; // Max 3 concurrent sync operations
 
+interface SyncQueueOptions {
+  maxQueueSize?: number;
+  maxRetries?: number;
+  adapter?: DataAdapter;
+  autoSync?: boolean;
+}
+
+interface QueueEntry extends SyncOperation {
+  status: 'pending' | 'processing' | 'synced' | 'failed';
+  retries: number;
+  timestamp: number;
+  lastAttempt: number | null;
+  error: string | null;
+  syncedAt?: number;
+}
+
+interface SyncQueueStatus {
+  total: number;
+  pending: number;
+  syncing: number;
+  synced: number;
+  failed: number;
+  [key: string]: number; // index signature for dynamic access
+}
+
 /**
  * SyncQueue Class
  * Manages offline-first synchronization with automatic retry
  */
 export class SyncQueue {
-  constructor(options = {}) {
+  private store: Store;
+  private maxQueueSize: number;
+  private maxRetries: number;
+  private adapter: DataAdapter | null;
+  private processing: boolean;
+  private autoSync: boolean;
+
+  constructor(options: SyncQueueOptions = {}) {
     this.store = new Store();
     this.maxQueueSize = options.maxQueueSize || MAX_QUEUE_SIZE;
     this.maxRetries = options.maxRetries || MAX_RETRIES;
@@ -43,7 +76,7 @@ export class SyncQueue {
   /**
    * Initialize sync queue
    */
-  async initialize() {
+  async initialize(): Promise<void> {
     // Load queue from store
     const queue = this.getQueue();
 
@@ -53,7 +86,10 @@ export class SyncQueue {
     });
 
     // Start processing if online
-    if (this.autoSync && connectivityManager.isOnline) {
+    // Using explicit getter for isOnline if accessible or just assuming logic from manager import
+    // ConnectivityManager has getStatus but checks via instance.
+    const status = connectivityManager.getStatus();
+    if (this.autoSync && status.online) {
       await this.process();
     }
   }
@@ -61,23 +97,21 @@ export class SyncQueue {
   /**
    * Get queue from store
    */
-  getQueue() {
-    return this.store.get(QUEUE_KEY, []);
+  getQueue(): QueueEntry[] {
+    return (this.store.get(QUEUE_KEY, []) as QueueEntry[]);
   }
 
   /**
    * Save queue to store
    */
-  saveQueue(queue) {
+  saveQueue(queue: QueueEntry[]): void {
     this.store.set(QUEUE_KEY, queue);
   }
 
   /**
    * Add operation to queue
-   * @param {object} operation - Operation to queue
-   * @returns {Promise<object>} Result
    */
-  async enqueue(operation) {
+  async enqueue(operation: Omit<SyncOperation, 'id' | 'timestamp'>): Promise<IPCResponse<{ id: string; queued: number }>> {
     try {
       const queue = this.getQueue();
 
@@ -90,7 +124,7 @@ export class SyncQueue {
       }
 
       // Create operation entry
-      const entry = {
+      const entry: QueueEntry = {
         id: this.generateId(),
         type: operation.type,
         entity: operation.entity,
@@ -113,16 +147,19 @@ export class SyncQueue {
       });
 
       // Try to process immediately if online
-      if (this.autoSync && connectivityManager.isOnline && !this.processing) {
+      const status = connectivityManager.getStatus();
+      if (this.autoSync && status.online && !this.processing) {
         setImmediate(() => this.process());
       }
 
       return {
         success: true,
-        id: entry.id,
-        queued: queue.length
+        data: {
+          id: entry.id,
+          queued: queue.length
+        }
       };
-    } catch (error) {
+    } catch (error: any) {
       logger.error('Failed to enqueue operation:', error);
       return {
         success: false,
@@ -133,22 +170,22 @@ export class SyncQueue {
 
   /**
    * Process queue
-   * @returns {Promise<object>} Result
    */
-  async process() {
+  async process(): Promise<IPCResponse<{ processed: number; failed: number; pending: number }>> {
     // Prevent concurrent processing
     if (this.processing) {
       return {
         success: false,
-        message: 'Already processing'
+        error: 'Already processing'
       };
     }
 
     // Check if online
-    if (!connectivityManager.isOnline) {
+    const status = connectivityManager.getStatus();
+    if (!status.online) {
       return {
         success: false,
-        message: 'Offline - sync paused'
+        error: 'Offline - sync paused'
       };
     }
 
@@ -211,6 +248,9 @@ export class SyncQueue {
               operation.lastAttempt = Date.now();
               operation.retries++;
 
+              // We checked this.adapter existence before, but TS might need check inside async
+              if (!this.adapter) throw new Error('Adapter missing');
+
               const result = await this.adapter.sync(operation);
 
               if (result.success) {
@@ -223,7 +263,7 @@ export class SyncQueue {
                   type: operation.type
                 });
               } else {
-                operation.error = result.error;
+                operation.error = result.error || 'Unknown error';
 
                 logger.warn('Operation sync failed', {
                   id: operation.id,
@@ -231,7 +271,7 @@ export class SyncQueue {
                   retries: operation.retries
                 });
               }
-            } catch (error) {
+            } catch (error: any) {
               operation.error = error.message;
 
               logger.error('Operation sync error:', {
@@ -292,11 +332,13 @@ export class SyncQueue {
 
       return {
         success: true,
-        processed,
-        failed,
-        pending: this.getPendingCount()
+        data: {
+          processed,
+          failed,
+          pending: this.getPendingCount()
+        }
       };
-    } catch (error) {
+    } catch (error: any) {
       logger.error('Queue processing failed:', error);
 
       notificationManager.showNotification({
@@ -317,7 +359,7 @@ export class SyncQueue {
   /**
    * Calculate exponential backoff delay
    */
-  calculateBackoff(retries) {
+  calculateBackoff(retries: number): number {
     const delay = INITIAL_BACKOFF_MS * Math.pow(2, retries);
     return Math.min(delay, MAX_BACKOFF_MS);
   }
@@ -325,7 +367,7 @@ export class SyncQueue {
   /**
    * Get pending operations count
    */
-  getPendingCount() {
+  getPendingCount(): number {
     const queue = this.getQueue();
     return queue.filter(op => op.status === 'pending').length;
   }
@@ -333,10 +375,10 @@ export class SyncQueue {
   /**
    * Get queue status
    */
-  getStatus() {
+  getStatus(): SyncQueueStatus {
     const queue = this.getQueue();
 
-    const status = {
+    const status: SyncQueueStatus = {
       total: queue.length,
       pending: 0,
       syncing: 0,
@@ -345,7 +387,9 @@ export class SyncQueue {
     };
 
     for (const operation of queue) {
-      status[operation.status]++;
+      if (operation.status in status) {
+        status[operation.status]++;
+      }
     }
 
     return status;
@@ -354,7 +398,7 @@ export class SyncQueue {
   /**
    * Cleanup old synced operations
    */
-  async cleanup() {
+  async cleanup(): Promise<void> {
     const queue = this.getQueue();
     const cutoff = Date.now() - (PURGE_AFTER_DAYS * 24 * 60 * 60 * 1000);
 
@@ -365,7 +409,7 @@ export class SyncQueue {
       }
 
       // Remove old synced operations
-      if (op.status === 'synced' && op.syncedAt < cutoff) {
+      if (op.status === 'synced' && op.syncedAt && op.syncedAt < cutoff) {
         return false;
       }
 
@@ -384,7 +428,7 @@ export class SyncQueue {
   /**
    * Clear all operations
    */
-  async clear() {
+  async clear(): Promise<IPCResponse<void>> {
     this.saveQueue([]);
     logger.info('Queue cleared');
 
@@ -396,14 +440,14 @@ export class SyncQueue {
   /**
    * Generate unique operation ID
    */
-  generateId() {
+  generateId(): string {
     return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
 
   /**
    * Set sync adapter
    */
-  setAdapter(adapter) {
+  setAdapter(adapter: DataAdapter): void {
     this.adapter = adapter;
     logger.info('Sync adapter configured');
   }

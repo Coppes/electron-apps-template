@@ -1,20 +1,53 @@
-/**
- * File Watcher Service
- * Monitors external file changes and notifies renderer
- */
-
-import { watch } from 'fs';
+import { watch, FSWatcher } from 'fs';
 import fs from 'fs/promises';
 import path from 'path';
+import { BrowserWindow } from 'electron';
 import { IPC_CHANNELS } from '../../common/constants.ts';
 import { logger } from '../logger.ts';
+
+interface FileWatcherOptions {
+  debounceDelay?: number;
+  cleanupInterval?: number;
+  maxIdleTime?: number;
+}
+
+interface FileMetadata {
+  size: number;
+  mtime: number;
+  isDirectory: boolean;
+  exists: boolean;
+}
+
+interface WatcherData {
+  watcher: FSWatcher;
+  metadata: FileMetadata;
+  window: BrowserWindow;
+  timeout: NodeJS.Timeout | null;
+  batch: Set<string | null>;
+  lastActivity: number;
+}
+
+interface WatcherResponse {
+  success: boolean;
+  message?: string;
+  path?: string;
+  metadata?: FileMetadata;
+  error?: string;
+  count?: number;
+}
 
 /**
  * FileWatcher Class
  * Manages file watching with debouncing and conflict detection
  */
 export class FileWatcher {
-  constructor(options = {}) {
+  private watchers: Map<string, WatcherData>;
+  private debounceDelay: number;
+  private cleanupInterval: number;
+  private maxIdleTime: number;
+  private cleanupTimer: NodeJS.Timeout | null;
+
+  constructor(options: FileWatcherOptions = {}) {
     this.watchers = new Map(); // Map of filePath -> { watcher, metadata, timeout }
     this.debounceDelay = options.debounceDelay || 300; // 300ms default (tuned for responsiveness)
     this.cleanupInterval = options.cleanupInterval || 60000; // 60s cleanup interval
@@ -25,7 +58,7 @@ export class FileWatcher {
   /**
    * Initialize file watcher with periodic cleanup
    */
-  initialize() {
+  initialize(): void {
     // Start periodic cleanup
     this.startCleanup();
   }
@@ -33,7 +66,7 @@ export class FileWatcher {
   /**
    * Start periodic memory cleanup
    */
-  startCleanup() {
+  startCleanup(): void {
     if (this.cleanupTimer) {
       return;
     }
@@ -51,7 +84,7 @@ export class FileWatcher {
   /**
    * Stop cleanup timer
    */
-  stopCleanup() {
+  stopCleanup(): void {
     if (this.cleanupTimer) {
       clearInterval(this.cleanupTimer);
       this.cleanupTimer = null;
@@ -62,7 +95,7 @@ export class FileWatcher {
   /**
    * Perform memory cleanup
    */
-  performCleanup() {
+  performCleanup(): void {
     const now = Date.now();
     let cleaned = 0;
 
@@ -82,7 +115,6 @@ export class FileWatcher {
           logger.debug(`Cleaned up idle watcher: ${filePath}`);
         } catch (_error) {
           logger.error(`Failed to cleanup watcher for ${filePath}:`, _error);
-          // window is not defined in main process, but error was about unused arg?ror);
         }
       }
     }
@@ -96,11 +128,8 @@ export class FileWatcher {
 
   /**
    * Start watching a file
-   * @param {string} filePath - Path to file to watch
-   * @param {BrowserWindow} window - Window to notify
-   * @returns {Promise<object>} Result
    */
-  async watch(filePath, window) {
+  async watch(filePath: string, window: BrowserWindow): Promise<WatcherResponse> {
     try {
       // Normalize path
       const normalizedPath = path.resolve(filePath);
@@ -155,7 +184,7 @@ export class FileWatcher {
         path: normalizedPath,
         metadata
       };
-    } catch (error) {
+    } catch (error: any) {
       logger.error('Failed to watch file:', error);
       return {
         success: false,
@@ -166,10 +195,8 @@ export class FileWatcher {
 
   /**
    * Stop watching a file
-   * @param {string} filePath - Path to file
-   * @returns {Promise<object>} Result
    */
-  async unwatch(filePath) {
+  async unwatch(filePath: string): Promise<WatcherResponse> {
     try {
       const normalizedPath = path.resolve(filePath);
       const watcherData = this.watchers.get(normalizedPath);
@@ -198,7 +225,7 @@ export class FileWatcher {
         success: true,
         path: normalizedPath
       };
-    } catch (error) {
+    } catch (error: any) {
       logger.error('Failed to unwatch file:', error);
       return {
         success: false,
@@ -210,7 +237,7 @@ export class FileWatcher {
   /**
    * Handle file change event with batching and debouncing
    */
-  handleFileChange(filePath, eventType, filename) {
+  handleFileChange(filePath: string, eventType: string, filename: string | Buffer | null): void {
     const watcherData = this.watchers.get(filePath);
 
     if (!watcherData) {
@@ -220,8 +247,9 @@ export class FileWatcher {
     // Update last activity time for cleanup
     watcherData.lastActivity = Date.now();
 
-    // Add filename to batch (normalize to null if undefined/empty)
-    watcherData.batch.add(filename || null);
+    // Add filename to batch (normalize to null if undefined/empty/buffer)
+    const fname = filename ? filename.toString() : null;
+    watcherData.batch.add(fname);
 
     // Clear existing timeout
     if (watcherData.timeout) {
@@ -241,7 +269,7 @@ export class FileWatcher {
         // If we have specific filenames, check each one.
         // If the batch contains null (unknown file changed) or we are watching a file directly, check the watched path.
 
-        const filesToCheck = new Set();
+        const filesToCheck = new Set<string>();
 
         if (isDirectory) {
           // If we have specific files, check them
@@ -273,10 +301,8 @@ export class FileWatcher {
 
   /**
    * Check a specific path state and notify if changed
-   * @param {string} fullPath
-   * @param {BrowserWindow} window
    */
-  async checkAndNotifyChange(fullPath, window) {
+  async checkAndNotifyChange(fullPath: string, window: BrowserWindow): Promise<void> {
     try {
       // Check availability
       const currentMetadata = await this.getFileMetadata(fullPath);
@@ -301,7 +327,7 @@ export class FileWatcher {
         current: currentMetadata,
         timestamp: new Date().toISOString()
       });
-    } catch (err) {
+    } catch (err: any) {
       logger.warn(`Failed to check path ${fullPath}: ${err.message}`);
     }
   }
@@ -309,7 +335,7 @@ export class FileWatcher {
   /**
    * Get file metadata
    */
-  async getFileMetadata(filePath) {
+  async getFileMetadata(filePath: string): Promise<FileMetadata | null> {
     try {
       const stats = await fs.stat(filePath);
       return {
@@ -318,7 +344,7 @@ export class FileWatcher {
         isDirectory: stats.isDirectory(),
         exists: true
       };
-    } catch (error) {
+    } catch (error: any) {
       if (error.code === 'ENOENT') {
         return null; // File doesn't exist
       }
@@ -329,7 +355,7 @@ export class FileWatcher {
   /**
    * Check if file has changed
    */
-  hasFileChanged(previous, current) {
+  hasFileChanged(previous: FileMetadata, current: FileMetadata): boolean {
     return previous.size !== current.size ||
       previous.mtime !== current.mtime;
   }
@@ -337,7 +363,7 @@ export class FileWatcher {
   /**
    * Notify window of file change
    */
-  notifyFileChange(window, data) {
+  notifyFileChange(window: BrowserWindow, data: any): void {
     if (window && !window.isDestroyed()) {
       window.webContents.send(IPC_CHANNELS.FILE_CHANGED, data);
       logger.info('File change notification sent:', {
@@ -350,14 +376,14 @@ export class FileWatcher {
   /**
    * Get list of watched files
    */
-  getWatchedFiles() {
+  getWatchedFiles(): string[] {
     return Array.from(this.watchers.keys());
   }
 
   /**
    * Stop watching all files
    */
-  async unwatchAll() {
+  async unwatchAll(): Promise<WatcherResponse> {
     const paths = this.getWatchedFiles();
     const results = await Promise.all(
       paths.map(path => this.unwatch(path))
@@ -373,7 +399,7 @@ export class FileWatcher {
   /**
    * Cleanup on app quit
    */
-  async cleanup() {
+  async cleanup(): Promise<void> {
     this.stopCleanup();
     await this.unwatchAll();
     logger.info('File watcher cleanup complete');

@@ -3,16 +3,16 @@
  * @param {string} hex 
  * @returns {string}
  */
-export function hexToHsl(hex) {
+export function hexToHsl(hex: string): string {
   let r = 0, g = 0, b = 0;
   if (hex.length === 4) {
-    r = '0x' + hex[1] + hex[1];
-    g = '0x' + hex[2] + hex[2];
-    b = '0x' + hex[3] + hex[3];
+    r = parseInt('0x' + hex[1] + hex[1]);
+    g = parseInt('0x' + hex[2] + hex[2]);
+    b = parseInt('0x' + hex[3] + hex[3]);
   } else if (hex.length === 7) {
-    r = '0x' + hex[1] + hex[2];
-    g = '0x' + hex[3] + hex[4];
-    b = '0x' + hex[5] + hex[6];
+    r = parseInt('0x' + hex[1] + hex[2]);
+    g = parseInt('0x' + hex[3] + hex[4]);
+    b = parseInt('0x' + hex[5] + hex[6]);
   }
   r /= 255;
   g /= 255;
@@ -54,7 +54,7 @@ export function hexToHsl(hex) {
  * @param {string} hsl 
  * @returns {string}
  */
-export function hslToHex(hsl) {
+export function hslToHex(hsl: string): string {
   // Simple check if it's already hex
   if (hsl.startsWith('#')) return hsl;
 
@@ -89,13 +89,13 @@ export function hslToHex(hsl) {
     r = c; g = 0; b = x;
   }
 
-  r = Math.round((r + m) * 255).toString(16);
-  g = Math.round((g + m) * 255).toString(16);
-  b = Math.round((b + m) * 255).toString(16);
+  let rHex = Math.round((r + m) * 255).toString(16);
+  let gHex = Math.round((g + m) * 255).toString(16);
+  let bHex = Math.round((b + m) * 255).toString(16);
 
-  if (r.length === 1) r = "0" + r;
-  if (g.length === 1) g = "0" + g;
-  if (b.length === 1) b = "0" + b;
+  if (rHex.length === 1) rHex = "0" + rHex;
+  if (gHex.length === 1) gHex = "0" + gHex;
+  if (bHex.length === 1) bHex = "0" + bHex;
 
-  return "#" + r + g + b;
+  return "#" + rHex + gHex + bHex;
 }

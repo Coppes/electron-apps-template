@@ -1,16 +1,21 @@
-/**
- * Mock Sync Adapter
- * Simple adapter for testing sync queue without real backend
- */
+import { DataAdapter, SyncOperation, SyncResult } from '../../../common/types.ts';
+import { logger } from '../../logger.ts';
 
-import { logger } from '../logger.ts';
+interface MockAdapterOptions {
+  delay?: number;
+  failRate?: number;
+}
 
 /**
  * MockAdapter Class
  * Simulates backend sync operations
  */
-export class MockAdapter {
-  constructor(options = {}) {
+export class MockAdapter implements DataAdapter {
+  private delay: number;
+  private failRate: number;
+  private syncedOperations: (SyncOperation & { syncedAt: number })[];
+
+  constructor(options: MockAdapterOptions = {}) {
     this.delay = options.delay || 100; // Simulate network delay
     this.failRate = options.failRate || 0; // 0-1, probability of failure
     this.syncedOperations = [];
@@ -18,10 +23,8 @@ export class MockAdapter {
 
   /**
    * Sync operation (mock implementation)
-   * @param {object} operation - Operation to sync
-   * @returns {Promise<object>} Result
    */
-  async sync(operation) {
+  async sync(operation: SyncOperation): Promise<SyncResult> {
     // Simulate network delay
     await this.sleep(this.delay);
 
@@ -68,7 +71,7 @@ export class MockAdapter {
   /**
    * Sleep helper
    */
-  sleep(ms) {
+  private sleep(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 }

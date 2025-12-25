@@ -6,8 +6,11 @@ import { logger } from './logger.ts';
  * Manages application-wide keyboard shortcuts
  */
 export class ShortcutManager {
+  private shortcuts: Map<string, { handler: Function; description: string }>;
+  private whitelist: string[];
+  public reservedShortcuts: string[];
+
   constructor() {
-    /** @type {Map<string, {handler: Function, description: string}>} */
     this.shortcuts = new Map();
 
     // Whitelist of allowed shortcuts for security

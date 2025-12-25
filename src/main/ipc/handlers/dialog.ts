@@ -18,7 +18,7 @@ export function openFileDialogHandler() {
       const window = BrowserWindow.fromWebContents(event.sender);
 
       const defaultOptions = {
-        properties: ['openFile'],
+        properties: ['openFile'] as ('openFile' | 'openDirectory' | 'multiSelections' | 'showHiddenFiles' | 'createDirectory' | 'promptToCreate' | 'noResolveAliases' | 'treatPackageAsDirectory' | 'dontAddToRecent')[],
         filters: [
           { name: 'Text Files', extensions: ['txt', 'md', 'json', 'js', 'jsx', 'ts', 'tsx'] },
           { name: 'All Files', extensions: ['*'] },

@@ -3,7 +3,13 @@ import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { cn } from '../../utils/cn';
 
-const Tooltip = ({ children, content, side = 'top' }) => {
+export interface TooltipProps {
+  children: React.ReactNode;
+  content?: React.ReactNode;
+  side?: 'top' | 'bottom' | 'left' | 'right';
+}
+
+const Tooltip: React.FC<TooltipProps> = ({ children, content, side = 'top' }) => {
   const [isVisible, setIsVisible] = useState(false);
 
   const positions = {

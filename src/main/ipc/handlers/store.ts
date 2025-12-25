@@ -1,33 +1,47 @@
-import Store from 'electron-store';
-import { BrowserWindow } from 'electron';
+import { ipcMain, app, BrowserWindow } from 'electron';
+import Store, { Schema } from 'electron-store';
 import { logger } from '../../logger.ts';
-import { createErrorResponse, createSuccessResponse } from '../bridge.ts';
+import { createSuccessResponse, createErrorResponse } from '../bridge.ts';
 import { IPC_CHANNELS } from '../../../common/constants.ts';
 
+/**
+ * Store IPC handlers
+ */
+
+// Define store schema
+const schema: Schema<any> = {
+  theme: {
+    type: 'string',
+    enum: ['light', 'dark', 'system'],
+    default: 'system',
+  },
+  // ... other schema items
+};
+
 const defaults = {
-  appearance: { theme: 'system', density: 'normal' },
-  history: { maxStackSize: 50 },
+  appearance: {
+    theme: 'system',
+    density: 'comfortable',
+  },
+  history: {
+    maxStackSize: 100,
+  },
   language: 'en',
-  hasCompletedTour: false
+  hasCompletedTour: false,
 };
 
 const migrations = {
-  '1.0.0': (store) => {
-    // Migrate flat settings to nested structure if needed
-    if (store.has('theme') && !store.has('appearance.theme')) {
-      store.set('appearance.theme', store.get('theme'));
-      store.delete('theme');
-    }
-    if (store.has('language') && !store.has('language')) {
-      // already top level, but explicit check
-    }
-  }
+  '1.0.0': (store: Store) => {
+    store.set('projectVersion', '1.0.0');
+  },
 };
 
+// Initialize store
 export const store = new Store({
   defaults,
   migrations,
-  projectVersion: '1.0.0' // Matches package.json usually
+  name: 'config', // Explicit name defaults to config anyway
+  cwd: app.getPath('userData'),
 });
 
 /**

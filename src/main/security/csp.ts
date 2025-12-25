@@ -45,11 +45,17 @@ export const CSP_POLICY_DEVELOPMENT = {
 export function buildCSPHeader(policy) {
   return Object.entries(policy)
     .map(([directive, values]) => {
-      if (values.length === 0) {
-        return directive;
+      // Skip if array is empty
+      if (Array.isArray(values) && values.length === 0) {
+        return directive; // Directives like 'upgrade-insecure-requests' are valid without values
       }
-      return `${directive} ${values.join(' ')}`;
+
+      if (Array.isArray(values)) {
+        return `${directive} ${values.join(' ')}`;
+      }
+      return ''; // Should not happen given the entries loop but safe fallback
     })
+    .filter(part => part !== '') // Filter out any empty parts that might result from the fallback
     .join('; ');
 }
 
@@ -76,7 +82,7 @@ export function getCSPHeader() {
  */
 export function applyCSP(webContents) {
   const cspHeader = getCSPHeader();
-  
+
   webContents.session.webRequest.onHeadersReceived((details, callback) => {
     callback({
       responseHeaders: {

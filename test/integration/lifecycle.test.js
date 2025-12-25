@@ -7,18 +7,7 @@ import { existsSync } from 'fs';
 import fs from 'fs/promises';
 
 // Mock electron modules
-vi.mock('electron', () => ({
-  app: {
-    getVersion: vi.fn(() => '1.0.0'),
-    getName: vi.fn(() => 'Test App'),
-    getPath: vi.fn((name) => `/tmp/electron-test/${name}`),
-    requestSingleInstanceLock: vi.fn(() => true),
-    setAsDefaultProtocolClient: vi.fn(),
-    isDefaultProtocolClient: vi.fn(() => true),
-    on: vi.fn(),
-    quit: vi.fn(),
-  },
-}));
+// Using global mock from setup/electron-mocks.js
 
 // Mock fs
 vi.mock('fs/promises', () => ({
@@ -34,8 +23,8 @@ vi.mock('fs', () => ({
   existsSync: vi.fn(() => false),
 }));
 
-// Mock modules
-vi.mock('../../src/main/logger.js', () => ({
+// Mock modules - using .ts extensions to match source imports
+vi.mock('../../src/main/logger.ts', () => ({
   logger: {
     debug: vi.fn(),
     info: vi.fn(),
@@ -44,7 +33,7 @@ vi.mock('../../src/main/logger.js', () => ({
   },
 }));
 
-vi.mock('../../src/main/window-manager.js', () => ({
+vi.mock('../../src/main/window-manager.ts', () => ({
   windowManager: {
     createWindow: vi.fn(() => ({
       id: 1,
@@ -77,35 +66,35 @@ vi.mock('../../src/main/window-manager.js', () => ({
   },
 }));
 
-vi.mock('../../src/main/menu.js', () => ({
+vi.mock('../../src/main/menu.ts', () => ({
   setupMenu: vi.fn(),
 }));
 
-vi.mock('../../src/main/ipc/bridge.js', () => ({
+vi.mock('../../src/main/ipc/bridge.ts', () => ({
   registerHandlers: vi.fn(),
 }));
 
-vi.mock('../../src/main/ipc/handlers/log.js', () => ({
+vi.mock('../../src/main/ipc/handlers/log.ts', () => ({
   registerLogHandlers: vi.fn(),
 }));
 
-vi.mock('../../src/main/ipc/handlers/window.js', () => ({
+vi.mock('../../src/main/ipc/handlers/window.ts', () => ({
   createWindowHandlers: vi.fn(() => ({})),
 }));
 
-vi.mock('../../src/main/ipc/handlers/store.js', () => ({
+vi.mock('../../src/main/ipc/handlers/store.ts', () => ({
   createStoreHandlers: vi.fn(() => ({})),
 }));
 
-vi.mock('../../src/main/ipc/handlers/dialog.js', () => ({
+vi.mock('../../src/main/ipc/handlers/dialog.ts', () => ({
   createDialogHandlers: vi.fn(() => ({})),
 }));
 
-vi.mock('../../src/main/ipc/handlers/app.js', () => ({
+vi.mock('../../src/main/ipc/handlers/app.ts', () => ({
   createAppHandlers: vi.fn(() => ({})),
 }));
 
-vi.mock('../../src/main/config.js', () => ({
+vi.mock('../../src/main/config.ts', () => ({
   config: {
     env: 'test',
     singleInstance: {
@@ -128,7 +117,7 @@ vi.mock('electron-store', () => {
       constructor() {
         this.store = {};
       }
-      get(key) { return this.store[key]; }
+      get(key, defaultValue) { return this.store[key] ?? defaultValue; }
       set(key, val) { this.store[key] = val; }
       delete(key) { delete this.store[key]; }
       clear() { this.store = {}; }
@@ -136,7 +125,7 @@ vi.mock('electron-store', () => {
   };
 });
 
-vi.mock('../../src/main/splash.js', () => ({
+vi.mock('../../src/main/splash.ts', () => ({
   splashManager: {
     show: vi.fn(),
     fadeOut: vi.fn(),
@@ -144,39 +133,39 @@ vi.mock('../../src/main/splash.js', () => ({
 }));
 
 // Mock other dependencies
-vi.mock('../../src/main/shortcuts.js', () => ({
+vi.mock('../../src/main/shortcuts.ts', () => ({
   shortcutManager: { cleanup: vi.fn(), register: vi.fn() }
 }));
-vi.mock('../../src/main/tray.js', () => ({
+vi.mock('../../src/main/tray.ts', () => ({
   trayManager: { destroy: vi.fn(), createTray: vi.fn() }
 }));
-vi.mock('../../src/main/data/connectivity-manager.js', () => ({
+vi.mock('../../src/main/data/connectivity-manager.ts', () => ({
   default: { initialize: vi.fn(), cleanup: vi.fn() }
 }));
-vi.mock('../../src/main/data/sync-queue.js', () => ({
+vi.mock('../../src/main/data/sync-queue.ts', () => ({
   default: { initialize: vi.fn() }
 }));
-vi.mock('../../src/main/notifications.js', () => ({
+vi.mock('../../src/main/notifications.ts', () => ({
   notificationManager: { showNotification: vi.fn() }
 }));
 
 // Mock IPC handlers
 const mockHandlers = {};
-vi.mock('../../src/main/ipc/handlers/secure-store.js', () => ({ secureStoreHandlers: mockHandlers }));
-vi.mock('../../src/main/ipc/handlers/files.js', () => ({ fileHandlers: mockHandlers }));
-vi.mock('../../src/main/ipc/handlers/data.js', () => ({ dataHandlers: mockHandlers }));
-vi.mock('../../src/main/ipc/handlers/tray.js', () => ({ trayHandlers: mockHandlers }));
-vi.mock('../../src/main/ipc/handlers/shortcuts.js', () => ({ shortcutHandlers: mockHandlers }));
-vi.mock('../../src/main/ipc/handlers/notifications.js', () => ({ notificationHandlers: mockHandlers }));
-vi.mock('../../src/main/ipc/handlers/i18n.js', () => ({ i18nHandlers: mockHandlers }));
+vi.mock('../../src/main/ipc/handlers/secure-store.ts', () => ({ secureStoreHandlers: mockHandlers }));
+vi.mock('../../src/main/ipc/handlers/files.ts', () => ({ fileHandlers: mockHandlers }));
+vi.mock('../../src/main/ipc/handlers/data.ts', () => ({ dataHandlers: mockHandlers }));
+vi.mock('../../src/main/ipc/handlers/tray.ts', () => ({ trayHandlers: mockHandlers }));
+vi.mock('../../src/main/ipc/handlers/shortcuts.ts', () => ({ shortcutHandlers: mockHandlers }));
+vi.mock('../../src/main/ipc/handlers/notifications.ts', () => ({ notificationHandlers: mockHandlers }));
+vi.mock('../../src/main/ipc/handlers/i18n.ts', () => ({ i18nHandlers: mockHandlers }));
 
-// Import after mocking
-const { LifecycleManager } = await import('../../src/main/lifecycle.js');
-const { logger } = await import('../../src/main/logger.js');
-const { windowManager } = await import('../../src/main/window-manager.js');
-const { registerHandlers } = await import('../../src/main/ipc/bridge.js');
-const { setupMenu } = await import('../../src/main/menu.js');
-const { splashManager } = await import('../../src/main/splash.js');
+// Import after mocking - using .ts
+const { LifecycleManager } = await import('../../src/main/lifecycle.ts');
+const { logger } = await import('../../src/main/logger.ts');
+const { windowManager } = await import('../../src/main/window-manager.ts');
+const { registerHandlers } = await import('../../src/main/ipc/bridge.ts');
+const { setupMenu } = await import('../../src/main/menu.ts');
+const { splashManager } = await import('../../src/main/splash.ts');
 
 describe('Lifecycle Manager Integration', () => {
   let lifecycle;
@@ -393,7 +382,7 @@ describe('Lifecycle Manager Integration', () => {
 
   describe('Environment Configuration', () => {
     it('should load environment overrides on startup', async () => {
-      const { loadEnvironmentOverrides } = await import('../../../src/main/config.js');
+      const { loadEnvironmentOverrides } = await import('../../src/main/config.ts');
       loadEnvironmentOverrides.mockReturnValueOnce({ debug: true });
 
       await lifecycle.startup();

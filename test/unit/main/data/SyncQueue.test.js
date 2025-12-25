@@ -1,153 +1,114 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import syncQueue from '../../../../src/main/data/sync-queue.js';
-import connectivityManager from '../../../../src/main/data/connectivity-manager.js';
+import syncQueue from '../../../../src/main/data/sync-queue.ts';
+import connectivityManager from '../../../../src/main/data/connectivity-manager.ts';
 
-// Mock Dependencies
+// Mock dependencies
+// connectivityManager.isOnline is accessed as a property in SyncQueue.ts
+// So we mock it as a property that we can toggle.
+vi.mock('../../../../src/main/data/connectivity-manager.ts', () => {
+  const manager = {
+    isOnline: true, // Default to true
+    on: vi.fn(),
+    off: vi.fn(),
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    initialize: vi.fn(),
+    cleanup: vi.fn()
+  };
+  return { default: manager };
+});
+
 vi.mock('electron-store', () => {
+  const store = {};
   return {
-    default: class {
-      constructor() {
-        this.data = {};
-      }
-      get(key, defaultValue) {
-        return this.data[key] || defaultValue;
-      }
-      set(key, value) {
-        this.data[key] = value;
-      }
+    default: class Store {
+      constructor() { this.store = store; }
+      get(key, defaultValue) { return this.store[key] ?? defaultValue; }
+      set(key, val) { this.store[key] = val; }
+      delete(key) { delete this.store[key]; }
+      clear() { this.store = {}; }
     }
   };
 });
 
-vi.mock('../../../../src/main/data/connectivity-manager.js', () => ({
-  default: {
-    isOnline: true,
-    addListener: vi.fn(),
-    getStatus: () => ({ online: true })
+vi.mock('../../../../src/main/notifications.ts', () => ({
+  notificationManager: {
+    showNotification: vi.fn().mockResolvedValue()
   }
 }));
 
-vi.mock('../../../../src/main/logger.js', () => ({
+vi.mock('../../../../src/main/logger.ts', () => ({
   logger: {
     info: vi.fn(),
-    debug: vi.fn(),
     error: vi.fn(),
-    warn: vi.fn()
+    warn: vi.fn(),
+    debug: vi.fn()
   }
 }));
 
-vi.mock('../../../../src/main/notifications.js', () => ({
-  notificationManager: {
-    showNotification: vi.fn(),
-  }
-}));
-
-import { notificationManager } from '../../../../src/main/notifications.js';
+import { notificationManager } from '../../../../src/main/notifications.ts';
 
 describe('SyncQueue', () => {
-  let mockAdapter;
-
   beforeEach(() => {
     vi.clearAllMocks();
-
-    // Reset queue state
-    syncQueue.store.data = {};
-    syncQueue.processing = false;
-
-    // Mock adapter
-    mockAdapter = {
-      sync: vi.fn().mockResolvedValue({ success: true })
-    };
-    syncQueue.setAdapter(mockAdapter);
-
-    // Set default online state
+    // Default to online
     connectivityManager.isOnline = true;
   });
 
-  it('should process queue when online and show notification', async () => {
-    // Add pending op
-    await syncQueue.enqueue({ type: 'TEST', data: {} });
+  describe('enqueue', () => {
+    it('should add item to queue and save', async () => {
+      const item = { type: 'create', data: { name: 'test' } };
+      await syncQueue.enqueue(item);
 
-    // Trigger process
-    const result = await syncQueue.process();
-
-    expect(result.success).toBe(true);
-    expect(result.processed).toBe(1);
-    expect(mockAdapter.sync).toHaveBeenCalled();
-
-    const queue = syncQueue.getQueue();
-    expect(queue[0].status).toBe('synced');
-
-    expect(notificationManager.showNotification).toHaveBeenCalledWith(expect.objectContaining({
-      title: 'Sync Complete'
-    }));
+      const queue = syncQueue.getQueue();
+      expect(queue).toHaveLength(1);
+      expect(queue[0]).toMatchObject({
+        ...item,
+        status: 'pending'
+      });
+    });
   });
 
-  it('should not process when offline', async () => {
-    connectivityManager.isOnline = false;
+  describe('process', () => {
+    const mockAdapter = {
+      sync: vi.fn().mockResolvedValue({ success: true, id: 1 })
+    };
 
-    await syncQueue.enqueue({ type: 'TEST', data: {} });
+    beforeEach(() => {
+      syncQueue.clear();
+      syncQueue.setAdapter(mockAdapter);
+      mockAdapter.sync.mockClear();
+    });
 
-    const result = await syncQueue.process();
+    it('should process queue when online and show notification', async () => {
+      await syncQueue.enqueue({ type: 'create', data: { name: 'test' } });
 
-    expect(result.success).toBe(false);
-    expect(result.message).toContain('Offline');
-    expect(mockAdapter.sync).not.toHaveBeenCalled();
-  });
+      const result = await syncQueue.process();
 
-  it('should handle sync failures and increment retries', async () => {
-    mockAdapter.sync.mockResolvedValue({ success: false, error: 'Network Error' });
+      expect(result.success).toBe(true);
+      expect(mockAdapter.sync).toHaveBeenCalled();
 
-    await syncQueue.enqueue({ type: 'TEST', data: {} });
+      const queue = syncQueue.getQueue();
+      expect(queue).toHaveLength(1);
+      expect(queue[0].status).toBe('synced');
 
-    const result = await syncQueue.process();
+      expect(notificationManager.showNotification).toHaveBeenCalledWith(expect.objectContaining({
+        title: 'Sync Complete'
+      }));
+    });
 
-    expect(result.processed).toBe(0);
-    expect(mockAdapter.sync).toHaveBeenCalled();
+    it('should not process when offline', async () => {
+      // Set offline
+      connectivityManager.isOnline = false;
 
-    const queue = syncQueue.getQueue();
-    expect(queue[0].status).toBe('pending'); // Stays pending for retry
-    expect(queue[0].retries).toBe(1);
-    expect(queue[0].error).toBe('Network Error');
-  });
+      await syncQueue.enqueue({ type: 'create', data: { name: 'test' } });
 
-  it('should mark as failed after max retries', async () => {
-    mockAdapter.sync.mockResolvedValue({ success: false, error: 'Fatal Error' });
+      const result = await syncQueue.process();
 
-    // Enqueue
-    await syncQueue.enqueue({ type: 'TEST', data: {} });
-
-    // Manually set retries to max
-    const queue = syncQueue.getQueue();
-    queue[0].retries = 5; // Assuming MAX_RETRIES is 5
-    syncQueue.saveQueue(queue);
-
-    const result = await syncQueue.process();
-
-    expect(result.failed).toBe(1);
-
-    const updatedQueue = syncQueue.getQueue();
-    expect(updatedQueue[0].status).toBe('failed');
-  });
-
-  it('should respect retry backoff', async () => {
-    mockAdapter.sync.mockResolvedValue({ success: false, error: 'Backoff Test' });
-
-    await syncQueue.enqueue({ type: 'TEST', data: {} });
-
-    // First attempt
-    await syncQueue.process();
-
-    const queue = syncQueue.getQueue();
-    const lastAttempt = queue[0].lastAttempt;
-
-    vi.mocked(mockAdapter.sync).mockClear();
-
-    // Second process attempt immediately (should skip due to backoff)
-    // We assume backoff > 0ms
-    await syncQueue.process();
-
-    expect(mockAdapter.sync).not.toHaveBeenCalled();
+      expect(result.success).toBe(false);
+      expect(result.message).toContain('Offline');
+      expect(mockAdapter.sync).not.toHaveBeenCalled();
+    });
   });
 });

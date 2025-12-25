@@ -4,11 +4,22 @@ import fs from 'fs';
 import { logger } from './logger.ts';
 import { isMacOS, isWindows } from '../common/constants.ts';
 
+import { TrayMenuItem } from '../common/types.ts';
+
 /**
  * System Tray Manager
  * Manages system tray icon and context menu
  */
+export interface TrayOptions {
+  tooltip?: string;
+  onClick?: () => void;
+}
+
 export class TrayManager {
+  private tray: Tray | null;
+  private menuTemplate: TrayMenuItem[];
+  private visible: boolean;
+
   constructor() {
     this.tray = null;
     this.menuTemplate = [];
@@ -25,12 +36,10 @@ export class TrayManager {
 
   /**
    * Create system tray icon
-   * @param {Object} [options] - Tray creation options
-   * @param {string} [options.tooltip] - Tooltip text
-   * @param {Function} [options.onClick] - Click handler
+   * @param {TrayOptions} [options] - Tray creation options
    * @returns {boolean} Success status
    */
-  createTray(options = {}) {
+  createTray(options: TrayOptions = {}) {
     if (this.tray) {
       logger.warn('Tray already exists');
       return false;

@@ -1,19 +1,32 @@
-/**
- * Connectivity Manager
- * Monitors network connectivity and notifies renderer
- */
-
-import { net } from 'electron';
-import { BrowserWindow } from 'electron';
+import { net, BrowserWindow } from 'electron';
 import { IPC_CHANNELS } from '../../common/constants.ts';
 import { logger } from '../logger.ts';
+
+interface ConnectivityManagerOptions {
+  checkUrl?: string;
+  pollInterval?: number;
+}
+
+interface ConnectivityStatus {
+  online: boolean;
+  checkUrl: string;
+  lastCheck: number;
+}
+
+type ConnectivityListener = (online: boolean) => void;
 
 /**
  * ConnectivityManager Class
  * Manages network connectivity detection and monitoring
  */
 export class ConnectivityManager {
-  constructor(options = {}) {
+  private isOnline: boolean;
+  private checkUrl: string;
+  private pollInterval: number;
+  private pollTimer: NodeJS.Timeout | null;
+  private listeners: Set<ConnectivityListener>;
+
+  constructor(options: ConnectivityManagerOptions = {}) {
     this.isOnline = true;
     this.checkUrl = options.checkUrl || 'https://www.google.com';
     this.pollInterval = options.pollInterval || 30000; // 30 seconds
@@ -24,7 +37,7 @@ export class ConnectivityManager {
   /**
    * Initialize connectivity monitoring
    */
-  async initialize() {
+  async initialize(): Promise<void> {
     // Initial check
     await this.checkConnectivity();
 
@@ -39,18 +52,17 @@ export class ConnectivityManager {
 
   /**
    * Check network connectivity
-   * @returns {Promise<boolean>} Connection status
    */
-  async checkConnectivity() {
+  async checkConnectivity(): Promise<boolean> {
     try {
       // Try HTTP HEAD request to reliable endpoint
       const online = await this.performConnectivityCheck();
-      
+
       // Only notify if status changed
       if (online !== this.isOnline) {
         const previousState = this.isOnline;
         this.isOnline = online;
-        
+
         logger.info('Connectivity changed', {
           from: previousState ? 'online' : 'offline',
           to: online ? 'online' : 'offline'
@@ -70,7 +82,7 @@ export class ConnectivityManager {
   /**
    * Perform actual connectivity check
    */
-  async performConnectivityCheck() {
+  async performConnectivityCheck(): Promise<boolean> {
     return new Promise((resolve) => {
       const request = net.request({
         method: 'HEAD',
@@ -84,7 +96,9 @@ export class ConnectivityManager {
 
       request.on('response', (response) => {
         clearTimeout(timeout);
-        resolve(response.statusCode >= 200 && response.statusCode < 300);
+        // Using optional handling for statusCode if undefined (though it should be defined on response)
+        const statusCode = response.statusCode || 0;
+        resolve(statusCode >= 200 && statusCode < 300);
       });
 
       request.on('error', () => {
@@ -99,7 +113,7 @@ export class ConnectivityManager {
   /**
    * Start periodic connectivity polling
    */
-  startPolling() {
+  startPolling(): void {
     if (this.pollTimer) {
       return;
     }
@@ -116,7 +130,7 @@ export class ConnectivityManager {
   /**
    * Stop connectivity polling
    */
-  stopPolling() {
+  stopPolling(): void {
     if (this.pollTimer) {
       clearInterval(this.pollTimer);
       this.pollTimer = null;
@@ -127,7 +141,7 @@ export class ConnectivityManager {
   /**
    * Notify windows of connectivity change
    */
-  notifyConnectivityChange(isOnline) {
+  notifyConnectivityChange(isOnline: boolean): void {
     const windows = BrowserWindow.getAllWindows();
 
     for (const window of windows) {
@@ -151,12 +165,10 @@ export class ConnectivityManager {
 
   /**
    * Register connectivity change listener
-   * @param {Function} listener - Callback function
-   * @returns {Function} Cleanup function
    */
-  addListener(listener) {
+  addListener(listener: ConnectivityListener): () => void {
     this.listeners.add(listener);
-    
+
     return () => {
       this.listeners.delete(listener);
     };
@@ -164,9 +176,8 @@ export class ConnectivityManager {
 
   /**
    * Get current connectivity status
-   * @returns {object} Status object
    */
-  getStatus() {
+  getStatus(): ConnectivityStatus {
     return {
       online: this.isOnline,
       checkUrl: this.checkUrl,
@@ -176,9 +187,8 @@ export class ConnectivityManager {
 
   /**
    * Force connectivity check
-   * @returns {Promise<object>} Status result
    */
-  async forceCheck() {
+  async forceCheck(): Promise<{ success: boolean; online: boolean; timestamp: number }> {
     const online = await this.checkConnectivity();
     return {
       success: true,
@@ -190,7 +200,7 @@ export class ConnectivityManager {
   /**
    * Cleanup on app quit
    */
-  cleanup() {
+  cleanup(): void {
     this.stopPolling();
     this.listeners.clear();
     logger.info('Connectivity manager cleanup complete');

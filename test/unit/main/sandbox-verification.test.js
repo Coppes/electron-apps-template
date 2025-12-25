@@ -1,15 +1,15 @@
 
 import { test, expect, vi, describe, beforeEach } from 'vitest';
-import { WindowManager } from '../../../src/main/window-manager.js';
+import { WindowManager } from '../../../src/main/window-manager.ts';
 import { BrowserWindow } from 'electron';
 
-// Mock electron
+// Mock electron locally to allow spying on BrowserWindow constructor
 vi.mock('electron', () => {
   return {
     app: {
       isPackaged: false,
-      getPath: vi.fn(),
-      getName: vi.fn(() => 'Electron App'),
+      getPath: vi.fn(() => '/mock/path'),
+      getName: vi.fn(() => 'Test App'),
       getVersion: vi.fn(() => '1.0.0'),
     },
     screen: {
@@ -41,14 +41,16 @@ vi.mock('electron-store', () => {
       constructor() {
         this.store = {};
       }
-      get(key) { return this.store[key]; }
+      get(key, defaultValue) { return this.store[key] ?? defaultValue; }
       set(key, val) { this.store[key] = val; }
+      delete(key) { delete this.store[key]; }
+      clear() { this.store = {}; }
     }
   };
 });
 
 // Mock logger
-vi.mock('../../../src/main/logger.js', () => ({
+vi.mock('../../../src/main/logger.ts', () => ({
   logger: {
     info: vi.fn(),
     debug: vi.fn(),

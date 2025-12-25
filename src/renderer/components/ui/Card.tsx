@@ -3,7 +3,10 @@ import { forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import { cn } from '../../utils/cn';
 
-const Card = forwardRef(
+// Basic prop interface for divs
+export interface CardProps extends React.HTMLAttributes<HTMLDivElement> { }
+
+const Card = forwardRef<HTMLDivElement, CardProps>(
   ({ className, ...props }, ref) => {
     return (
       <div
@@ -23,7 +26,7 @@ Card.propTypes = {
   className: PropTypes.string,
 };
 
-const CardHeader = forwardRef(
+const CardHeader = forwardRef<HTMLDivElement, CardProps>(
   ({ className, ...props }, ref) => {
     return (
       <div
@@ -40,7 +43,7 @@ CardHeader.propTypes = {
   className: PropTypes.string,
 };
 
-const CardTitle = forwardRef(
+const CardTitle = forwardRef<HTMLHeadingElement, React.HTMLAttributes<HTMLHeadingElement>>(
   ({ className, ...props }, ref) => {
     return (
       <h3
@@ -60,7 +63,7 @@ CardTitle.propTypes = {
   className: PropTypes.string,
 };
 
-const CardDescription = forwardRef(
+const CardDescription = forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
   ({ className, ...props }, ref) => {
     return (
       <p
@@ -77,7 +80,7 @@ CardDescription.propTypes = {
   className: PropTypes.string,
 };
 
-const CardContent = forwardRef(
+const CardContent = forwardRef<HTMLDivElement, CardProps>(
   ({ className, ...props }, ref) => {
     return (
       <div ref={ref} className={cn('p-6 pt-0', className)} {...props} />
@@ -90,7 +93,7 @@ CardContent.propTypes = {
   className: PropTypes.string,
 };
 
-const CardFooter = forwardRef(
+const CardFooter = forwardRef<HTMLDivElement, CardProps>(
   ({ className, ...props }, ref) => {
     return (
       <div

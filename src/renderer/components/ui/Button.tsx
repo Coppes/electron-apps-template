@@ -3,7 +3,12 @@ import { forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import { cn } from '../../utils/cn';
 
-const Button = forwardRef(
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
+  size?: 'sm' | 'md' | 'lg' | 'icon';
+}
+
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
       className,

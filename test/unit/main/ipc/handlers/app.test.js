@@ -1,33 +1,28 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { app } from 'electron';
-import { createAppHandlers } from '../../../../../src/main/ipc/handlers/app.js';
-import { IPC_CHANNELS } from '../../../../../src/common/constants.js';
+import { createAppHandlers } from '../../../../../src/main/ipc/handlers/app.ts';
+import { IPC_CHANNELS } from '../../../../../src/common/constants.ts';
+
+// Using global electron mock
 
 // Mock dependencies
-vi.mock('electron', () => ({
-  app: {
-    getVersion: vi.fn(),
-    getPath: vi.fn(),
-    quit: vi.fn(),
-    relaunch: vi.fn(),
-    isPackaged: true
-  }
-}));
-
-vi.mock('../../../../../src/main/logger.js', () => ({
+vi.mock('../../../../../src/main/logger.ts', () => ({
   logger: {
-    error: vi.fn()
+    error: vi.fn(),
+    info: vi.fn(),
+    debug: vi.fn(),
+    warn: vi.fn()
   }
 }));
 
-vi.mock('../../../../../src/main/updater.js', () => ({
+vi.mock('../../../../../src/main/updater.ts', () => ({
   updater: {
     checkForUpdates: vi.fn(),
     quitAndInstall: vi.fn()
   }
 }));
 
-vi.mock('../../../../../src/main/recent-docs.js', () => ({
+vi.mock('../../../../../src/main/recent-docs.ts', () => ({
   addRecentDocument: vi.fn(),
   clearRecentDocuments: vi.fn()
 }));
@@ -145,7 +140,7 @@ describe('App IPC Handlers', () => {
 
       const result = await handler();
 
-      expect(result).toEqual({ isPackaged: true });
+      expect(result).toEqual({ isPackaged: false }); // global mock default
     });
   });
 });

@@ -31,7 +31,19 @@ const alertVariants = cva(
  * @param {string} [props.className] - Additional CSS classes
  * @param {React.ReactNode} props.children - Alert content
  */
-const Alert = React.forwardRef(({ className, variant, ...props }, ref) => (
+/**
+ * Alert component for displaying notifications
+ * @param {Object} props - Component props
+ * @param {string} [props.variant] - Alert variant (default, info, success, warning, error)
+ * @param {string} [props.className] - Additional CSS classes
+ * @param {React.ReactNode} props.children - Alert content
+ */
+
+export interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: 'default' | 'info' | 'success' | 'warning' | 'error';
+}
+
+const Alert = React.forwardRef<HTMLDivElement, AlertProps>(({ className, variant, ...props }, ref) => (
   <div
     ref={ref}
     role="alert"
@@ -52,7 +64,9 @@ Alert.propTypes = {
  * @param {string} [props.className] - Additional CSS classes
  * @param {React.ReactNode} props.children - Title content
  */
-const AlertTitle = React.forwardRef(({ className, ...props }, ref) => (
+export interface AlertTitleProps extends React.HTMLAttributes<HTMLHeadingElement> { }
+
+const AlertTitle = React.forwardRef<HTMLHeadingElement, AlertTitleProps>(({ className, ...props }, ref) => (
   <h5
     ref={ref}
     className={cn('mb-1 font-medium leading-none tracking-tight', className)}
@@ -71,7 +85,9 @@ AlertTitle.propTypes = {
  * @param {string} [props.className] - Additional CSS classes
  * @param {React.ReactNode} props.children - Description content
  */
-const AlertDescription = React.forwardRef(({ className, ...props }, ref) => (
+export interface AlertDescriptionProps extends React.HTMLAttributes<HTMLDivElement> { }
+
+const AlertDescription = React.forwardRef<HTMLDivElement, AlertDescriptionProps>(({ className, ...props }, ref) => (
   <div
     ref={ref}
     className={cn('text-sm [&_p]:leading-relaxed', className)}

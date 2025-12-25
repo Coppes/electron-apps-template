@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { setProgress, clearProgress } from '../../../src/main/progress.js';
-import { PROGRESS_STATE } from '../../../src/common/constants.js';
+import { setProgress, clearProgress } from '../../../src/main/progress.ts';
+import { PROGRESS_STATE } from '../../../src/common/constants.ts';
 
-vi.mock('../../../src/common/constants.js', () => ({
+vi.mock('../../../src/common/constants.ts', () => ({
   PROGRESS_STATE: {
     NORMAL: 'normal',
     PAUSED: 'paused',
@@ -13,13 +13,13 @@ vi.mock('../../../src/common/constants.js', () => ({
 
 // Mock window manager and logger
 const mockWindows = new Map();
-vi.mock('../../../src/main/window-manager.js', () => ({
+vi.mock('../../../src/main/window-manager.ts', () => ({
   windowManager: {
     getWindow: vi.fn((id) => mockWindows.get(id))
   }
 }));
 
-vi.mock('../../../src/main/logger.js', () => ({
+vi.mock('../../../src/main/logger.ts', () => ({
   logger: {
     debug: vi.fn(),
     warn: vi.fn(),

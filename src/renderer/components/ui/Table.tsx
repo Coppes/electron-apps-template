@@ -3,7 +3,9 @@ import { forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import { cn } from '../../utils/cn';
 
-const Table = forwardRef(
+export interface TableProps extends React.HTMLAttributes<HTMLTableElement> { }
+
+const Table = forwardRef<HTMLTableElement, TableProps>(
   ({ className, ...props }, ref) => {
     return (
       <div className="relative w-full overflow-auto">
@@ -22,7 +24,9 @@ Table.propTypes = {
   className: PropTypes.string,
 };
 
-const TableHeader = forwardRef(
+export interface TableHeaderProps extends React.HTMLAttributes<HTMLTableSectionElement> { }
+
+const TableHeader = forwardRef<HTMLTableSectionElement, TableHeaderProps>(
   ({ className, ...props }, ref) => {
     return (
       <thead
@@ -39,7 +43,9 @@ TableHeader.propTypes = {
   className: PropTypes.string,
 };
 
-const TableBody = forwardRef(
+export interface TableBodyProps extends React.HTMLAttributes<HTMLTableSectionElement> { }
+
+const TableBody = forwardRef<HTMLTableSectionElement, TableBodyProps>(
   ({ className, ...props }, ref) => {
     return (
       <tbody
@@ -56,7 +62,9 @@ TableBody.propTypes = {
   className: PropTypes.string,
 };
 
-const TableRow = forwardRef(
+export interface TableRowProps extends React.HTMLAttributes<HTMLTableRowElement> { }
+
+const TableRow = forwardRef<HTMLTableRowElement, TableRowProps>(
   ({ className, ...props }, ref) => {
     return (
       <tr
@@ -76,7 +84,9 @@ TableRow.propTypes = {
   className: PropTypes.string,
 };
 
-const TableHead = forwardRef(
+export interface TableHeadProps extends React.ThHTMLAttributes<HTMLTableCellElement> { }
+
+const TableHead = forwardRef<HTMLTableCellElement, TableHeadProps>(
   ({ className, ...props }, ref) => {
     return (
       <th
@@ -96,7 +106,9 @@ TableHead.propTypes = {
   className: PropTypes.string,
 };
 
-const TableCell = forwardRef(
+export interface TableCellProps extends React.TdHTMLAttributes<HTMLTableCellElement> { }
+
+const TableCell = forwardRef<HTMLTableCellElement, TableCellProps>(
   ({ className, ...props }, ref) => {
     return (
       <td

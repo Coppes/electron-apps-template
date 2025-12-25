@@ -1,5 +1,6 @@
 import { logger } from './logger.ts';
 import { windowManager } from './window-manager.ts';
+import { ProgressOptions } from '../common/types.ts';
 import { PROGRESS_STATE } from '../common/constants.ts';
 
 /**
@@ -10,12 +11,10 @@ import { PROGRESS_STATE } from '../common/constants.ts';
 /**
  * Set progress for a window
  * @param {number} value - Progress value (0.0-1.0, or -1 for indeterminate)
- * @param {Object} [options] - Progress options
- * @param {number} [options.windowId] - Window ID (defaults to main window)
- * @param {'normal'|'paused'|'error'|'indeterminate'} [options.state] - Progress state (Windows only)
+ * @param {ProgressOptions} [options] - Progress options
  * @returns {boolean} Success status
  */
-export function setProgress(value, options = {}) {
+export function setProgress(value: number, options: ProgressOptions = { value: 0 }) {
   try {
     // Validate progress value
     if (typeof value !== 'number' || (value < -1 || value > 1)) {
@@ -24,13 +23,12 @@ export function setProgress(value, options = {}) {
     }
 
     // Get target window
-    let targetWindow;
+    let targetWindow: Electron.BrowserWindow | null | undefined;
     if (options.windowId) {
-      const win = windowManager.getWindow(options.windowId);
-      targetWindow = win?.window;
+      targetWindow = windowManager.getWindow(options.windowId);
     } else {
       const mainWin = windowManager.getWindowByType('main');
-      targetWindow = mainWin?.window;
+      targetWindow = mainWin;
     }
 
     if (!targetWindow || targetWindow.isDestroyed()) {
@@ -43,13 +41,13 @@ export function setProgress(value, options = {}) {
 
     // Set progress
     targetWindow.setProgressBar(progressValue, {
-      mode: options.state || PROGRESS_STATE.NORMAL,
+      mode: (options.state || PROGRESS_STATE.NORMAL) as Electron.ProgressBarOptions['mode'],
     });
 
-    logger.debug('Progress set', { 
-      value, 
-      state: options.state, 
-      windowId: options.windowId 
+    logger.debug('Progress set', {
+      value,
+      state: options.state,
+      windowId: options.windowId
     });
     return true;
   } catch (error) {
@@ -63,16 +61,15 @@ export function setProgress(value, options = {}) {
  * @param {number} [windowId] - Window ID (defaults to main window)
  * @returns {boolean} Success status
  */
-export function clearProgress(windowId) {
+export function clearProgress(windowId?: number) {
   try {
     // Get target window
-    let targetWindow;
+    let targetWindow: Electron.BrowserWindow | null | undefined;
     if (windowId) {
-      const win = windowManager.getWindow(windowId);
-      targetWindow = win?.window;
+      targetWindow = windowManager.getWindow(windowId);
     } else {
       const mainWin = windowManager.getWindowByType('main');
-      targetWindow = mainWin?.window;
+      targetWindow = mainWin;
     }
 
     if (!targetWindow || targetWindow.isDestroyed()) {
@@ -95,6 +92,10 @@ export function clearProgress(windowId) {
  * Useful for high-frequency updates
  */
 class ThrottledProgress {
+  private lastUpdate: number;
+  private minInterval: number;
+  private pendingUpdate: NodeJS.Timeout | null;
+
   constructor() {
     this.lastUpdate = 0;
     this.minInterval = 100; // 10 updates per second max
@@ -104,9 +105,9 @@ class ThrottledProgress {
   /**
    * Set progress with throttling
    * @param {number} value - Progress value
-   * @param {Object} [options] - Progress options
+   * @param {ProgressOptions} [options] - Progress options
    */
-  set(value, options = {}) {
+  set(value: number, options: ProgressOptions = { value: 0 }) {
     const now = Date.now();
     const timeSinceLastUpdate = now - this.lastUpdate;
 
@@ -133,7 +134,7 @@ class ThrottledProgress {
    * Clear progress
    * @param {number} [windowId] - Window ID
    */
-  clear(windowId) {
+  clear(windowId?: number) {
     if (this.pendingUpdate) {
       clearTimeout(this.pendingUpdate);
       this.pendingUpdate = null;

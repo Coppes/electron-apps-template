@@ -1,15 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { SplashManager } from '../../src/main/splash.js';
-import { windowManager } from '../../src/main/window-manager.js';
+import { SplashManager } from '../../src/main/splash.ts';
+import { windowManager } from '../../src/main/window-manager.ts';
 
 // Mock dependencies
-vi.mock('../../src/main/window-manager.js', () => ({
+vi.mock('../../src/main/window-manager.ts', () => ({
   windowManager: {
     createWindow: vi.fn(),
   },
 }));
 
-vi.mock('../../src/main/logger.js', () => ({
+vi.mock('../../src/main/logger.ts', () => ({
   logger: {
     info: vi.fn(),
     debug: vi.fn(),

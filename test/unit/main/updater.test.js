@@ -1,18 +1,12 @@
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { BrowserWindow } from 'electron';
-import { updater } from '../../../src/main/updater.js';
-import { notificationManager } from '../../../src/main/notifications.js';
-import { logger } from '../../../src/main/logger.js';
-import { IPC_CHANNELS } from '../../../src/common/constants.js';
+import { updater } from '../../../src/main/updater.ts';
+import { notificationManager } from '../../../src/main/notifications.ts';
+import { logger } from '../../../src/main/logger.ts';
+import { IPC_CHANNELS } from '../../../src/common/constants.ts';
 
-vi.mock('electron', () => ({
-  app: {
-    getPath: vi.fn(() => '/mock/user/data'),
-  },
-  BrowserWindow: {
-    getAllWindows: vi.fn(() => [])
-  }
-}));
+// Using global electron mock
 
 vi.mock('electron-store', () => {
   return {
@@ -24,7 +18,7 @@ vi.mock('electron-store', () => {
   };
 });
 
-vi.mock('../../../src/main/logger.js', () => ({
+vi.mock('../../../src/main/logger.ts', () => ({
   logger: {
     info: vi.fn(),
     warn: vi.fn(),
@@ -33,13 +27,13 @@ vi.mock('../../../src/main/logger.js', () => ({
     getLogInstance: vi.fn(() => ({}))
   }
 }));
-vi.mock('../../../src/main/notifications.js', () => ({
+vi.mock('../../../src/main/notifications.ts', () => ({
   notificationManager: {
     showNotification: vi.fn().mockResolvedValue()
   }
 }));
 
-vi.mock('../../../src/main/config.js', () => ({
+vi.mock('../../../src/main/config.ts', () => ({
   config: {
     updates: {
       enabled: true,

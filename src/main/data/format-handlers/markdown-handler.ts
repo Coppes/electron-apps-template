@@ -14,7 +14,7 @@ export const markdownHandler = {
   /**
    * Export data to Markdown string
    */
-  async export(data, options = {}) {
+  async export(data: any, options: any = {}): Promise<string> {
     const { includeMetadata = true } = options;
 
     let markdown = '';
@@ -73,11 +73,11 @@ export const markdownHandler = {
   /**
    * Export data to stream (for large datasets)
    */
-  async exportStream(data, options = {}, writeStream) {
+  async exportStream(data: any, options: any = {}, writeStream: any): Promise<void> {
     const markdown = await this.export(data, options);
 
-    return new Promise((resolve, reject) => {
-      writeStream.write(markdown, (error) => {
+    return new Promise<void>((resolve, reject) => {
+      writeStream.write(markdown, (error: Error | null | undefined) => {
         if (error) reject(error);
         else {
           writeStream.end();
@@ -90,7 +90,7 @@ export const markdownHandler = {
   /**
    * Import data from Markdown string
    */
-  async import(content, options = {}) {
+  async import(content: string, options: any = {}): Promise<any> {
     const { parseHtml = true } = options;
 
     try {
@@ -102,7 +102,7 @@ export const markdownHandler = {
         parsed,
         type: 'markdown'
       };
-    } catch (error) {
+    } catch (error: any) {
       throw new Error(`Invalid Markdown: ${error.message}`);
     }
   },
@@ -110,8 +110,8 @@ export const markdownHandler = {
   /**
    * Import data from stream (for large files)
    */
-  async importStream(readStream, options = {}) {
-    const chunks = [];
+  async importStream(readStream: any, options: any = {}): Promise<any> {
+    const chunks: Buffer[] = [];
 
     const collectTransform = new Transform({
       transform(chunk, encoding, callback) {

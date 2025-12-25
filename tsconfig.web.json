@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "composite": true,
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "bundler",
@@ -9,8 +8,11 @@
     "strict": false,
     "types": [
       "vite/client",
-      "@testing-library/jest-dom"
-    ]
+      "@testing-library/jest-dom",
+      "node"
+    ],
+    "noEmit": true,
+    "allowImportingTsExtensions": true
   },
   "include": [
     "src/renderer",

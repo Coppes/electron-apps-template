@@ -8,14 +8,22 @@ import { isPermissionAllowed } from './security/permissions.ts';
 /**
  * Native OS Notifications Manager
  */
+import { NotificationInfo, NotificationOptions } from '../common/types.ts';
+
+/**
+ * Native OS Notifications Manager
+ */
 export class NotificationManager {
+  private activeNotifications: Map<string, { notification: Notification; options: NotificationOptions }>;
+  private history: NotificationInfo[];
+  private maxHistorySize: number;
+  private rateLimitWindow: number;
+  private maxNotificationsPerWindow: number;
+  private notificationTimestamps: number[];
+
   constructor() {
-    /** @type {Map<string, {notification: Notification, options: Object}>} */
     this.activeNotifications = new Map();
-
-    /** @type {import('../common/types.ts').NotificationInfo[]} */
     this.history = [];
-
     this.maxHistorySize = 50;
     this.rateLimitWindow = 60000; // 1 minute
     this.maxNotificationsPerWindow = 10;

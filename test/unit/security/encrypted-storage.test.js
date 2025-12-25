@@ -17,12 +17,17 @@ vi.mock('electron', () => ({
       return encrypted.toString('utf-8');
     }),
   },
+  app: {
+    getPath: vi.fn(() => '/mock/path'),
+    getName: vi.fn(() => 'Test App'),
+    getVersion: vi.fn(() => '1.0.0')
+  }
 }));
 
 vi.mock('electron-store', () => {
   const storeData = new Map();
   return {
-    default: vi.fn().mockImplementation(function() {
+    default: vi.fn().mockImplementation(function () {
       return {
         get: (key) => storeData.get(key),
         set: (key, value) => storeData.set(key, value),
@@ -34,7 +39,7 @@ vi.mock('electron-store', () => {
   };
 });
 
-vi.mock('../../../src/main/logger.js', () => ({
+vi.mock('../../../src/main/logger.ts', () => ({
   logger: {
     info: vi.fn(),
     debug: vi.fn(),
@@ -54,7 +59,7 @@ import {
   deleteEncrypted,
   hasEncrypted,
   _resetEncryptionCache,
-} from '../../../src/main/security/encrypted-storage.js';
+} from '../../../src/main/security/encrypted-storage.ts';
 import { safeStorage } from 'electron';
 import Store from 'electron-store';
 
@@ -189,7 +194,7 @@ describe('Encrypted Storage', () => {
       const key = 'apiKey';
       const value = 'secret123';
       const result = encryptAndStore(key, value);
-      
+
       expect(result).toEqual({ success: true });
       expect(hasEncrypted(key)).toBe(true);
     });
@@ -198,7 +203,7 @@ describe('Encrypted Storage', () => {
       const key = 'credentials';
       const value = { username: 'user', password: 'pass123' };
       const result = encryptAndStore(key, value);
-      
+
       expect(result).toEqual({ success: true });
       expect(hasEncrypted(key)).toBe(true);
     });
@@ -218,10 +223,10 @@ describe('Encrypted Storage', () => {
     it('should retrieve and decrypt a stored value', () => {
       const key = 'apiKey';
       const value = 'secret123';
-      
+
       // Store first
       encryptAndStore(key, value);
-      
+
       // Retrieve
       const retrieved = retrieveAndDecrypt(key);
       expect(retrieved).toBe(value);
@@ -235,15 +240,15 @@ describe('Encrypted Storage', () => {
     it('should retrieve and decrypt complex objects', () => {
       const key = 'credentials';
       const value = { username: 'user', password: 'pass123' };
-      
+
       // Mock JSON serialization/deserialization
-      safeStorage.encryptString.mockImplementation((plaintext) => 
+      safeStorage.encryptString.mockImplementation((plaintext) =>
         Buffer.from(plaintext, 'utf-8')
       );
-      safeStorage.decryptString.mockImplementation((encrypted) => 
+      safeStorage.decryptString.mockImplementation((encrypted) =>
         encrypted.toString('utf-8')
       );
-      
+
       encryptAndStore(key, value);
       const retrieved = retrieveAndDecrypt(key);
       expect(retrieved).toEqual(value);
@@ -258,9 +263,9 @@ describe('Encrypted Storage', () => {
     it('should delete an encrypted value', () => {
       const key = 'apiKey';
       encryptAndStore(key, 'secret123');
-      
+
       expect(hasEncrypted(key)).toBe(true);
-      
+
       const result = deleteEncrypted(key);
       expect(result).toEqual({ success: true });
       expect(hasEncrypted(key)).toBe(false);
@@ -280,7 +285,7 @@ describe('Encrypted Storage', () => {
     it('should return true for existing encrypted key', () => {
       const key = 'apiKey';
       encryptAndStore(key, 'secret123');
-      
+
       expect(hasEncrypted(key)).toBe(true);
     });
 

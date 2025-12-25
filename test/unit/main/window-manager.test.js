@@ -4,7 +4,7 @@ import { WINDOW_TYPES } from '../../../src/common/constants.js';
 import { BrowserWindow, mockApp } from '../../setup/electron-mocks.js';
 
 // Mock dependencies
-vi.mock('../../../src/main/logger.js', () => ({
+vi.mock('../../../src/main/logger.ts', () => ({
   logger: {
     info: vi.fn(),
     error: vi.fn(),
@@ -36,7 +36,7 @@ vi.mock('electron-store', () => ({
   },
 }));
 
-vi.mock('../../../src/main/config.js', () => ({
+vi.mock('../../../src/main/config.ts', () => ({
   isDevelopment: vi.fn(() => false),
 }));
 
@@ -108,8 +108,9 @@ describe('WindowManager', () => {
 
     it('should load URL in development mode', async () => {
       // Create a new window manager instance with dev mode
-      const { WindowManager } = await import('../../../src/main/window-manager.js');
-      const { isDevelopment } = await import('../../../src/main/config.js');
+      const { WindowManager } = await import('../../../src/main/window-manager.ts');
+      const { isDevelopment } = await import('../../../src/main/config.ts');
+      // @ts-ignore
       isDevelopment.mockReturnValueOnce(true);
 
       const devWindowManager = new WindowManager();
@@ -119,8 +120,9 @@ describe('WindowManager', () => {
     });
 
     it('should load file in production mode', async () => {
-      const { WindowManager } = await import('../../../src/main/window-manager.js');
-      const { isDevelopment } = await import('../../../src/main/config.js');
+      const { WindowManager } = await import('../../../src/main/window-manager.ts');
+      const { isDevelopment } = await import('../../../src/main/config.ts');
+      // @ts-ignore
       isDevelopment.mockReturnValueOnce(false);
 
       const prodWindowManager = new WindowManager();

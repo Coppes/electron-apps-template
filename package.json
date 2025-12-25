@@ -9,7 +9,7 @@
     "build": "electron-vite build",
     "preview": "electron-vite preview",
     "lint": "eslint src --ext .js,.jsx",
-    "type-check": "tsc -b",
+    "type-check": "tsc -p tsconfig.node.json --noEmit && tsc -p tsconfig.web.json --noEmit",
     "test": "npm run test:unit",
     "test:memory": "node test/memory/runner.cjs",
     "test:main": "vitest --config vitest.config.main.js",
