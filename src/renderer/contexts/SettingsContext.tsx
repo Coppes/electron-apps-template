@@ -38,10 +38,8 @@ export const SettingsProvider = ({ children }) => {
           const savedCustomThemes = await window.electronAPI.store.get('customThemes');
 
           // Legacy support (if migration didn't run or verify)
-          const legacyTheme = await window.electronAPI.store.get('theme');
-
           setSettings({
-            appearance: legacyTheme ? { ...savedApp, theme: legacyTheme } : savedApp,
+            appearance: savedApp,
             history: savedHist,
             language: savedLang,
             notifications: savedNotif ?? true,
@@ -67,15 +65,44 @@ export const SettingsProvider = ({ children }) => {
     // Listen for remote changes
     let cleanupListener = () => { };
     if (window.electronAPI?.store?.onStoreChanged) {
-      cleanupListener = window.electronAPI.store.onStoreChanged(() => {
-        loadSettings();
+      cleanupListener = window.electronAPI.store.onStoreChanged((data) => {
+        // Handle incremental updates from main process to avoid race conditions
+        if (data && data.key) {
+          setSettings(prev => {
+            const { key, value } = data;
+            // Handle nested keys (e.g. 'appearance.theme')
+            const parts = key.split('.');
+            if (parts.length === 1) {
+              // Sync i18n if language changes from outside
+              if (key === 'language' && value !== i18n.language) {
+                i18n.changeLanguage(value);
+              }
+              return { ...prev, [key]: value };
+            }
+            if (parts.length === 2) {
+              return {
+                ...prev,
+                [parts[0]]: {
+                  ...prev[parts[0]],
+                  [parts[1]]: value
+                }
+              };
+            }
+            return prev;
+          });
+        } else {
+          // Fallback for full reload only if strictly necessary (e.g. clear)
+          if (data && (data.cleared || data.deleted)) {
+            loadSettings();
+          }
+        }
       });
     }
 
     return () => {
       cleanupListener();
     };
-  }, [i18n]);
+  }, []); // Run once on mount
 
   // Apply Theme
   useEffect(() => {
