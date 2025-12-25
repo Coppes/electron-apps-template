@@ -2,29 +2,21 @@
  * File Operations IPC Handlers
  * Handles drag-and-drop, file validation, and file watching
  */
-
 import path from 'path';
 import fs from 'fs/promises';
 import { BrowserWindow, app, nativeImage } from 'electron';
-import { IPC_CHANNELS } from '../../../common/constants.js';
-import { logger } from '../../logger.js';
-import fileWatcher from '../../data/file-watcher.js';
-import {
-  validateFilePath as secureValidatePath,
-  sanitizeFilename,
-  fileOperationLimiter
-} from '../../security/data-security.js';
-
+import { IPC_CHANNELS } from '../../../common/constants.ts';
+import { logger } from '../../logger.ts';
+import fileWatcher from '../../data/file-watcher.ts';
+import { validateFilePath as secureValidatePath, sanitizeFilename, fileOperationLimiter } from '../../security/data-security.ts';
 // Security configuration
 const ALLOWED_EXTENSIONS = [
-  '.txt', '.json', '.csv', '.md', '.html', '.xml',
-  '.pdf', '.png', '.jpg', '.jpeg', '.gif', '.svg',
-  '.zip', '.tar', '.gz'
+    '.txt', '.json', '.csv', '.md', '.html', '.xml',
+    '.pdf', '.png', '.jpg', '.jpeg', '.gif', '.svg',
+    '.zip', '.tar', '.gz'
 ];
-
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB default
 const FALLBACK_ICON = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==';
-
 /**
  * Validate file path for security (wrapper for centralized security module)
  * Prevents path traversal, checks extensions and size limits
@@ -33,288 +25,248 @@ const FALLBACK_ICON = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAY
  * @returns {Promise<{valid: boolean, error?: string, metadata?: object}>}
  */
 export async function validateFilePath(filePath, options = {}) {
-  const {
-    allowedExtensions = ALLOWED_EXTENSIONS,
-    maxSize = MAX_FILE_SIZE,
-    mustExist = true
-  } = options;
-
-  // Use centralized security validation
-  const securityResult = secureValidatePath(filePath, {
-    allowedExtensions,
-    maxSize,
-    allowAbsolute: true,
-    allowRelative: false
-  });
-
-  if (!securityResult.valid) {
-    return securityResult;
-  }
-
-  const { resolvedPath } = securityResult;
-
-  // Check if file exists (if required)
-  if (mustExist) {
-    try {
-      const stats = await fs.stat(resolvedPath);
-
-      // Verify it's a file, not a directory
-      if (!stats.isFile()) {
-        return {
-          valid: false,
-          error: 'Path must point to a file, not a directory',
-          code: 'NOT_A_FILE'
-        };
-      }
-
-      // Check file size
-      if (stats.size > maxSize) {
-        return {
-          valid: false,
-          error: `File size (${stats.size} bytes) exceeds maximum (${maxSize} bytes)`,
-          code: 'FILE_TOO_LARGE'
-        };
-      }
-
-      // Return success with metadata
-      return {
+    const { allowedExtensions = ALLOWED_EXTENSIONS, maxSize = MAX_FILE_SIZE, mustExist = true } = options;
+    // Use centralized security validation
+    const securityResult = secureValidatePath(filePath, {
+        allowedExtensions,
+        maxSize,
+        allowAbsolute: true,
+        allowRelative: false
+    });
+    if (!securityResult.valid) {
+        return securityResult;
+    }
+    const { resolvedPath } = securityResult;
+    // Check if file exists (if required)
+    if (mustExist) {
+        try {
+            const stats = await fs.stat(resolvedPath);
+            // Verify it's a file, not a directory
+            if (!stats.isFile()) {
+                return {
+                    valid: false,
+                    error: 'Path must point to a file, not a directory',
+                    code: 'NOT_A_FILE'
+                };
+            }
+            // Check file size
+            if (stats.size > maxSize) {
+                return {
+                    valid: false,
+                    error: `File size (${stats.size} bytes) exceeds maximum (${maxSize} bytes)`,
+                    code: 'FILE_TOO_LARGE'
+                };
+            }
+            // Return success with metadata
+            return {
+                valid: true,
+                metadata: {
+                    path: resolvedPath,
+                    name: path.basename(resolvedPath),
+                    extension: securityResult.extension,
+                    size: stats.size,
+                    modified: stats.mtime
+                }
+            };
+        }
+        catch (error) {
+            return {
+                valid: false,
+                error: `File does not exist or is not accessible: ${error.message}`,
+                code: 'FILE_NOT_ACCESSIBLE'
+            };
+        }
+    }
+    // If existence check not required, return basic validation
+    return {
         valid: true,
         metadata: {
-          path: resolvedPath,
-          name: path.basename(resolvedPath),
-          extension: securityResult.extension,
-          size: stats.size,
-          modified: stats.mtime
+            path: resolvedPath,
+            name: sanitizeFilename(path.basename(resolvedPath)),
+            extension: securityResult.extension
         }
-      };
-    } catch (error) {
-      return {
-        valid: false,
-        error: `File does not exist or is not accessible: ${error.message}`,
-        code: 'FILE_NOT_ACCESSIBLE'
-      };
-    }
-  }
-
-  // If existence check not required, return basic validation
-  return {
-    valid: true,
-    metadata: {
-      path: resolvedPath,
-      name: sanitizeFilename(path.basename(resolvedPath)),
-      extension: securityResult.extension
-    }
-  };
+    };
 }
-
 /**
  * Handle file drop operation
  */
 export async function handleFileDrop(event, payload) {
-  // Rate limiting
-  if (!fileOperationLimiter.isAllowed('file-drop')) {
-    return {
-      success: false,
-      error: 'Too many file operations. Please wait and try again.',
-      code: 'RATE_LIMIT_EXCEEDED'
-    };
-  }
-
-  const { filePaths, options = {} } = payload;
-
-  if (!Array.isArray(filePaths) || filePaths.length === 0) {
-    return {
-      success: false,
-      error: 'No file paths provided'
-    };
-  }
-
-  logger.info(`Processing dropped files: ${filePaths.length} files`);
-
-  const results = [];
-  for (const filePath of filePaths) {
-    const validation = await validateFilePath(filePath, options);
-    results.push(validation);
-
-    if (!validation.valid) {
-      logger.warn(`File validation failed for ${filePath}: ${validation.error}`);
+    // Rate limiting
+    if (!fileOperationLimiter.isAllowed('file-drop')) {
+        return {
+            success: false,
+            error: 'Too many file operations. Please wait and try again.',
+            code: 'RATE_LIMIT_EXCEEDED'
+        };
     }
-  }
-
-  const validFiles = results.filter(r => r.valid);
-  const invalidFiles = results.filter(r => !r.valid);
-
-  return {
-    success: true,
-    validFiles: validFiles.map(f => f.metadata),
-    invalidFiles: invalidFiles.map((f, i) => ({
-      path: filePaths[i],
-      error: f.error
-    })),
-    total: filePaths.length,
-    valid: validFiles.length,
-    invalid: invalidFiles.length
-  };
+    const { filePaths, options = {} } = payload;
+    if (!Array.isArray(filePaths) || filePaths.length === 0) {
+        return {
+            success: false,
+            error: 'No file paths provided'
+        };
+    }
+    logger.info(`Processing dropped files: ${filePaths.length} files`);
+    const results = [];
+    for (const filePath of filePaths) {
+        const validation = await validateFilePath(filePath, options);
+        results.push(validation);
+        if (!validation.valid) {
+            logger.warn(`File validation failed for ${filePath}: ${validation.error}`);
+        }
+    }
+    const validFiles = results.filter(r => r.valid);
+    const invalidFiles = results.filter(r => !r.valid);
+    return {
+        success: true,
+        validFiles: validFiles.map(f => f.metadata),
+        invalidFiles: invalidFiles.map((f, i) => ({
+            path: filePaths[i],
+            error: f.error
+        })),
+        total: filePaths.length,
+        valid: validFiles.length,
+        invalid: invalidFiles.length
+    };
 }
-
 /**
  * Handle drag start operation (drag from app to desktop)
  */
 export async function handleDragStart(event, payload) {
-  const { filePath, icon } = payload;
-
-  if (!filePath) {
-    return {
-      success: false,
-      error: 'No file path provided'
-    };
-  }
-
-  try {
-    // Validate file exists and is accessible
-    const validation = await validateFilePath(filePath, { mustExist: true });
-
-    if (!validation.valid) {
-      return {
-        success: false,
-        error: validation.error
-      };
+    const { filePath, icon } = payload;
+    if (!filePath) {
+        return {
+            success: false,
+            error: 'No file path provided'
+        };
     }
-
-    // Get the window that initiated the drag
-    const window = BrowserWindow.fromWebContents(event.sender);
-    if (!window) {
-      return {
-        success: false,
-        error: 'Could not find source window'
-      };
+    try {
+        // Validate file exists and is accessible
+        const validation = await validateFilePath(filePath, { mustExist: true });
+        if (!validation.valid) {
+            return {
+                success: false,
+                error: validation.error
+            };
+        }
+        // Get the window that initiated the drag
+        const window = BrowserWindow.fromWebContents(event.sender);
+        if (!window) {
+            return {
+                success: false,
+                error: 'Could not find source window'
+            };
+        }
+        // Start native drag operation
+        const dragOptions = {
+            file: validation.metadata.path
+        };
+        if (icon) {
+            dragOptions.icon = nativeImage.createFromPath(icon);
+        }
+        else {
+            // Use default app icon if available, or fallback to generated image
+            const defaultIconPath = path.join(app.getAppPath(), 'assets', 'icon-Template.png');
+            let img = nativeImage.createFromPath(defaultIconPath);
+            if (img.isEmpty()) {
+                logger.warn('Default icon is empty or missing, using fallback');
+                img = nativeImage.createFromDataURL(FALLBACK_ICON);
+            }
+            dragOptions.icon = img;
+        }
+        event.sender.startDrag(dragOptions);
+        logger.info(`Started drag operation for file: ${validation.metadata.name}`);
+        return {
+            success: true,
+            file: validation.metadata
+        };
     }
-
-    // Start native drag operation
-    const dragOptions = {
-      file: validation.metadata.path
-    };
-
-    if (icon) {
-      dragOptions.icon = nativeImage.createFromPath(icon);
-    } else {
-      // Use default app icon if available, or fallback to generated image
-      const defaultIconPath = path.join(app.getAppPath(), 'assets', 'icon-Template.png');
-      let img = nativeImage.createFromPath(defaultIconPath);
-
-      if (img.isEmpty()) {
-        logger.warn('Default icon is empty or missing, using fallback');
-        img = nativeImage.createFromDataURL(FALLBACK_ICON);
-      }
-      dragOptions.icon = img;
+    catch (error) {
+        logger.error('Drag start error:', error);
+        return {
+            success: false,
+            error: error.message
+        };
     }
-
-    event.sender.startDrag(dragOptions);
-
-    logger.info(`Started drag operation for file: ${validation.metadata.name}`);
-
-    return {
-      success: true,
-      file: validation.metadata
-    };
-  } catch (error) {
-    logger.error('Drag start error:', error);
-    return {
-      success: false,
-      error: error.message
-    };
-  }
 }
-
 /**
  * Handle file path validation request (IPC handler)
  */
 export async function handleValidateFilePath(event, payload) {
-  const { filePath, options = {} } = payload;
-
-  if (!filePath) {
+    const { filePath, options = {} } = payload;
+    if (!filePath) {
+        return {
+            success: false,
+            error: 'No file path provided'
+        };
+    }
+    const validation = await validateFilePath(filePath, options);
     return {
-      success: false,
-      error: 'No file path provided'
+        success: validation.valid,
+        error: validation.error,
+        metadata: validation.metadata
     };
-  }
-
-  const validation = await validateFilePath(filePath, options);
-
-  return {
-    success: validation.valid,
-    error: validation.error,
-    metadata: validation.metadata
-  };
 }
-
 /**
  * Handle file watch start request
  */
 export async function handleFileWatchStart(event, payload) {
-  const { filePath } = payload;
-
-  if (!filePath) {
-    return {
-      success: false,
-      error: 'No file path provided'
-    };
-  }
-
-  try {
-    // Get the window that made the request
-    const window = BrowserWindow.fromWebContents(event.sender);
-
-    if (!window) {
-      return {
-        success: false,
-        error: 'Could not find source window'
-      };
+    const { filePath } = payload;
+    if (!filePath) {
+        return {
+            success: false,
+            error: 'No file path provided'
+        };
     }
-
-    const result = await fileWatcher.watch(filePath, window);
-    return result;
-  } catch (error) {
-    logger.error('File watch start error:', error);
-    return {
-      success: false,
-      error: error.message
-    };
-  }
+    try {
+        // Get the window that made the request
+        const window = BrowserWindow.fromWebContents(event.sender);
+        if (!window) {
+            return {
+                success: false,
+                error: 'Could not find source window'
+            };
+        }
+        const result = await fileWatcher.watch(filePath, window);
+        return result;
+    }
+    catch (error) {
+        logger.error('File watch start error:', error);
+        return {
+            success: false,
+            error: error.message
+        };
+    }
 }
-
 /**
  * Handle file watch stop request
  */
 export async function handleFileWatchStop(event, payload) {
-  const { filePath } = payload;
-
-  if (!filePath) {
-    return {
-      success: false,
-      error: 'No file path provided'
-    };
-  }
-
-  try {
-    const result = await fileWatcher.unwatch(filePath);
-    return result;
-  } catch (error) {
-    logger.error('File watch stop error:', error);
-    return {
-      success: false,
-      error: error.message
-    };
-  }
+    const { filePath } = payload;
+    if (!filePath) {
+        return {
+            success: false,
+            error: 'No file path provided'
+        };
+    }
+    try {
+        const result = await fileWatcher.unwatch(filePath);
+        return result;
+    }
+    catch (error) {
+        logger.error('File watch stop error:', error);
+        return {
+            success: false,
+            error: error.message
+        };
+    }
 }
-
 // Export handlers registry
 export const fileHandlers = {
-  [IPC_CHANNELS.FILE_DROP]: handleFileDrop,
-  [IPC_CHANNELS.FILE_DRAG_START]: handleDragStart,
-  [IPC_CHANNELS.FILE_VALIDATE_PATH]: handleValidateFilePath,
-  [IPC_CHANNELS.FILE_WATCH_START]: handleFileWatchStart,
-  [IPC_CHANNELS.FILE_WATCH_STOP]: handleFileWatchStop
+    [IPC_CHANNELS.FILE_DROP]: handleFileDrop,
+    [IPC_CHANNELS.FILE_DRAG_START]: handleDragStart,
+    [IPC_CHANNELS.FILE_VALIDATE_PATH]: handleValidateFilePath,
+    [IPC_CHANNELS.FILE_WATCH_START]: handleFileWatchStart,
+    [IPC_CHANNELS.FILE_WATCH_STOP]: handleFileWatchStop
 };
-
 export default fileHandlers;

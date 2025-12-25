@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { useShortcutContext } from '../contexts/ShortcutContext';
-
 /**
  * Hook to register a keyboard shortcut
  * @param {Object} options
@@ -10,10 +9,9 @@ import { useShortcutContext } from '../contexts/ShortcutContext';
  * @param {string} [options.description] - Description for UI
  */
 export function useKeyboardShortcut({ id, keys, action, description, allowInInput = false }) {
-  const { registerShortcut, unregisterShortcut } = useShortcutContext();
-
-  useEffect(() => {
-    registerShortcut({ id, keys, action, description, allowInInput });
-    return () => unregisterShortcut(id);
-  }, [id, keys, action, description, allowInInput, registerShortcut, unregisterShortcut]);
+    const { registerShortcut, unregisterShortcut } = useShortcutContext();
+    useEffect(() => {
+        registerShortcut({ id, keys, action, description, allowInInput });
+        return () => unregisterShortcut(id);
+    }, [id, keys, action, description, allowInInput, registerShortcut, unregisterShortcut]);
 }

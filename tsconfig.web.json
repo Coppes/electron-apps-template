@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
+    "jsx": "react-jsx",
+    "strict": false,
+    "types": [
+      "vite/client",
+      "@testing-library/jest-dom"
+    ]
+  },
+  "include": [
+    "src/renderer",
+    "src/common"
+  ]
+}

@@ -13,7 +13,7 @@ export default defineConfig({
     build: {
       rollupOptions: {
         input: {
-          index: resolve(__dirname, 'src/main.js')
+          index: resolve(__dirname, 'src/main.ts')
         }
       }
     }
@@ -23,7 +23,7 @@ export default defineConfig({
     build: {
       rollupOptions: {
         input: {
-          index: resolve(__dirname, 'src/preload.js')
+          index: resolve(__dirname, 'src/preload.ts')
         },
         output: {
           format: 'cjs'
@@ -57,15 +57,17 @@ export default defineConfig({
       })
     ],
     esbuild: {
-      loader: 'jsx',
-      include: /src\/.*\.jsx?$/,
+      loader: 'tsx',
+      include: /src\/.*\.[jt]sx?$/,
       exclude: []
     },
     optimizeDeps: {
       esbuildOptions: {
         loader: {
           '.js': 'jsx',
-          '.jsx': 'jsx'
+          '.jsx': 'jsx',
+          '.ts': 'tsx',
+          '.tsx': 'tsx'
         }
       }
     },
@@ -76,3 +78,5 @@ export default defineConfig({
     }
   }
 });
+
+

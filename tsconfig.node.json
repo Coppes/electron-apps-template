@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
+    "strict": false,
+    "types": [
+      "node",
+      "vite/client"
+    ]
+  },
+  "include": [
+    "src/main",
+    "src/preload.js",
+    "src/preload.ts",
+    "electron.vite.config.js",
+    "electron.vite.config.ts"
+  ]
+}

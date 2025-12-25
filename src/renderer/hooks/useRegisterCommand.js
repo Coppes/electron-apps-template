@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { useCommandContext } from '../contexts/CommandContext';
-
 /**
  * Hook to register a command in the command palette
  * @param {Object} options
@@ -11,10 +10,9 @@ import { useCommandContext } from '../contexts/CommandContext';
  * @param {string} [options.shortcut] - Shortcut display string
  */
 export function useRegisterCommand({ id, label, action, group = 'General', shortcut, keywords = [] }) {
-  const { registerCommand, unregisterCommand } = useCommandContext();
-
-  useEffect(() => {
-    registerCommand({ id, label, action, group, shortcut, keywords });
-    return () => unregisterCommand(id);
-  }, [id, label, action, group, shortcut, keywords, registerCommand, unregisterCommand]);
+    const { registerCommand, unregisterCommand } = useCommandContext();
+    useEffect(() => {
+        registerCommand({ id, label, action, group, shortcut, keywords });
+        return () => unregisterCommand(id);
+    }, [id, label, action, group, shortcut, keywords, registerCommand, unregisterCommand]);
 }
