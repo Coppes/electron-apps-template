@@ -2,7 +2,7 @@
   "name": "electron-apps-template",
   "version": "1.0.0",
   "description": "Um template boilerplate seguro, escalável e moderno para criar aplicações desktop com Electron e React.",
-  "main": "./src/main.js",
+  "main": "./out/main/index.js",
   "scripts": {
     "dev": "electron-vite dev",
     "start": "electron-vite dev",

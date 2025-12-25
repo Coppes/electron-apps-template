@@ -1,7 +1,7 @@
 ## 1. Environment Setup
 - [x] 1.1 Install TypeScript dependencies (`typescript`, `@types/react`, `@types/node`, `@types/electron` via electron-vite presets).
 - [x] 1.2 Create `tsconfig.json`, `tsconfig.node.json`, and `tsconfig.web.json`.
-- [ ] 1.3 Update `package.json` scripts if necessary (usually `electron-vite` handles this auto-magically).
+- [x] 1.3 Update `package.json` scripts if necessary (usually `electron-vite` handles this auto-magically).
 
 ## 2. Shared Code Migration
 - [x] 2.1 Rename `src/common/*.js` to `.ts`.
