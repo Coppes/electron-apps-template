@@ -14,7 +14,10 @@ The project is currently written in JavaScript, which lacks strong type safety, 
     - Rename `src/main/*.js` to `.ts`.
     - Rename `src/preload.js` to `.ts`.
     - Rename `src/renderer/*.js(x)` to `.ts(x)`.
+    - Rename `src/renderer/*.js(x)` to `.ts(x)`.
     - Be permissive initially (`noImplicitAny: false`) to allow migration without rewriting all code logic immediately.
+- **Analysis**:
+    - Perform strictness analysis to create a roadmap for achieving 100% strictness (`strict: true`) post-migration.
 
 ## Impact
 - **Affected specs**: `architecture` (New capability)
