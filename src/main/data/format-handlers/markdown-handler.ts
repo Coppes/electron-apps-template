@@ -129,7 +129,7 @@ export const markdownHandler = {
   /**
    * Validate data
    */
-  validate(_data) {
+  validate(_data: any) {
     // Markdown is flexible, most data can be converted
     return { valid: true };
   },
@@ -137,7 +137,7 @@ export const markdownHandler = {
   /**
    * Check if handler can handle this content
    */
-  canHandle(content) {
+  canHandle(content: string) {
     // Basic markdown detection (headers, lists, links)
     const markdownPatterns = [
       /^#{1,6}\s/m,        // Headers

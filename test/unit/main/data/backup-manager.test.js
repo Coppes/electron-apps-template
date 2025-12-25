@@ -95,9 +95,9 @@ describe('BackupManager', () => {
       const result = await backupManager.createBackup({ type: 'manual' });
 
       expect(result.success).toBe(true);
-      expect(result.backup).toHaveProperty('filename');
-      expect(result.backup).toHaveProperty('path');
-      expect(result.backup).toHaveProperty('timestamp');
+      expect(result.data).toHaveProperty('filename');
+      expect(result.data).toHaveProperty('path');
+      expect(result.data).toHaveProperty('timestamp');
       expect(notificationManager.showNotification).toHaveBeenCalledWith(expect.objectContaining({
         title: 'Backup Successful'
       }));
@@ -106,9 +106,9 @@ describe('BackupManager', () => {
     it('should include manifest in backup', async () => {
       const result = await backupManager.createBackup({ type: 'auto' });
 
-      expect(result.backup).toHaveProperty('version');
-      expect(result.backup).toHaveProperty('platform');
-      expect(result.backup.includes).toBeDefined();
+      expect(result.data).toHaveProperty('version');
+      expect(result.data).toHaveProperty('platform');
+      expect(result.data.includes).toBeDefined();
     });
 
     it('should handle backup creation errors gracefully and show failure notification', async () => {
@@ -127,8 +127,8 @@ describe('BackupManager', () => {
       const result = await backupManager.listBackups();
 
       expect(result.success).toBe(true);
-      expect(Array.isArray(result.backups)).toBe(true);
-      expect(result.backups.length).toBe(0);
+      expect(Array.isArray(result.data)).toBe(true);
+      expect(result.data.length).toBe(0);
     });
 
     it('should list available backups', async () => {
@@ -138,7 +138,7 @@ describe('BackupManager', () => {
       const result = await backupManager.listBackups();
 
       expect(result.success).toBe(true);
-      expect(result.backups.length).toBeGreaterThan(0);
+      expect(result.data.length).toBeGreaterThan(0);
     });
   });
 
@@ -146,7 +146,7 @@ describe('BackupManager', () => {
     it('should delete a backup file', async () => {
       // Create backup
       const createResult = await backupManager.createBackup({ type: 'manual' });
-      const filename = createResult.backup.filename;
+      const filename = createResult.data.filename;
 
       // Delete it
       const deleteResult = await backupManager.deleteBackup(filename);
@@ -174,7 +174,7 @@ describe('BackupManager', () => {
       const result = await backupManager.listBackups();
 
       // Should only keep maxBackups (5)
-      expect(result.backups.length).toBeLessThanOrEqual(5);
+      expect(result.data.length).toBeLessThanOrEqual(5);
     });
   });
 

@@ -50,7 +50,14 @@ export class ShortcutManager {
    * @param {string} [description] - Shortcut description
    * @returns {boolean} Success status
    */
-  register(accelerator, handler, description = '') {
+  /**
+   * Register a global shortcut
+   * @param {string} accelerator - Keyboard accelerator (e.g., "CommandOrControl+Shift+K")
+   * @param {Function} handler - Callback function when shortcut is triggered
+   * @param {string} [description] - Shortcut description
+   * @returns {boolean} Success status
+   */
+  register(accelerator: string, handler: Function, description = '') {
     try {
       // Validate accelerator
       if (!this.isValidAccelerator(accelerator)) {
@@ -100,7 +107,7 @@ export class ShortcutManager {
    * @param {string} accelerator - Keyboard accelerator
    * @returns {boolean} Success status
    */
-  unregister(accelerator) {
+  unregister(accelerator: string) {
     try {
       if (!this.shortcuts.has(accelerator)) {
         logger.warn('Shortcut not registered', { accelerator });
@@ -138,7 +145,7 @@ export class ShortcutManager {
    * @param {string} accelerator - Keyboard accelerator
    * @returns {boolean}
    */
-  isRegistered(accelerator) {
+  isRegistered(accelerator: string) {
     return this.shortcuts.has(accelerator) && globalShortcut.isRegistered(accelerator);
   }
 
@@ -163,7 +170,7 @@ export class ShortcutManager {
    * @param {string} accelerator - Accelerator string
    * @returns {boolean}
    */
-  isValidAccelerator(accelerator) {
+  isValidAccelerator(accelerator: string) {
     if (!accelerator || typeof accelerator !== 'string') {
       return false;
     }
@@ -180,7 +187,7 @@ export class ShortcutManager {
    * @param {string} accelerator - Accelerator string
    * @returns {boolean}
    */
-  isWhitelisted(accelerator) {
+  isWhitelisted(accelerator: string) {
     return this.whitelist.includes(accelerator);
   }
 
@@ -189,7 +196,7 @@ export class ShortcutManager {
    * @param {string} accelerator - Accelerator string
    * @returns {boolean}
    */
-  isReservedShortcut(accelerator) {
+  isReservedShortcut(accelerator: string) {
     return this.reservedShortcuts.includes(accelerator);
   }
 
@@ -197,7 +204,7 @@ export class ShortcutManager {
    * Add shortcut to whitelist
    * @param {string} accelerator - Accelerator to whitelist
    */
-  addToWhitelist(accelerator) {
+  addToWhitelist(accelerator: string) {
     if (!this.whitelist.includes(accelerator)) {
       this.whitelist.push(accelerator);
       logger.debug('Shortcut added to whitelist', { accelerator });

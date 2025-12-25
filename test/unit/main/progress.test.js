@@ -39,8 +39,8 @@ describe('Progress Indicator', () => {
       setProgressBar: vi.fn(),
       isDestroyed: vi.fn(() => false)
     };
-    // getWindow returns { window: actualWindow }
-    mockWindows.set(1, { window: mockWindow });
+    // getWindow returns the window object directly in usage
+    mockWindows.set(1, mockWindow);
     vi.clearAllMocks();
   });
 

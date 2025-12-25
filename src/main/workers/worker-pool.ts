@@ -1,8 +1,3 @@
-/**
- * Worker Pool Manager
- * Manages worker threads for CPU-intensive operations
- */
-
 import { Worker } from 'worker_threads';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -10,6 +5,20 @@ import { logger } from '../logger.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+interface WorkerTask<T = any> {
+  workerData: T;
+  resolve: (value: any) => void;
+  reject: (reason?: any) => void;
+  onProgress?: (data: any) => void;
+}
+
+interface WorkerMessage {
+  type: 'complete' | 'error' | 'progress';
+  error?: string;
+  data?: any;
+  progress?: number;
+}
 
 /**
  * WorkerPool Class
@@ -20,7 +29,7 @@ export class WorkerPool {
   private poolSize: number;
   private workers: Worker[];
   private availableWorkers: Worker[];
-  private taskQueue: any[];
+  private taskQueue: WorkerTask[];
 
   constructor(workerPath: string, poolSize: number = 2) {
     this.workerPath = workerPath;
@@ -41,11 +50,11 @@ export class WorkerPool {
       this.workers.push(worker);
       this.availableWorkers.push(worker);
 
-      worker.on('error', (error) => {
+      worker.on('error', (error: Error) => {
         logger.error(`Worker error:`, error);
       });
 
-      worker.on('exit', (code) => {
+      worker.on('exit', (code: number) => {
         if (code !== 0) {
           logger.error(`Worker stopped with exit code ${code}`);
 
@@ -67,9 +76,9 @@ export class WorkerPool {
   /**
    * Execute task with worker
    */
-  async execute(workerData) {
+  async execute<T>(workerData: T): Promise<any> {
     return new Promise((resolve, reject) => {
-      const task = { workerData, resolve, reject };
+      const task: WorkerTask<T> = { workerData, resolve, reject };
 
       // If worker available, execute immediately
       if (this.availableWorkers.length > 0) {
@@ -84,7 +93,7 @@ export class WorkerPool {
   /**
    * Run task on available worker
    */
-  runTask(task) {
+  runTask(task: WorkerTask) {
     const worker = this.availableWorkers.shift();
 
     if (!worker) {
@@ -92,7 +101,7 @@ export class WorkerPool {
       return;
     }
 
-    const messageHandler = (message) => {
+    const messageHandler = (message: WorkerMessage) => {
       if (message.type === 'complete') {
         cleanup();
         task.resolve(message);
@@ -107,7 +116,7 @@ export class WorkerPool {
       }
     };
 
-    const errorHandler = (error) => {
+    const errorHandler = (error: Error) => {
       cleanup();
       task.reject(error);
     };
@@ -122,7 +131,9 @@ export class WorkerPool {
       // Process next queued task
       if (this.taskQueue.length > 0) {
         const nextTask = this.taskQueue.shift();
-        this.runTask(nextTask);
+        if (nextTask) { // Check existence due to shift() potentially returning undefined
+          this.runTask(nextTask);
+        }
       }
     };
 
@@ -160,13 +171,13 @@ export class WorkerPool {
 }
 
 // Global worker pools
-let zipWorkerPool = null;
-let csvWorkerPool = null;
+let zipWorkerPool: WorkerPool | null = null;
+let csvWorkerPool: WorkerPool | null = null;
 
 /**
  * Get ZIP worker pool (singleton)
  */
-export function getZipWorkerPool() {
+export function getZipWorkerPool(): WorkerPool {
   if (!zipWorkerPool) {
     const zipWorkerPath = path.join(__dirname, 'zip-worker.ts');
     zipWorkerPool = new WorkerPool(zipWorkerPath, 2);
@@ -177,7 +188,7 @@ export function getZipWorkerPool() {
 /**
  * Get CSV worker pool (singleton)
  */
-export function getCsvWorkerPool() {
+export function getCsvWorkerPool(): WorkerPool {
   if (!csvWorkerPool) {
     const csvWorkerPath = path.join(__dirname, 'csv-worker.ts');
     csvWorkerPool = new WorkerPool(csvWorkerPath, 2);

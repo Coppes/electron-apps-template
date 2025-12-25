@@ -10,11 +10,16 @@ import { isPermissionAllowed } from './security/permissions.ts';
  */
 import { NotificationInfo, NotificationOptions } from '../common/types.ts';
 
+interface ActiveNotification {
+  notification: Notification;
+  options: NotificationOptions;
+}
+
 /**
  * Native OS Notifications Manager
  */
 export class NotificationManager {
-  private activeNotifications: Map<string, { notification: Notification; options: NotificationOptions }>;
+  private activeNotifications: Map<string, ActiveNotification>;
   private history: NotificationInfo[];
   private maxHistorySize: number;
   private rateLimitWindow: number;
@@ -34,7 +39,7 @@ export class NotificationManager {
    * Check if notifications are allowed
    * @returns {boolean} True if allowed
    */
-  checkPermission() {
+  checkPermission(): boolean {
     return isPermissionAllowed('notifications');
   }
 
@@ -42,7 +47,7 @@ export class NotificationManager {
    * Request notification permission
    * @returns {Promise<boolean>} True if granted
    */
-  async requestPermission() {
+  async requestPermission(): Promise<boolean> {
     // For native notifications, permission is largely managed by the OS.
     // However, we check our internal security policy.
     // In a real app, this might trigger a system dialog or check system preferences.
@@ -51,10 +56,10 @@ export class NotificationManager {
 
   /**
    * Show a native notification
-   * @param {import('../common/types.ts').NotificationOptions} options - Notification options
+   * @param {NotificationOptions} options - Notification options
    * @returns {Promise<string>} Notification ID
    */
-  async showNotification(options) {
+  async showNotification(options: NotificationOptions): Promise<string> {
     try {
       // Validate options
       if (!options.title || !options.body) {
@@ -92,7 +97,7 @@ export class NotificationManager {
 
       // Set up event handlers
       notification.on('click', () => {
-        this.handleNotificationClick(id, sanitizedOptions);
+        this.handleNotificationClick(id);
       });
 
       notification.on('action', (event, actionIndex) => {
@@ -141,7 +146,7 @@ export class NotificationManager {
    * @param {string} id - Notification ID
    * @returns {boolean} Success status
    */
-  closeNotification(id) {
+  closeNotification(id: string): boolean {
     try {
       const entry = this.activeNotifications.get(id);
       if (!entry) {
@@ -161,9 +166,9 @@ export class NotificationManager {
   /**
    * Get notification history
    * @param {number} [limit=50] - Maximum number of entries to return
-   * @returns {import('../common/types.ts').NotificationInfo[]}
+   * @returns {NotificationInfo[]}
    */
-  getHistory(limit = 50) {
+  getHistory(limit = 50): NotificationInfo[] {
     return this.history.slice(-limit);
   }
 
@@ -178,9 +183,8 @@ export class NotificationManager {
   /**
    * Handle notification click
    * @param {string} id - Notification ID
-   * @param {Object} options - Original notification options
    */
-  handleNotificationClick(id, options) {
+  handleNotificationClick(id: string) {
     logger.debug('Notification clicked', { id });
 
     // Update history
@@ -195,6 +199,10 @@ export class NotificationManager {
       windowManager.focusWindow(mainWindow.id);
     }
 
+    // Retrieve options to send back
+    const entry = this.activeNotifications.get(id);
+    const options = entry ? entry.options : {};
+
     // Send event to renderer
     this.sendToRenderer(IPC_CHANNELS.NOTIFICATION_CLICKED, { id, options });
 
@@ -208,7 +216,7 @@ export class NotificationManager {
    * @param {number} actionIndex - Action button index
    * @param {Object} options - Original notification options
    */
-  handleNotificationAction(id, actionIndex, options) {
+  handleNotificationAction(id: string, actionIndex: number, options: NotificationOptions) {
     const action = options.actions?.[actionIndex];
     logger.debug('Notification action clicked', { id, actionIndex, action });
 
@@ -228,7 +236,7 @@ export class NotificationManager {
    * Handle notification close
    * @param {string} id - Notification ID
    */
-  handleNotificationClose(id) {
+  handleNotificationClose(id: string) {
     logger.debug('Notification closed', { id });
 
     // Send event to renderer
@@ -243,7 +251,7 @@ export class NotificationManager {
    * @param {string} channel - IPC channel
    * @param {*} data - Event data
    */
-  sendToRenderer(channel, data) {
+  sendToRenderer(channel: string, data: any) {
     const windows = windowManager.getAllWindows();
     windows.forEach((win) => {
       if (win.window && !win.window.isDestroyed()) {
@@ -254,10 +262,10 @@ export class NotificationManager {
 
   /**
    * Sanitize notification options
-   * @param {Object} options - Raw options
-   * @returns {Object} Sanitized options
+   * @param {NotificationOptions} options - Raw options
+   * @returns {NotificationOptions} Sanitized options
    */
-  sanitizeOptions(options) {
+  sanitizeOptions(options: NotificationOptions): NotificationOptions {
     const defaultIcon = process.env.NODE_ENV === 'test'
       ? '/mock/path/to/icon.png'
       : path.join(app.getAppPath(), 'assets', 'icon-64.png');
@@ -279,7 +287,7 @@ export class NotificationManager {
    * @param {string} text - Text to sanitize
    * @returns {string} Sanitized text
    */
-  sanitizeText(text) {
+  sanitizeText(text: string): string {
     if (typeof text !== 'string') {
       return String(text);
     }
@@ -296,7 +304,7 @@ export class NotificationManager {
    * Check rate limiting
    * @returns {boolean} True if allowed
    */
-  checkRateLimit() {
+  checkRateLimit(): boolean {
     const now = Date.now();
 
     // Remove old timestamps
@@ -316,9 +324,9 @@ export class NotificationManager {
 
   /**
    * Add notification to history
-   * @param {import('../common/types.ts').NotificationInfo} entry - History entry
+   * @param {NotificationInfo} entry - History entry
    */
-  addToHistory(entry) {
+  addToHistory(entry: NotificationInfo) {
     this.history.push(entry);
 
     // Trim history if too large

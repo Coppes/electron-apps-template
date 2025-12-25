@@ -18,15 +18,15 @@ const AUDIT_LOG_PATH = join(app.getPath('logs'), 'security-audit.log');
  * Write audit entry to dedicated security log file
  * @param {Object} entry - Audit entry
  */
-function writeAuditLog(entry) {
+function writeAuditLog(entry: Record<string, any>) {
   const logLine = JSON.stringify({
     timestamp: new Date().toISOString(),
     ...entry,
   }) + '\n';
-  
+
   try {
     appendFileSync(AUDIT_LOG_PATH, logLine, { encoding: 'utf8' });
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Failed to write to security audit log', { error: error.message });
   }
 }
@@ -34,13 +34,8 @@ function writeAuditLog(entry) {
 /**
  * Log CSP violation
  * @param {Object} details - Violation details
- * @param {number} details.windowId - Window ID
- * @param {string} details.violatedDirective - Violated CSP directive
- * @param {string} details.blockedUri - Blocked URI
- * @param {string} details.sourceFile - Source file
- * @param {number} details.lineNumber - Line number
  */
-export function logCSPViolation(details) {
+export function logCSPViolation(details: { windowId: number; violatedDirective: string; blockedUri: string; sourceFile: string; lineNumber: number }) {
   const entry = {
     type: 'csp_violation',
     severity: 'warning',
@@ -58,11 +53,8 @@ export function logCSPViolation(details) {
 /**
  * Log navigation block
  * @param {Object} details - Navigation details
- * @param {number} details.windowId - Window ID
- * @param {string} details.url - Blocked URL
- * @param {string} details.reason - Reason for blocking
  */
-export function logNavigationBlock(details) {
+export function logNavigationBlock(details: { windowId: number; url: string; reason: string }) {
   const entry = {
     type: 'navigation_blocked',
     severity: 'warning',
@@ -78,12 +70,8 @@ export function logNavigationBlock(details) {
 /**
  * Log permission request
  * @param {Object} details - Permission details
- * @param {number} details.windowId - Window ID
- * @param {string} details.permission - Permission type
- * @param {string} details.origin - Requesting origin
- * @param {boolean} details.granted - Whether permission was granted
  */
-export function logPermissionRequest(details) {
+export function logPermissionRequest(details: { windowId: number; permission: string; origin: string; granted: boolean }) {
   const entry = {
     type: 'permission_request',
     severity: details.granted ? 'info' : 'warning',
@@ -100,10 +88,8 @@ export function logPermissionRequest(details) {
 /**
  * Log external link opened
  * @param {Object} details - Link details
- * @param {string} details.url - Opened URL
- * @param {number} [details.windowId] - Window ID (if available)
  */
-export function logExternalLink(details) {
+export function logExternalLink(details: { url: string; windowId?: number }) {
   const entry = {
     type: 'external_link_opened',
     severity: 'info',
@@ -118,12 +104,8 @@ export function logExternalLink(details) {
 /**
  * Log security event
  * @param {Object} details - Event details
- * @param {string} details.type - Event type
- * @param {string} details.severity - Severity level (info, warning, error)
- * @param {string} details.message - Event message
- * @param {Object} [details.metadata] - Additional metadata
  */
-export function logSecurityEvent(details) {
+export function logSecurityEvent(details: { type: string; severity: 'info' | 'warning' | 'error'; message: string; metadata?: Record<string, any> }) {
   const entry = {
     type: details.type,
     severity: details.severity,
@@ -131,7 +113,7 @@ export function logSecurityEvent(details) {
     metadata: details.metadata || {},
   };
 
-  const logMethod = logger[details.severity] || logger.info;
+  const logMethod = (logger as any)[details.severity] || logger.info;
   logMethod('Security event', entry);
   writeAuditLog(entry);
 }
@@ -144,7 +126,7 @@ export function initSecurityAuditLog() {
   try {
     // Create initial log entry
     writeFileSync(AUDIT_LOG_PATH, '', { flag: 'a' });
-    
+
     const initEntry = {
       type: 'audit_log_initialized',
       severity: 'info',
@@ -152,10 +134,10 @@ export function initSecurityAuditLog() {
       platform: process.platform,
       arch: process.arch,
     };
-    
+
     writeAuditLog(initEntry);
     logger.info('Security audit log initialized', { path: AUDIT_LOG_PATH });
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Failed to initialize security audit log', { error: error.message });
   }
 }

@@ -11,6 +11,7 @@ vi.mock('../../../../src/main/data/connectivity-manager.ts', () => {
     isOnline: true, // Default to true
     on: vi.fn(),
     off: vi.fn(),
+    getStatus: vi.fn(() => ({ online: true, connectionType: 'wifi' })), // Added missing method
     addListener: vi.fn(),
     removeListener: vi.fn(),
     initialize: vi.fn(),
@@ -101,13 +102,14 @@ describe('SyncQueue', () => {
     it('should not process when offline', async () => {
       // Set offline
       connectivityManager.isOnline = false;
+      connectivityManager.getStatus.mockReturnValue({ online: false, connectionType: 'none' });
 
       await syncQueue.enqueue({ type: 'create', data: { name: 'test' } });
 
       const result = await syncQueue.process();
 
       expect(result.success).toBe(false);
-      expect(result.message).toContain('Offline');
+      expect(result.error).toContain('Offline');
       expect(mockAdapter.sync).not.toHaveBeenCalled();
     });
   });

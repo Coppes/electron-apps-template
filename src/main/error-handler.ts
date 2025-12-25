@@ -14,10 +14,10 @@ export function setupErrorHandlers() {
   // Handle uncaught exceptions in main process
   process.on('uncaughtException', (error) => {
     logger.error('Uncaught exception in main process', error);
-    
+
     // Report to crash reporting service
     reportError(error, { type: 'uncaughtException' });
-    
+
     showErrorDialog(
       'Application Error',
       `An unexpected error occurred: ${error.message}\n\nThe application will attempt to continue.`
@@ -29,13 +29,13 @@ export function setupErrorHandlers() {
   // Handle unhandled promise rejections
   process.on('unhandledRejection', (reason, promise) => {
     const error = reason instanceof Error ? reason : new Error(String(reason));
-    
+
     logger.error('Unhandled promise rejection', {
       reason: reason instanceof Error ? reason.message : reason,
       stack: reason instanceof Error ? reason.stack : undefined,
       promise: promise.toString(),
     });
-    
+
     // Report to crash reporting service
     reportError(error, { type: 'unhandledRejection' });
 
@@ -59,7 +59,7 @@ export function setupErrorHandlers() {
  * @param {string} title - Dialog title
  * @param {string} message - Error message
  */
-export function showErrorDialog(title, message) {
+export function showErrorDialog(title: string, message: string) {
   dialog.showErrorBox(title, message);
 }
 
@@ -68,7 +68,7 @@ export function showErrorDialog(title, message) {
  * @param {Error} error - Error object
  * @returns {Object} Error report with diagnostics
  */
-export function createErrorReport(error) {
+export function createErrorReport(error: Error) {
   return {
     message: error.message,
     stack: error.stack,
@@ -116,14 +116,14 @@ export function getDiagnostics() {
  * Handle renderer process crash
  * @param {BrowserWindow} window - Crashed window
  */
-export function handleRendererCrash(window) {
+export function handleRendererCrash(window: Electron.BrowserWindow) {
   const diagnostics = getDiagnostics();
-  
+
   logger.error('Renderer process crashed', {
     windowId: window.id,
     diagnostics,
   });
-  
+
   // Report to crash reporting service
   reportError(new Error('Renderer process crashed'), {
     type: 'rendererCrash',
@@ -153,14 +153,14 @@ export function handleRendererCrash(window) {
  * Setup renderer crash handling for window
  * @param {BrowserWindow} window - Window instance
  */
-export function setupRendererCrashHandler(window) {
-  window.webContents.on('render-process-gone', (event, details) => {
+export function setupRendererCrashHandler(window: Electron.BrowserWindow) {
+  window.webContents.on('render-process-gone', (event: Electron.Event, details: Electron.RenderProcessGoneDetails) => {
     logger.error('Render process gone', {
       windowId: window.id,
       reason: details.reason,
       exitCode: details.exitCode,
     });
-    
+
     // Report with details
     reportError(new Error(`Render process gone: ${details.reason}`), {
       type: 'renderProcessGone',
@@ -174,7 +174,7 @@ export function setupRendererCrashHandler(window) {
 
   window.webContents.on('unresponsive', () => {
     logger.warn('Window became unresponsive', { windowId: window.id });
-    
+
     const response = dialog.showMessageBoxSync(window, {
       type: 'warning',
       title: 'Window Unresponsive',
@@ -197,7 +197,7 @@ export function setupRendererCrashHandler(window) {
  * Log startup errors
  * @param {Error} error - Startup error
  */
-export function logStartupError(error) {
+export function logStartupError(error: Error) {
   logger.error('Application startup error', {
     error: error.message,
     stack: error.stack,

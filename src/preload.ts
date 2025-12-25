@@ -292,14 +292,14 @@ const fileAPI = {
    * @param {Object} [options] - Validation options
    * @returns {Promise<Object>} Result with valid/invalid files
    */
-  drop: (filePaths, options) => ipcRenderer.invoke(IPC_CHANNELS.FILE_DROP, { filePaths, options }),
+  drop: (filePaths: string[], options?: object) => ipcRenderer.invoke(IPC_CHANNELS.FILE_DROP, { filePaths, options }),
 
   /**
    * Get file path from File object (webUtils)
    * @param {File} file - File object
    * @returns {string} File path
    */
-  getPath: (file) => webUtils.getPathForFile(file),
+  getPath: (file: File) => webUtils.getPathForFile(file),
 
   /**
    * Start drag operation from app
@@ -307,7 +307,7 @@ const fileAPI = {
    * @param {string} [icon] - Optional drag icon path
    * @returns {Promise<Object>} Result
    */
-  dragStart: (filePath, icon) => ipcRenderer.invoke(IPC_CHANNELS.FILE_DRAG_START, { filePath, icon }),
+  dragStart: (filePath: string, icon?: string) => ipcRenderer.invoke(IPC_CHANNELS.FILE_DRAG_START, { filePath, icon }),
 
   /**
    * Validate file path
@@ -499,7 +499,7 @@ const shortcutsAPI = {
  */
 const progressAPI = {
   set: (value: number, options: ProgressOptions = { value: 0 }): Promise<IPCResponse<void>> =>
-    ipcRenderer.invoke(IPC_CHANNELS.PROGRESS_SET, { value, ...options }),
+    ipcRenderer.invoke(IPC_CHANNELS.PROGRESS_SET, { ...options, value }),
 
   clear: (windowId?: number): Promise<IPCResponse<void>> =>
     ipcRenderer.invoke(IPC_CHANNELS.PROGRESS_CLEAR, { windowId }),

@@ -1,4 +1,4 @@
-import { ipcMain, app, BrowserWindow } from 'electron';
+import { ipcMain, app, BrowserWindow, IpcMainInvokeEvent } from 'electron';
 import Store, { Schema } from 'electron-store';
 import { logger } from '../../logger.ts';
 import { createSuccessResponse, createErrorResponse } from '../bridge.ts';
@@ -9,7 +9,7 @@ import { IPC_CHANNELS } from '../../../common/constants.ts';
  */
 
 // Define store schema
-const schema: Schema<any> = {
+const schema: Schema<Record<string, unknown>> = {
   theme: {
     type: 'string',
     enum: ['light', 'dark', 'system'],
@@ -28,10 +28,10 @@ const defaults = {
   },
   language: 'en',
   hasCompletedTour: false,
-};
+} as const;
 
 const migrations = {
-  '1.0.0': (store: Store) => {
+  '1.0.0': (store: any) => {
     store.set('projectVersion', '1.0.0');
   },
 };
@@ -48,17 +48,26 @@ export const store = new Store({
  * Store IPC handlers
  */
 
+interface KeyPayload {
+  key: string;
+}
+
+interface KeyValuePayload extends KeyPayload {
+  value: any;
+}
+
 /**
  * Get value from store
  */
 export function getStoreHandler() {
-  return async (event, { key }) => {
+  return async (event: IpcMainInvokeEvent, { key }: KeyPayload) => {
     try {
       const value = store.get(key);
       return { value };
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
       logger.error('Failed to get from store', error);
-      return createErrorResponse(error.message, 'STORE_GET_FAILED');
+      return createErrorResponse(message, 'STORE_GET_FAILED');
     }
   };
 }
@@ -67,7 +76,7 @@ export function getStoreHandler() {
  * Set value in store
  */
 export function setStoreHandler() {
-  return async (event, { key, value }) => {
+  return async (event: IpcMainInvokeEvent, { key, value }: KeyValuePayload) => {
     try {
       store.set(key, value);
       // Broadcast change
@@ -78,8 +87,9 @@ export function setStoreHandler() {
       });
       return createSuccessResponse();
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
       logger.error('Failed to set in store', error);
-      return createErrorResponse(error.message, 'STORE_SET_FAILED');
+      return createErrorResponse(message, 'STORE_SET_FAILED');
     }
   };
 }
@@ -88,9 +98,9 @@ export function setStoreHandler() {
  * Delete value from store
  */
 export function deleteStoreHandler() {
-  return async (event, { key }) => {
+  return async (event: IpcMainInvokeEvent, { key }: KeyPayload) => {
     try {
-      store.delete(key);
+      store.delete(key as any);
       BrowserWindow.getAllWindows().forEach(win => {
         if (!win.isDestroyed()) {
           win.webContents.send(IPC_CHANNELS.STORE_CHANGED, { key, deleted: true });
@@ -98,8 +108,9 @@ export function deleteStoreHandler() {
       });
       return createSuccessResponse();
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
       logger.error('Failed to delete from store', error);
-      return createErrorResponse(error.message, 'STORE_DELETE_FAILED');
+      return createErrorResponse(message, 'STORE_DELETE_FAILED');
     }
   };
 }
@@ -118,8 +129,9 @@ export function clearStoreHandler() {
       });
       return createSuccessResponse();
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
       logger.error('Failed to clear store', error);
-      return createErrorResponse(error.message, 'STORE_CLEAR_FAILED');
+      return createErrorResponse(message, 'STORE_CLEAR_FAILED');
     }
   };
 }
@@ -128,13 +140,14 @@ export function clearStoreHandler() {
  * Check if key exists in store
  */
 export function hasStoreHandler() {
-  return async (event, { key }) => {
+  return async (event: IpcMainInvokeEvent, { key }: KeyPayload) => {
     try {
-      const exists = store.has(key);
+      const exists = store.has(key as any);
       return { exists };
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
       logger.error('Failed to check store', error);
-      return createErrorResponse(error.message, 'STORE_HAS_FAILED');
+      return createErrorResponse(message, 'STORE_HAS_FAILED');
     }
   };
 }

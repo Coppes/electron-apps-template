@@ -5,14 +5,32 @@
 
 import { logger } from '../logger.ts';
 
+interface ValidationSchema {
+  type?: string;
+  required?: boolean;
+  min?: number;
+  max?: number;
+  pattern?: string;
+  enum?: (string | number)[];
+  maxLength?: number;
+}
+
+interface ValidationResult {
+  valid: boolean;
+  error?: string;
+  code?: string;
+  errors?: any[];
+  message?: string;
+}
+
 /**
  * Validate parameter against schema
  * @param {any} value - Value to validate
- * @param {object} schema - Schema definition
+ * @param {ValidationSchema} schema - Schema definition
  * @param {string} paramName - Parameter name for error messages
- * @returns {object} Validation result
+ * @returns {ValidationResult} Validation result
  */
-export function validateParameter(value, schema, paramName) {
+export function validateParameter(value: any, schema: ValidationSchema, paramName: string): ValidationResult {
   const { type, required, min, max, pattern, enum: enumValues, maxLength } = schema;
 
   // Check if required
@@ -112,22 +130,22 @@ export function validateParameter(value, schema, paramName) {
 
 /**
  * Validate all parameters against schema
- * @param {object} params - Parameters to validate
- * @param {object} schema - Schema definition
- * @returns {object} Validation result
+ * @param {Record<string, any>} params - Parameters to validate
+ * @param {Record<string, ValidationSchema>} schema - Schema definition
+ * @returns {ValidationResult} Validation result
  */
-export function validateParameters(params, schema) {
+export function validateParameters(params: Record<string, any>, schema: Record<string, ValidationSchema>): ValidationResult {
   if (!schema) {
     return { valid: true };
   }
 
-  const errors = [];
+  const errors: any[] = [];
 
   // Validate each parameter in schema
   for (const [paramName, paramSchema] of Object.entries(schema)) {
     const value = params?.[paramName];
     const result = validateParameter(value, paramSchema, paramName);
-    
+
     if (!result.valid) {
       errors.push({
         param: paramName,
@@ -148,23 +166,30 @@ export function validateParameters(params, schema) {
   return { valid: true };
 }
 
+interface ValidatedHandlerResponse {
+  success: boolean;
+  error?: string;
+  code?: string;
+  validationErrors?: any[];
+}
+
 /**
  * Middleware wrapper for IPC handlers with validation
  * @param {Function} handler - Handler function
  * @param {object} schema - Schema for validation
  * @returns {Function} Wrapped handler with validation
  */
-export function withValidation(handler, schema) {
-  return async (event, params) => {
+export function withValidation(handler: Function, schema: { input: Record<string, ValidationSchema> }) {
+  return async (event: unknown, params: Record<string, any>): Promise<ValidatedHandlerResponse | any> => {
     // Validate parameters
     const validation = validateParameters(params, schema?.input);
-    
+
     if (!validation.valid) {
       logger.warn('IPC parameter validation failed', {
         handler: handler.name,
         errors: validation.errors
       });
-      
+
       return {
         success: false,
         error: validation.message,
@@ -177,15 +202,18 @@ export function withValidation(handler, schema) {
     try {
       return await handler(event, params);
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      const stack = error instanceof Error ? error.stack : undefined;
+
       logger.error('IPC handler error', {
         handler: handler.name,
-        error: error.message,
-        stack: error.stack
+        error: message,
+        stack
       });
-      
+
       return {
         success: false,
-        error: error.message,
+        error: message,
         code: 'HANDLER_ERROR'
       };
     }
@@ -194,15 +222,20 @@ export function withValidation(handler, schema) {
 
 /**
  * Sanitize IPC parameters to remove potentially dangerous values
- * @param {object} params - Parameters to sanitize
- * @returns {object} Sanitized parameters
+ * @param {any} params - Parameters to sanitize
+ * @returns {any} Sanitized parameters
  */
-export function sanitizeParameters(params) {
+export function sanitizeParameters(params: any): any {
   if (!params || typeof params !== 'object') {
     return params;
   }
 
-  const sanitized = {};
+  // Handle null (typeof null is 'object')
+  if (params === null) {
+    return null;
+  }
+
+  const sanitized: any = Array.isArray(params) ? [] : {};
 
   for (const [key, value] of Object.entries(params)) {
     // Skip null/undefined
@@ -222,7 +255,7 @@ export function sanitizeParameters(params) {
     }
     // Sanitize arrays
     else if (Array.isArray(value)) {
-      sanitized[key] = value.map(item => 
+      sanitized[key] = value.map(item =>
         typeof item === 'object' ? sanitizeParameters(item) : item
       );
     }

@@ -1,4 +1,5 @@
 import { BrowserWindow, app } from 'electron';
+import { AppUpdater, UpdateInfo, ProgressInfo } from 'electron-updater';
 import { store } from './ipc/handlers/store.ts';
 import { IPC_CHANNELS } from '../common/constants.ts';
 import { logger } from './logger.ts';
@@ -13,7 +14,7 @@ import { notificationManager } from './notifications.ts';
 class Updater {
   private updateCheckInterval: NodeJS.Timeout | null;
   private updateAvailable: boolean;
-  private autoUpdater: any; // Type from dynamic import
+  private autoUpdater: AppUpdater | null;
 
   constructor() {
     this.updateCheckInterval = null;
@@ -52,7 +53,7 @@ class Updater {
         autoDownload: config.updates.autoDownload,
         autoInstallOnAppQuit: config.updates.autoInstallOnAppQuit,
       });
-    } catch (error) {
+    } catch (error: any) {
       logger.warn('Failed to initialize auto-updater', {
         error: error.message,
         note: 'Auto-update functionality will be disabled',
@@ -70,7 +71,7 @@ class Updater {
       logger.info('Checking for updates...');
     });
 
-    this.autoUpdater.on('update-available', (info) => {
+    this.autoUpdater.on('update-available', (info: UpdateInfo) => {
       this.updateAvailable = true;
       logger.info('Update available', {
         version: info.version,
@@ -90,18 +91,18 @@ class Updater {
         win.webContents.send(IPC_CHANNELS.UPDATE_AVAILABLE, {
           version: info.version,
           releaseDate: info.releaseDate,
-          releaseNotes: info.releaseNotes || '',
+          releaseNotes: (info.releaseNotes as string) || '',
         });
       });
     });
 
-    this.autoUpdater.on('update-not-available', (info) => {
+    this.autoUpdater.on('update-not-available', (info: UpdateInfo) => {
       logger.info('Update not available', {
         version: info.version,
       });
     });
 
-    this.autoUpdater.on('error', (error) => {
+    this.autoUpdater.on('error', (error: Error) => {
       logger.error('Auto-updater error', error);
 
       // Notify renderer of error
@@ -109,12 +110,12 @@ class Updater {
       allWindows.forEach(win => {
         win.webContents.send(IPC_CHANNELS.UPDATE_ERROR, {
           message: error.message || 'Unknown update error',
-          code: error.code || 'UPDATE_ERROR',
+          code: (error as any).code || 'UPDATE_ERROR',
         });
       });
     });
 
-    this.autoUpdater.on('download-progress', (progress) => {
+    this.autoUpdater.on('download-progress', (progress: ProgressInfo) => {
       logger.debug('Download progress', {
         percent: progress.percent.toFixed(2),
         transferred: progress.transferred,
@@ -133,7 +134,7 @@ class Updater {
       });
     });
 
-    this.autoUpdater.on('update-downloaded', (info) => {
+    this.autoUpdater.on('update-downloaded', (info: UpdateInfo) => {
       logger.info('Update downloaded', {
         version: info.version,
         releaseDate: info.releaseDate,
@@ -248,7 +249,7 @@ class Updater {
   checkVersion() {
     try {
       const currentVersion = app.getVersion();
-      const lastRunVersion = store.get('lastRunVersion');
+      const lastRunVersion = store.get('lastRunVersion') as string | undefined;
 
       if (!lastRunVersion || this.compareVersions(currentVersion, lastRunVersion) > 0) {
         logger.info(`App updated from ${lastRunVersion} to ${currentVersion}`);
@@ -264,7 +265,7 @@ class Updater {
    * Simple semantic version comparison
    * Returns > 0 if v1 > v2
    */
-  compareVersions(v1, v2) {
+  compareVersions(v1: string, v2: string) {
     if (!v1 || !v2) return 0;
     return v1.localeCompare(v2, undefined, { numeric: true, sensitivity: 'base' });
   }

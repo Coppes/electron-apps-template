@@ -91,7 +91,7 @@ export class BackupManager {
           const stats = await fs.stat(file.path);
           estimatedSize += stats.size;
         } catch (error) {
-          logger.warn(`Could not stat file ${file.path}:`, error);
+          logger.warn(`Could not stat file ${file.path}:`, error as any);
         }
       }
 
@@ -398,13 +398,13 @@ export class BackupManager {
         store.set(BACKUP_METADATA_KEY, validBackups);
       }
 
+      // Add total property to array to match intersection type
+      const data = validBackups as (BackupMetadata[] & { total: number });
+      (data as any).total = validBackups.length;
+
       return {
         success: true,
-        data: {
-          ...validBackups,
-          total: validBackups.length,
-          length: validBackups.length
-        } as any // structure match
+        data
       };
     } catch (error: any) {
       logger.error('Failed to list backups:', error);
@@ -512,7 +512,7 @@ export class BackupManager {
           store.store = storeData;
           logger.info('Restored electron-store configuration');
         } catch (e) {
-          logger.warn('Failed to restore electron-store:', e);
+          logger.warn('Failed to restore electron-store:', e as any);
         }
       }
 
@@ -543,7 +543,7 @@ export class BackupManager {
           // Check if it exists before trying to delete (it might have failed creation)
           await fs.rm(restoreDir, { recursive: true, force: true });
         } catch (e) {
-          logger.warn('Failed to cleanup restore temp dir:', e);
+          logger.warn('Failed to cleanup restore temp dir:', e as any);
         }
       }
     }
@@ -576,7 +576,7 @@ export class BackupManager {
             await this.deleteBackup(backup.filename);
             logger.info(`Cleaned up old backup: ${backup.filename}`);
           } catch (error) {
-            logger.warn(`Failed to cleanup backup ${backup.filename}:`, error);
+            logger.warn(`Failed to cleanup backup ${backup.filename}:`, error as any);
           }
         }
       }

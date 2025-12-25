@@ -194,7 +194,8 @@ describe('LifecycleManager', () => {
     window: { // Used in some parts of the code
       isMinimized: vi.fn(() => false),
       restore: vi.fn()
-    }
+    },
+    focus: vi.fn(), // Missing mock added
   };
 
   beforeEach(() => {

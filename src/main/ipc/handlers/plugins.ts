@@ -8,7 +8,7 @@ export function getPluginsHandler() {
       const plugins = await pluginManager.getAllPlugins();
       return createSuccessResponse({ plugins });
     } catch (error) {
-      return createErrorResponse(error.message, 'PLUGINS_GET_FAILED');
+      return createErrorResponse((error as any).message, 'PLUGINS_GET_FAILED');
     }
   };
 }

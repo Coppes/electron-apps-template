@@ -128,7 +128,7 @@ export function getWindowStateHandler(windowManager: WindowManager) {
       }
 
       return createErrorResponse('Window not found', 'WINDOW_NOT_FOUND');
-    } catch (error) {
+    } catch (error: any) {
       logger.error('Failed to get window state', error);
       return createErrorResponse(error.message, 'WINDOW_STATE_FAILED');
     }
@@ -140,7 +140,7 @@ export function getWindowStateHandler(windowManager: WindowManager) {
  * Get display info handler
  */
 export function getDisplayHandler() {
-  return async (event) => {
+  return async (event: Electron.IpcMainInvokeEvent) => {
     try {
       const window = BrowserWindow.fromWebContents(event.sender);
       if (window) {
@@ -151,7 +151,7 @@ export function getDisplayHandler() {
         return createSuccessResponse({ display });
       }
       return createErrorResponse('Window not found', 'WINDOW_NOT_FOUND');
-    } catch (error) {
+    } catch (error: any) {
       logger.error('Failed to get display info', error);
       return createErrorResponse(error.message, 'GET_DISPLAY_FAILED');
     }
@@ -163,7 +163,7 @@ export function getDisplayHandler() {
  * @param {WindowManager} windowManager - Window manager instance
  * @returns {Object} Handlers keyed by channel
  */
-export function createWindowHandlers(windowManager) {
+export function createWindowHandlers(windowManager: WindowManager) {
   return {
     [IPC_CHANNELS.WINDOW_CREATE]: createWindowHandler(windowManager),
     [IPC_CHANNELS.WINDOW_CLOSE]: closeWindowHandler(windowManager),

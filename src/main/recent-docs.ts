@@ -22,7 +22,7 @@ const ALLOWED_EXTENSIONS = [
  * @param {string} filePath - Absolute path to the document
  * @returns {boolean} Success status
  */
-export function addRecentDocument(filePath) {
+export function addRecentDocument(filePath: string) {
   try {
     // Validate path
     if (!filePath || typeof filePath !== 'string') {
@@ -84,7 +84,7 @@ export function clearRecentDocuments() {
  * @param {string} filePath - File path to check
  * @returns {boolean}
  */
-function isAllowedExtension(filePath) {
+function isAllowedExtension(filePath: string) {
   const ext = filePath.substring(filePath.lastIndexOf('.')).toLowerCase();
   return ALLOWED_EXTENSIONS.includes(ext);
 }
@@ -93,7 +93,7 @@ function isAllowedExtension(filePath) {
  * Add extension to whitelist
  * @param {string} extension - Extension to allow (e.g., '.myext')
  */
-export function addAllowedExtension(extension) {
+export function addAllowedExtension(extension: string) {
   if (!extension.startsWith('.')) {
     extension = '.' + extension;
   }

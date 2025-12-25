@@ -134,6 +134,11 @@ export const IPC_CHANNELS = {
 
   // Plugins
   PLUGINS_GET_ALL: 'plugins:get-all',
+
+  // OS Integration
+  OS_DOCK_SET_BADGE: 'dock:set-badge',
+  OS_DOCK_SET_MENU: 'dock:set-menu',
+  OS_TRAY_SET_STATUS: 'tray:set-status',
 };
 
 // Window Types

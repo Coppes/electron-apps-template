@@ -3,11 +3,13 @@ import fs from 'fs/promises';
 import { addRecentDocument } from './recent-docs.ts';
 import { logger } from './logger.ts';
 
+import { WindowManager } from './window-manager.ts';
+
 /**
  * Setup file association handlers
- * @param {import('./window-manager.ts').WindowManager} windowManager 
+ * @param {WindowManager} windowManager
  */
-export function setupFileHandlers(windowManager) {
+export function setupFileHandlers(windowManager: WindowManager) {
   // Handle macOS 'open-file' event
   app.on('open-file', async (event, path) => {
     event.preventDefault();
@@ -38,11 +40,11 @@ export function setupFileHandlers(windowManager) {
  * @param {string[]} argv 
  * @returns {string|null}
  */
-export function findFileInArgv(argv) {
+export function findFileInArgv(argv: string[]) {
   // Skip first arg (executable) and flags or protocol links
-  const fileArg = argv.slice(1).find(arg => 
-    arg && 
-    !arg.startsWith('-') && 
+  const fileArg = argv.slice(1).find(arg =>
+    arg &&
+    !arg.startsWith('-') &&
     !arg.startsWith('electronapp://')
   );
   return fileArg || null;

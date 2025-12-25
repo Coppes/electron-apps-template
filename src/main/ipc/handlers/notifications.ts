@@ -2,6 +2,7 @@ import { IPC_CHANNELS } from '../../../common/constants.ts';
 import { notificationManager } from '../../notifications.ts';
 import { existsSync } from 'fs';
 import { isAbsolute } from 'path';
+import { NotificationOptions } from '../../../common/types.ts';
 
 /**
  * Native Notifications IPC Handlers
@@ -13,7 +14,7 @@ import { isAbsolute } from 'path';
  */
 export function createNotificationHandlers() {
   return {
-    [IPC_CHANNELS.NOTIFICATION_SHOW]: async (event, options) => {
+    [IPC_CHANNELS.NOTIFICATION_SHOW]: async (_event: Electron.IpcMainInvokeEvent, options: NotificationOptions) => {
       // Validate options
       if (!options || typeof options !== 'object') {
         throw new Error('Invalid notification options');
@@ -35,7 +36,7 @@ export function createNotificationHandlers() {
       return { success: true, id };
     },
 
-    [IPC_CHANNELS.NOTIFICATION_CLOSE]: async (event, { id }) => {
+    [IPC_CHANNELS.NOTIFICATION_CLOSE]: async (_event: Electron.IpcMainInvokeEvent, { id }: { id: string }) => {
       if (!id || typeof id !== 'string') {
         throw new Error('Invalid notification ID');
       }
@@ -44,7 +45,7 @@ export function createNotificationHandlers() {
       return { success };
     },
 
-    [IPC_CHANNELS.NOTIFICATION_GET_HISTORY]: async (event, { limit }) => {
+    [IPC_CHANNELS.NOTIFICATION_GET_HISTORY]: async (_event: Electron.IpcMainInvokeEvent, { limit }: { limit: number }) => {
       const limitNum = limit && typeof limit === 'number' ? limit : 50;
       const history = notificationManager.getHistory(limitNum);
       return { history };

@@ -1,4 +1,4 @@
-import { app, Tray, Menu, nativeImage } from 'electron';
+import { app, Tray, Menu, nativeImage, MenuItemConstructorOptions } from 'electron';
 import { join } from 'path';
 import fs from 'fs';
 import { logger } from './logger.ts';
@@ -17,7 +17,7 @@ export interface TrayOptions {
 
 export class TrayManager {
   private tray: Tray | null;
-  private menuTemplate: TrayMenuItem[];
+  private menuTemplate: MenuItemConstructorOptions[];
   private visible: boolean;
 
   constructor() {
@@ -30,7 +30,7 @@ export class TrayManager {
    * Check if tray is created
    * @returns {boolean} True if created
    */
-  isCreated() {
+  isCreated(): boolean {
     return !!this.tray;
   }
 
@@ -39,7 +39,7 @@ export class TrayManager {
    * @param {TrayOptions} [options] - Tray creation options
    * @returns {boolean} Success status
    */
-  createTray(options: TrayOptions = {}) {
+  createTray(options: TrayOptions = {}): boolean {
     if (this.tray) {
       logger.warn('Tray already exists');
       return false;
@@ -101,7 +101,7 @@ export class TrayManager {
    * Get platform-specific tray icon path
    * @returns {string} Icon path
    */
-  getTrayIconPath() {
+  getTrayIconPath(): string {
     const assetsPath = app.isPackaged
       ? join(process.resourcesPath, 'assets')
       : join(app.getAppPath(), 'assets');
@@ -123,7 +123,7 @@ export class TrayManager {
    * @param {string} iconPath - Path to icon file
    * @returns {boolean} Success status
    */
-  setIcon(iconPath) {
+  setIcon(iconPath: string): boolean {
     if (!this.tray) {
       logger.warn('Tray not created');
       return false;
@@ -149,7 +149,7 @@ export class TrayManager {
    * Update tray icon based on status
    * @param {string} status - Status string (e.g. 'offline', 'error', 'sync')
    */
-  updateStatus(status) {
+  updateStatus(status: string): boolean {
     if (!status || status === 'normal') {
       return this.setIcon(this.getTrayIconPath());
     }
@@ -176,7 +176,7 @@ export class TrayManager {
    * @param {string} tooltip - Tooltip text
    * @returns {boolean} Success status
    */
-  setTooltip(tooltip) {
+  setTooltip(tooltip: string): boolean {
     if (!this.tray) {
       logger.warn('Tray not created');
       return false;
@@ -196,7 +196,7 @@ export class TrayManager {
    * Set default tray context menu
    */
   setDefaultMenu() {
-    const menuTemplate = [
+    const menuTemplate: MenuItemConstructorOptions[] = [
       {
         label: 'Show Window',
         click: () => {
@@ -217,10 +217,10 @@ export class TrayManager {
 
   /**
    * Set tray context menu
-   * @param {import('../common/types.ts').TrayMenuItem[]} menuTemplate - Menu template
+   * @param {MenuItemConstructorOptions[]} menuTemplate - Menu template
    * @returns {boolean} Success status
    */
-  setContextMenu(menuTemplate) {
+  setContextMenu(menuTemplate: MenuItemConstructorOptions[]): boolean {
     if (!this.tray) {
       logger.warn('Tray not created');
       return false;
@@ -240,11 +240,11 @@ export class TrayManager {
 
   /**
    * Add menu item to tray
-   * @param {import('../common/types.ts').TrayMenuItem} item - Menu item
+   * @param {MenuItemConstructorOptions} item - Menu item
    * @param {number} [position] - Insert position (default: append)
    * @returns {boolean} Success status
    */
-  addMenuItem(item, position) {
+  addMenuItem(item: MenuItemConstructorOptions, position?: number): boolean {
     if (!this.tray) {
       logger.warn('Tray not created');
       return false;
@@ -267,10 +267,10 @@ export class TrayManager {
   /**
    * Update existing menu item
    * @param {string} id - Menu item ID
-   * @param {Partial<import('../common/types.ts').TrayMenuItem>} updates - Updates
+   * @param {Partial<MenuItemConstructorOptions>} updates - Updates
    * @returns {boolean} Success status
    */
-  updateMenuItem(id, updates) {
+  updateMenuItem(id: string, updates: Partial<MenuItemConstructorOptions>): boolean {
     if (!this.tray) {
       logger.warn('Tray not created');
       return false;
@@ -293,17 +293,20 @@ export class TrayManager {
 
   /**
    * Find menu item by ID (recursive search for submenus)
-   * @param {import('../common/types.ts').TrayMenuItem[]} items - Menu items
+   * @param {MenuItemConstructorOptions[]} items - Menu items
    * @param {string} id - Item ID to find
-   * @returns {import('../common/types.ts').TrayMenuItem|null}
+   * @returns {MenuItemConstructorOptions|null}
    */
-  findMenuItem(items, id) {
+  findMenuItem(items: MenuItemConstructorOptions[], id: string): MenuItemConstructorOptions | null {
     for (const item of items) {
       if (item.id === id) {
         return item;
       }
-      if (item.submenu) {
-        const found = this.findMenuItem(item.submenu, id);
+      if (item.submenu && Array.isArray(item.submenu)) {
+        // Handle submenu being a Menu or MenuItemConstructorOptions[]
+        // For simplicity, we assume MenuItemConstructorOptions[] here as we build it
+        const submenuArray = item.submenu as MenuItemConstructorOptions[];
+        const found = this.findMenuItem(submenuArray, id);
         if (found) return found;
       }
     }
@@ -314,7 +317,7 @@ export class TrayManager {
    * Show tray icon
    * @returns {boolean} Success status
    */
-  show() {
+  show(): boolean {
     if (!this.tray) {
       logger.warn('Tray not created');
       return false;
@@ -329,7 +332,7 @@ export class TrayManager {
    * Hide tray icon
    * @returns {boolean} Success status
    */
-  hide() {
+  hide(): boolean {
     if (!this.tray) {
       logger.warn('Tray not created');
       return false;
@@ -346,7 +349,7 @@ export class TrayManager {
    * Check if tray is visible
    * @returns {boolean}
    */
-  isVisible() {
+  isVisible(): boolean {
     return this.visible && this.tray !== null;
   }
 
@@ -368,7 +371,7 @@ export class TrayManager {
    * @param {string} event - Event name
    * @param {*} data - Event data
    */
-  emit(event, data) {
+  emit(event: string, data: any) {
     // Events will be handled by IPC handlers
     logger.debug('Tray event emitted', { event, data });
   }

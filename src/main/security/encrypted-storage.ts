@@ -16,7 +16,7 @@ const store = new Store();
 const ENCRYPTED_PREFIX = '__ENCRYPTED__';
 
 // Cache encryption availability to avoid repeated checks
-let encryptionAvailable = null;
+let encryptionAvailable: boolean | null = null;
 
 /**
  * Reset the encryption availability cache (for testing purposes)
@@ -30,7 +30,7 @@ export function _resetEncryptionCache() {
  * Check if encryption is available on the current platform
  * @returns {boolean} True if encryption is available
  */
-export function isEncryptionAvailable() {
+export function isEncryptionAvailable(): boolean {
   if (encryptionAvailable === null) {
     encryptionAvailable = safeStorage.isEncryptionAvailable();
     logger.info(`Encryption availability: ${encryptionAvailable}`, {
@@ -48,9 +48,9 @@ export function getEncryptionInfo() {
   return {
     available: isEncryptionAvailable(),
     platform: process.platform,
-    backend: process.platform === 'darwin' ? 'Keychain' 
-      : process.platform === 'win32' ? 'DPAPI' 
-      : 'libsecret'
+    backend: process.platform === 'darwin' ? 'Keychain'
+      : process.platform === 'win32' ? 'DPAPI'
+        : 'libsecret'
   };
 }
 
@@ -60,7 +60,7 @@ export function getEncryptionInfo() {
  * @returns {string} Base64 encoded encrypted data
  * @throws {Error} If encryption is unavailable or fails
  */
-export function encryptValue(value) {
+export function encryptValue(value: any): string {
   if (!isEncryptionAvailable()) {
     throw new Error('Encryption is not available on this platform');
   }
@@ -72,13 +72,14 @@ export function encryptValue(value) {
   try {
     // Convert value to string if needed
     const plaintext = typeof value === 'string' ? value : JSON.stringify(value);
-    
+
     // Encrypt and convert Buffer to base64
     const encrypted = safeStorage.encryptString(plaintext);
     return encrypted.toString('base64');
   } catch (error) {
-    logger.error('Encryption failed', { error: error.message });
-    throw new Error(`Encryption failed: ${error.message}`);
+    const message = error instanceof Error ? error.message : String(error);
+    logger.error('Encryption failed', { error: message });
+    throw new Error(`Encryption failed: ${message}`);
   }
 }
 
@@ -88,7 +89,7 @@ export function encryptValue(value) {
  * @returns {any} Decrypted value (parsed from JSON if applicable)
  * @throws {Error} If decryption fails
  */
-export function decryptValue(encryptedBase64) {
+export function decryptValue(encryptedBase64: string): any {
   if (!isEncryptionAvailable()) {
     throw new Error('Encryption is not available on this platform');
   }
@@ -100,10 +101,10 @@ export function decryptValue(encryptedBase64) {
   try {
     // Convert base64 to Buffer
     const encrypted = Buffer.from(encryptedBase64, 'base64');
-    
+
     // Decrypt
     const plaintext = safeStorage.decryptString(encrypted);
-    
+
     // Try to parse as JSON, return as-is if not valid JSON
     try {
       return JSON.parse(plaintext);
@@ -111,8 +112,9 @@ export function decryptValue(encryptedBase64) {
       return plaintext;
     }
   } catch (error) {
-    logger.error('Decryption failed', { error: error.message });
-    throw new Error(`Decryption failed: ${error.message}`);
+    const message = error instanceof Error ? error.message : String(error);
+    logger.error('Decryption failed', { error: message });
+    throw new Error(`Decryption failed: ${message}`);
   }
 }
 
@@ -123,7 +125,7 @@ export function decryptValue(encryptedBase64) {
  * @returns {Object} Success response
  * @throws {Error} If encryption is unavailable or operation fails
  */
-export function encryptAndStore(key, value) {
+export function encryptAndStore(key: string, value: any) {
   if (!key || typeof key !== 'string') {
     throw new Error('Key must be a non-empty string');
   }
@@ -135,16 +137,17 @@ export function encryptAndStore(key, value) {
   try {
     const encrypted = encryptValue(value);
     const storageKey = `${ENCRYPTED_PREFIX}${key}`;
-    
+
     store.set(storageKey, encrypted);
-    
+
     logger.info('Encrypted value stored', { key });
-    
+
     return { success: true };
   } catch (error) {
-    logger.error('Failed to encrypt and store value', { 
-      key, 
-      error: error.message 
+    const message = error instanceof Error ? error.message : String(error);
+    logger.error('Failed to encrypt and store value', {
+      key,
+      error: message
     });
     throw error;
   }
@@ -156,28 +159,29 @@ export function encryptAndStore(key, value) {
  * @returns {any} Decrypted value or null if not found
  * @throws {Error} If decryption fails
  */
-export function retrieveAndDecrypt(key) {
+export function retrieveAndDecrypt(key: string): any {
   if (!key || typeof key !== 'string') {
     throw new Error('Key must be a non-empty string');
   }
 
   try {
     const storageKey = `${ENCRYPTED_PREFIX}${key}`;
-    const encrypted = store.get(storageKey);
-    
+    const encrypted = store.get(storageKey) as string;
+
     if (!encrypted) {
       logger.debug('Encrypted value not found', { key });
       return null;
     }
-    
+
     const decrypted = decryptValue(encrypted);
     logger.info('Encrypted value retrieved', { key });
-    
+
     return decrypted;
   } catch (error) {
-    logger.error('Failed to retrieve and decrypt value', { 
-      key, 
-      error: error.message 
+    const message = error instanceof Error ? error.message : String(error);
+    logger.error('Failed to retrieve and decrypt value', {
+      key,
+      error: message
     });
     throw error;
   }
@@ -188,7 +192,7 @@ export function retrieveAndDecrypt(key) {
  * @param {string} key - Storage key
  * @returns {Object} Success response
  */
-export function deleteEncrypted(key) {
+export function deleteEncrypted(key: string) {
   if (!key || typeof key !== 'string') {
     throw new Error('Key must be a non-empty string');
   }
@@ -196,14 +200,15 @@ export function deleteEncrypted(key) {
   try {
     const storageKey = `${ENCRYPTED_PREFIX}${key}`;
     store.delete(storageKey);
-    
+
     logger.info('Encrypted value deleted', { key });
-    
+
     return { success: true };
   } catch (error) {
-    logger.error('Failed to delete encrypted value', { 
-      key, 
-      error: error.message 
+    const message = error instanceof Error ? error.message : String(error);
+    logger.error('Failed to delete encrypted value', {
+      key,
+      error: message
     });
     throw error;
   }
@@ -214,7 +219,7 @@ export function deleteEncrypted(key) {
  * @param {string} key - Storage key
  * @returns {boolean} True if the key exists
  */
-export function hasEncrypted(key) {
+export function hasEncrypted(key: string): boolean {
   if (!key || typeof key !== 'string') {
     throw new Error('Key must be a non-empty string');
   }

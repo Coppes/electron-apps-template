@@ -24,6 +24,8 @@ log.transports.console.level = isDevelopment ? 'debug' : 'info';
 // File rotation configuration
 log.transports.file.maxSize = 10 * 1024 * 1024; // 10MB
 
+type LogMeta = Record<string, unknown>;
+
 /**
  * Logger wrapper with structured logging support
  */
@@ -31,9 +33,9 @@ class Logger {
   /**
    * Log debug message (development only)
    * @param {string} message - Log message
-   * @param {Object} [meta] - Additional metadata
+   * @param {LogMeta} [meta] - Additional metadata
    */
-  debug(message, meta = {}) {
+  debug(message: string, meta: LogMeta = {}) {
     if (Object.keys(meta).length > 0) {
       log.debug(message, meta);
     } else {
@@ -44,9 +46,9 @@ class Logger {
   /**
    * Log info message
    * @param {string} message - Log message
-   * @param {Object} [meta] - Additional metadata
+   * @param {LogMeta} [meta] - Additional metadata
    */
-  info(message, meta = {}) {
+  info(message: string, meta: LogMeta = {}) {
     if (Object.keys(meta).length > 0) {
       log.info(message, meta);
     } else {
@@ -57,9 +59,9 @@ class Logger {
   /**
    * Log warning message
    * @param {string} message - Log message
-   * @param {Object} [meta] - Additional metadata
+   * @param {LogMeta} [meta] - Additional metadata
    */
-  warn(message, meta = {}) {
+  warn(message: string, meta: LogMeta = {}) {
     if (Object.keys(meta).length > 0) {
       log.warn(message, meta);
     } else {
@@ -70,12 +72,12 @@ class Logger {
   /**
    * Log error message
    * @param {string} message - Log message
-   * @param {Error|Object} [error] - Error object or metadata
+   * @param {Error|LogMeta|unknown} [error] - Error object or metadata
    */
-  error(message, error = {}) {
+  error(message: string, error: Error | LogMeta | unknown = {}) {
     if (error instanceof Error) {
       log.error(message, { message: error.message, stack: error.stack });
-    } else if (Object.keys(error).length > 0) {
+    } else if (typeof error === 'object' && error !== null && Object.keys(error as object).length > 0) {
       log.error(message, error);
     } else {
       log.error(message);
@@ -86,7 +88,7 @@ class Logger {
    * Get log file path
    * @returns {string} Path to log file
    */
-  getLogPath() {
+  getLogPath(): string {
     return log.transports.file.getFile().path;
   }
 
@@ -94,9 +96,9 @@ class Logger {
    * Set log level for console transport
    * @param {string} level - Log level (debug, info, warn, error)
    */
-  setConsoleLevel(level) {
+  setConsoleLevel(level: string) {
     if (Object.values(LOG_LEVELS).includes(level)) {
-      log.transports.console.level = level;
+      log.transports.console.level = level as any;
       this.info(`Console log level set to: ${level}`);
     } else {
       this.warn(`Invalid log level: ${level}`);
@@ -107,9 +109,9 @@ class Logger {
    * Set log level for file transport
    * @param {string} level - Log level (debug, info, warn, error)
    */
-  setFileLevel(level) {
+  setFileLevel(level: string) {
     if (Object.values(LOG_LEVELS).includes(level)) {
-      log.transports.file.level = level;
+      log.transports.file.level = level as any;
       this.info(`File log level set to: ${level}`);
     } else {
       this.warn(`Invalid log level: ${level}`);

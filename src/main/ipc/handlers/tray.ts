@@ -38,7 +38,7 @@ export function createTrayHandlers() {
       return { success };
     },
 
-    [IPC_CHANNELS.TRAY_SET_ICON]: async (_, { iconPath }) => {
+    [IPC_CHANNELS.TRAY_SET_ICON]: async (_: Electron.IpcMainInvokeEvent, { iconPath }: { iconPath: string }) => {
       if (!iconPath || typeof iconPath !== 'string') {
         throw new Error('Invalid icon path');
       }
@@ -47,7 +47,7 @@ export function createTrayHandlers() {
       return { success };
     },
 
-    [IPC_CHANNELS.TRAY_SET_TOOLTIP]: async (_, { tooltip }) => {
+    [IPC_CHANNELS.TRAY_SET_TOOLTIP]: async (_: Electron.IpcMainInvokeEvent, { tooltip }: { tooltip: string }) => {
       if (!tooltip || typeof tooltip !== 'string') {
         throw new Error('Invalid tooltip');
       }
@@ -56,7 +56,7 @@ export function createTrayHandlers() {
       return { success };
     },
 
-    [IPC_CHANNELS.TRAY_SET_MENU]: async (_, { menuTemplate }) => {
+    [IPC_CHANNELS.TRAY_SET_MENU]: async (_: Electron.IpcMainInvokeEvent, { menuTemplate }: { menuTemplate: any[] }) => {
       if (!Array.isArray(menuTemplate)) {
         throw new Error('Invalid menu template');
       }
@@ -74,7 +74,12 @@ export function createTrayHandlers() {
  * @param {import('../../common/types.ts').TrayMenuItem[]} template - Menu template
  * @returns {Object[]} Processed template
  */
-function processMenuTemplate(template) {
+/**
+ * Process menu template to add click handlers
+ * @param {import('../../common/types.ts').TrayMenuItem[]} template - Menu template
+ * @returns {Object[]} Processed template
+ */
+function processMenuTemplate(template: any[]): any[] {
   return template.map((item) => {
     const processed = { ...item };
 
@@ -110,7 +115,11 @@ function processMenuTemplate(template) {
  * Handle menu item click
  * @param {string} itemId - Menu item ID
  */
-function handleMenuItemClick(itemId) {
+/**
+ * Handle menu item click
+ * @param {string} itemId - Menu item ID
+ */
+function handleMenuItemClick(itemId: string) {
   logger.debug('Tray menu item clicked', { itemId });
 
   // Send event to all renderer processes

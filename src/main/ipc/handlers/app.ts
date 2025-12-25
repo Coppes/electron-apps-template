@@ -1,4 +1,4 @@
-import { app } from 'electron';
+import { app, IpcMainInvokeEvent } from 'electron';
 import { logger } from '../../logger.ts';
 import { updater } from '../../updater.ts';
 import { createErrorResponse, createSuccessResponse } from '../bridge.ts';
@@ -23,8 +23,9 @@ export function getVersionHandler() {
         app: app.getVersion(),
       };
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
       logger.error('Failed to get version info', error);
-      return createErrorResponse(error.message, 'VERSION_INFO_FAILED');
+      return createErrorResponse(message, 'VERSION_INFO_FAILED');
     }
   };
 }
@@ -33,13 +34,14 @@ export function getVersionHandler() {
  * Get app path
  */
 export function getPathHandler() {
-  return async (event, { name }) => {
+  return async (event: IpcMainInvokeEvent, { name }: { name: Parameters<typeof app.getPath>[0] }) => {
     try {
       const path = app.getPath(name);
       return { path };
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
       logger.error('Failed to get app path', error);
-      return createErrorResponse(error.message, 'PATH_GET_FAILED');
+      return createErrorResponse(message, 'PATH_GET_FAILED');
     }
   };
 }
@@ -53,8 +55,9 @@ export function quitHandler() {
       app.quit();
       return createSuccessResponse();
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
       logger.error('Failed to quit app', error);
-      return createErrorResponse(error.message, 'QUIT_FAILED');
+      return createErrorResponse(message, 'QUIT_FAILED');
     }
   };
 }
@@ -69,8 +72,9 @@ export function relaunchHandler() {
       app.quit();
       return createSuccessResponse();
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
       logger.error('Failed to relaunch app', error);
-      return createErrorResponse(error.message, 'RELAUNCH_FAILED');
+      return createErrorResponse(message, 'RELAUNCH_FAILED');
     }
   };
 }
@@ -86,8 +90,9 @@ export function getPlatformHandler() {
         arch: process.arch,
       };
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
       logger.error('Failed to get platform info', error);
-      return createErrorResponse(error.message, 'PLATFORM_INFO_FAILED');
+      return createErrorResponse(message, 'PLATFORM_INFO_FAILED');
     }
   };
 }
@@ -107,8 +112,9 @@ export function checkForUpdatesHandler() {
       }
       return { available: false };
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
       logger.error('Failed to check for updates', error);
-      return createErrorResponse(error.message, 'UPDATE_CHECK_FAILED');
+      return createErrorResponse(message, 'UPDATE_CHECK_FAILED');
     }
   };
 }
@@ -122,8 +128,9 @@ export function installUpdateHandler() {
       updater.quitAndInstall();
       return createSuccessResponse();
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
       logger.error('Failed to install update', error);
-      return createErrorResponse(error.message, 'UPDATE_INSTALL_FAILED');
+      return createErrorResponse(message, 'UPDATE_INSTALL_FAILED');
     }
   };
 }
@@ -138,8 +145,9 @@ export function isPackagedHandler() {
     try {
       return { isPackaged: app.isPackaged };
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
       logger.error('Failed to check if app is packaged', error);
-      return createErrorResponse(error.message, 'IS_PACKAGED_FAILED');
+      return createErrorResponse(message, 'IS_PACKAGED_FAILED');
     }
   };
 }
@@ -167,7 +175,7 @@ export function createAppHandlers() {
  * Add recent document handler
  */
 function addRecentDocHandler() {
-  return async (event, { filePath }) => {
+  return async (event: IpcMainInvokeEvent, { filePath }: { filePath: string }) => {
     try {
       if (!filePath || typeof filePath !== 'string') {
         throw new Error('Invalid file path');
@@ -176,8 +184,9 @@ function addRecentDocHandler() {
       const success = addRecentDocument(filePath);
       return createSuccessResponse({ success });
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
       logger.error('Failed to add recent document', error);
-      return createErrorResponse(error.message, 'RECENT_DOC_ADD_FAILED');
+      return createErrorResponse(message, 'RECENT_DOC_ADD_FAILED');
     }
   };
 }
@@ -191,8 +200,9 @@ function clearRecentDocsHandler() {
       const success = clearRecentDocuments();
       return createSuccessResponse({ success });
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
       logger.error('Failed to clear recent documents', error);
-      return createErrorResponse(error.message, 'RECENT_DOCS_CLEAR_FAILED');
+      return createErrorResponse(message, 'RECENT_DOCS_CLEAR_FAILED');
     }
   };
 }

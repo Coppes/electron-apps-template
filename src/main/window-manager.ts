@@ -1,4 +1,4 @@
-import { BrowserWindow, screen, app, Menu, MenuItem } from 'electron';
+import { BrowserWindow, screen, app, Menu, MenuItem, Rectangle } from 'electron';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import Store from 'electron-store';
@@ -28,12 +28,6 @@ export class WindowManager {
     logger.debug('WindowManager initialized');
   }
 
-  /**
-   * Create a new window with specified type and options
-   * @param {string} type - Window type (main, settings, about)
-   * @param {Object} [customOptions] - Custom window options
-   * @returns {BrowserWindow} Created window instance
-   */
   /**
    * Create a new window with specified type and options
    * @param {string} type - Window type (main, settings, about)
@@ -74,8 +68,7 @@ export class WindowManager {
     } as Electron.BrowserWindowConstructorOptions;
 
     // Validate window bounds
-    // Cast to any to assume validation logic handles the structure
-    this.validateBounds(windowOptions as any);
+    this.validateBounds(windowOptions);
 
     // Create window
     const window = new BrowserWindow(windowOptions);
@@ -125,9 +118,6 @@ export class WindowManager {
         logger.debug(`Splash window loaded URL: ${url}`);
       } else {
         const splashPath = join(__dirname, '../renderer/static/splash.html');
-        // When running from out/main/index.js in E2E, __dirname is .../out/main
-        // We need .../out/renderer/static/splash.html
-        // ../renderer points to .../out/renderer. Correct!
         window.loadFile(splashPath);
         logger.debug(`Splash window loaded file: ${splashPath}`);
       }
@@ -222,7 +212,7 @@ export class WindowManager {
     };
 
     this.store.set(`windowState.${type}`, state);
-    logger.debug(`Window state saved for type: ${type}`, state);
+    logger.debug(`Window state saved for type: ${type}`, state as unknown as Record<string, any>);
   }
 
   /**
@@ -245,7 +235,7 @@ export class WindowManager {
       return null;
     }
 
-    logger.debug(`Window state restored for type: ${type}`, state);
+    logger.debug(`Window state restored for type: ${type}`, state as unknown as Record<string, any>);
     return state;
   }
 
@@ -254,7 +244,7 @@ export class WindowManager {
    * @param {Object} bounds - Window bounds {x, y, width, height}
    * @returns {boolean} True if visible on at least one display
    */
-  isVisibleOnDisplay(bounds) {
+  isVisibleOnDisplay(bounds: WindowState | Rectangle) {
     const displays = screen.getAllDisplays();
 
     return displays.some(display => {
@@ -274,11 +264,11 @@ export class WindowManager {
    * @param {Object} options - Window options
    * @throws {Error} If bounds are invalid
    */
-  validateBounds(options) {
-    if (options.width && options.width < 0) {
+  validateBounds(options: Partial<WindowOptions>) {
+    if ((options.width && options.width < 0)) {
       throw new Error('Window width cannot be negative');
     }
-    if (options.height && options.height < 0) {
+    if ((options.height && options.height < 0)) {
       throw new Error('Window height cannot be negative');
     }
     if (options.minWidth && options.width && options.width < options.minWidth) {
@@ -294,7 +284,7 @@ export class WindowManager {
    * @param {number} windowId - Window ID
    * @returns {BrowserWindow|null} Window instance or null
    */
-  getWindow(windowId) {
+  getWindow(windowId: number) {
     const windowInfo = this.windows.get(windowId);
     return windowInfo ? windowInfo.window : null;
   }
@@ -315,7 +305,7 @@ export class WindowManager {
    * @param {number} windowId - Window ID
    * @returns {boolean} True if window was closed
    */
-  closeWindow(windowId) {
+  closeWindow(windowId: number) {
     const windowInfo = this.windows.get(windowId);
     if (!windowInfo) {
       logger.warn(`Cannot close window: Window ${windowId} not found`);
@@ -360,7 +350,7 @@ export class WindowManager {
    * Focus window by ID
    * @param {number} windowId - Window ID
    */
-  focusWindow(windowId) {
+  focusWindow(windowId: number) {
     const window = this.getWindow(windowId);
     if (window && !window.isDestroyed()) {
       if (window.isMinimized()) {
@@ -376,7 +366,7 @@ export class WindowManager {
    * @param {string} type - Window type
    * @returns {BrowserWindow|null}
    */
-  getWindowByType(type) {
+  getWindowByType(type: string) {
     for (const [, info] of this.windows.entries()) {
       if (info.type === type) {
         return info.window;
@@ -389,7 +379,7 @@ export class WindowManager {
    * @param {string} route - Route to load (e.g., '/popout/123')
    * @returns {BrowserWindow} Created window instance
    */
-  createAuxiliaryWindow(route) {
+  createAuxiliaryWindow(route: string) {
     return this.createWindow(WINDOW_TYPES.AUXILIARY, { route });
   }
 }

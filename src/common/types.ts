@@ -107,7 +107,7 @@ export interface ProgressOptions {
 }
 
 export interface NotificationAction {
-  type: string;
+  type: 'button';
   text: string;
 }
 
@@ -182,4 +182,12 @@ export interface SyncResult {
 
 export interface DataAdapter {
   sync(operation: SyncOperation): Promise<SyncResult>;
+}
+
+export interface IPCMetadata {
+  path: string;
+  name: string;
+  extension: string;
+  size?: number;
+  modified?: Date;
 }

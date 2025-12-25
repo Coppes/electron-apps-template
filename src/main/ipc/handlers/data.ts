@@ -3,6 +3,7 @@
  * Handles backup/restore and import/export operations
  */
 
+import { IpcMainInvokeEvent } from 'electron';
 import { IPC_CHANNELS } from '../../../common/constants.ts';
 import backupManager from '../../data/backup-manager.ts';
 import importExportManager from '../../data/import-export.ts';
@@ -14,11 +15,37 @@ import {
   importExportLimiter,
   validateImportData
 } from '../../security/data-security.ts';
+import { SyncOperation } from '../../../common/types.ts';
+
+interface CreateBackupPayload {
+  type?: 'manual' | 'auto';
+  includeDatabase?: boolean;
+}
+
+interface FilePayload {
+  filename: string;
+}
+
+interface ImportPayload {
+  filePath: string;
+  options?: any;
+}
+
+interface ExportPayload {
+  filePath: string;
+  data?: any;
+  preset?: string;
+  options?: any;
+}
+
+interface SyncQueueAddPayload {
+  operation: SyncOperation;
+}
 
 /**
  * Handle create backup request
  */
-export async function handleCreateBackup(event, payload) {
+export async function handleCreateBackup(event: IpcMainInvokeEvent, payload: CreateBackupPayload) {
   // Rate limiting
   if (!backupLimiter.isAllowed('create-backup')) {
     return {
@@ -35,10 +62,11 @@ export async function handleCreateBackup(event, payload) {
     const result = await backupManager.createBackup({ type, includeDatabase });
     return result;
   } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
     logger.error('Create backup failed:', error);
     return {
       success: false,
-      error: error.message
+      error: message
     };
   }
 }
@@ -51,10 +79,11 @@ export async function handleListBackups() {
     const result = await backupManager.listBackups();
     return result;
   } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
     logger.error('List backups failed:', error);
     return {
       success: false,
-      error: error.message,
+      error: message,
       backups: []
     };
   }
@@ -63,7 +92,7 @@ export async function handleListBackups() {
 /**
  * Handle restore backup request
  */
-export async function handleRestoreBackup(event, payload) {
+export async function handleRestoreBackup(event: IpcMainInvokeEvent, payload: FilePayload) {
   const { filename } = payload || {};
 
   if (!filename) {
@@ -78,10 +107,11 @@ export async function handleRestoreBackup(event, payload) {
     const result = await backupManager.restoreBackup(filename);
     return result;
   } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
     logger.error('Restore backup failed:', error);
     return {
       success: false,
-      error: error.message
+      error: message
     };
   }
 }
@@ -89,7 +119,7 @@ export async function handleRestoreBackup(event, payload) {
 /**
  * Handle delete backup request
  */
-export async function handleDeleteBackup(event, payload) {
+export async function handleDeleteBackup(event: IpcMainInvokeEvent, payload: FilePayload) {
   const { filename } = payload || {};
 
   if (!filename) {
@@ -104,10 +134,11 @@ export async function handleDeleteBackup(event, payload) {
     const result = await backupManager.deleteBackup(filename);
     return result;
   } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
     logger.error('Delete backup failed:', error);
     return {
       success: false,
-      error: error.message
+      error: message
     };
   }
 }
@@ -115,7 +146,7 @@ export async function handleDeleteBackup(event, payload) {
 /**
  * Handle data import request
  */
-export async function handleDataImport(event, payload) {
+export async function handleDataImport(event: IpcMainInvokeEvent, payload: ImportPayload) {
   // Rate limiting
   if (!importExportLimiter.isAllowed('import')) {
     return {
@@ -156,10 +187,11 @@ export async function handleDataImport(event, payload) {
 
     return result;
   } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
     logger.error('Import failed:', error);
     return {
       success: false,
-      error: error.message
+      error: message
     };
   }
 }
@@ -167,7 +199,7 @@ export async function handleDataImport(event, payload) {
 /**
  * Handle data export request
  */
-export async function handleDataExport(event, payload) {
+export async function handleDataExport(event: IpcMainInvokeEvent, payload: ExportPayload) {
   // Rate limiting
   if (!importExportLimiter.isAllowed('export')) {
     return {
@@ -193,10 +225,11 @@ export async function handleDataExport(event, payload) {
       const result = await importExportManager.exportPreset(filePath, preset, options);
       return result;
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
       logger.error(`Export preset '${preset}' failed:`, error);
       return {
         success: false,
-        error: error.message
+        error: message
       };
     }
   }
@@ -214,10 +247,11 @@ export async function handleDataExport(event, payload) {
     const result = await importExportManager.export(filePath, data, options);
     return result;
   } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
     logger.error('Export failed:', error);
     return {
       success: false,
-      error: error.message
+      error: message
     };
   }
 }
@@ -233,10 +267,11 @@ export async function handleListFormats() {
       formats
     };
   } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
     logger.error('List formats failed:', error);
     return {
       success: false,
-      error: error.message,
+      error: message,
       formats: []
     };
   }
@@ -253,10 +288,11 @@ export async function handleConnectivityStatus() {
       ...status
     };
   } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
     logger.error('Get connectivity status failed:', error);
     return {
       success: false,
-      error: error.message,
+      error: message,
       online: false
     };
   }
@@ -266,7 +302,7 @@ export async function handleConnectivityStatus() {
 /**
  * Handle validate backup request
  */
-export async function handleValidateBackup(event, payload) {
+export async function handleValidateBackup(event: IpcMainInvokeEvent, payload: FilePayload) {
   const { filename } = payload || {};
   if (!filename) return { success: false, error: 'Filename required' };
 
@@ -278,14 +314,15 @@ export async function handleValidateBackup(event, payload) {
       error: result.error
     };
   } catch (error) {
-    return { success: false, error: error.message };
+    const message = error instanceof Error ? error.message : String(error);
+    return { success: false, error: message };
   }
 }
 
 /**
  * Handle sync queue add request
  */
-export async function handleSyncQueueAdd(event, payload) {
+export async function handleSyncQueueAdd(event: IpcMainInvokeEvent, payload: SyncQueueAddPayload) {
   const { operation } = payload || {};
 
   if (!operation) {
@@ -299,10 +336,11 @@ export async function handleSyncQueueAdd(event, payload) {
     const result = await syncQueue.enqueue(operation);
     return result;
   } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
     logger.error('Sync queue add failed:', error);
     return {
       success: false,
-      error: error.message
+      error: message
     };
   }
 }
@@ -315,10 +353,11 @@ export async function handleSyncQueueProcess() {
     const result = await syncQueue.process();
     return result;
   } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
     logger.error('Sync queue process failed:', error);
     return {
       success: false,
-      error: error.message
+      error: message
     };
   }
 }
@@ -334,10 +373,11 @@ export async function handleSyncQueueStatus() {
       ...status
     };
   } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
     logger.error('Sync queue status failed:', error);
     return {
       success: false,
-      error: error.message
+      error: message
     };
   }
 }

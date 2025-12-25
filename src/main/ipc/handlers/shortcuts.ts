@@ -12,7 +12,7 @@ import { windowManager } from '../../window-manager.ts';
  */
 export function createShortcutHandlers() {
   return {
-    [IPC_CHANNELS.SHORTCUT_REGISTER]: async ({ accelerator, description }) => {
+    [IPC_CHANNELS.SHORTCUT_REGISTER]: async ({ accelerator, description }: { accelerator: string; description?: string }) => {
       if (!accelerator || typeof accelerator !== 'string') {
         throw new Error('Invalid accelerator');
       }
@@ -27,16 +27,16 @@ export function createShortcutHandlers() {
         const windows = windowManager.getAllWindows();
         windows.forEach((win) => {
           if (win.window && !win.window.isDestroyed()) {
-            win.window.webContents.send(IPC_CHANNELS.SHORTCUT_TRIGGERED, { 
+            win.window.webContents.send(IPC_CHANNELS.SHORTCUT_TRIGGERED, {
               accelerator,
-              description 
+              description
             });
           }
         });
       };
 
       const success = shortcutManager.register(accelerator, handler, description || '');
-      
+
       if (!success) {
         throw new Error('Failed to register shortcut (may be in use by another application)');
       }
@@ -44,7 +44,7 @@ export function createShortcutHandlers() {
       return { success, accelerator };
     },
 
-    [IPC_CHANNELS.SHORTCUT_UNREGISTER]: async ({ accelerator }) => {
+    [IPC_CHANNELS.SHORTCUT_UNREGISTER]: async ({ accelerator }: { accelerator: string }) => {
       if (!accelerator || typeof accelerator !== 'string') {
         throw new Error('Invalid accelerator');
       }
@@ -58,7 +58,7 @@ export function createShortcutHandlers() {
       return { success };
     },
 
-    [IPC_CHANNELS.SHORTCUT_IS_REGISTERED]: async ({ accelerator }) => {
+    [IPC_CHANNELS.SHORTCUT_IS_REGISTERED]: async ({ accelerator }: { accelerator: string }) => {
       if (!accelerator || typeof accelerator !== 'string') {
         throw new Error('Invalid accelerator');
       }

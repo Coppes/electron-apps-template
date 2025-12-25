@@ -62,7 +62,7 @@ export const SECURE_WEB_PREFERENCES = {
  * @param {Object} webPreferences - WebPreferences object
  * @returns {Array<string>} Array of security warnings
  */
-export function validateWebPreferences(webPreferences) {
+export function validateWebPreferences(webPreferences: Electron.WebPreferences) {
   const warnings = [];
 
   if (!webPreferences.contextIsolation) {
@@ -73,7 +73,7 @@ export function validateWebPreferences(webPreferences) {
     warnings.push('nodeIntegration should be disabled');
   }
 
-  if (webPreferences.enableRemoteModule) {
+  if ((webPreferences as any).enableRemoteModule) {
     warnings.push('enableRemoteModule should be disabled');
   }
 
@@ -93,7 +93,7 @@ export function validateWebPreferences(webPreferences) {
  * @param {Object} overrides - Optional overrides
  * @returns {Object} Secure webPreferences
  */
-export function getSecureWebPreferences(overrides = {}) {
+export function getSecureWebPreferences(overrides: Electron.WebPreferences = {}) {
   return {
     ...SECURE_WEB_PREFERENCES,
     ...overrides,

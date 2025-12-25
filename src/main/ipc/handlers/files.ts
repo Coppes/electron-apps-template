@@ -5,7 +5,7 @@
 
 import path from 'path';
 import fs from 'fs/promises';
-import { BrowserWindow, app, nativeImage } from 'electron';
+import { BrowserWindow, app, nativeImage, IpcMainInvokeEvent } from 'electron';
 import { IPC_CHANNELS } from '../../../common/constants.ts';
 import { logger } from '../../logger.ts';
 import fileWatcher from '../../data/file-watcher.ts';
@@ -14,6 +14,7 @@ import {
   sanitizeFilename,
   fileOperationLimiter
 } from '../../security/data-security.ts';
+import { IPCMetadata, IPCResponse } from '../../../common/types.ts';
 
 // Security configuration
 const ALLOWED_EXTENSIONS = [
@@ -109,10 +110,11 @@ export async function validateFilePath(filePath: string, options: ValidationOpti
           modified: stats.mtime
         }
       };
-    } catch (error: any) {
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
       return {
         valid: false,
-        error: `File does not exist or is not accessible: ${error.message}`,
+        error: `File does not exist or is not accessible: ${message}`,
         code: 'FILE_NOT_ACCESSIBLE'
       };
     }
@@ -132,7 +134,7 @@ export async function validateFilePath(filePath: string, options: ValidationOpti
 /**
  * Handle file drop operation
  */
-export async function handleFileDrop(event, payload) {
+export async function handleFileDrop(event: IpcMainInvokeEvent, payload: { filePaths: string[]; options?: ValidationOptions }) {
   // Rate limiting
   if (!fileOperationLimiter.isAllowed('file-drop')) {
     return {
@@ -154,13 +156,11 @@ export async function handleFileDrop(event, payload) {
   logger.info(`Processing dropped files: ${filePaths.length} files`);
 
   const validationPromises = filePaths.map(filePath => validateFilePath(filePath, options));
-  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
   const results: ValidationResult[] = await Promise.all(validationPromises);
 
   // Log warnings for all invalid files after processing all
   results.forEach((r, i) => {
     if (!r.valid) {
-      // Explicit cast to narrow union
       const failure = r as { valid: false; error: string };
       logger.warn(`File validation failed for ${filePaths[i]}: ${failure.error}`);
     }
@@ -169,7 +169,6 @@ export async function handleFileDrop(event, payload) {
   const invalidFilesList = results
     .map((r, i) => {
       if (!r.valid) {
-        // Explicitly cast to help TS if needed, though narrowing should work
         const failure = r as { valid: false; error: string };
         return { path: filePaths[i], error: failure.error };
       }
@@ -183,7 +182,7 @@ export async function handleFileDrop(event, payload) {
 
   return {
     success: true,
-    validFiles: validFiles.map((f: any) => f.metadata),
+    validFiles: validFiles,
     invalidFiles: invalidFilesList,
     total: filePaths.length,
     valid: validFiles.length,
@@ -194,7 +193,7 @@ export async function handleFileDrop(event, payload) {
 /**
  * Handle drag start operation (drag from app to desktop)
  */
-export async function handleDragStart(event, payload) {
+export async function handleDragStart(event: IpcMainInvokeEvent, payload: { filePath: string; icon?: string }) {
   const { filePath, icon } = payload;
 
   if (!filePath) {
@@ -253,11 +252,12 @@ export async function handleDragStart(event, payload) {
       success: true,
       file: validation.metadata
     };
-  } catch (error: any) {
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
     logger.error('Drag start error:', error);
     return {
       success: false,
-      error: error.message
+      error: message
     };
   }
 }
@@ -265,7 +265,7 @@ export async function handleDragStart(event, payload) {
 /**
  * Handle file path validation request (IPC handler)
  */
-export async function handleValidateFilePath(event, payload) {
+export async function handleValidateFilePath(event: IpcMainInvokeEvent, payload: { filePath: string; options?: ValidationOptions }) {
   const { filePath, options = {} } = payload;
 
   if (!filePath) {
@@ -296,7 +296,7 @@ export async function handleValidateFilePath(event, payload) {
 /**
  * Handle file watch start request
  */
-export async function handleFileWatchStart(event, payload) {
+export async function handleFileWatchStart(event: IpcMainInvokeEvent, payload: { filePath: string }) {
   const { filePath } = payload;
 
   if (!filePath) {
@@ -320,10 +320,11 @@ export async function handleFileWatchStart(event, payload) {
     const result = await fileWatcher.watch(filePath, window);
     return result;
   } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
     logger.error('File watch start error:', error);
     return {
       success: false,
-      error: error.message
+      error: message
     };
   }
 }
@@ -331,7 +332,7 @@ export async function handleFileWatchStart(event, payload) {
 /**
  * Handle file watch stop request
  */
-export async function handleFileWatchStop(event, payload) {
+export async function handleFileWatchStop(event: IpcMainInvokeEvent, payload: { filePath: string }) {
   const { filePath } = payload;
 
   if (!filePath) {
@@ -345,10 +346,11 @@ export async function handleFileWatchStop(event, payload) {
     const result = await fileWatcher.unwatch(filePath);
     return result;
   } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
     logger.error('File watch stop error:', error);
     return {
       success: false,
-      error: error.message
+      error: message
     };
   }
 }

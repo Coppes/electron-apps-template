@@ -8,11 +8,22 @@ import { config } from './config.ts';
  * Integrates with Sentry for production error tracking
  */
 
+interface CrashConfiguration {
+  crashReporting: {
+    enabled: boolean;
+    dsn?: string;
+    environment?: string;
+    sampleRate?: number;
+    attachStacktrace?: boolean;
+    attachScreenshot?: boolean;
+  };
+}
+
 /**
  * Initialize crash reporting service
  * Only initializes if enabled in config and DSN is provided
  */
-export function initializeCrashReporting(configuration = config) {
+export function initializeCrashReporting(configuration: CrashConfiguration = config as CrashConfiguration) {
   if (!configuration.crashReporting.enabled) {
     logger.info('Crash reporting disabled');
     return;
@@ -32,15 +43,15 @@ export function initializeCrashReporting(configuration = config) {
       attachStacktrace: configuration.crashReporting.attachStacktrace,
 
       // Sanitize events before sending
-      beforeSend(event) {
-        return sanitizeEvent(event);
+      beforeSend(event: any): any {
+        return sanitizeEvent(event as Sentry.Event);
       },
 
       // Disable automatic breadcrumb collection for screenshots
       integrations: (integrations) => {
         return integrations.filter(integration => {
           // Remove screenshot integration if disabled
-          if (!config.crashReporting.attachScreenshot && integration.name === 'Screenshot') {
+          if (!configuration.crashReporting.attachScreenshot && integration.name === 'Screenshot') {
             return false;
           }
           return true;
@@ -49,11 +60,12 @@ export function initializeCrashReporting(configuration = config) {
     });
 
     logger.info('Crash reporting initialized', {
-      environment: config.crashReporting.environment,
+      environment: configuration.crashReporting.environment,
       release: `${app.getName()}@${app.getVersion()}`,
     });
   } catch (error) {
-    logger.error('Failed to initialize crash reporting', error);
+    const message = error instanceof Error ? error.message : String(error);
+    logger.error('Failed to initialize crash reporting', { error: message });
   }
 }
 
@@ -62,7 +74,7 @@ export function initializeCrashReporting(configuration = config) {
  * @param {Object} event - Sentry event object
  * @returns {Object|null} Sanitized event or null to drop
  */
-export function sanitizeEvent(event) {
+export function sanitizeEvent(event: Sentry.Event): Sentry.Event | null {
   try {
     // Sanitize file paths - replace username
     if (event.exception?.values) {
@@ -100,22 +112,23 @@ export function sanitizeEvent(event) {
 
     // Sanitize contexts
     if (event.contexts) {
-      event.contexts = sanitizeObject(event.contexts);
+      event.contexts = sanitizeObject(event.contexts) as Record<string, any>;
     }
 
     // Sanitize extra data
     if (event.extra) {
-      event.extra = redactEnvironmentVariables(event.extra);
+      event.extra = redactEnvironmentVariables(event.extra as Record<string, string>);
     }
 
     // Redact environment variables
     if (event.contexts?.runtime?.env) {
-      event.contexts.runtime.env = redactEnvironmentVariables(event.contexts.runtime.env);
+      event.contexts.runtime.env = redactEnvironmentVariables(event.contexts.runtime.env as Record<string, string>);
     }
 
     return event;
   } catch (error) {
-    logger.error('Failed to sanitize crash report', error);
+    const message = error instanceof Error ? error.message : String(error);
+    logger.error('Failed to sanitize crash report', { error: message });
     return event; // Return unsanitized rather than dropping
   }
 }
@@ -125,7 +138,7 @@ export function sanitizeEvent(event) {
  * @param {string} path - File path to sanitize
  * @returns {string} Sanitized path
  */
-function sanitizeFilePath(path) {
+function sanitizeFilePath(path: string): string {
   if (typeof path !== 'string') return path;
 
   // Replace home directory paths
@@ -148,7 +161,7 @@ function sanitizeFilePath(path) {
  * @param {Object} env - Environment variables object
  * @returns {Object} Redacted environment variables
  */
-function redactEnvironmentVariables(env) {
+function redactEnvironmentVariables(env: Record<string, string>): Record<string, string> {
   const sensitivePatterns = [
     /_SECRET$/i,
     /_KEY$/i,
@@ -158,7 +171,7 @@ function redactEnvironmentVariables(env) {
     /^SENTRY_DSN$/i,
   ];
 
-  const redacted = {};
+  const redacted: Record<string, string> = {};
   for (const [key, value] of Object.entries(env)) {
     const isSensitive = sensitivePatterns.some(pattern => pattern.test(key));
     redacted[key] = isSensitive ? '[REDACTED]' : value;
@@ -172,14 +185,14 @@ function redactEnvironmentVariables(env) {
  * @param {Object} obj - Object to sanitize
  * @returns {Object} Sanitized object
  */
-function sanitizeObject(obj) {
+function sanitizeObject(obj: any): any {
   if (!obj || typeof obj !== 'object') return obj;
 
   if (Array.isArray(obj)) {
     return obj.map(item => sanitizeObject(item));
   }
 
-  const sanitized = {};
+  const sanitized: Record<string, any> = {};
   for (const [key, value] of Object.entries(obj)) {
     if (typeof value === 'string') {
       sanitized[key] = sanitizeFilePath(value);
@@ -198,7 +211,7 @@ function sanitizeObject(obj) {
  * @param {Error|string} error - Error to report
  * @param {Object} [context] - Additional context
  */
-export function reportError(error, context = {}) {
+export function reportError(error: Error | string | unknown, context: Record<string, any> = {}) {
   // Always log locally
   if (error instanceof Error) {
     logger.error('Error reported to crash reporting', {
@@ -243,7 +256,8 @@ export function reportError(error, context = {}) {
       }
     });
   } catch (sentryError) {
-    logger.error('Failed to report error to Sentry', sentryError);
+    const message = sentryError instanceof Error ? sentryError.message : String(sentryError);
+    logger.error('Failed to report error to Sentry', { error: message });
   }
 }
 
@@ -255,7 +269,7 @@ export function reportError(error, context = {}) {
  * @param {string} [breadcrumb.level] - Level (info, warning, error)
  * @param {Object} [breadcrumb.data] - Additional data
  */
-export function addBreadcrumb(breadcrumb) {
+export function addBreadcrumb(breadcrumb: { message: string, category?: string, level?: Sentry.SeverityLevel, data?: Record<string, any> }) {
   if (!config.crashReporting.enabled) {
     return;
   }
@@ -269,7 +283,8 @@ export function addBreadcrumb(breadcrumb) {
       timestamp: Date.now() / 1000,
     });
   } catch (error) {
-    logger.error('Failed to add breadcrumb', error);
+    const message = error instanceof Error ? error.message : String(error);
+    logger.error('Failed to add breadcrumb', { error: message });
   }
 }
 
@@ -279,7 +294,7 @@ export function addBreadcrumb(breadcrumb) {
  * @param {string} [user.id] - Anonymous user ID
  * @param {string} [user.environment] - User environment
  */
-export function setUserContext(user) {
+export function setUserContext(user: { id?: string, environment?: string }) {
   if (!config.crashReporting.enabled) {
     return;
   }
@@ -291,7 +306,8 @@ export function setUserContext(user) {
       // Do NOT include email, username, or other PII
     });
   } catch (error) {
-    logger.error('Failed to set user context', error);
+    const message = error instanceof Error ? error.message : String(error);
+    logger.error('Failed to set user context', { error: message });
   }
 }
 
@@ -306,6 +322,7 @@ export function clearUserContext() {
   try {
     Sentry.setUser(null);
   } catch (error) {
-    logger.error('Failed to clear user context', error);
+    const message = error instanceof Error ? error.message : String(error);
+    logger.error('Failed to clear user context', { error: message });
   }
 }

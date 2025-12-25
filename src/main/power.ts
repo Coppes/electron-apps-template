@@ -1,7 +1,7 @@
 import { powerMonitor, BrowserWindow } from 'electron';
 
 export function setupPowerMonitor() {
-  const sendPowerEvent = (event) => {
+  const sendPowerEvent = (event: string) => {
     BrowserWindow.getAllWindows().forEach(win => {
       if (!win.isDestroyed()) {
         win.webContents.send('power:status-change', event);

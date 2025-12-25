@@ -1,5 +1,6 @@
-import { isDevelopment } from '../config.ts';
+import { config } from '../config.ts';
 import { logger } from '../logger.ts';
+import { CSPPolicy } from '../../common/types.ts';
 
 /**
  * Content Security Policy (CSP) configuration
@@ -42,7 +43,7 @@ export const CSP_POLICY_DEVELOPMENT = {
  * @param {Object} policy - CSP policy object
  * @returns {string} CSP header value
  */
-export function buildCSPHeader(policy) {
+export function buildCSPHeader(policy: CSPPolicy) {
   return Object.entries(policy)
     .map(([directive, values]) => {
       // Skip if array is empty
@@ -51,7 +52,7 @@ export function buildCSPHeader(policy) {
       }
 
       if (Array.isArray(values)) {
-        return `${directive} ${values.join(' ')}`;
+        return `${directive} ${values.join(' ')} `;
       }
       return ''; // Should not happen given the entries loop but safe fallback
     })
@@ -64,7 +65,7 @@ export function buildCSPHeader(policy) {
  * @returns {Object} CSP policy object
  */
 export function getCSPPolicy() {
-  return isDevelopment() ? CSP_POLICY_DEVELOPMENT : CSP_POLICY_PRODUCTION;
+  return config.isDevelopment ? CSP_POLICY_DEVELOPMENT : CSP_POLICY_PRODUCTION;
 }
 
 /**
@@ -80,10 +81,10 @@ export function getCSPHeader() {
  * Apply CSP to window session
  * @param {Electron.WebContents} webContents - Window web contents
  */
-export function applyCSP(webContents) {
+export function applyCSP(webContents: Electron.WebContents) {
   const cspHeader = getCSPHeader();
 
-  webContents.session.webRequest.onHeadersReceived((details, callback) => {
+  webContents.session.webRequest.onHeadersReceived((details: Electron.OnHeadersReceivedListenerDetails, callback: (response: Electron.HeadersReceivedResponse) => void) => {
     callback({
       responseHeaders: {
         ...details.responseHeaders,
@@ -93,7 +94,7 @@ export function applyCSP(webContents) {
   });
 
   // Log CSP violations
-  webContents.on('console-message', (event, level, message, line, sourceId) => {
+  webContents.on('console-message', (event: Electron.Event, level: number, message: string, line: number, sourceId: string) => {
     if (message.includes('Content Security Policy') || message.includes('CSP')) {
       logger.warn('CSP Violation detected', {
         windowId: webContents.id,
@@ -107,6 +108,6 @@ export function applyCSP(webContents) {
 
   logger.debug('CSP applied to window', {
     windowId: webContents.id,
-    policy: isDevelopment() ? 'development (relaxed)' : 'production (strict)',
+    policy: config.isDevelopment ? 'development (relaxed)' : 'production (strict)',
   });
 }

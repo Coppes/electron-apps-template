@@ -129,7 +129,7 @@ export const csvHandler = {
       skipEmptyLines = true
     } = options;
 
-    const records = [];
+    const records: any[] = [];
     const parser = parseStream({
       columns: headers,
       delimiter,
@@ -153,7 +153,7 @@ export const csvHandler = {
   /**
    * Validate data
    */
-  validate(data) {
+  validate(data: any) {
     if (!Array.isArray(data) && typeof data !== 'object') {
       return {
         valid: false,
@@ -174,7 +174,7 @@ export const csvHandler = {
   /**
    * Check if handler can handle this content
    */
-  canHandle(content) {
+  canHandle(content: string) {
     try {
       parse(content, { columns: true, to: 1 }); // Try parsing first row
       return true;

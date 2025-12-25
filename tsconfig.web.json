@@ -5,7 +5,7 @@
     "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true,
     "jsx": "react-jsx",
-    "strict": false,
+    "strict": true,
     "types": [
       "vite/client",
       "@testing-library/jest-dom",

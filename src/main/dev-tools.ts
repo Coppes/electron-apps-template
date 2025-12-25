@@ -9,7 +9,7 @@ import { isDevelopment } from './config.ts';
  * Setup DevTools for window
  * @param {BrowserWindow} window - Window instance
  */
-export function setupDevTools(window) {
+export function setupDevTools(window: Electron.BrowserWindow) {
   if (!isDevelopment()) {
     logger.debug('DevTools disabled in production');
     return;
@@ -44,7 +44,7 @@ export async function installReactDevTools() {
     logger.info(`Installed DevTools extension: ${name}`);
   } catch (error) {
     logger.warn('Failed to install React DevTools', {
-      error: error.message,
+      error: (error as any).message,
       note: 'This is optional and does not affect functionality',
     });
   }
@@ -60,7 +60,7 @@ export function enableMainProcessHMR() {
   }
 
   logger.info('Main process HMR enabled via electron-vite');
-  
+
   // electron-vite handles main process reloading automatically
   // No additional configuration needed
 }

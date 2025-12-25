@@ -36,19 +36,19 @@ export const jsonHandler = {
   /**
    * Import data from JSON string
    */
-  async import(content) {
+  async import(content: string) {
     try {
       return JSON.parse(content);
     } catch (error) {
-      throw new Error(`Invalid JSON: ${error.message}`);
+      throw new Error(`Invalid JSON: ${(error as any).message}`);
     }
   },
 
   /**
    * Import data from stream (for large files)
    */
-  async importStream(readStream) {
-    const chunks = [];
+  async importStream(readStream: any) {
+    const chunks: Buffer[] = [];
 
     const collectTransform = new Transform({
       transform(chunk, encoding, callback) {
@@ -66,7 +66,7 @@ export const jsonHandler = {
   /**
    * Validate data
    */
-  validate(data) {
+  validate(data: any) {
     try {
       // Check if data is serializable
       JSON.stringify(data);
@@ -74,7 +74,7 @@ export const jsonHandler = {
     } catch (error) {
       return {
         valid: false,
-        error: `Data is not JSON serializable: ${error.message}`
+        error: `Data is not JSON serializable: ${(error as any).message}`
       };
     }
   },
@@ -82,7 +82,7 @@ export const jsonHandler = {
   /**
    * Check if handler can handle this content
    */
-  canHandle(content) {
+  canHandle(content: string) {
     try {
       JSON.parse(content);
       return true;

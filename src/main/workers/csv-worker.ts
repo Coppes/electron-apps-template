@@ -37,7 +37,7 @@ function parseCSV() {
         count: records.length
       });
     }
-  } catch (error) {
+  } catch (error: any) {
     if (parentPort) {
       parentPort.postMessage({
         type: 'error',
@@ -93,7 +93,7 @@ function stringifyCSV() {
         size: csvString.length
       });
     }
-  } catch (error) {
+  } catch (error: any) {
     if (parentPort) {
       parentPort.postMessage({
         type: 'error',

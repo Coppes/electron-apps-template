@@ -1,4 +1,4 @@
-import { app } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import { join } from 'path';
 import fs from 'fs/promises';
 import { logger } from './logger.ts';
@@ -31,7 +31,7 @@ import { splashManager } from './splash.ts';
 import { notificationManager } from './notifications.ts';
 import { addRecentDocument } from './recent-docs.ts';
 import { config, loadEnvironmentOverrides } from './config.ts';
-import { BrowserWindow } from 'electron'; // Assuming BrowserWindow is needed for the new property
+import { DeepLinkData } from '../common/types.ts';
 
 /**
  * Application Lifecycle Manager
@@ -373,7 +373,7 @@ export class LifecycleManager {
     try {
       await fs.unlink(this.crashMarkerPath);
       logger.debug('Crash marker removed');
-    } catch (error) {
+    } catch (error: any) {
       // Ignore if file doesn't exist
       if (error.code !== 'ENOENT') {
         logger.error('Failed to remove crash marker', error);
@@ -451,7 +451,7 @@ export class LifecycleManager {
    * Handle deep link URL
    * @param {string} url - Deep link URL
    */
-  handleDeepLink(url) {
+  handleDeepLink(url: string) {
     try {
       // Validate URL length
       if (url.length > 2048) {
@@ -462,7 +462,7 @@ export class LifecycleManager {
       const parsedUrl = new URL(url);
 
       // Parse query parameters
-      const params = {};
+      const params: Record<string, string> = {};
       parsedUrl.searchParams.forEach((value, key) => {
         params[key] = value;
       });
@@ -471,8 +471,7 @@ export class LifecycleManager {
       const pathSegments = parsedUrl.pathname.split('/').filter(Boolean);
 
       // Create deep link data
-      /** @type {import('../common/types.ts').DeepLinkData} */
-      const deepLinkData = {
+      const deepLinkData: DeepLinkData = {
         url,
         protocol: parsedUrl.protocol.replace(':', ''),
         host: parsedUrl.host,
@@ -498,7 +497,7 @@ export class LifecycleManager {
         // Send deep link data to renderer
         mainWindow.webContents.send('deep-link:received', deepLinkData);
       }
-    } catch (error) {
+    } catch (error: any) {
       logger.error('Failed to parse deep link', { url, error: error.message });
     }
   }
@@ -517,7 +516,7 @@ export class LifecycleManager {
    * @param {Object} deepLinkData - Deep link data object
    * @returns {string|null} Matched route
    */
-  matchRoute(host, pathSegments, deepLinkData) {
+  matchRoute(host: string, pathSegments: string[], deepLinkData: DeepLinkData) {
     // Define route patterns
     const routes = {
       'open': () => {
@@ -553,7 +552,7 @@ export class LifecycleManager {
       },
     };
 
-    const routeHandler = routes[host];
+    const routeHandler = (routes as any)[host];
     if (routeHandler) {
       return routeHandler();
     }

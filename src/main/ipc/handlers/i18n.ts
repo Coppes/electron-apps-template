@@ -8,14 +8,14 @@ import { IPC_CHANNELS } from '../../../common/constants.ts';
  * @param {Object} event - IPC event
  * @param {Object} payload - { language }
  */
-async function handleSetLanguage(event, { language }) {
+async function handleSetLanguage(event: Electron.IpcMainInvokeEvent, { language }: { language: string }) {
   try {
     store.set('settings.language', language);
     logger.info(`Language set to: ${language}`);
     return createSuccessResponse({ success: true });
   } catch (error) {
     logger.error('Failed to set language', error);
-    return createErrorResponse(error.message);
+    return createErrorResponse((error as any).message);
   }
 }
 
@@ -28,7 +28,7 @@ async function handleGetLanguage() {
     return createSuccessResponse({ language });
   } catch (error) {
     logger.error('Failed to get language', error);
-    return createErrorResponse(error.message);
+    return createErrorResponse((error as any).message);
   }
 }
 

@@ -1,5 +1,6 @@
-import { Menu, app, shell, MenuItemConstructorOptions } from 'electron';
+import { Menu, app, shell, MenuItemConstructorOptions, BrowserWindow, MenuItem, BaseWindow } from 'electron';
 import { logger } from './logger.ts';
+import { WindowManager } from './window-manager.ts';
 
 /**
  * Application Menu - Platform-specific menu creation and management
@@ -10,43 +11,41 @@ import { logger } from './logger.ts';
  * @param {WindowManager} windowManager - Window manager instance
  * @returns {Array} Menu template
  */
-export function createMenuTemplate(windowManager) {
+export function createMenuTemplate(windowManager: WindowManager): MenuItemConstructorOptions[] {
   const isMac = process.platform === 'darwin';
 
-  const template = [
+  const template: MenuItemConstructorOptions[] = [
     // App menu (macOS only)
     ...(isMac
-      ? [
-        {
-          label: app.name,
-          submenu: [
-            { role: 'about' },
-            { type: 'separator' },
-            {
-              label: 'Settings...',
-              accelerator: 'Cmd+,',
-              click: () => {
-                logger.debug('Settings menu clicked');
-                // Create or focus settings window
-                const existing = windowManager.getWindowByType('settings');
-                if (existing) {
-                  windowManager.focusWindow(existing.id);
-                } else {
-                  windowManager.createWindow('settings');
-                }
-              },
+      ? [{
+        label: app.name,
+        submenu: [
+          { role: 'about' },
+          { type: 'separator' },
+          {
+            label: 'Settings...',
+            accelerator: 'Cmd+,',
+            click: () => {
+              logger.debug('Settings menu clicked');
+              // Create or focus settings window
+              const existing = windowManager.getWindowByType('settings');
+              if (existing) {
+                windowManager.focusWindow(existing.id);
+              } else {
+                windowManager.createWindow('settings');
+              }
             },
-            { type: 'separator' },
-            { role: 'services' },
-            { type: 'separator' },
-            { role: 'hide' },
-            { role: 'hideOthers' },
-            { role: 'unhide' },
-            { type: 'separator' },
-            { role: 'quit' },
-          ],
-        },
-      ]
+          },
+          { type: 'separator' },
+          { role: 'services' },
+          { type: 'separator' },
+          { role: 'hide' },
+          { role: 'hideOthers' },
+          { role: 'unhide' },
+          { type: 'separator' },
+          { role: 'quit' },
+        ],
+      } as MenuItemConstructorOptions]
       : []),
 
     // File menu
@@ -64,21 +63,27 @@ export function createMenuTemplate(windowManager) {
         {
           label: 'New Tab',
           accelerator: 'CmdOrCtrl+T',
-          click: (_item, focusedWindow) => {
-            if (focusedWindow) focusedWindow.webContents.send('menu:new-tab');
+          click: (_item: MenuItem, focusedWindow: BaseWindow | undefined) => {
+            if (focusedWindow && focusedWindow instanceof BrowserWindow) {
+              focusedWindow.webContents.send('menu:new-tab');
+            }
           }
         },
         { type: 'separator' },
         {
           label: 'Import Data...',
-          click: (_item, focusedWindow) => {
-            if (focusedWindow) focusedWindow.webContents.send('menu:data-import');
+          click: (_item: MenuItem, focusedWindow: BaseWindow | undefined) => {
+            if (focusedWindow && focusedWindow instanceof BrowserWindow) {
+              focusedWindow.webContents.send('menu:data-import');
+            }
           }
         },
         {
           label: 'Export Data...',
-          click: (_item, focusedWindow) => {
-            if (focusedWindow) focusedWindow.webContents.send('menu:data-export');
+          click: (_item: MenuItem, focusedWindow: BaseWindow | undefined) => {
+            if (focusedWindow && focusedWindow instanceof BrowserWindow) {
+              focusedWindow.webContents.send('menu:data-export');
+            }
           }
         },
         { type: 'separator' },
@@ -94,38 +99,28 @@ export function createMenuTemplate(windowManager) {
         },
         { type: 'separator' },
         ...(!isMac
-          ? [
-            {
-              label: 'Settings',
-              accelerator: 'Ctrl+,',
-              click: () => {
-                logger.debug('Settings menu clicked');
-                const existing = windowManager.getWindowByType('settings');
-                if (existing) {
-                  windowManager.focusWindow(existing.id);
-                } else {
-                  windowManager.createWindow('settings');
-                }
-              },
+          ? [{
+            label: 'Settings',
+            accelerator: 'Ctrl+,',
+            click: () => {
+              logger.debug('Settings menu clicked');
+              const existing = windowManager.getWindowByType('settings');
+              if (existing) {
+                windowManager.focusWindow(existing.id);
+              } else {
+                windowManager.createWindow('settings');
+              }
             },
-            { type: 'separator' },
-          ]
+          } as MenuItemConstructorOptions,
+          { type: 'separator' } as MenuItemConstructorOptions]
           : []),
         isMac ?
           {
             label: 'Close Window',
             accelerator: 'Cmd+W',
-            click: (item, focusedWindow) => {
-              if (focusedWindow) {
+            click: (item: MenuItem, focusedWindow: BaseWindow | undefined) => {
+              if (focusedWindow && focusedWindow instanceof BrowserWindow) {
                 // If main window, try to close tab first via IPC
-                // We can't easily know if it's the main window by type here without checking windowManager
-                // easier approach: try send IPC, if not main window (renderer doesn't handle), user might need to press again? 
-                // Better: Check window API or title? 
-                // Let's blindly send IPC. If renderer handles it, good. If not... wait.
-                // If we send IPC, and renderer does nothing (e.g. devtools focused?), nothing happens.
-                // Correct approach: Send IPC. Renderer determines if it should close a tab or the window.
-                // BUT if renderer is frozen or non-responsive?
-                // Let's assume standard behavior:
                 focusedWindow.webContents.send('menu:close-tab');
               }
             }
@@ -145,17 +140,15 @@ export function createMenuTemplate(windowManager) {
         { role: 'copy' },
         { role: 'paste' },
         ...(isMac
-          ? [
-            { role: 'pasteAndMatchStyle' },
-            { role: 'delete' },
-            { role: 'selectAll' },
-            { type: 'separator' },
-            {
-              label: 'Speech',
-              submenu: [{ role: 'startSpeaking' }, { role: 'stopSpeaking' }],
-            },
-          ]
-          : [{ role: 'delete' }, { type: 'separator' }, { role: 'selectAll' }]),
+          ? [{ role: 'pasteAndMatchStyle' },
+          { role: 'delete' },
+          { role: 'selectAll' },
+          { type: 'separator' },
+          {
+            label: 'Speech',
+            submenu: [{ role: 'startSpeaking' }, { role: 'stopSpeaking' }],
+          }] as MenuItemConstructorOptions[]
+          : [{ role: 'delete' }, { type: 'separator' }, { role: 'selectAll' }] as MenuItemConstructorOptions[]),
       ],
     },
 
@@ -170,8 +163,10 @@ export function createMenuTemplate(windowManager) {
         {
           label: 'Command Palette',
           accelerator: 'CmdOrCtrl+K',
-          click: (_item, focusedWindow) => {
-            if (focusedWindow) focusedWindow.webContents.send('menu:command-palette');
+          click: (_item: MenuItem, focusedWindow: BaseWindow | undefined) => {
+            if (focusedWindow && focusedWindow instanceof BrowserWindow) {
+              focusedWindow.webContents.send('menu:command-palette');
+            }
           }
         },
         { type: 'separator' },
@@ -190,13 +185,11 @@ export function createMenuTemplate(windowManager) {
         { role: 'minimize' },
         { role: 'zoom' },
         ...(isMac
-          ? [
-            { type: 'separator' },
-            { role: 'front' },
-            { type: 'separator' },
-            { role: 'window' },
-          ]
-          : [{ role: 'close' }]),
+          ? [{ type: 'separator' },
+          { role: 'front' },
+          { type: 'separator' },
+          { role: 'window' }] as MenuItemConstructorOptions[]
+          : [{ role: 'close' }] as MenuItemConstructorOptions[]),
       ],
     },
 
@@ -221,26 +214,26 @@ export function createMenuTemplate(windowManager) {
         { type: 'separator' },
         {
           label: 'Show Onboarding',
-          click: (_item, focusedWindow) => {
-            if (focusedWindow) focusedWindow.webContents.send('menu:show-onboarding');
+          click: (_item: MenuItem, focusedWindow: BaseWindow | undefined) => {
+            if (focusedWindow && focusedWindow instanceof BrowserWindow) {
+              focusedWindow.webContents.send('menu:show-onboarding');
+            }
           },
         },
         { type: 'separator' },
         ...(!isMac
-          ? [
-            {
-              label: 'About',
-              click: () => {
-                logger.debug('About menu clicked');
-                const existing = windowManager.getWindowByType('about');
-                if (existing) {
-                  windowManager.focusWindow(existing.id);
-                } else {
-                  windowManager.createWindow('about');
-                }
-              },
+          ? [{
+            label: 'About',
+            click: () => {
+              logger.debug('About menu clicked');
+              const existing = windowManager.getWindowByType('about');
+              if (existing) {
+                windowManager.focusWindow(existing.id);
+              } else {
+                windowManager.createWindow('about');
+              }
             },
-          ]
+          } as MenuItemConstructorOptions]
           : []),
       ],
     },
@@ -253,11 +246,11 @@ export function createMenuTemplate(windowManager) {
  * Setup application menu
  * @param {WindowManager} windowManager - Window manager instance
  */
-export function setupMenu(windowManager) {
+export function setupMenu(windowManager: WindowManager) {
   const template = createMenuTemplate(windowManager);
   // Explicitly cast to MenuItemConstructorOptions[] to resolve strict type mismatch
   // The structure is correct but TS inference on deep nested objects can be tricky with Electron types
-  const menu = Menu.buildFromTemplate(template as MenuItemConstructorOptions[]);
+  const menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
   logger.info('Application menu initialized');
 }
@@ -266,7 +259,7 @@ export function setupMenu(windowManager) {
  * Add custom menu items to existing menu
  * @param {Array} _customItems - Custom menu items to add (reserved for future use)
  */
-export function addCustomMenuItems(_customItems) {
+export function addCustomMenuItems(_customItems: any[]) {
   const currentMenu = Menu.getApplicationMenu();
   if (!currentMenu) {
     logger.warn('Cannot add custom menu items: No application menu set');

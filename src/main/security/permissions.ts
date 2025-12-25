@@ -1,4 +1,4 @@
-import { dialog } from 'electron';
+import { dialog, Details, Session } from 'electron';
 import { logger } from '../logger.ts';
 import { config } from '../config.ts';
 import { logPermissionRequest } from './audit-log.ts';
@@ -37,14 +37,14 @@ const DENIED_PERMISSIONS = new Set([
  * @param {string} permission - Permission type
  * @returns {boolean}
  */
-export function isPermissionAllowed(permission) {
+export function isPermissionAllowed(permission: string): boolean {
   // Check if explicitly denied
   if (DENIED_PERMISSIONS.has(permission)) {
     return false;
   }
 
   // Check against configured allowed permissions
-  const allowedPermissions = config.security.allowedPermissions || DEFAULT_ALLOWED_PERMISSIONS;
+  const allowedPermissions = (config.security.allowedPermissions || DEFAULT_ALLOWED_PERMISSIONS) as Set<string>;
   return allowedPermissions.has(permission);
 }
 
@@ -53,8 +53,8 @@ export function isPermissionAllowed(permission) {
  * @param {string} permission - Permission type
  * @returns {string}
  */
-function getPermissionDisplayName(permission) {
-  const names = {
+function getPermissionDisplayName(permission: string): string {
+  const names: Record<string, string> = {
     media: 'Camera and Microphone',
     notifications: 'Notifications',
     geolocation: 'Location',
@@ -72,7 +72,7 @@ function getPermissionDisplayName(permission) {
  * @param {string} origin - Requesting origin
  * @returns {Promise<boolean>} User's choice
  */
-async function showPermissionDialog(permission, origin) {
+async function showPermissionDialog(permission: string, origin: string): Promise<boolean> {
   const permissionName = getPermissionDisplayName(permission);
 
   const result = await dialog.showMessageBox({
@@ -89,9 +89,9 @@ async function showPermissionDialog(permission, origin) {
 
 /**
  * Setup permission request handler for session
- * @param {Electron.Session} session - Session to setup handler for
+ * @param {Session} session - Session to setup handler for
  */
-export function setupPermissionHandler(session) {
+export function setupPermissionHandler(session: Session) {
   session.setPermissionRequestHandler(async (webContents, permission, callback, details) => {
     const origin = details.requestingUrl || 'unknown';
 
@@ -140,10 +140,11 @@ export function setupPermissionHandler(session) {
 
       callback(granted);
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
       logger.error('Error handling permission request', {
         permission,
         origin,
-        error: error.message,
+        error: message,
       });
 
       // Log to security audit
@@ -163,9 +164,9 @@ export function setupPermissionHandler(session) {
 
 /**
  * Setup permission check handler for session
- * @param {Electron.Session} session - Session to setup handler for
+ * @param {Session} session - Session to setup handler for
  */
-export function setupPermissionCheckHandler(session) {
+export function setupPermissionCheckHandler(session: Session) {
   session.setPermissionCheckHandler((webContents, permission, requestingOrigin, details) => {
     logger.debug('Permission check', {
       permission,
@@ -192,14 +193,14 @@ export function setupPermissionCheckHandler(session) {
 /**
  * Setup device permission handler for session
  * Handles requests for specific devices (USB, serial, HID, Bluetooth)
- * @param {Electron.Session} session - Session to setup handler for
+ * @param {Session} session - Session to setup handler for
  */
-export function setupDevicePermissionHandler(session) {
+export function setupDevicePermissionHandler(session: Session) {
   // Handle device permission requests
   session.on('select-usb-device', (event, details, callback) => {
     event.preventDefault();
     logger.warn('USB device request denied by policy', {
-      origin: details.origin,
+      origin: details.frame?.url || 'unknown',
     });
     callback(); // No device selected
   });
@@ -225,9 +226,9 @@ export function setupDevicePermissionHandler(session) {
 
 /**
  * Setup all permission handlers for session
- * @param {Electron.Session} session - Session to setup handlers for
+ * @param {Session} session - Session to setup handlers for
  */
-export function setupAllPermissionHandlers(session) {
+export function setupAllPermissionHandlers(session: Session) {
   setupPermissionHandler(session);
   setupPermissionCheckHandler(session);
   setupDevicePermissionHandler(session);

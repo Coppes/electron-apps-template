@@ -85,7 +85,7 @@ async function createBackupZip() {
     processedFiles++;
 
     await archive.finalize();
-  } catch (error) {
+  } catch (error: any) {
     if (parentPort) {
       parentPort.postMessage({
         type: 'error',
@@ -112,7 +112,7 @@ async function extractBackupZip() {
     for (const entry of entries) {
       if (!entry.isDirectory) {
         const outputPath = path.join(outputDir, entry.entryName);
-        
+
         // Ensure directory exists
         const dir = path.dirname(outputPath);
         if (!fs.existsSync(dir)) {
@@ -140,7 +140,7 @@ async function extractBackupZip() {
         extracted: processedEntries
       });
     }
-  } catch (error) {
+  } catch (error: any) {
     if (parentPort) {
       parentPort.postMessage({
         type: 'error',
