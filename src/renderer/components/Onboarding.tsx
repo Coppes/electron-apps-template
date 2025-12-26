@@ -39,7 +39,8 @@ const Onboarding = () => {
     window.addEventListener('open-onboarding', handleManualTrigger);
 
     // Listen for menu actions (IPC)
-    let cleanupMenuListener;
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    let cleanupMenuListener: Function | undefined;
     if (window.electronAPI?.events?.onMenuAction) {
       cleanupMenuListener = window.electronAPI.events.onMenuAction((action) => {
         if (action === 'show-onboarding') {
@@ -70,7 +71,9 @@ const Onboarding = () => {
     const getPlatform = async () => {
       try {
         const p = await window.electronAPI.system.getPlatform();
-        setPlatform(p.platform);
+        if (p && p.data?.platform) {
+          setPlatform(p.data.platform);
+        }
       } catch (e) {
         // console.error('Failed to get platform', e);
       }

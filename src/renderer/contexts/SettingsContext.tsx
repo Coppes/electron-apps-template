@@ -2,10 +2,28 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 
-const SettingsContext = createContext(null);
+interface Settings {
+  appearance?: { theme: string; density: string };
+  history?: { maxStackSize: number };
+  language?: string;
+  notifications?: boolean;
+  autoStart?: boolean;
+  hasCompletedTour?: boolean;
+  audio?: { muted: boolean; volume: number };
+  customThemes?: Record<string, any>;
+  [key: string]: any;
+}
 
-export const SettingsProvider = ({ children }) => {
-  const [settings, setSettings] = useState({
+interface SettingsContextType {
+  settings: Settings;
+  updateSetting: (path: string, value: any) => Promise<void>;
+  loading: boolean;
+}
+
+const SettingsContext = createContext<SettingsContextType | null>(null);
+
+export const SettingsProvider = ({ children }: { children: React.ReactNode }) => {
+  const [settings, setSettings] = useState<Settings>({
     appearance: { theme: 'system', density: 'normal' },
     history: { maxStackSize: 50 },
     language: 'en',
@@ -109,7 +127,7 @@ export const SettingsProvider = ({ children }) => {
     const theme = settings.appearance?.theme || 'system';
     const root = document.documentElement;
 
-    const applyTheme = (t) => {
+    const applyTheme = (t: string) => {
       // Clear custom properties
       const cssVars = [
         '--background', '--foreground', '--card', '--card-foreground',
@@ -121,14 +139,14 @@ export const SettingsProvider = ({ children }) => {
       cssVars.forEach(v => root.style.removeProperty(v));
 
       if (['light', 'dark', 'system'].includes(t)) {
-        const isDark = t === 'dark' || (t === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        root.classList.toggle('dark', isDark);
+        const matches = t === 'dark' || (t === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        root.classList.toggle('dark', matches);
       } else {
         // Custom theme
         const customTheme = settings.customThemes?.[t];
         if (customTheme && customTheme.colors) {
           Object.entries(customTheme.colors).forEach(([key, val]) => {
-            root.style.setProperty(key, val);
+            root.style.setProperty(key, val as string);
           });
           // Ensure dark mode class is handled if custom theme specifies a base
           // For now, let's assume custom themes handle their own contrast or we default to light base?
@@ -149,7 +167,7 @@ export const SettingsProvider = ({ children }) => {
     }
   }, [settings.appearance, settings.customThemes]);
 
-  const updateSetting = async (path, value) => {
+  const updateSetting = async (path: string, value: any) => {
     // path could be 'appearance.theme' or 'notifications'
     setSettings(prev => {
       // Deep update helper needed? Or just handle 1-level deep for now.
@@ -157,7 +175,7 @@ export const SettingsProvider = ({ children }) => {
       if (keys.length === 1) {
         return { ...prev, [path]: value };
       }
-      if (keys.length === 2) {
+      if (keys.length === 2 && prev[keys[0]]) {
         return {
           ...prev,
           [keys[0]]: {

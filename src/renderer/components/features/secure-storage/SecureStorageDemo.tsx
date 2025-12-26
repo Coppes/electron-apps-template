@@ -15,20 +15,25 @@ export default function SecureStorageDemo() {
   const [key, setKey] = useState('');
   const [value, setValue] = useState('');
   const [retrievedValue, setRetrievedValue] = useState('');
-  const [status, setStatus] = useState(null);
+  const [status, setStatus] = useState<{ type: string; message: string } | null>(null);
   const [isAvailable, setIsAvailable] = useState(false);
 
   useEffect(() => {
     // Check if encryption is available on this platform
     async function checkAvailability() {
       try {
-        const available = await window.api.secureStore.isAvailable();
-        setIsAvailable(available);
+        const result = await window.electronAPI.secureStore.isAvailable();
+        // Handle result being potentially undefined or having .data wrapper
+        const available = result && typeof result === 'object' && 'data' in result
+          ? (result.data as any).available
+          : result;
+
+        setIsAvailable(!!available);
         if (!available) {
           setStatus({ type: 'warning', message: t('secure_storage.demo.messages.avail_warning') });
         }
       } catch (error) {
-        setStatus({ type: 'error', message: t('secure_storage.demo.messages.avail_error', { error: error.message }) });
+        setStatus({ type: 'error', message: t('secure_storage.demo.messages.avail_error', { error: (error as Error).message }) });
       }
     }
     checkAvailability();
@@ -41,11 +46,11 @@ export default function SecureStorageDemo() {
     }
 
     try {
-      await window.api.secureStore.set(key, value);
+      await window.electronAPI.secureStore.set(key, value);
       setStatus({ type: 'success', message: t('secure_storage.demo.messages.stored', { key }) });
       setValue(''); // Clear value for security
     } catch (error) {
-      setStatus({ type: 'error', message: t('secure_storage.demo.messages.store_error', { error: error.message }) });
+      setStatus({ type: 'error', message: t('secure_storage.demo.messages.store_error', { error: (error as Error).message }) });
     }
   };
 
@@ -56,16 +61,25 @@ export default function SecureStorageDemo() {
     }
 
     try {
-      const result = await window.api.secureStore.get(key);
-      if (result !== null) {
-        setRetrievedValue(result);
+      const result = await window.electronAPI.secureStore.get(key);
+      // Check unwrapped or wrapped result
+      let retVal: string | null = null;
+
+      if (result && typeof result === 'object' && 'data' in result) {
+        retVal = (result.data as any).value;
+      } else if (typeof result === 'string') {
+        retVal = result;
+      }
+
+      if (retVal !== null && retVal !== undefined) {
+        setRetrievedValue(retVal);
         setStatus({ type: 'success', message: t('secure_storage.demo.messages.retrieved_success', { key }) });
       } else {
         setRetrievedValue('');
         setStatus({ type: 'info', message: t('secure_storage.demo.messages.not_found', { key }) });
       }
     } catch (error) {
-      setStatus({ type: 'error', message: t('secure_storage.demo.messages.retrieve_error', { error: error.message }) });
+      setStatus({ type: 'error', message: t('secure_storage.demo.messages.retrieve_error', { error: (error as Error).message }) });
       setRetrievedValue('');
     }
   };
@@ -77,11 +91,11 @@ export default function SecureStorageDemo() {
     }
 
     try {
-      await window.api.secureStore.delete(key);
+      await window.electronAPI.secureStore.delete(key);
       setStatus({ type: 'success', message: t('secure_storage.demo.messages.deleted', { key }) });
       setRetrievedValue('');
     } catch (error) {
-      setStatus({ type: 'error', message: t('secure_storage.demo.messages.delete_error', { error: error.message }) });
+      setStatus({ type: 'error', message: t('secure_storage.demo.messages.delete_error', { error: (error as Error).message }) });
     }
   };
 
@@ -92,10 +106,10 @@ export default function SecureStorageDemo() {
     }
 
     try {
-      const exists = await window.api.secureStore.has(key);
+      const exists = await window.electronAPI.secureStore.has(key);
       setStatus({ type: 'success', message: exists ? t('secure_storage.demo.messages.exists', { key }) : t('secure_storage.demo.messages.not_exists', { key }) });
     } catch (error) {
-      setStatus({ type: 'error', message: t('secure_storage.demo.messages.check_error', { error: error.message }) });
+      setStatus({ type: 'error', message: t('secure_storage.demo.messages.check_error', { error: (error as Error).message }) });
     }
   };
 

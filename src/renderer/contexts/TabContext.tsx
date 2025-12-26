@@ -4,7 +4,35 @@ import PropTypes from 'prop-types';
 
 import { useSound } from '../hooks/useSound';
 
-export const TabContext = createContext({
+export interface Tab {
+  id: string;
+  title: string;
+  type: string;
+  data: Record<string, any>;
+}
+
+export const TabContext = createContext<{
+  tabs: Tab[];
+  activeTabId: string | null;
+  addTab: (tab: Tab, targetGroup?: string) => void;
+  closeTab: (id: string) => void;
+  setActiveTab: (id: string) => void;
+  updateTab: (id: string, updates: Partial<Tab>) => void;
+  resetTabs: (tabs: Tab[]) => void;
+  closeAllTabs: () => void;
+  closeOtherTabs: (keepId: string) => void;
+  // ... other properties
+  isSplit: boolean;
+  secondaryTabs: Tab[];
+  secondaryActiveTabId: string | null;
+  activeGroup: string;
+  toggleSplit: () => void;
+  moveTabToGroup: (tabId: string, group: string) => void;
+  setActiveGroup: (group: string) => void;
+  draggingTab: any;
+  setDraggingTab: (tab: any) => void;
+  reorderTab: (fromIndex: number, toIndex: number, group?: string) => void;
+}>({
   tabs: [],
   activeTabId: null,
   addTab: () => { },
@@ -12,20 +40,32 @@ export const TabContext = createContext({
   setActiveTab: () => { },
   updateTab: () => { },
   resetTabs: () => { },
+  closeAllTabs: () => { },
+  closeOtherTabs: () => { },
+  isSplit: false,
+  secondaryTabs: [],
+  secondaryActiveTabId: null,
+  activeGroup: 'primary',
+  toggleSplit: () => { },
+  moveTabToGroup: () => { },
+  setActiveGroup: () => { },
+  draggingTab: null,
+  setDraggingTab: () => { },
+  reorderTab: () => { }
 });
 
 export const useTabContext = () => useContext(TabContext);
 
-export const TabProvider = ({ children }) => {
-  const [tabs, setTabs] = useState([
+export const TabProvider = ({ children }: { children: React.ReactNode }) => {
+  const [tabs, setTabs] = useState<Tab[]>([
     { id: 'home', title: 'Home', type: 'page', data: {} } // Default tab
   ]);
-  const [activeTabId, setActiveTabId] = useState('home');
+  const [activeTabId, setActiveTabId] = useState<string | null>('home');
 
   /* Split View State */
   const [isSplit, setIsSplit] = useState(false);
-  const [secondaryTabs, setSecondaryTabs] = useState([]);
-  const [secondaryActiveTabId, setSecondaryActiveTabId] = useState(null);
+  const [secondaryTabs, setSecondaryTabs] = useState<Tab[]>([]);
+  const [secondaryActiveTabId, setSecondaryActiveTabId] = useState<string | null>(null);
   const [activeGroup, setActiveGroup] = useState('primary'); // 'primary' | 'secondary'
   const [draggingTab, setDraggingTab] = useState(null); // { id, group, index }
 
@@ -37,7 +77,7 @@ export const TabProvider = ({ children }) => {
   /* -------------------------------------------------------------------------------------------------
    * Actions
    * -----------------------------------------------------------------------------------------------*/
-  const addTab = useCallback((tab, targetGroup = 'primary') => {
+  const addTab = useCallback((tab: Tab, targetGroup: string = 'primary') => {
     if (targetGroup === 'primary') {
       setTabs((prev) => {
         const existing = prev.find((t) => t.id === tab.id);
@@ -61,7 +101,7 @@ export const TabProvider = ({ children }) => {
     }
   }, [playSound]);
 
-  const resetTabs = useCallback((newTabs) => {
+  const resetTabs = useCallback((newTabs: Tab[]) => {
     setTabs(newTabs);
     if (newTabs.length > 0) {
       setActiveTabId(newTabs[0].id);
@@ -72,7 +112,7 @@ export const TabProvider = ({ children }) => {
     }
   }, []);
 
-  const closeTab = useCallback((id) => {
+  const closeTab = useCallback((id: string) => {
     setTabs((prev) => {
       const newTabs = prev.filter((t) => t.id !== id);
 
@@ -89,7 +129,7 @@ export const TabProvider = ({ children }) => {
     });
   }, [activeTabId, playSound]);
 
-  const updateTab = useCallback((id, updates) => {
+  const updateTab = useCallback((id: string, updates: Partial<Tab>) => {
     setTabs((prev) => prev.map((t) => (t.id === id ? { ...t, ...updates } : t)));
   }, []);
 
@@ -99,7 +139,7 @@ export const TabProvider = ({ children }) => {
     playSound('click');
   }, [playSound]);
 
-  const closeOtherTabs = useCallback((keepId) => {
+  const closeOtherTabs = useCallback((keepId: string) => {
     // Check where the tab is
     const inPrimary = tabs.find(t => t.id === keepId);
     const inSecondary = secondaryTabs.find(t => t.id === keepId);
@@ -118,7 +158,7 @@ export const TabProvider = ({ children }) => {
     }
   }, [tabs, secondaryTabs, playSound]);
 
-  const reorderTab = useCallback((fromIndex, toIndex, group = 'primary') => {
+  const reorderTab = useCallback((fromIndex: number, toIndex: number, group: string = 'primary') => {
     const updateFn = group === 'primary' ? setTabs : setSecondaryTabs;
 
     updateFn((prev) => {
@@ -148,7 +188,7 @@ export const TabProvider = ({ children }) => {
     playSound('click');
   }, [isSplit, secondaryTabs, playSound]);
 
-  const moveTabToGroup = useCallback((tabId, targetGroup) => {
+  const moveTabToGroup = useCallback((tabId: string, targetGroup: string) => {
     // 1. Identify source group and tab object
     let tab = tabs.find(t => t.id === tabId);
     let sourceGroup = 'primary';
@@ -197,13 +237,13 @@ export const TabProvider = ({ children }) => {
     // 3. Add to target
     if (targetGroup === 'primary') {
       setTabs(prev => {
-        const newTabs = [...prev, tab];
+        const newTabs = [...prev, tab!]; // We checked tab exists above
         return newTabs;
       });
       setActiveTabId(tab.id); // Activate the moved tab
     } else {
       setSecondaryTabs(prev => {
-        const newTabs = [...prev, tab];
+        const newTabs = [...prev, tab!];
         return newTabs;
       });
       setSecondaryActiveTabId(tab.id); // Activate the moved tab
@@ -242,7 +282,7 @@ export const TabProvider = ({ children }) => {
   }, [isSplit, secondaryTabs, tabs, secondaryActiveTabId, setActiveTabId, setActiveGroup]); // Added setActiveTabId and setActiveGroup to dependencies
 
   // Enhanced closeTab to handle groups
-  const closeTabEnhanced = useCallback((id) => {
+  const closeTabEnhanced = useCallback((id: string) => {
     // Check primary
     if (tabs.some(t => t.id === id)) {
       closeTab(id);

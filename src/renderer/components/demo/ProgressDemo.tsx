@@ -9,14 +9,18 @@ export default function ProgressDemo() {
   const [progress, setProgress] = useState(0);
   const [mode, setMode] = useState('normal');
   const [isSimulating, setIsSimulating] = useState(false);
-  const [status, setStatus] = useState('');
+  const [status, setStatus] = useState('Ready');
 
-  const updateProgress = async (value, state = 'normal') => {
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const updateProgress = async (value: number, state: any = 'normal') => {
     try {
-      await window.electronAPI.progress.set(value, state);
+      // API expects number and options object. 
+      // Ensure we match the expected signature: set(value: number, options?: ProgressOptions)
+      const options = { mode: state } as any;
+      await window.electronAPI.progress.set(value, options);
       setStatus(`Progress: ${Math.round(value * 100)}% (${state})`);
     } catch (error) {
-      setStatus(`Error: ${error.message}`);
+      setStatus(`Error: ${(error as Error).message}`);
     }
   };
 
@@ -27,10 +31,23 @@ export default function ProgressDemo() {
       setIsSimulating(false);
       setStatus('Progress cleared');
     } catch (error) {
-      setStatus(`Error: ${error.message}`);
+      setStatus(`Error: ${(error as Error).message}`);
     }
   };
 
+  const resetProgress = async () => {
+    try {
+      // Use set instead of reset if reset doesn't exist, or cast to any
+      await window.electronAPI.progress.set(0, { mode: 'none' } as any);
+      setProgress(0);
+      setIsSimulating(false);
+      setStatus('Progress reset');
+    } catch (error) {
+      setStatus(`Error: ${(error as Error).message}`);
+    }
+  };
+
+  // No resetProgress logic here matching previous check, assuming cleanup
   const startSimulation = async () => {
     setProgress(0);
     setIsSimulating(true);
@@ -49,14 +66,21 @@ export default function ProgressDemo() {
     setIsSimulating(false);
   };
 
+  // Indeterminate progress (loading)
   const setIndeterminate = async () => {
+    // In many environments, -1 or > 1 triggers indeterminate
+    // Using updateProgress wrapper which handles options correctly
+    await updateProgress(2, 'indeterminate');
+
+    // Or explicit call with correct options
+    /*
     try {
-      await window.electronAPI.progress.set(-1, mode);
-      setProgress(-1);
-      setStatus('Indeterminate progress (spinning)');
+      await window.electronAPI.progress.set(-1, { mode: 'indeterminate' } as any);
+      setStatus('Indeterminate mode');
     } catch (error) {
-      setStatus(`Error: ${error.message}`);
+      setStatus(`Error: ${(error as Error).message}`);
     }
+    */
   };
 
   const modes = [

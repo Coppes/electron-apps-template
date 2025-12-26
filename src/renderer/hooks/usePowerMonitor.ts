@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
  */
 export function usePowerMonitor() {
   const [status, setStatus] = useState('unknown');
-  const [lastEventTime, setLastEventTime] = useState(null);
+  const [lastEventTime, setLastEventTime] = useState<Date | null>(null);
 
   useEffect(() => {
     if (!window.electronAPI?.os?.onPowerStatusChange) {
@@ -22,7 +22,11 @@ export function usePowerMonitor() {
       setLastEventTime(new Date());
     });
 
-    return cleanup;
+    return () => {
+      if (typeof cleanup === 'function') {
+        cleanup();
+      }
+    };
   }, []);
 
   return { status, lastEventTime };

@@ -9,25 +9,25 @@ export default {
 };
 
 export const Default = {
-  render: (args) => {
+  render: (args: any) => {
     const [checked, setChecked] = useState(false);
     return <Switch checked={checked} onCheckedChange={setChecked} {...args} />;
   },
 };
 
 export const Checked = {
-  render: (args) => {
+  render: (args: any) => {
     const [checked, setChecked] = useState(true);
     return <Switch checked={checked} onCheckedChange={setChecked} {...args} />;
   },
 };
 
 export const Disabled = {
-  render: (args) => <Switch disabled {...args} />,
+  render: (args: any) => <Switch disabled {...args} />,
 };
 
 export const WithLabel = {
-  render: (args) => {
+  render: (args: any) => {
     const [checked, setChecked] = useState(false);
     return (
       <div className="flex items-center space-x-2">

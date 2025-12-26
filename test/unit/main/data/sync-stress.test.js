@@ -49,6 +49,7 @@ vi.mock('../../../../src/main/data/connectivity-manager', () => ({
   default: {
     isOnline: true,
     addListener: vi.fn(),
+    getStatus: vi.fn().mockReturnValue({ online: true }),
   }
 }));
 
@@ -57,7 +58,10 @@ describe('SyncQueue - Stress Tests', () => {
   let mockAdapter;
 
   beforeEach(async () => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
+
+    // Ensure getStatus returns valid object
+    connectivityManager.getStatus.mockReturnValue({ online: true });
 
     // Setup mock adapter
     mockAdapter = {

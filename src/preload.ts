@@ -36,6 +36,10 @@ export interface ElectronAPI {
   progress: typeof progressAPI;
   recentDocs: typeof recentDocsAPI;
   notifications: typeof notificationsAPI;
+  deepLink: typeof deepLinkAPI;
+  os: typeof osAPI;
+  i18n: typeof i18nAPI;
+  plugins: typeof pluginsAPI;
 }
 
 /**
@@ -633,12 +637,11 @@ const electronAPI: ElectronAPI = {
   progress: progressAPI,
   recentDocs: recentDocsAPI,
   notifications: notificationsAPI,
-  // These are not in ElectronAPI interface yet, need to add them or extend the interface
-  // deepLink: deepLinkAPI,
-  // os: osAPI,
-  // i18n: i18nAPI,
-  // plugins: pluginsAPI,
-} as unknown as ElectronAPI; // Temporary cast until interface is fully updated with all properties
+  deepLink: deepLinkAPI,
+  os: osAPI,
+  i18n: i18nAPI,
+  plugins: pluginsAPI,
+};
 
 // We need to extend the interface in common/types.ts or preload.ts to include all these.
 // For now, I'm matching the structure.

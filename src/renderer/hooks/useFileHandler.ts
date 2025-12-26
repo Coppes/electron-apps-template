@@ -5,8 +5,8 @@ import { useState, useEffect } from 'react';
  * @returns {Object} Last opened file info
  */
 export function useFileHandler() {
-  const [lastOpenedFile, setLastOpenedFile] = useState(null);
-  const [fileContent, setFileContent] = useState(null);
+  const [lastOpenedFile, setLastOpenedFile] = useState<string | null>(null);
+  const [fileContent, setFileContent] = useState<string | null>(null);
 
   useEffect(() => {
     if (!window.electronAPI?.os?.onFileOpened) {
@@ -16,13 +16,16 @@ export function useFileHandler() {
     }
 
     const cleanup = window.electronAPI.os.onFileOpened(({ filePath, content }) => {
-      // eslint-disable-next-line no-console
       console.log('File opened:', filePath);
       setLastOpenedFile(filePath);
-      setFileContent(content);
+      setFileContent(content || null);
     });
 
-    return cleanup;
+    return () => {
+      if (typeof cleanup === 'function') {
+        cleanup();
+      }
+    };
   }, []);
 
   return { lastOpenedFile, fileContent };

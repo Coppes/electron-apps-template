@@ -7,44 +7,37 @@ import { FileText, Plus, Trash, WarningCircle, Clock } from '@phosphor-icons/rea
  */
 export default function RecentDocsDemo() {
   const [filePath, setFilePath] = useState('');
-  const [recentDocs, setRecentDocs] = useState([]);
+  const [recentDocs, setRecentDocs] = useState<string[]>([]);
   const [status, setStatus] = useState('');
 
-  const addDocument = async () => {
-    if (!filePath.trim()) {
-      setStatus('Please enter a file path');
-      return;
-    }
-
+  const addToRecent = async (filePath: string) => {
     try {
-      await window.electronAPI.recentDocs.add(filePath.trim());
-
+      await window.electronAPI.recentDocs.add(filePath);
       if (!recentDocs.includes(filePath.trim())) {
         setRecentDocs([filePath.trim(), ...recentDocs.slice(0, 9)]);
       }
-
       setStatus(`Added: ${filePath}`);
-      setFilePath('');
     } catch (error) {
-      setStatus(`Error: ${error.message}`);
+      setStatus(`Error: ${(error as Error).message}`);
     }
   };
 
-  const clearDocuments = async () => {
+  const clearRecent = async () => {
     try {
       await window.electronAPI.recentDocs.clear();
       setRecentDocs([]);
       setStatus('Recent documents cleared');
     } catch (error) {
-      setStatus(`Error: ${error.message}`);
+      setStatus(`Error: ${(error as Error).message}`);
     }
   };
 
-  const addSampleDoc = (path) => {
-    setFilePath(path);
+  const addSampleDoc = (path: string) => {
+    addToRecent(path);
   };
 
-  const removeFromList = (path) => {
+  const removeFromList = (path: string) => {
+    // This only removes from UI list, as Electron API typically only supports adding or clearing all
     setRecentDocs(recentDocs.filter(doc => doc !== path));
   };
 
@@ -91,7 +84,7 @@ export default function RecentDocsDemo() {
           </div>
 
           <button
-            onClick={addDocument}
+            onClick={() => addToRecent(filePath)}
             className="w-full px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 flex items-center justify-center gap-2"
           >
             <Plus className="w-4 h-4" />
@@ -121,7 +114,7 @@ export default function RecentDocsDemo() {
           <h3 className="font-semibold">Added Documents ({recentDocs.length})</h3>
           {recentDocs.length > 0 && (
             <button
-              onClick={clearDocuments}
+              onClick={clearRecent}
               className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 flex items-center gap-1"
             >
               <Trash className="w-3 h-3" />

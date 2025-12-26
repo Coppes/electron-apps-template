@@ -8,7 +8,14 @@ import Button from './ui/Button';
  * Update Notification Component
  * Displays update status (available, downloading, ready) and actions.
  */
-const UpdateNotification = ({ updateInfo, status, onInstall, onDismiss }) => {
+interface UpdateNotificationProps {
+  updateInfo: any;
+  status: string;
+  onInstall: () => void;
+  onDismiss: () => void;
+}
+
+const UpdateNotification: React.FC<UpdateNotificationProps> = ({ updateInfo, status, onInstall, onDismiss }) => {
   const { t } = useTranslation('common');
 
   if (!status) return null;

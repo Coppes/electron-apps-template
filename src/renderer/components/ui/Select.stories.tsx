@@ -7,7 +7,7 @@ export default {
 };
 
 export const Default = {
-  render: (args) => (
+  render: (args: any) => (
     <Select {...args}>
       <option value="">Select an option...</option>
       <option value="1">Option 1</option>
@@ -18,7 +18,7 @@ export const Default = {
 };
 
 export const Disabled = {
-  render: (args) => (
+  render: (args: any) => (
     <Select {...args} disabled>
       <option value="">Select an option...</option>
       <option value="1">Option 1</option>

@@ -4,7 +4,7 @@ import PopoutLayout from './components/layout/PopoutLayout';
 import { useTabContext } from './contexts/TabContext';
 import WhatsNewModal from './components/WhatsNewModal';
 
-import { UpdateNotification } from './components/shared/UpdateNotification';
+import UpdateNotification from './components/shared/UpdateNotification';
 import ErrorBoundary from './components/shared/ErrorBoundary';
 
 import ConnectivityStatus from './components/shared/ConnectivityStatus';
@@ -22,8 +22,8 @@ function App() {
   const [isPopout, setIsPopout] = useState(false);
   const [updateInfo, setUpdateInfo] = useState(null);
 
-  const [updateStatus, setUpdateStatus] = useState(null);
-  const [updateProgress, setUpdateProgress] = useState(null);
+  const [updateStatus, setUpdateStatus] = useState<string | null>(null);
+  const [updateProgress, setUpdateProgress] = useState<any>(null);
 
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -57,9 +57,9 @@ function App() {
     const initLanguage = async () => {
       try {
         const result = await window.electronAPI.i18n.getLanguage();
-        if (result.success && result.language) {
+        if (result.success && result.data?.language) {
           // Update local i18n instance
-          await i18n.changeLanguage(result.language);
+          await i18n.changeLanguage(result.data.language);
         }
       } catch (error) {
         // failed to initialize
@@ -72,25 +72,25 @@ function App() {
 
   useEffect(() => {
     // Listen for update available
-    const cleanupAvailable = window.electronAPI.events.onUpdateAvailable((info) => {
+    const cleanupAvailable = window.electronAPI.events.onUpdateAvailable((info: any) => {
       setUpdateInfo(info);
-      setUpdateStatus('available');
+      setUpdateStatus('available' as any);
     });
 
     // Listen for update downloaded
-    const cleanupDownloaded = window.electronAPI.events.onUpdateDownloaded((info) => {
+    const cleanupDownloaded = window.electronAPI.events.onUpdateDownloaded((info: any) => {
       setUpdateInfo(info);
-      setUpdateStatus('ready');
+      setUpdateStatus('ready' as any);
     });
 
     // Listen for update progress
-    const cleanupProgress = window.electronAPI.events.onUpdateProgress((progress) => {
+    const cleanupProgress = window.electronAPI.events.onUpdateProgress((progress: any) => {
       setUpdateProgress(progress);
-      setUpdateStatus('downloading');
+      setUpdateStatus('downloading' as any);
     });
 
     // Listen for update errors
-    const cleanupError = window.electronAPI.events.onUpdateError((error) => {
+    const cleanupError = window.electronAPI.events.onUpdateError((error: Error) => {
       window.electronAPI.log.error('Update error', { error });
       setUpdateStatus(null);
     });
@@ -112,7 +112,7 @@ function App() {
       try {
         await window.electronAPI.app.installUpdate();
       } catch (error) {
-        window.electronAPI.log.error('Failed to install update', { error: error.message });
+        window.electronAPI.log.error('Failed to install update', { error: (error as Error).message });
       }
     }
   };
@@ -129,7 +129,7 @@ function App() {
     <ErrorBoundary>
       {isPopout ? (
         <PopoutLayout>
-          {/* Content rendered via TabContent inside PopoutLayout */}
+          <TabContent />
         </PopoutLayout>
       ) : (
         <AppShell>
@@ -148,7 +148,7 @@ function App() {
         <UpdateNotification
           updateInfo={updateInfo}
           status={updateStatus}
-          progress={updateProgress}
+          progress={updateProgress || undefined}
           onInstall={handleInstall}
           onDismiss={handleDismiss}
         />

@@ -2,14 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { Minus, Square, X, Copy } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../utils/cn';
+import PropTypes from 'prop-types';
 
 /**
  * Window controls component (Minimize, Maximize/Restore, Close)
  * Designed for Windows/Linux custom title bars
  */
-import PropTypes from 'prop-types';
 
-export function WindowControls({ className }) {
+interface WindowControlsProps {
+  className?: string;
+}
+
+export function WindowControls({ className }: WindowControlsProps) {
   const { t } = useTranslation('common');
   const [isMaximized, setIsMaximized] = useState(false);
 
@@ -18,7 +22,12 @@ export function WindowControls({ className }) {
     const checkState = async () => {
       try {
         const state = await window.electronAPI.window.getState();
-        if (state) setIsMaximized(state.isMaximized);
+        // Safe check for nested state object if IPCResponse returns it wrapped
+        if (state && state.data) {
+          const data = state.data as any;
+          if (data.state) setIsMaximized(data.state.isMaximized);
+          else if (typeof data.isMaximized === 'boolean') setIsMaximized(data.isMaximized);
+        }
       } catch (err) {
         // console.error('Failed to get window state:', err);
       }
@@ -39,8 +48,8 @@ export function WindowControls({ className }) {
 
   const handleMaximize = async () => {
     const result = await window.electronAPI.window.maximize();
-    if (result && typeof result.maximized === 'boolean') {
-      setIsMaximized(result.maximized);
+    if (result && result.data && typeof result.data.maximized === 'boolean') {
+      setIsMaximized(result.data.maximized);
     } else {
       // Fallback toggle if no return
       setIsMaximized(!isMaximized);
@@ -52,7 +61,7 @@ export function WindowControls({ className }) {
   };
 
   return (
-    <div className={cn("flex items-center h-full -mr-2", className)} style={{ WebkitAppRegion: 'no-drag' }}>
+    <div className={cn("flex items-center h-full -mr-2", className)} style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}>
       <button
         onClick={handleMinimize}
         className="h-full px-4 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-none"

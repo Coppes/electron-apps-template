@@ -8,10 +8,10 @@ import { useKeyboardShortcut } from '../hooks/useKeyboardShortcut';
 import clsx from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
-const cn = (...inputs) => twMerge(clsx(inputs));
+const cn = (...inputs: any[]) => twMerge(clsx(inputs));
 
 // Custom scorer favoring word starts and contiguous matches
-const commandScore = (value, search) => {
+const commandScore = (value: string, search: string) => {
   const v = value.toLowerCase();
   const s = search.toLowerCase();
 
@@ -58,7 +58,7 @@ const CommandPalette = () => {
 
 
   useEffect(() => {
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
         setIsOpen(false);
       }
@@ -68,7 +68,7 @@ const CommandPalette = () => {
   }, [isOpen, setIsOpen]);
 
   // Group commands
-  const groupedCommands = commands.reduce((acc, command) => {
+  const groupedCommands = commands.reduce((acc: any, command: any) => {
     const group = command.group || 'General';
     if (!acc[group]) acc[group] = [];
     acc[group].push(command);
@@ -123,13 +123,13 @@ const CommandPalette = () => {
                   {t('command.no_results', 'No results found.')}
                 </Command.Empty>
 
-                {Object.entries(groupedCommands)
+                {Object.entries(groupedCommands as Record<string, any[]>)
                   .sort(([_groupA, commandsA], [_groupB, commandsB]) => {
                     if (!search) return 0; // Default order if no search
 
                     // Find the best score in each group
-                    const maxScoreA = Math.max(...commandsA.map(c => commandScore(`${c.label} ${c.id} ${(c.keywords || []).join(' ')}`, search)));
-                    const maxScoreB = Math.max(...commandsB.map(c => commandScore(`${c.label} ${c.id} ${(c.keywords || []).join(' ')}`, search)));
+                    const maxScoreA = Math.max(...commandsA.map((c: any) => commandScore(`${c.label} ${c.id} ${(c.keywords || []).join(' ')}`, search)));
+                    const maxScoreB = Math.max(...commandsB.map((c: any) => commandScore(`${c.label} ${c.id} ${(c.keywords || []).join(' ')}`, search)));
 
                     return maxScoreB - maxScoreA; // Descending sort
                   })
@@ -139,7 +139,7 @@ const CommandPalette = () => {
                       heading={group}
                       className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-2"
                     >
-                      {groupCommands.map((command) => (
+                      {(groupCommands as any[]).map((command: any) => (
                         <Command.Item
                           key={command.id}
                           value={`${command.label} ${command.id} ${(command.keywords || []).join(' ')}`} // Search against label, id, and keywords
@@ -168,7 +168,7 @@ const CommandPalette = () => {
               </Command.List>
 
               <div className="border-t border-white/10 bg-zinc-900/50 px-4 py-2 text-xs text-zinc-500 flex justify-between items-center">
-                <span>{t('command.footer.count', { count: Object.values(groupedCommands).flat().length })}</span>
+                <span>{t('command.footer.count', { count: Object.values(groupedCommands as Record<string, any[]>).flat().length })}</span>
                 <div className="flex gap-4">
                   <div className="flex items-center gap-1"><CommandIcon className="w-3 h-3" /> <span>{t('command.footer.select')}</span></div>
                   <div className="flex items-center gap-1"><span className="font-mono">↵</span> <span>{t('command.footer.execute')}</span></div>

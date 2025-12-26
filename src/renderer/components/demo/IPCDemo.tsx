@@ -12,20 +12,21 @@ import Separator from '../ui/Separator';
  */
 export default function IPCDemo() {
   const { t } = useTranslation('ipc');
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   const [activeSection, setActiveSection] = useState('app');
-  const [result, setResult] = useState(null);
+  const [result, setResult] = useState<{ type: string; text?: string; data?: any; description?: string } | null>(null);
   const [loading, setLoading] = useState(false);
   const [storageKey, setStorageKey] = useState('demo-key');
   const [storageValue, setStorageValue] = useState('demo-value');
 
-  const callAPI = async (apiCall, description) => {
+  const callAPI = async (apiCall: () => Promise<any>, description: string) => {
     try {
       setLoading(true);
       setResult({ type: 'loading', text: t('demo.result.loading', { desc: description }) });
       const data = await apiCall();
       setResult({ type: 'success', data, description });
     } catch (error) {
-      setResult({ type: 'error', text: error.message, description });
+      setResult({ type: 'error', text: (error as Error).message, description });
     } finally {
       setLoading(false);
     }
@@ -152,7 +153,7 @@ export default function IPCDemo() {
             <Button
               onClick={() => callAPI(
                 async () => {
-                  await window.electronAPI.window.toggleMaximize();
+                  await window.electronAPI.window.maximize();
                   return { message: t('demo.window.msg_maximized') };
                 },
                 t('demo.window.toggle_max')
@@ -161,15 +162,7 @@ export default function IPCDemo() {
             >
               {t('demo.window.toggle_max')}
             </Button>
-            <Button
-              onClick={() => callAPI(
-                () => window.electronAPI.window.getBounds(),
-                t('demo.window.get_bounds')
-              )}
-              disabled={loading}
-            >
-              {t('demo.window.get_bounds')}
-            </Button>
+            {/* getBounds not exposed, using create/minimize/maximize/close available */}
             <Button
               onClick={() => callAPI(
                 () => window.electronAPI.window.getDisplay(),
@@ -205,8 +198,9 @@ export default function IPCDemo() {
             </Button>
             <Button
               onClick={() => callAPI(
-                () => window.electronAPI.dialog.openFolder({
+                () => window.electronAPI.dialog.showOpenDialog({
                   title: t('demo.dialog.select_folder'),
+                  properties: ['openDirectory']
                 }),
                 t('demo.dialog.open_folder')
               )}
@@ -216,7 +210,7 @@ export default function IPCDemo() {
             </Button>
             <Button
               onClick={() => callAPI(
-                () => window.electronAPI.dialog.saveFile({
+                () => window.electronAPI.dialog.showSaveDialog({
                   title: t('demo.dialog.save_file_title'),
                   defaultPath: 'document.txt',
                 }),
@@ -314,22 +308,14 @@ export default function IPCDemo() {
             </Button>
             <Button
               onClick={() => callAPI(
-                () => window.electronAPI.data.createBackup({ includeSecureStorage: false }),
+                () => window.electronAPI.data.createBackup({ includeDatabase: false } as any),
                 t('demo.data.create_backup')
               )}
               disabled={loading}
             >
               {t('demo.data.create_backup')}
             </Button>
-            <Button
-              onClick={() => callAPI(
-                () => window.electronAPI.data.validateBackup({ filename: 'latest' }),
-                t('demo.data.action_validate')
-              )}
-              disabled={loading}
-            >
-              {t('demo.data.validate_backup')}
-            </Button>
+            {/* validateBackup not available */}
           </CardContent>
         </Card>
       )}

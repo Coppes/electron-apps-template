@@ -14,7 +14,7 @@ export default {
 };
 
 export const Default = {
-  render: (args) => (
+  render: (args: any) => (
     <Table className="max-w-[800px] border rounded-md" {...args}>
       <TableHeader>
         <TableRow>

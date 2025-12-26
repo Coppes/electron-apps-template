@@ -1,7 +1,24 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 
-const PluginContext = createContext({
+interface Plugin {
+  id: string;
+  name: string;
+  filename: string;
+  content: string;
+  [key: string]: any;
+}
+
+interface Command {
+  id: string;
+  [key: string]: any; // Simplified Command interface if not imported from elsewhere or strictly defined
+}
+
+const PluginContext = createContext<{
+  plugins: Plugin[];
+  commands: Command[];
+  registerCommand: (command: Command) => void;
+}>({
   plugins: [],
   commands: [],
   registerCommand: () => { },
@@ -9,11 +26,11 @@ const PluginContext = createContext({
 
 export const usePlugins = () => useContext(PluginContext);
 
-export const PluginProvider = ({ children }) => {
-  const [plugins, setPlugins] = useState([]);
-  const [commands, setCommands] = useState([]);
+export const PluginProvider = ({ children }: { children: React.ReactNode }) => {
+  const [plugins, setPlugins] = useState<Plugin[]>([]);
+  const [commands, setCommands] = useState<Command[]>([]);
 
-  const registerCommand = useCallback((command) => {
+  const registerCommand = useCallback((command: Command) => {
     // console.log('Registering plugin command:', command);
     setCommands(prev => {
       // Avoid duplicates
@@ -24,14 +41,14 @@ export const PluginProvider = ({ children }) => {
 
   // Listen for commands registered via window.appPlugin
   useEffect(() => {
-    const handlePluginRegister = (event) => {
+    const handlePluginRegister = (event: CustomEvent) => {
       if (event.detail) {
         registerCommand(event.detail);
       }
     };
 
-    window.addEventListener('plugin-register-command', handlePluginRegister);
-    return () => window.removeEventListener('plugin-register-command', handlePluginRegister);
+    window.addEventListener('plugin-register-command', handlePluginRegister as EventListener);
+    return () => window.removeEventListener('plugin-register-command', handlePluginRegister as EventListener);
   }, [registerCommand]);
 
   // Load plugins from main process
@@ -44,7 +61,7 @@ export const PluginProvider = ({ children }) => {
         setPlugins(loadedPlugins);
 
         // Execute plugin scripts
-        loadedPlugins.forEach(plugin => {
+        loadedPlugins.forEach((plugin: Plugin) => {
           try {
             // Safe eval? Enforcing strict mode at least.
             // In a real app, this should be sandboxed further (e.g. iframe or WebWorker)

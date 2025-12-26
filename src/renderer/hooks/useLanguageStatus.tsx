@@ -19,7 +19,7 @@ export function useLanguageStatus() {
   // But settings update is async. i18n might update faster.
   // actually SettingsContext syncs i18n. 
 
-  const changeLanguage = (lng) => {
+  const changeLanguage = (lng: string) => {
     updateSetting('language', lng);
   };
 
@@ -34,7 +34,7 @@ export function useLanguageStatus() {
             <span>{currentLang?.startsWith('pt') ? 'PT-BR' : 'EN'}</span>
           </div>
         </ContextMenu.ContextMenuTrigger>
-        <ContextMenu.ContextMenuContent side="top" align="end">
+        <ContextMenu.ContextMenuContent>
           <ContextMenu.ContextMenuRadioGroup value={currentLang} onValueChange={changeLanguage}>
             <ContextMenu.ContextMenuRadioItem value="en">
               English

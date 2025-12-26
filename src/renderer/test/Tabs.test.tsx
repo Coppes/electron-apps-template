@@ -24,7 +24,7 @@ const TestDriver = () => {
 
   return (
     <div>
-      <div data-testid="active-tab-id">{activeTabId}</div>
+      <div data-testid="active-tab-id">{activeTabId || 'none'}</div>
       <div data-testid="active-tab-type">{activeTab ? activeTab.type : 'none'}</div>
       <div data-testid="tab-count">{tabs.length}</div>
 
@@ -35,9 +35,9 @@ const TestDriver = () => {
         </div>
       ))}
 
-      <button onClick={() => addTab({ id: 'settings', title: 'Settings', type: 'settings' })}>Open Settings</button>
-      <button onClick={() => addTab({ id: 'settings-1', title: 'Settings 1', type: 'settings' })}>Open Settings 1</button>
-      <button onClick={() => addTab({ id: 'settings-2', title: 'Settings 2', type: 'settings' })}>Open Settings 2</button>
+      <button onClick={() => addTab({ id: 'settings', title: 'Settings', type: 'settings', data: {} })}>Open Settings</button>
+      <button onClick={() => addTab({ id: 'settings-1', title: 'Settings 1', type: 'settings', data: {} })}>Open Settings 1</button>
+      <button onClick={() => addTab({ id: 'settings-2', title: 'Settings 2', type: 'settings', data: {} })}>Open Settings 2</button>
 
       <button onClick={() => closeTab('settings')}>Close Settings</button>
       <button onClick={() => closeAllTabs()}>Close All</button>

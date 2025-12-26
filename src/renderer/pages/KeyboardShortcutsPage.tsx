@@ -5,20 +5,27 @@ import { useShortcutContext } from '../contexts/ShortcutContext';
 import { Card, CardContent } from '../components/ui/Card';
 import Button from '../components/ui/Button';
 
+interface ShortcutRecorderProps {
+  value: string;
+  onSave: (keys: string) => void;
+  onCancel: () => void;
+  hasError: boolean;
+}
+
 // Simple key recorder component
-const ShortcutRecorder = ({ value, onSave, onCancel, hasError }) => {
+const ShortcutRecorder = ({ value, onSave, onCancel, hasError }: ShortcutRecorderProps) => {
   const { t } = useTranslation('common');
   const [keys, setKeys] = useState(value || '');
-  const [recording, setRecording] = useState(true);
+  const [recording, setRecording] = useState(false);
 
   useEffect(() => {
     if (!recording) return;
 
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       e.preventDefault();
       e.stopPropagation();
 
-      const pressed = [];
+      const pressed: string[] = [];
       if (e.ctrlKey) pressed.push('Ctrl');
       if (e.metaKey) pressed.push('Cmd');
       if (e.altKey) pressed.push('Alt');
@@ -59,25 +66,20 @@ const ShortcutRecorder = ({ value, onSave, onCancel, hasError }) => {
   );
 };
 
-ShortcutRecorder.propTypes = {
-  value: PropTypes.string,
-  onSave: PropTypes.func.isRequired,
-  onCancel: PropTypes.func.isRequired,
-  hasError: PropTypes.bool,
-};
-
 const KeyboardShortcutsPage = () => {
   const { t } = useTranslation('common');
   const { shortcuts, updateShortcut, resetToDefaults, userOverrides } = useShortcutContext();
-  const [editingId, setEditingId] = useState(null);
-  const [error, setError] = useState(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleUpdate = async (id, newKeys) => {
+  const handleUpdate = async (id: string, newKeys: string) => {
     try {
-      await updateShortcut(id, newKeys);
+      if (updateShortcut) {
+        await updateShortcut(id, newKeys);
+      }
       setEditingId(null);
       setError(null);
-    } catch (err) {
+    } catch (err: any) {
       setError(err.message);
     }
   };
@@ -102,13 +104,13 @@ const KeyboardShortcutsPage = () => {
         <CardContent className="p-0">
           <div className="divide-y divide-border">
             {shortcuts.map((shortcut) => {
-              const currentKeys = userOverrides[shortcut.id] || shortcut.keys;
+              const currentKeys = userOverrides?.[shortcut.id] || shortcut.keys;
               const isEditing = editingId === shortcut.id;
 
               return (
                 <div key={shortcut.id} className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
                   <div>
-                    <div className="font-medium">{shortcut.description || shortcut.id}</div>
+                    <div className="font-medium">{(shortcut as any).description || shortcut.id}</div>
                     <div className="text-xs text-muted-foreground font-mono">{shortcut.id}</div>
                   </div>
 

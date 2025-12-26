@@ -9,11 +9,13 @@ export default function TrayDemo() {
   const [trayExists, setTrayExists] = useState(false);
   const [status, setStatus] = useState('');
   const [tooltip, setTooltip] = useState('My Electron App');
-  const [menuItems, setMenuItems] = useState([
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const [menuItems, setMenuItems] = useState<any[]>([
     { id: 'show', label: 'Show Window', type: 'normal', enabled: true },
     { id: 'sep1', type: 'separator' },
     { id: 'quit', label: 'Quit', type: 'normal', enabled: true }
   ]);
+
   useEffect(() => {
     checkStatus();
   }, []);
@@ -42,9 +44,9 @@ export default function TrayDemo() {
       setStatus('Tray created successfully! Check your system tray.');
 
       // Set up initial menu
-      await updateMenu();
+      await updateContextMenu();
     } catch (error) {
-      setStatus(`Error: ${error.message}`);
+      setStatus(`Error: ${(error as Error).message}`);
       setTrayExists(false);
     }
   };
@@ -55,11 +57,11 @@ export default function TrayDemo() {
       setTrayExists(false);
       setStatus('Tray removed');
     } catch (error) {
-      setStatus(`Error: ${error.message}`);
+      setStatus(`Error: ${(error as Error).message}`);
     }
   };
 
-  const updateMenu = async () => {
+  const updateContextMenu = async () => {
     try {
       const template = menuItems.map(item => ({
         id: item.id,
@@ -71,7 +73,7 @@ export default function TrayDemo() {
       await window.electronAPI.tray.setContextMenu(template);
       setStatus('Menu updated');
     } catch (error) {
-      setStatus(`Error: ${error.message}`);
+      setStatus(`Error: ${(error as Error).message}`);
     }
   };
 
@@ -80,7 +82,7 @@ export default function TrayDemo() {
       await window.electronAPI.tray.setTooltip(tooltip);
       setStatus(`Tooltip updated to: ${tooltip}`);
     } catch (error) {
-      setStatus(`Error: ${error.message}`);
+      setStatus(`Error: ${(error as Error).message}`);
     }
   };
 
@@ -93,17 +95,17 @@ export default function TrayDemo() {
     ]);
   };
 
-  const removeMenuItem = (id) => {
+  const removeMenuItem = (id: string) => {
     setMenuItems(menuItems.filter(item => item.id !== id));
   };
 
-  const toggleMenuItem = (id) => {
+  const toggleMenuItem = (id: string) => {
     setMenuItems(menuItems.map(item =>
       item.id === id ? { ...item, enabled: !item.enabled } : item
     ));
   };
 
-  const updateMenuItemLabel = (id, newLabel) => {
+  const updateMenuItemLabel = (id: string, newLabel: string) => {
     setMenuItems(menuItems.map(item =>
       item.id === id ? { ...item, label: newLabel } : item
     ));
@@ -160,7 +162,7 @@ export default function TrayDemo() {
                     setStatus('OS API not available');
                   }
                 } catch (err) {
-                  setStatus(`Error: ${err.message}`);
+                  setStatus(`Error: ${(err as Error).message}`);
                 }
               }}
               disabled={!trayExists}
@@ -250,7 +252,7 @@ export default function TrayDemo() {
         </div>
 
         <button
-          onClick={updateMenu}
+          onClick={updateContextMenu}
           disabled={!trayExists}
           className="w-full px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-400"
         >

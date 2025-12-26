@@ -6,13 +6,18 @@ import DropZone from '../components/features/data-management/DropZone';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
 import Button from '../components/ui/Button';
 
+interface FileWithPath extends File {
+  path: string;
+  name: string;
+}
+
 const HomePage = () => {
   const { t } = useTranslation('common');
-  const [droppedFiles, setDroppedFiles] = useState([]);
+  const [droppedFiles, setDroppedFiles] = useState<FileWithPath[]>([]);
   const { openTab } = useTab();
 
-  const handleDrop = async (files) => {
-    setDroppedFiles(files);
+  const handleDrop = async (files: any[]) => {
+    setDroppedFiles(files as FileWithPath[]);
     // console.log('Dropped files:', files);
 
     // Auto-import logic could go here, or just showing them
@@ -31,7 +36,7 @@ const HomePage = () => {
     }
   };
 
-  const handleDragError = (_error) => {
+  const handleDragError = (_error: unknown) => {
     // console.error('Drag and drop error:', error);
   };
 

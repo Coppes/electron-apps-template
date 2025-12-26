@@ -8,7 +8,7 @@ export default {
 };
 
 export const Default = {
-  render: (args) => {
+  render: (args: any) => {
     const [value, setValue] = useState(50);
     return (
       <div className="w-[300px]">
@@ -20,7 +20,7 @@ export const Default = {
 };
 
 export const MinMax = {
-  render: (args) => {
+  render: (args: any) => {
     const [value, setValue] = useState(25);
     return (
       <div className="w-[300px]">

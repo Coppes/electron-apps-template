@@ -3,61 +3,48 @@
  * Custom React hook for monitoring network connectivity
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
 /**
  * Hook for monitoring online/offline status
  * @returns {object} Online status and utilities
  */
 export function useOfflineStatus() {
-  const [isOnline, setIsOnline] = useState(true);
-  const [lastCheck, setLastCheck] = useState(null);
-
-  // Fetch current status
-  const fetchStatus = useCallback(async () => {
-    try {
-      const result = await window.electronAPI.data.getConnectivityStatus();
-      if (result.success) {
-        setIsOnline(result.online);
-        setLastCheck(result.lastCheck || Date.now());
-      }
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Failed to fetch connectivity status:', error);
-    }
-  }, []);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [lastCheck, setLastCheck] = useState<number | null>(null);
 
   // Listen for connectivity changes
   useEffect(() => {
-    // Initial fetch (using setTimeout to avoid synchronous state update)
-    const timer = setTimeout(() => {
-      fetchStatus();
-    }, 0);
-
-    // Listen for connectivity events
-    const cleanup = window.electronAPI.data.onConnectivityChanged?.((data) => {
-      setIsOnline(data.online);
-      setLastCheck(data.timestamp || Date.now());
-    });
-
-    return () => {
-      clearTimeout(timer);
-      if (cleanup) {
-        cleanup();
+    // Initial check
+    const checkStatus = async () => {
+      try {
+        const result = await (window.electronAPI as any).invoke('connectivity:check');
+        const onlineStatus = typeof result === 'boolean' ? result : result?.online ?? result?.data?.online ?? false;
+        setIsOnline(!!onlineStatus);
+        setLastCheck(Date.now());
+      } catch (error) {
+        // console.error('Failed to check connectivity', error);
       }
     };
-  }, [fetchStatus]);
+    checkStatus();
 
-  // Force check
-  const checkNow = useCallback(async () => {
-    await fetchStatus();
-  }, [fetchStatus]);
+    // Listen for updates - using any for fallback if API differs
+    const eventsAPI = window.electronAPI?.events as any;
+    const cleanup = eventsAPI?.onConnectivityChange ? eventsAPI.onConnectivityChange((data: any) => {
+      const isOnline = typeof data === 'boolean' ? data : data?.online;
+      setIsOnline(!!isOnline);
+      setLastCheck(Date.now());
+    }) : undefined;
+
+    return () => {
+      if (typeof cleanup === 'function') cleanup();
+    };
+  }, []);
 
   return {
     isOnline,
     isOffline: !isOnline,
-    lastCheck,
-    checkNow
+    lastCheck
   };
 }
 

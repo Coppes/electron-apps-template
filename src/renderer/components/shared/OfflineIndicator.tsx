@@ -32,7 +32,7 @@ export function OfflineIndicator({
 
   const baseClasses = `
     fixed
-    ${positionClasses[position]}
+    ${(positionClasses as any)[position]}
     px-4
     py-2
     rounded-lg
@@ -63,7 +63,7 @@ export function OfflineIndicator({
           ${isOffline ? 'bg-white animate-pulse' : 'bg-white'}
         `}
       />
-      
+
       {/* Status text */}
       <span>
         {isOffline ? 'Offline' : 'Online'}

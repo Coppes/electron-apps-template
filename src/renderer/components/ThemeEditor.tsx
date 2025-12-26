@@ -10,7 +10,7 @@ const ThemeEditor = () => {
 
   // Initial colors from existing custom theme or defaults
   // We keep internal state as HEX for the color picker
-  const [colors, setColors] = useState({
+  const defaultColors: Record<string, string> = {
     '--background': '#ffffff',
     '--foreground': '#0f172a',
     '--primary': '#0f172a',
@@ -18,15 +18,18 @@ const ThemeEditor = () => {
     '--muted': '#f1f5f9',
     '--muted-foreground': '#64748b',
     '--border': '#e2e8f0'
-  });
+  };
+
+  const [colors, setColors] = useState<Record<string, string>>(defaultColors);
 
   // Update local state when settings change (e.g. initial load)
   useEffect(() => {
     if (settings?.customThemes?.custom?.colors) {
-      const loadedColors = {};
+      const loadedColors: Record<string, string> = {};
       Object.entries(settings.customThemes.custom.colors).forEach(([key, val]) => {
         // Convert stored HSL back to Hex for the inputs
-        loadedColors[key] = val.startsWith('#') ? val : hslToHex(val);
+        const stringVal = String(val);
+        loadedColors[key] = stringVal.startsWith('#') ? stringVal : hslToHex(stringVal);
       });
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setColors(prev => {
@@ -39,13 +42,18 @@ const ThemeEditor = () => {
     }
   }, [settings?.customThemes]);
 
-  const handleChange = (key, value) => {
+  const handleChange = (key: string, value: string) => {
     setColors(prev => ({ ...prev, [key]: value }));
+
+    // Update CSS variable live
+    const root = document.documentElement;
+    const hsl = hexToHsl(value);
+    root.style.setProperty(key, hsl);
   };
 
   const handleSave = () => {
     // Convert all to HSL before saving
-    const hslColors = {};
+    const hslColors: Record<string, string> = {};
     Object.entries(colors).forEach(([key, val]) => {
       hslColors[key] = val.startsWith('#') ? hexToHsl(val) : val;
     });

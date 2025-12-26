@@ -14,7 +14,14 @@ import { useState, useCallback, useEffect } from 'react';
  * @param {Array<string>} options.accept - Accepted file extensions
  * @returns {object} Drag and drop state and handlers
  */
-export function useDragDrop(options = {}) {
+interface UseDragDropOptions {
+  onDrop?: (files: File[], result?: any) => void;
+  onError?: (error: Error) => void;
+  multiple?: boolean;
+  accept?: string[] | string;
+}
+
+export function useDragDrop(options: UseDragDropOptions = {}) {
   const {
     onDrop,
     onError,
@@ -28,7 +35,7 @@ export function useDragDrop(options = {}) {
   const [dragCounter, setDragCounter] = useState(0);
 
   // Handle drag enter
-  const handleDragEnter = useCallback((event) => {
+  const handleDragEnter = useCallback((event: React.DragEvent) => {
     event.preventDefault();
     event.stopPropagation();
 
@@ -40,7 +47,7 @@ export function useDragDrop(options = {}) {
   }, []);
 
   // Handle drag leave
-  const handleDragLeave = useCallback((event) => {
+  const handleDragLeave = useCallback((event: React.DragEvent) => {
     event.preventDefault();
     event.stopPropagation();
 
@@ -54,7 +61,7 @@ export function useDragDrop(options = {}) {
   }, []);
 
   // Handle drag over
-  const handleDragOver = useCallback((event) => {
+  const handleDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
     event.stopPropagation();
 
@@ -65,7 +72,7 @@ export function useDragDrop(options = {}) {
   }, []);
 
   // Handle drop
-  const handleDrop = useCallback(async (event) => {
+  const handleDrop = useCallback(async (event: React.DragEvent) => {
     event.preventDefault();
     event.stopPropagation();
 
@@ -89,7 +96,7 @@ export function useDragDrop(options = {}) {
       // Use webUtils via preload to get path if file.path is undefined (Electron security)
       const filePaths = files
         .map(file => {
-          if (file.path) return file.path;
+          if ((file as any).path) return (file as any).path;
           if (window.electronAPI?.file?.getPath) {
             try {
               return window.electronAPI.file.getPath(file);
@@ -114,8 +121,8 @@ export function useDragDrop(options = {}) {
         : (typeof accept === 'string' ? accept.split(',').map(s => s.trim()) : []);
 
       // Call IPC to validate and process files
-      // use electronAPI.file.drop if available, or invoke directly
-      const result = await window.electronAPI.invoke('file:drop', {
+      // use casting specifically for invoke if not in interface
+      const result: any = await (window.electronAPI as any).invoke('file:drop', {
         filePaths,
         options: {
           allowedExtensions: acceptArray.length > 0 ? acceptArray : undefined
@@ -131,7 +138,7 @@ export function useDragDrop(options = {}) {
         // Report invalid files if any
         if (result.invalid > 0 && onError) {
           const errors = result.invalidFiles
-            .map(f => `${f.path}: ${f.error}`)
+            .map((f: any) => `${f.path}: ${f.error}`)
             .join(', ');
           onError(new Error(`Invalid files: ${errors}`));
         }
@@ -144,7 +151,7 @@ export function useDragDrop(options = {}) {
       // eslint-disable-next-line no-console
       console.error('Drop error:', error);
       if (onError) {
-        onError(error);
+        onError(error as Error);
       }
     } finally {
       setIsProcessing(false);
@@ -152,9 +159,9 @@ export function useDragDrop(options = {}) {
   }, [multiple, accept, onDrop, onError]);
 
   // Handle drag from app to desktop
-  const startDrag = useCallback(async (filePath, icon) => {
+  const startDrag = useCallback(async (filePath: string, icon?: string) => {
     try {
-      const result = await window.electronAPI.invoke('file:drag-start', {
+      const result: any = await (window.electronAPI as any).invoke('file:drag-start', {
         filePath,
         icon
       });
@@ -168,7 +175,7 @@ export function useDragDrop(options = {}) {
       // eslint-disable-next-line no-console
       console.error('Drag start error:', error);
       if (onError) {
-        onError(error);
+        onError(error as Error);
       }
       throw error;
     }

@@ -12,7 +12,7 @@ export function useNavigationCommands() {
   const { t } = useTranslation('common');
 
   // Helper to open a tab or activate existing one
-  const openTab = React.useCallback((type, title) => {
+  const openTab = React.useCallback((type: string, title: string) => {
     // Check if tab of this type already exists (for singleton pages)
     const existingStart = tabs.find(t => t.type === type);
     if (existingStart) {
@@ -26,7 +26,8 @@ export function useNavigationCommands() {
     addTab({
       id: `${type}-${Date.now()}`,
       title,
-      type
+      type,
+      data: {}
     });
   }, [addTab, tabs, setActiveTab]);
 

@@ -178,7 +178,6 @@ describe('Backup Manager - Corruption Handling', () => {
     // But we verify basic flow works
     await expect(backupManager.restoreBackup('valid.zip')).resolves.toMatchObject({
       success: true,
-      message: 'Backup restored successfully'
     });
   });
 

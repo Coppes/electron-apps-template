@@ -22,7 +22,7 @@ export function useSound() {
   const isMuted = settings?.audio?.muted ?? false;
   // const globalVolume = (settings?.audio?.volume ?? 100) / 100;
 
-  const playSound = useCallback((type) => {
+  const playSound = useCallback((type: keyof typeof SOUNDS) => {
     if (isMuted) return;
 
     const src = SOUNDS[type];

@@ -6,7 +6,7 @@ import resourcesToBackend from 'i18next-resources-to-backend';
 i18n
   .use(initReactI18next)
   .use(
-    resourcesToBackend((language, namespace) =>
+    resourcesToBackend((language: string, namespace: string) =>
       import(`./locales/${language}/${namespace}.json`)
     )
   )
@@ -24,6 +24,6 @@ i18n
 
 // Add a helper to change language that also updates the store if needed
 // This is used by the App component to sync with the main process
-i18n.changeLanguageInternal = i18n.changeLanguage;
+(i18n as any).changeLanguageInternal = i18n.changeLanguage;
 
 export default i18n;

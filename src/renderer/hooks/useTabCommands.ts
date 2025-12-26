@@ -13,7 +13,7 @@ export function useTabCommands() {
 
   useEffect(() => {
     // Register a command for each tab
-    const registeredIds = [];
+    const registeredIds: string[] = [];
 
     tabs.forEach((tab) => {
       const commandId = `switch-to-tab-${tab.id}`;

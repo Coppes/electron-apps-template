@@ -22,16 +22,29 @@ import Button from '../ui/Button';
  *   ]}
  * />
  */
+interface TestCase {
+  name: string;
+  description?: string;
+  run: () => Promise<{ success: boolean; message?: string; data?: any }>;
+}
+
+interface FeatureTestTemplateProps {
+  featureName: string;
+  description?: string;
+  testCases?: TestCase[];
+  onTestComplete?: (testId: string, result: any) => void;
+}
+
 export default function FeatureTestTemplate({
   featureName,
   description,
   testCases = [],
   onTestComplete,
-}) {
-  const [results, setResults] = useState({});
-  const [running, setRunning] = useState(null);
+}: FeatureTestTemplateProps) {
+  const [results, setResults] = useState<Record<string, any>>({});
+  const [running, setRunning] = useState<string | null>(null);
 
-  const runTest = async (testCase) => {
+  const runTest = async (testCase: TestCase) => {
     const testId = testCase.name;
     try {
       setRunning(testId);
@@ -41,7 +54,7 @@ export default function FeatureTestTemplate({
       }));
 
       const result = await testCase.run();
-      
+
       setResults(prev => ({
         ...prev,
         [testId]: {
@@ -60,7 +73,7 @@ export default function FeatureTestTemplate({
         ...prev,
         [testId]: {
           status: 'error',
-          message: error.message,
+          message: error instanceof Error ? error.message : String(error),
           timestamp: new Date().toISOString(),
         }
       }));
@@ -108,7 +121,7 @@ export default function FeatureTestTemplate({
           {testCases.map((testCase) => {
             const testId = testCase.name;
             const result = results[testId];
-            
+
             return (
               <div
                 key={testId}
@@ -134,18 +147,17 @@ export default function FeatureTestTemplate({
 
                 {result && (
                   <div
-                    className={`text-sm p-2 rounded ${
-                      result.status === 'running' ? 'bg-blue-50 text-blue-800' :
+                    className={`text-sm p-2 rounded ${result.status === 'running' ? 'bg-blue-50 text-blue-800' :
                       result.status === 'success' ? 'bg-green-50 text-green-800' :
-                      result.status === 'failure' ? 'bg-yellow-50 text-yellow-800' :
-                      'bg-red-50 text-red-800'
-                    }`}
+                        result.status === 'failure' ? 'bg-yellow-50 text-yellow-800' :
+                          'bg-red-50 text-red-800'
+                      }`}
                   >
                     <div className="font-semibold">
                       {result.status === 'running' ? '⏳' :
-                       result.status === 'success' ? '✅' :
-                       result.status === 'failure' ? '⚠️' :
-                       '❌'}
+                        result.status === 'success' ? '✅' :
+                          result.status === 'failure' ? '⚠️' :
+                            '❌'}
                       {' '}{result.message}
                     </div>
                     {result.timestamp && (

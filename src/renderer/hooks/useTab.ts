@@ -4,7 +4,7 @@ export function useTab() {
   const context = useTabContext();
 
   return {
-    openTab: (tab) => context.addTab(tab),
+    openTab: (tab: any) => context.addTab(tab),
     closeTab: context.closeTab,
     activateTab: context.setActiveTab,
     activeTabId: context.activeTabId,

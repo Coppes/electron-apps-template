@@ -26,7 +26,7 @@ const TabContent = ({ group = 'primary' }) => {
   const activeTabId = group === 'primary' ? primaryActiveId : secondaryActiveTabId;
 
   // Strategy pattern: Resolve component based on tab TYPE primarily, ID as fallback
-  const renderTabContent = (tab) => {
+  const renderTabContent = (tab: any) => {
     const type = tab.type || tab.id; // Fallback to ID if type is generic 'page' or missing
 
     switch (type) {

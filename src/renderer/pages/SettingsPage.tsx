@@ -38,7 +38,7 @@ const SettingsPage = () => {
 
 
 
-  const changeLanguage = (lng) => {
+  const changeLanguage = (lng: string) => {
     updateSetting('language', lng);
   };
 
@@ -58,14 +58,14 @@ const SettingsPage = () => {
         shortcuts: userOverrides
       };
 
-      const result = await window.electronAPI.data.export(filePath, exportData);
+      const result = await (window.electronAPI.data as any).exportData(filePath, exportData);
 
       if (result.success) {
         setSaveMessage(t('messages.export_success', { path: result.filePath }));
       } else {
         setSaveMessage(t('messages.export_fail', { error: result.error }));
       }
-    } catch (error) {
+    } catch (error: any) {
       // console.error('Export error:', error);
       setSaveMessage(t('messages.export_error', { error: error.message }));
     } finally {
@@ -84,7 +84,7 @@ const SettingsPage = () => {
       if (!filePath) return;
 
       // 2. Import data
-      const result = await window.electronAPI.data.import(filePath, {
+      const result = await (window.electronAPI.data as any).importData(filePath, {
         format: 'json'
       });
 
@@ -94,17 +94,14 @@ const SettingsPage = () => {
         // Import settings
         if (result.data.settings) {
           // Flatten/iterate settings to update context
-          // Note context doesn't expose bulk update yet, so we iterate known keys or recursive
-          // Just handling top level for now or specific keys we know of effectively
-          // Improvements: Add bulkUpdate to SettingsContext
-          // For now, let's just blindly update the structure
-          Object.keys(result.data.settings).forEach(section => {
-            if (typeof result.data.settings[section] === 'object') {
-              Object.keys(result.data.settings[section]).forEach(key => {
-                updateSetting(`${section}.${key} `, result.data.settings[section][key]);
+          const dataSettings = result.data.settings;
+          Object.keys(dataSettings).forEach(section => {
+            if (typeof dataSettings[section] === 'object') {
+              Object.keys(dataSettings[section]).forEach(key => {
+                updateSetting(`${section}.${key} `, dataSettings[section][key]);
               });
             } else {
-              updateSetting(section, result.data.settings[section]);
+              updateSetting(section, dataSettings[section]);
             }
           });
           importedCount++;
@@ -112,7 +109,9 @@ const SettingsPage = () => {
 
         // Import shortcuts
         if (result.data.shortcuts) {
-          await importOverrides(result.data.shortcuts);
+          if (importOverrides) {
+            await importOverrides(result.data.shortcuts);
+          }
           importedCount++;
         }
 
@@ -122,7 +121,7 @@ const SettingsPage = () => {
           setSaveMessage(t('messages.import_fail'));
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       // console.error('Import error:', error);
       setSaveMessage(t('messages.import_error', { error: error.message }));
     } finally {
@@ -130,7 +129,7 @@ const SettingsPage = () => {
     }
   };
 
-  const handleTestChange = (e) => {
+  const handleTestChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     const oldValue = testText; // Capture current state in closure
 
@@ -183,7 +182,7 @@ const SettingsPage = () => {
             <div className="flex gap-1 bg-muted p-1 rounded-lg">
               <Button
                 size="sm"
-                variant={settings.appearance.theme === 'system' ? 'default' : 'ghost'}
+                variant={settings?.appearance?.theme === 'system' ? 'default' : 'ghost'}
                 onClick={() => updateSetting('appearance.theme', 'system')}
                 title="Follow System"
               >
@@ -191,7 +190,7 @@ const SettingsPage = () => {
               </Button>
               <Button
                 size="sm"
-                variant={settings.appearance.theme === 'light' ? 'default' : 'ghost'}
+                variant={settings?.appearance?.theme === 'light' ? 'default' : 'ghost'}
                 onClick={() => updateSetting('appearance.theme', 'light')}
                 title="Light Mode"
               >
@@ -199,7 +198,7 @@ const SettingsPage = () => {
               </Button>
               <Button
                 size="sm"
-                variant={settings.appearance.theme === 'dark' ? 'default' : 'ghost'}
+                variant={settings?.appearance?.theme === 'dark' ? 'default' : 'ghost'}
                 onClick={() => updateSetting('appearance.theme', 'dark')}
                 title="Dark Mode"
               >

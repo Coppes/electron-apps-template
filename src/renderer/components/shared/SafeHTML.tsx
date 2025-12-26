@@ -62,7 +62,7 @@ const DANGEROUS_ATTRIBUTES = [
  * @param {Object} allowedAttributes - Allowed attributes per tag
  * @returns {string} Sanitized HTML
  */
-function sanitizeHTML(html, allowedTags, allowedAttributes) {
+function sanitizeHTML(html: string, allowedTags: string[], allowedAttributes: Record<string, string[]>) {
   if (!html || typeof html !== 'string') {
     return '';
   }
@@ -72,7 +72,7 @@ function sanitizeHTML(html, allowedTags, allowedAttributes) {
   temp.innerHTML = html;
 
   // Recursive function to sanitize nodes
-  function sanitizeNode(node) {
+  function sanitizeNode(node: Element) {
     // Remove dangerous tags
     if (node.nodeType === Node.ELEMENT_NODE) {
       const tagName = node.tagName.toLowerCase();
@@ -86,7 +86,7 @@ function sanitizeHTML(html, allowedTags, allowedAttributes) {
       // Remove tags not in allowlist
       if (!allowedTags.includes(tagName)) {
         // Replace with text content
-        const textNode = document.createTextNode(node.textContent);
+        const textNode = document.createTextNode(node.textContent || '');
         node.parentNode?.replaceChild(textNode, node);
         return;
       }
@@ -95,7 +95,7 @@ function sanitizeHTML(html, allowedTags, allowedAttributes) {
       const attrs = Array.from(node.attributes);
       attrs.forEach(attr => {
         const attrName = attr.name.toLowerCase();
-        
+
         // Remove dangerous attributes
         if (DANGEROUS_ATTRIBUTES.some(dangerous => attrName.startsWith(dangerous))) {
           node.removeAttribute(attr.name);
@@ -105,7 +105,7 @@ function sanitizeHTML(html, allowedTags, allowedAttributes) {
         // Check if attribute is allowed
         const tagAllowed = allowedAttributes[tagName] || [];
         const globalAllowed = allowedAttributes['*'] || [];
-        
+
         if (!tagAllowed.includes(attrName) && !globalAllowed.includes(attrName)) {
           node.removeAttribute(attr.name);
         }
@@ -136,7 +136,7 @@ function sanitizeHTML(html, allowedTags, allowedAttributes) {
     }
 
     // Recursively sanitize children
-    Array.from(node.childNodes).forEach(child => sanitizeNode(child));
+    Array.from(node.childNodes).forEach(child => sanitizeNode(child as Element));
   }
 
   sanitizeNode(temp);
@@ -146,11 +146,18 @@ function sanitizeHTML(html, allowedTags, allowedAttributes) {
 /**
  * SafeHTML Component
  */
-function SafeHTML({ html, allowedTags = DEFAULT_ALLOWED_TAGS, allowedAttributes = DEFAULT_ALLOWED_ATTRIBUTES, className = '' }) {
+interface SafeHTMLProps {
+  html: string;
+  allowedTags?: string[];
+  allowedAttributes?: Record<string, string[]>;
+  className?: string;
+}
+
+function SafeHTML({ html, allowedTags = DEFAULT_ALLOWED_TAGS, allowedAttributes = DEFAULT_ALLOWED_ATTRIBUTES, className = '' }: SafeHTMLProps) {
   const sanitized = sanitizeHTML(html, allowedTags, allowedAttributes);
 
   return (
-    <div 
+    <div
       className={className}
       dangerouslySetInnerHTML={{ __html: sanitized }}
     />

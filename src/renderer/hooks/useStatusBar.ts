@@ -9,10 +9,10 @@ import { StatusBarContext } from '../contexts/StatusBarContext';
  * @param {string} [item.position] - 'left', 'center', 'right' (default: 'right')
  * @param {number} [item.priority] - Priority for sorting (higher = closer to edge)
  */
-export function useStatusBar(item) {
+export function useStatusBar(item: any) {
   const { addItem, removeItem, updateItem } = useContext(StatusBarContext);
   const itemIdRef = useRef(item.id);
-  const throttleTimeoutRef = useRef(null);
+  const throttleTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pendingUpdateRef = useRef(null);
   const lastUpdateRef = useRef(0);
 
@@ -29,7 +29,7 @@ export function useStatusBar(item) {
   }, []); // Only run once on mount
 
   // Throttled update function
-  const handleUpdate = useCallback((updates) => {
+  const handleUpdate = useCallback((updates: any) => {
     const now = Date.now();
     const timeSinceLastUpdate = now - lastUpdateRef.current;
 

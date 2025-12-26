@@ -55,7 +55,7 @@ describe('ImportExportManager', () => {
 
       expect(result.success).toBe(true);
       expect(mockHandler.export).toHaveBeenCalledWith({ some: 'data' }, {});
-      expect(fs.writeFile).toHaveBeenCalledWith(filePath, 'mock-content', 'utf8');
+      expect(fs.writeFile).toHaveBeenCalledWith(filePath, 'mock-content');
     });
 
     it('should fail if no handler found', async () => {
@@ -117,7 +117,7 @@ describe('ImportExportManager', () => {
       // Check if export was called with imported data (csv handler)
       // Note: mockHandler.import returns { mock: 'data' }
       expect(csvMockHandler.export).toHaveBeenCalledWith({ mock: 'data' }, {});
-      expect(fs.writeFile).toHaveBeenCalledWith('/test/target.csv', 'mock-csv-content', 'utf8');
+      expect(fs.writeFile).toHaveBeenCalledWith('/test/target.csv', 'mock-csv-content');
     });
 
     it('should fail if import fails', async () => {

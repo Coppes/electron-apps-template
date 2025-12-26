@@ -18,7 +18,20 @@ import Button from '../ui/Button';
  * @param {Function} props.onInstall - Handler for install action
  * @param {Function} props.onDismiss - Handler for dismiss action
  */
-export function UpdateNotification({ updateInfo, status, progress, onInstall, onDismiss }) {
+interface UpdateNotificationProps {
+  updateInfo: any;
+  status: string | null;
+  progress?: {
+    percent?: number;
+    transferred?: number;
+    total?: number;
+    bytesPerSecond?: number;
+  };
+  onInstall: () => void;
+  onDismiss: () => void;
+}
+
+const UpdateNotification: React.FC<UpdateNotificationProps> = ({ updateInfo, status, progress, onInstall, onDismiss }) => {
   const { t } = useTranslation('common');
   if (!updateInfo || !status) {
     return null;
@@ -65,7 +78,7 @@ export function UpdateNotification({ updateInfo, status, progress, onInstall, on
                   <div className="flex justify-between text-xs mb-1">
                     <span>{progress.percent?.toFixed(0)}%</span>
                     <span>
-                      {formatBytes(progress.transferred)} / {formatBytes(progress.total)}
+                      {formatBytes(progress.transferred || 0)} / {formatBytes(progress.total || 0)}
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
@@ -147,12 +160,14 @@ UpdateNotification.propTypes = {
   onDismiss: PropTypes.func.isRequired,
 };
 
+export default UpdateNotification;
+
 /**
  * Format bytes to human-readable string
  * @param {number} bytes - Number of bytes
  * @returns {string} Formatted string
  */
-function formatBytes(bytes) {
+function formatBytes(bytes: number) {
   if (!bytes || bytes === 0) return '0 B';
 
   const k = 1024;

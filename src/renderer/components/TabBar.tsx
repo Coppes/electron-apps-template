@@ -39,8 +39,10 @@ const TabBar = ({ group = 'primary' }) => {
   // Note: useRegisterCommand handles registration in useEffect, but if we pass new object every time, it re-runs.
 
   const closeAllAction = React.useCallback(() => closeAllTabs(), [closeAllTabs]);
-  const closeOtherAction = React.useCallback(() => closeOtherTabs(activeTabId), [closeOtherTabs, activeTabId]);
-  const newTabAction = React.useCallback(() => addTab({ id: `tab-${Date.now()}`, title: t('command.new_tab', 'New Tab'), type: 'page' }), [addTab, t]);
+  const closeOtherAction = React.useCallback(() => {
+    if (activeTabId) closeOtherTabs(activeTabId);
+  }, [closeOtherTabs, activeTabId]);
+  const newTabAction = React.useCallback(() => addTab({ id: `tab-${Date.now()}`, title: t('command.new_tab', 'New Tab'), type: 'page', data: {} }), [addTab, t]);
 
   useRegisterCommand(React.useMemo(() => ({
     id: 'close-all-tabs',
@@ -76,7 +78,7 @@ const TabBar = ({ group = 'primary' }) => {
   });
 
   // Helper to get icon for tab
-  const getIcon = (id) => {
+  const getIcon = (id: string) => {
     if (id === 'home') return <House className="w-4 h-4" />;
     if (id === 'settings') return <Gear className="w-4 h-4" />;
     if (id === 'about') return <Info className="w-4 h-4" />;
@@ -84,7 +86,7 @@ const TabBar = ({ group = 'primary' }) => {
   };
 
 
-  const [dragOverIndex, setDragOverIndex] = React.useState(null);
+  const [dragOverIndex, setDragOverIndex] = React.useState<number | null>(null);
 
   return (
     <div
@@ -152,9 +154,9 @@ const TabBar = ({ group = 'primary' }) => {
                     // Check logic below for safer approach
                     const route = `/popout/${tab.type}/${tab.id}`;
                     if (window.electronAPI?.window?.create) {
-                      window.electronAPI.window.create('auxiliary', { route, x: e.screenX, y: e.screenY });
-                    } else if (window.electronAPI?.invoke) {
-                      window.electronAPI.invoke('window:create', { type: 'auxiliary', options: { route, x: e.screenX, y: e.screenY } });
+                      window.electronAPI.window.create('auxiliary', { route, x: e.screenX, y: e.screenY } as any);
+                    } else if ((window.electronAPI as any)?.invoke) {
+                      (window.electronAPI as any).invoke('window:create', { type: 'auxiliary', options: { route, x: e.screenX, y: e.screenY } });
                     }
                   }
                 }}

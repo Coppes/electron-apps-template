@@ -1,7 +1,24 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 
-const ShortcutContext = createContext({
+// Need to extend or define Shortcut type. Assuming minimal:
+export interface Shortcut {
+  id: string;
+  keys: string;
+  action: () => void;
+  description?: string;
+  allowInInput?: boolean;
+}
+
+const ShortcutContext = createContext<{
+  shortcuts: Shortcut[];
+  registerShortcut: (shortcut: Shortcut) => void;
+  unregisterShortcut: (id: string) => void;
+  updateShortcut?: (id: string, newKeys: string) => Promise<void>;
+  resetToDefaults?: () => Promise<void>;
+  importOverrides?: (overrides: Record<string, string>) => Promise<void>;
+  userOverrides?: Record<string, string>;
+}>({
   shortcuts: [],
   registerShortcut: () => { },
   unregisterShortcut: () => { },
@@ -9,9 +26,9 @@ const ShortcutContext = createContext({
 
 export const useShortcutContext = () => useContext(ShortcutContext);
 
-export const ShortcutProvider = ({ children }) => {
-  const [shortcuts, setShortcuts] = useState([]);
-  const [userOverrides, setUserOverrides] = useState({});
+export const ShortcutProvider = ({ children }: { children: React.ReactNode }) => {
+  const [shortcuts, setShortcuts] = useState<Shortcut[]>([]);
+  const [userOverrides, setUserOverrides] = useState<Record<string, string>>({});
 
   // Load user overrides on mount
   useEffect(() => {
@@ -28,7 +45,7 @@ export const ShortcutProvider = ({ children }) => {
     loadOverrides();
   }, []);
 
-  const registerShortcut = useCallback((shortcut) => {
+  const registerShortcut = useCallback((shortcut: Shortcut) => {
     setShortcuts((prev) => {
       // Remove existing with same id if any
       const filtered = prev.filter((s) => s.id !== shortcut.id);
@@ -45,11 +62,11 @@ export const ShortcutProvider = ({ children }) => {
     });
   }, []);
 
-  const unregisterShortcut = useCallback((id) => {
+  const unregisterShortcut = useCallback((id: string) => {
     setShortcuts((prev) => prev.filter((s) => s.id !== id));
   }, []);
 
-  const updateShortcut = useCallback(async (id, newKeys) => {
+  const updateShortcut = useCallback(async (id: string, newKeys: string) => {
     const shortcut = shortcuts.find(s => s.id === id);
     if (!shortcut) return;
 
@@ -80,19 +97,20 @@ export const ShortcutProvider = ({ children }) => {
     }
   }, []);
 
-  const importOverrides = useCallback(async (newOverrides) => {
+  const importOverrides = useCallback(async (newOverrides: Record<string, string>) => {
     await window.electronAPI.store.set('keyboard-shortcuts', newOverrides);
     setUserOverrides(newOverrides);
   }, []);
 
   // Global keydown handler
   useEffect(() => {
-    const handleKeyDown = (event) => {
+    const handleKeyDown = (event: KeyboardEvent) => {
       // Ignore if input/textarea is focused, UNLESS shortcut allows it
+      const target = event.target as HTMLElement;
       const isInputFocused =
-        event.target.tagName === 'INPUT' ||
-        event.target.tagName === 'TEXTAREA' ||
-        event.target.isContentEditable;
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.isContentEditable;
 
       for (const shortcut of shortcuts) {
         // If input is focused and shortcut doesn't allow it, skip
@@ -101,7 +119,7 @@ export const ShortcutProvider = ({ children }) => {
         }
 
         // Use override key if available, else default
-        const effectiveKeyBinding = userOverrides[shortcut.id] || shortcut.keys;
+        const effectiveKeyBinding = userOverrides?.[shortcut.id] || shortcut.keys;
         const keys = effectiveKeyBinding.toLowerCase().split('+').map(k => k.trim());
 
         // Determine required modifiers
@@ -140,7 +158,7 @@ export const ShortcutProvider = ({ children }) => {
         // Let's rely on the previous logic BUT add the "no extra" check.
         // Actually, just checking that every 'true' event modifier is accounted for in 'keys'.
 
-        const eventModifiers = [];
+        const eventModifiers: string[] = [];
         if (hasCtrl) eventModifiers.push('ctrl');
         if (hasMeta) eventModifiers.push('meta');
         if (hasShift) eventModifiers.push('shift');
@@ -155,7 +173,7 @@ export const ShortcutProvider = ({ children }) => {
         // 1. All REQUIRED keys must be present (captured by .every check below, mostly)
         // 2. All EVENT modifiers must be ALLOWED.
 
-        const isModifierAllowed = (mod) => {
+        const isModifierAllowed = (mod: string) => {
           if (mod === 'shift') return allowedModifiers.has('shift');
           if (mod === 'alt') return allowedModifiers.has('alt');
           if (mod === 'ctrl') return allowedModifiers.has('ctrl') || allowedModifiers.has('control') || allowedModifiers.has('mod');

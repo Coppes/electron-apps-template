@@ -2,29 +2,44 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import PropTypes from 'prop-types';
 
+interface Operation {
+  id: string;
+  type: string;
+  entity?: string;
+  status: 'pending' | 'syncing' | 'synced' | 'failed';
+  retries: number;
+  timestamp: number;
+  error?: string;
+}
+
 /**
  * SyncQueueViewer Component
  * View and manage sync queue operations
  */
 export default function SyncQueueViewer() {
   const { t } = useTranslation('data_management');
-  const [operations, setOperations] = useState([]);
-  const [status, setStatus] = useState(null);
+  const [operations, setOperations] = useState<Operation[]>([]);
+  const [status, setStatus] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState('all');
 
   const loadQueueData = useCallback(async () => {
     try {
       setError(null);
+      // specific casts to any because these methods might be missing in strict type definition
+      const dataApi = window.electronAPI.data as any;
       const [queueStatus, queueOperations] = await Promise.all([
-        window.electronAPI.data.getSyncQueueStatus(),
-        window.electronAPI.data.getSyncQueueOperations(),
+        dataApi.getSyncQueueStatus(),
+        dataApi.getSyncQueueOperations(),
       ]);
-      setStatus(queueStatus);
-      setOperations(queueOperations);
+
+      // Handle potentially wrapped responses
+      setStatus((queueStatus as any).data || queueStatus);
+      const opsData = (queueOperations as any).data;
+      setOperations(opsData?.operations || opsData || queueOperations || []);
     } catch (err) {
-      setError(t('sync_queue.error_load', { error: err.message }));
+      setError(t('sync_queue.error_load', { error: (err as Error).message }));
     } finally {
       setLoading(false);
     }
@@ -39,20 +54,20 @@ export default function SyncQueueViewer() {
   const handleProcessQueue = async () => {
     try {
       setError(null);
-      await window.electronAPI.data.processSyncQueue();
+      await (window.electronAPI.data as any).processSyncQueue();
       await loadQueueData();
     } catch (err) {
-      setError(t('sync_queue.error_process', { error: err.message }));
+      setError(t('sync_queue.error_process', { error: (err as Error).message }));
     }
   };
 
-  const handleRetryOperation = async (operationId) => {
+  const handleRetryOperation = async (operationId: string) => {
     try {
       setError(null);
-      await window.electronAPI.data.retrySyncOperation({ operationId });
+      await (window.electronAPI.data as any).retrySyncOperation({ operationId });
       await loadQueueData();
     } catch (err) {
-      setError(t('sync_queue.error_retry', { error: err.message }));
+      setError(t('sync_queue.error_retry', { error: (err as Error).message }));
     }
   };
 
@@ -63,11 +78,12 @@ export default function SyncQueueViewer() {
 
   const getStatusCounts = () => {
     return operations.reduce(
-      (acc, op) => {
-        acc[op.status] = (acc[op.status] || 0) + 1;
+      (acc: Record<string, number>, op: Operation) => {
+        const statusKey = op.status as string;
+        acc[statusKey] = (acc[statusKey] || 0) + 1;
         return acc;
       },
-      { pending: 0, syncing: 0, synced: 0, failed: 0 }
+      { pending: 0, syncing: 0, synced: 0, failed: 0 } as Record<string, number>
     );
   };
 
@@ -224,7 +240,15 @@ export default function SyncQueueViewer() {
  * StatusCard Component
  * Display sync queue status metrics
  */
-function StatusCard({ title, value, icon, color, onClick }) {
+interface StatusCardProps {
+  title: string;
+  value: number;
+  icon: string;
+  color: 'blue' | 'yellow' | 'green' | 'red';
+  onClick?: () => void;
+}
+
+function StatusCard({ title, value, icon, color, onClick }: StatusCardProps) {
   const colorClasses = {
     blue: 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-200',
     yellow:
@@ -254,8 +278,14 @@ function StatusCard({ title, value, icon, color, onClick }) {
  * OperationRow Component
  * Single operation in the sync queue table
  */
-function OperationRow({ operation, onRetry, t }) {
-  const statusColors = {
+interface OperationRowProps {
+  operation: Operation;
+  onRetry: (id: string) => void;
+  t: (key: string, options?: any) => string;
+}
+
+function OperationRow({ operation, onRetry, t }: OperationRowProps) {
+  const statusColors: Record<string, string> = {
     pending: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200',
     syncing: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200',
     synced: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200',

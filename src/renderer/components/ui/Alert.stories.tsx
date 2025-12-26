@@ -14,7 +14,7 @@ export default {
 };
 
 export const Default = {
-  render: (args) => (
+  render: (args: any) => (
     <Alert {...args}>
       <Info className="h-4 w-4" />
       <AlertTitle>Heads up!</AlertTitle>
@@ -29,7 +29,7 @@ export const Default = {
 };
 
 export const InfoAlert = {
-  render: (args) => (
+  render: (args: any) => (
     <Alert {...args}>
       <Info className="h-4 w-4" />
       <AlertTitle>Note</AlertTitle>
@@ -44,7 +44,7 @@ export const InfoAlert = {
 };
 
 export const Success = {
-  render: (args) => (
+  render: (args: any) => (
     <Alert {...args}>
       <CheckCircle className="h-4 w-4" />
       <AlertTitle>Success</AlertTitle>
@@ -59,7 +59,7 @@ export const Success = {
 };
 
 export const WarningAlert = {
-  render: (args) => (
+  render: (args: any) => (
     <Alert {...args}>
       <Warning className="h-4 w-4" />
       <AlertTitle>Warning</AlertTitle>
@@ -74,7 +74,7 @@ export const WarningAlert = {
 };
 
 export const ErrorAlert = {
-  render: (args) => (
+  render: (args: any) => (
     <Alert {...args}>
       <XCircle className="h-4 w-4" />
       <AlertTitle>Error</AlertTitle>

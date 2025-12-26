@@ -6,7 +6,8 @@ import { useTranslation } from 'react-i18next';
 export const TourOverlay = () => {
   const { t } = useTranslation('common');
   const { isOpen, currentStep, steps, nextStep, prevStep, closeTour } = useTour();
-  const [targetRect, setTargetRect] = useState(null);
+  const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
+  const [tooltipStyle, setTooltipStyle] = useState({});
   const step = steps[currentStep];
   const overlayRef = useRef(null);
 
@@ -22,14 +23,7 @@ export const TourOverlay = () => {
       const el = document.querySelector(step.target);
       if (el) {
         const rect = el.getBoundingClientRect();
-        setTargetRect({
-          top: rect.top,
-          left: rect.left,
-          right: rect.right,
-          bottom: rect.bottom,
-          width: rect.width,
-          height: rect.height,
-        });
+        setTargetRect(rect);
         // Scroll into view if needed
         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       } else {

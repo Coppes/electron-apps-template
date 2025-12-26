@@ -57,7 +57,7 @@ export default function ComponentTestPage() {
 
             <div className="flex flex-wrap gap-4">
               <Button size="sm">{t('component_test.buttons.small')}</Button>
-              <Button size="default">{t('component_test.buttons.default')}</Button>
+              <Button size="md">{t('component_test.buttons.default')}</Button>
               <Button size="lg">{t('component_test.buttons.large')}</Button>
               <Button size="icon">{t('component_test.buttons.icon')}</Button>
             </div>

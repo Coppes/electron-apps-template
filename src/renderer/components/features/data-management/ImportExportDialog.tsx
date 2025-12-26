@@ -5,12 +5,34 @@ import PropTypes from 'prop-types';
  * ImportExportDialog Component
  * Modal dialog for importing and exporting data with format selection
  */
-export default function ImportExportDialog({ isOpen, mode, onClose }) {
+interface ImportExportDialogProps {
+  isOpen: boolean;
+  mode: 'import' | 'export';
+  onClose: () => void;
+}
+
+interface Progress {
+  current: number;
+  total: number;
+  message: string;
+}
+
+interface Result {
+  success: boolean;
+  message: string;
+  details?: any;
+}
+
+/**
+ * ImportExportDialog Component
+ * Modal dialog for importing and exporting data with format selection
+ */
+export default function ImportExportDialog({ isOpen, mode, onClose }: ImportExportDialogProps) {
   const [selectedFormat, setSelectedFormat] = useState('json');
   const [processing, setProcessing] = useState(false);
-  const [progress, setProgress] = useState(null);
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState(null);
+  const [progress, setProgress] = useState<Progress | null>(null);
+  const [result, setResult] = useState<Result | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleImport = async () => {
     try {
@@ -33,7 +55,7 @@ export default function ImportExportDialog({ isOpen, mode, onClose }) {
 
       setProgress({ current: 30, total: 100, message: 'Reading file...' });
 
-      const importResult = await window.electronAPI.data.import(filePath, {
+      const importResult = await (window.electronAPI.data as any).importData(filePath, {
         format: selectedFormat,
       });
 
@@ -48,7 +70,7 @@ export default function ImportExportDialog({ isOpen, mode, onClose }) {
       setTimeout(() => {
         onClose();
       }, 2000);
-    } catch (err) {
+    } catch (err: any) {
       setError(`Import failed: ${err.message}`);
     } finally {
       setProcessing(false);
@@ -76,8 +98,7 @@ export default function ImportExportDialog({ isOpen, mode, onClose }) {
 
       setProgress({ current: 30, total: 100, message: 'Preparing data...' });
 
-      const exportResult = await window.electronAPI.data.export({
-        filePath,
+      const exportResult = await (window.electronAPI.data as any).exportData(filePath, {}, {
         format: selectedFormat,
       });
 
@@ -92,15 +113,15 @@ export default function ImportExportDialog({ isOpen, mode, onClose }) {
       setTimeout(() => {
         onClose();
       }, 2000);
-    } catch (err) {
+    } catch (err: any) {
       setError(`Export failed: ${err.message}`);
     } finally {
       setProcessing(false);
     }
   };
 
-  const getFileFilters = (format) => {
-    const filters = {
+  const getFileFilters = (format: string) => {
+    const filters: Record<string, { name: string; extensions: string[] }[]> = {
       json: [{ name: 'JSON Files', extensions: ['json'] }],
       csv: [{ name: 'CSV Files', extensions: ['csv'] }],
       markdown: [{ name: 'Markdown Files', extensions: ['md', 'markdown'] }],
@@ -199,7 +220,7 @@ export default function ImportExportDialog({ isOpen, mode, onClose }) {
                   <div className="mt-2">
                     <p className="text-xs text-green-700 dark:text-green-300">Warnings:</p>
                     <ul className="list-disc list-inside text-xs text-green-700 dark:text-green-300">
-                      {result.details.warnings.map((warning, index) => (
+                      {result.details.warnings.map((warning: string, index: number) => (
                         <li key={index}>{warning}</li>
                       ))}
                     </ul>
@@ -232,17 +253,11 @@ export default function ImportExportDialog({ isOpen, mode, onClose }) {
   );
 }
 
-function getFormatDescription(format) {
-  const descriptions = {
+function getFormatDescription(format: string) {
+  const descriptions: Record<string, string> = {
     json: 'JSON format preserves data structure and types. Best for complete data backup.',
     csv: 'CSV format is compatible with spreadsheet applications. Data structure may be simplified.',
     markdown: 'Markdown format creates human-readable documentation. Best for reporting and documentation.',
   };
   return descriptions[format] || 'Select a format to see description';
 }
-
-ImportExportDialog.propTypes = {
-  isOpen: PropTypes.bool.isRequired,
-  mode: PropTypes.oneOf(['import', 'export']).isRequired,
-  onClose: PropTypes.func.isRequired,
-};

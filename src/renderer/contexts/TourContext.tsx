@@ -4,7 +4,26 @@ import PropTypes from 'prop-types';
 import { useSettings } from './SettingsContext';
 import { TOUR_STEPS } from '../config/tour-steps';
 
-const TourContext = createContext({
+interface TourStep {
+  target: string;
+  title: string;
+  content: string;
+  placement?: string;
+  disableBeacon?: boolean;
+}
+
+interface TourContextType {
+  isOpen: boolean;
+  currentStep: number;
+  steps: TourStep[];
+  startTour: () => void;
+  closeTour: () => void;
+  nextStep: () => void;
+  prevStep: () => void;
+  completeTour: () => void;
+}
+
+const TourContext = createContext<TourContextType>({
   isOpen: false,
   currentStep: 0,
   steps: [],
@@ -17,7 +36,7 @@ const TourContext = createContext({
 
 export const useTour = () => useContext(TourContext);
 
-export const TourProvider = ({ children }) => {
+export const TourProvider = ({ children }: { children: React.ReactNode }) => {
   const { t } = useTranslation('onboarding');
   const { settings, updateSetting } = useSettings();
   const [isOpen, setIsOpen] = useState(false);

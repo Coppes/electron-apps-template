@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import PropTypes from 'prop-types';
 import { Clock } from '@phosphor-icons/react';
+import { BackupMetadata } from '../../common/types';
 
 /**
  * BackupPage Component
@@ -9,12 +9,12 @@ import { Clock } from '@phosphor-icons/react';
  */
 export default function BackupPage() {
   const { t } = useTranslation('data_management');
-  const [backups, setBackups] = useState([]);
+  const [backups, setBackups] = useState<BackupMetadata[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [restoring, setRestoring] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [schedule, setSchedule] = useState('never');
 
   const loadSchedule = async () => {
@@ -22,7 +22,7 @@ export default function BackupPage() {
       if (window.electronAPI?.store) {
         const savedSchedule = await window.electronAPI.store.get('backupSchedule');
         if (savedSchedule) {
-          setSchedule(savedSchedule);
+          setSchedule(savedSchedule as string);
         }
       }
     } catch (err) {
@@ -30,7 +30,7 @@ export default function BackupPage() {
     }
   };
 
-  const handleScheduleChange = async (e) => {
+  const handleScheduleChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newSchedule = e.target.value;
     setSchedule(newSchedule);
     try {
@@ -38,7 +38,7 @@ export default function BackupPage() {
         await window.electronAPI.store.set('backupSchedule', newSchedule);
         // In a real app, this would also notify the main process to reschedule
       }
-    } catch (err) {
+    } catch (err: any) {
       setError(t('backups.error_save_schedule', { error: err.message }));
     }
   };
@@ -49,8 +49,8 @@ export default function BackupPage() {
       setLoading(true);
       setError(null);
       const result = await window.electronAPI.data.listBackups();
-      setBackups(result.backups || []);
-    } catch (err) {
+      setBackups(result.data?.backups || []);
+    } catch (err: any) {
       setError(t('backups.error_load', { error: err.message }));
     } finally {
       setLoading(false);
@@ -70,19 +70,20 @@ export default function BackupPage() {
       setSuccess(null);
 
       const result = await window.electronAPI.data.createBackup({
-        includeSecureStorage: true,
+        includeDatabase: true, // changed from includeSecureStorage to match types
       });
 
-      setSuccess(t('backups.success_create', { filename: result.filename }));
+      const filename = result.data?.backup?.filename;
+      setSuccess(t('backups.success_create', { filename }));
       await loadBackups();
-    } catch (err) {
+    } catch (err: any) {
       setError(t('backups.error_create', { error: err.message }));
     } finally {
       setCreating(false);
     }
   };
 
-  const handleRestoreBackup = async (filename) => {
+  const handleRestoreBackup = async (filename: string) => {
     if (!confirm(t('backups.confirm_restore', { filename }))) {
       return;
     }
@@ -99,14 +100,14 @@ export default function BackupPage() {
       setTimeout(() => {
         window.location.reload();
       }, 2000);
-    } catch (err) {
+    } catch (err: any) {
       setError(t('backups.error_restore', { error: err.message }));
     } finally {
       setRestoring(false);
     }
   };
 
-  const handleDeleteBackup = async (filename) => {
+  const handleDeleteBackup = async (filename: string) => {
     if (!confirm(t('backups.confirm_delete', { filename }))) {
       return;
     }
@@ -118,12 +119,12 @@ export default function BackupPage() {
       await window.electronAPI.data.deleteBackup(filename);
       setSuccess(t('backups.success_delete', { filename }));
       await loadBackups();
-    } catch (err) {
+    } catch (err: any) {
       setError(t('backups.error_delete', { error: err.message }));
     }
   };
 
-  const formatFileSize = (bytes) => {
+  const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
@@ -265,11 +266,20 @@ export default function BackupPage() {
   );
 }
 
+interface BackupRowProps {
+  backup: BackupMetadata;
+  onRestore: (filename: string) => void;
+  onDelete: (filename: string) => void;
+  disabled: boolean;
+  formatFileSize: (bytes: number) => string;
+  t: (key: string) => string;
+}
+
 /**
  * BackupRow Component
  * Single row in the backup list table
  */
-function BackupRow({ backup, onRestore, onDelete, disabled, formatFileSize, t }) {
+function BackupRow({ backup, onRestore, onDelete, disabled, formatFileSize, t }: BackupRowProps) {
   return (
     <tr className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
       <td className="px-6 py-4 whitespace-nowrap">
@@ -284,12 +294,12 @@ function BackupRow({ backup, onRestore, onDelete, disabled, formatFileSize, t })
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="text-sm text-gray-600 dark:text-gray-400">
-          {formatFileSize(backup.size)}
+          {formatFileSize(backup.size || 0)}
         </div>
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200">
-          {backup.includeSecureStorage ? 'Full' : 'Standard'}
+          {backup.type || 'Standard'}
         </span>
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -311,18 +321,3 @@ function BackupRow({ backup, onRestore, onDelete, disabled, formatFileSize, t })
     </tr>
   );
 }
-
-BackupRow.propTypes = {
-  backup: PropTypes.shape({
-    filename: PropTypes.string.isRequired,
-    timestamp: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-    size: PropTypes.number.isRequired,
-    includeSecureStorage: PropTypes.bool,
-  }).isRequired,
-  onRestore: PropTypes.func.isRequired,
-  onDelete: PropTypes.func.isRequired,
-  disabled: PropTypes.bool,
-  formatFileSize: PropTypes.func.isRequired,
-  // formatDate: PropTypes.func.isRequired,
-  t: PropTypes.func.isRequired,
-};

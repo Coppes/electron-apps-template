@@ -5,81 +5,94 @@ import { Command, Check, X, WarningCircle, Trash } from '@phosphor-icons/react';
  * ShortcutsDemo Component
  * Demonstrates global keyboard shortcuts functionality
  */
+interface ShortcutLog {
+  timestamp: string;
+  accelerator: string;
+  label?: string;
+}
+
+interface RegisteredShortcut {
+  accelerator: string;
+  label?: string;
+}
+
 export default function ShortcutsDemo() {
-  const [shortcuts, setShortcuts] = useState([]);
-  const [newShortcut, setNewShortcut] = useState('');
-  const [newLabel, setNewLabel] = useState('');
-  const [status, setStatus] = useState('');
-  const [triggerLog, setTriggerLog] = useState([]);
+  const [accelerator, setAccelerator] = useState('');
+  const [label, setLabel] = useState('');
+  const [status, setStatus] = useState('Ready');
+  const [triggerLog, setTriggerLog] = useState<ShortcutLog[]>([]);
+  const [registeredShortcuts, setRegisteredShortcuts] = useState<RegisteredShortcut[]>([]);
 
   useEffect(() => {
-    // Listen for shortcut triggers
-    const unsubscribe = window.electronAPI.shortcuts.onTriggered((data) => {
+    // Listen for shortcut events from main process
+    const removeListener = window.electronAPI.shortcuts.onTriggered((accelerator: string) => {
       const timestamp = new Date().toLocaleTimeString();
+      setStatus(`Shortcut pressed: ${accelerator}`);
       setTriggerLog(prev => [
-        { ...data, timestamp },
-        ...prev.slice(0, 9) // Keep last 10
+        { accelerator, timestamp },
+        ...prev.slice(0, 9)
       ]);
     });
 
     return () => {
-      if (unsubscribe) unsubscribe();
+      removeListener();
     };
   }, []);
 
   const registerShortcut = async () => {
-    if (!newShortcut.trim()) {
+    if (!accelerator.trim()) {
       setStatus('Please enter a shortcut');
       return;
     }
 
     try {
-      const label = newLabel.trim() || newShortcut;
-      await window.electronAPI.shortcuts.register(newShortcut, label);
+      const shortcutLabel = label.trim() || accelerator;
+      // Cast to any if method signature doesn't match pending types
+      await (window.electronAPI.shortcuts as any).register(accelerator, shortcutLabel);
 
-      setShortcuts([...shortcuts, { accelerator: newShortcut, label }]);
-      setStatus(`Registered: ${newShortcut}`);
-      setNewShortcut('');
-      setNewLabel('');
+      setRegisteredShortcuts(prev => [...prev, { accelerator, label: shortcutLabel }]);
+      setStatus(`Registered: ${accelerator}`);
+      setAccelerator('');
+      setLabel('');
     } catch (error) {
-      setStatus(`Error: ${error.message}`);
+      setStatus(`Error: ${(error as Error).message}`);
     }
   };
 
-  const unregisterShortcut = async (accelerator) => {
+  const unregisterShortcut = async (acc: string) => {
     try {
-      await window.electronAPI.shortcuts.unregister(accelerator);
-      setShortcuts(shortcuts.filter(s => s.accelerator !== accelerator));
-      setStatus(`Unregistered: ${accelerator}`);
+      await window.electronAPI.shortcuts.unregister(acc);
+      setRegisteredShortcuts(prev => prev.filter(s => s.accelerator !== acc));
+      setStatus(`Unregistered: ${acc}`);
     } catch (error) {
-      setStatus(`Error: ${error.message}`);
+      setStatus(`Error: ${(error as Error).message}`);
     }
   };
 
   const unregisterAll = async () => {
     try {
       await window.electronAPI.shortcuts.unregisterAll();
-      setShortcuts([]);
+      setRegisteredShortcuts([]);
       setStatus('All shortcuts unregistered');
     } catch (error) {
-      setStatus(`Error: ${error.message}`);
+      setStatus(`Error: ${(error as Error).message}`);
     }
   };
 
   const checkAvailability = async () => {
-    if (!newShortcut.trim()) {
+    if (!accelerator.trim()) {
       setStatus('Please enter a shortcut to check');
       return;
     }
 
     try {
-      const isAvailable = await window.electronAPI.shortcuts.isRegistered(newShortcut);
+      const isAvailable = await window.electronAPI.shortcuts.isRegistered(accelerator);
       setStatus(isAvailable ?
-        `${newShortcut} is already registered` :
-        `${newShortcut} is available`
+        `${accelerator} is already registered` :
+        `${accelerator} is available`
       );
     } catch (error) {
-      setStatus(`Error: ${error.message}`);
+      setStatus(`Error: ${(error as Error).message}`);
     }
   };
 
@@ -115,8 +128,8 @@ export default function ShortcutsDemo() {
             <label className="block text-sm font-medium mb-1">Accelerator</label>
             <input
               type="text"
-              value={newShortcut}
-              onChange={(e) => setNewShortcut(e.target.value)}
+              value={accelerator}
+              onChange={(e) => setAccelerator(e.target.value)}
               placeholder="e.g., CommandOrControl+Shift+K"
               className="w-full px-3 py-2 border border-gray-300 rounded"
             />
@@ -126,8 +139,8 @@ export default function ShortcutsDemo() {
             <label className="block text-sm font-medium mb-1">Label (optional)</label>
             <input
               type="text"
-              value={newLabel}
-              onChange={(e) => setNewLabel(e.target.value)}
+              value={label}
+              onChange={(e) => setLabel(e.target.value)}
               placeholder="Description of the shortcut"
               className="w-full px-3 py-2 border border-gray-300 rounded"
             />
@@ -155,7 +168,7 @@ export default function ShortcutsDemo() {
               {commonShortcuts.map((shortcut) => (
                 <button
                   key={shortcut}
-                  onClick={() => setNewShortcut(shortcut)}
+                  onClick={() => setAccelerator(shortcut)}
                   className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded"
                 >
                   {shortcut}
@@ -169,8 +182,8 @@ export default function ShortcutsDemo() {
       {/* Registered Shortcuts */}
       <div className="border border-gray-200 rounded-lg p-4">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold">Registered Shortcuts ({shortcuts.length})</h3>
-          {shortcuts.length > 0 && (
+          <h3 className="font-semibold">Registered Shortcuts ({registeredShortcuts.length})</h3>
+          {registeredShortcuts.length > 0 && (
             <button
               onClick={unregisterAll}
               className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 flex items-center gap-1"
@@ -181,11 +194,11 @@ export default function ShortcutsDemo() {
           )}
         </div>
 
-        {shortcuts.length === 0 ? (
+        {registeredShortcuts.length === 0 ? (
           <p className="text-gray-500 text-sm">No shortcuts registered</p>
         ) : (
           <div className="space-y-2">
-            {shortcuts.map((shortcut) => (
+            {registeredShortcuts.map((shortcut) => (
               <div
                 key={shortcut.accelerator}
                 className="flex items-center justify-between p-3 bg-gray-50 rounded"

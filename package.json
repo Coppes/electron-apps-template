@@ -8,7 +8,7 @@
     "start": "electron-vite dev",
     "build": "electron-vite build",
     "preview": "electron-vite preview",
-    "lint": "eslint src --ext .js,.jsx",
+    "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
     "type-check": "tsc -p tsconfig.node.json --noEmit && tsc -p tsconfig.web.json --noEmit",
     "test": "npm run test:unit",
     "test:memory": "node test/memory/runner.cjs",

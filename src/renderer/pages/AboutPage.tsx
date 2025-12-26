@@ -4,17 +4,19 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../co
 import Separator from '../components/ui/Separator';
 
 import { useTranslation } from 'react-i18next';
+import { VersionInfo } from '../../common/types';
+
 const AboutPage = () => {
   const { t } = useTranslation('common');
-  const [versionInfo, setVersionInfo] = useState(null);
+  const [versionInfo, setVersionInfo] = useState<VersionInfo | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadVersionInfo = async () => {
       try {
         if (window.electronAPI?.app) {
-          const info = await window.electronAPI.app.getVersion();
-          setVersionInfo(info);
+          const response = await window.electronAPI.app.getVersion();
+          setVersionInfo(response.data || null);
         }
       } catch (error) {
         // eslint-disable-next-line no-console

@@ -8,15 +8,22 @@ import { WindowControls } from './WindowControls';
  */
 import PropTypes from 'prop-types';
 
-export function TitleBar({ className, children }) {
+import { CSSProperties } from 'react';
+
+interface TitleBarProps {
+  className?: string;
+  children?: React.ReactNode;
+}
+
+export function TitleBar({ className, children }: TitleBarProps) {
   const [platform, setPlatform] = useState('');
 
   useEffect(() => {
     const getPlatform = async () => {
       try {
         const p = await window.electronAPI.system.getPlatform();
-        if (p && p.platform) {
-          setPlatform(p.platform);
+        if (p && p.data?.platform) {
+          setPlatform(p.data.platform);
         }
       } catch (err) {
         // console.error('Failed to get platform:', err);
@@ -38,7 +45,7 @@ export function TitleBar({ className, children }) {
         "flex items-center justify-between w-full h-10 select-none bg-transparent absolute top-0 left-0 z-50",
         className
       )}
-      style={{ WebkitAppRegion: 'drag' }}
+      style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
       onDoubleClick={handleDoubleClick}
     >
       {/* Left side content (Logo, Title, Menu, etc.) */}
@@ -54,7 +61,7 @@ export function TitleBar({ className, children }) {
       <div className="flex items-center h-full pr-2">
         {/* Windows/Linux Controls */}
         {!isMacOS && platform !== '' && (
-          <WindowControls />
+          <WindowControls className="h-full" />
         )}
       </div>
     </div>

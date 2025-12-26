@@ -8,15 +8,23 @@ import { useTranslation } from 'react-i18next';
  * TestPage Component
  * General-purpose test playground for ad-hoc testing
  */
+interface TestResult {
+  id: number;
+  type: 'info' | 'success' | 'error';
+  message: string;
+  data: any;
+  timestamp: string;
+}
+
 export default function TestPage() {
   const { t } = useTranslation('common');
   const [activeTab, setActiveTab] = useState('quick');
   const [inputValue, setInputValue] = useState('');
-  const [results, setResults] = useState([]);
+  const [results, setResults] = useState<TestResult[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const addResult = (type, message, data = null) => {
-    const result = {
+  const addResult = (type: 'info' | 'success' | 'error', message: string, data: any = null) => {
+    const result: TestResult = {
       id: Date.now(),
       type,
       message,
@@ -39,7 +47,7 @@ export default function TestPage() {
       // Example: test storage
       else if (inputValue.startsWith('storage:')) {
         const key = inputValue.replace('storage:', '');
-        const value = await window.electronAPI.storage.get(key);
+        const value = await window.electronAPI.store.get(key);
         addResult('success', `Storage value for '${key}'`, value);
       }
       // Default: echo
@@ -47,7 +55,7 @@ export default function TestPage() {
         addResult('success', 'Echo', inputValue);
       }
     } catch (error) {
-      addResult('error', error.message);
+      addResult('error', (error as Error).message);
     } finally {
       setLoading(false);
     }
@@ -150,8 +158,8 @@ export default function TestPage() {
                     <div
                       key={result.id}
                       className={`p-3 rounded border ${result.type === 'error' ? 'border-red-500 bg-red-50' :
-                          result.type === 'success' ? 'border-green-500 bg-green-50' :
-                            'border-border bg-muted'
+                        result.type === 'success' ? 'border-green-500 bg-green-50' :
+                          'border-border bg-muted'
                         }`}
                     >
                       <div className="flex items-center justify-between mb-1">

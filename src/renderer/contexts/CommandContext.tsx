@@ -1,7 +1,19 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 
-export const CommandContext = createContext({
+export interface Command {
+  id: string;
+  [key: string]: any;
+}
+
+export const CommandContext = createContext<{
+  commands: Command[];
+  registerCommand: (command: Command) => void;
+  unregisterCommand: (id: string) => void;
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+  toggle: () => void;
+}>({
   commands: [],
   registerCommand: () => { },
   unregisterCommand: () => { },
@@ -12,11 +24,11 @@ export const CommandContext = createContext({
 
 export const useCommandContext = () => useContext(CommandContext);
 
-export const CommandProvider = ({ children }) => {
-  const [commands, setCommands] = useState([]);
+export const CommandProvider = ({ children }: { children: React.ReactNode }) => {
+  const [commands, setCommands] = useState<Command[]>([]);
   const [isOpen, setIsOpen] = useState(false);
 
-  const registerCommand = useCallback((command) => {
+  const registerCommand = useCallback((command: Command) => {
     setCommands((prev) => {
       // Remove existing with same id if any
       const filtered = prev.filter((c) => c.id !== command.id);
@@ -24,7 +36,7 @@ export const CommandProvider = ({ children }) => {
     });
   }, []);
 
-  const unregisterCommand = useCallback((id) => {
+  const unregisterCommand = useCallback((id: string) => {
     setCommands((prev) => prev.filter((c) => c.id !== id));
   }, []);
 

@@ -10,7 +10,16 @@ import { useCommandContext } from '../contexts/CommandContext';
  * @param {string} [options.group] - Group name (e.g. "Navigation")
  * @param {string} [options.shortcut] - Shortcut display string
  */
-export function useRegisterCommand({ id, label, action, group = 'General', shortcut, keywords = [] }) {
+interface RegisterCommandProps {
+  id: string;
+  label: string;
+  action: () => void;
+  group?: string;
+  shortcut?: string;
+  keywords?: string[];
+}
+
+export function useRegisterCommand({ id, label, action, group = 'General', shortcut, keywords = [] }: RegisterCommandProps) {
   const { registerCommand, unregisterCommand } = useCommandContext();
 
   useEffect(() => {

@@ -17,7 +17,7 @@ export default {
 };
 
 export const Default = {
-  render: (args) => (
+  render: (args: any) => (
     <Card className="w-[350px]" {...args}>
       <CardHeader>
         <CardTitle>Create project</CardTitle>

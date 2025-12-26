@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FloppyDisk, DownloadSimple, Paperclip, FileArchive, Eye } from '@phosphor-icons/react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
@@ -8,7 +8,20 @@ import Label from '../ui/Label';
 import Separator from '../ui/Separator';
 import DropZone from '../features/data-management/DropZone';
 import useDragDrop from '../../hooks/useDragDrop';
+import { BackupMetadata } from '../../../common/types';
 
+interface ExportData {
+  key: string;
+  array: number[];
+  [key: string]: any;
+}
+
+// Local interface if not in common
+interface FileEvent {
+  type: string;
+  path: string;
+  timestamp: string;
+}
 
 /**
  * DataManagementDemo Component
@@ -17,80 +30,35 @@ import useDragDrop from '../../hooks/useDragDrop';
 export default function DataManagementDemo() {
   const { t } = useTranslation('data_management');
   const [activeTab, setActiveTab] = useState('backup');
-  const [backups, setBackups] = useState([]);
+  const [backups, setBackups] = useState<BackupMetadata[]>([]);
 
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState(null);
-  const [exportData, setExportData] = useState({ key: 'value', array: [1, 2, 3] });
+  const [message, setMessage] = useState<{ type: 'error' | 'success' | 'info'; text: string } | null>(null);
+  const [exportData, setExportData] = useState<Record<string, any>>({ key: 'value', array: [1, 2, 3] });
   const [watchedPath, setWatchedPath] = useState('');
-  const [fileEvents, setFileEvents] = useState([]);
+  const [fileEvents, setFileEvents] = useState<FileEvent[]>([]);
   const [autoReload, setAutoReload] = useState(false);
   const [schedule, setSchedule] = useState('never');
-  const [nextBackup, setNextBackup] = useState(null);
+  const [nextBackup, setNextBackup] = useState<Date | null>(null);
+
+  // Store the unsubscribe function for file watching
+  const watchCleanupRef = useRef<(() => void) | null>(null);
 
   // Hooks
   const { startDrag } = useDragDrop({
-    onError: (err) => setMessage({ type: 'error', text: err.message })
+    onError: (err: any) => setMessage({ type: 'error', text: err.message || 'Drag/Drop error' })
   });
 
-  // const { isOnline } = useOfflineStatus();
-
+  // Cleanup watcher on unmount
   useEffect(() => {
-    loadBackups();
-
-    // Listen for file change events
-    const cleanup = window.electronAPI?.file?.onFileChanged?.((event) => {
-      // Event format might vary, standardizing here
-      const eventData = typeof event === 'string' ? { path: event, type: 'changed' } : event;
-
-      // Update event log
-      setFileEvents(prev => [...prev, { ...eventData, timestamp: new Date().toISOString() }].slice(-10));
-
-      // Handle File Deletion
-      if (eventData.type === 'unlink' || eventData.type === 'delete') {
-        setMessage({ type: 'error', text: t('demo.file_watch.deleted_error', { path: eventData.path }) });
-        window.electronAPI?.notifications?.show({
-          title: t('demo.file_watch.deleted_notification_title'),
-          body: t('demo.file_watch.deleted_notification_body', { path: eventData.path }),
-          urgency: 'critical'
-        }).catch(() => { }); // console.error
-        return;
-      }
-
-      // Handle Auto-Reload or Notification
-      if (autoReload && eventData.type === 'changed') {
-        // Simulate auto-reload
-        setMessage({ type: 'success', text: t('demo.file_watch.reload_success', { path: eventData.path }) });
-      } else {
-        // Show native notification
-        window.electronAPI?.notifications?.show({
-          title: t('demo.file_watch.update_notification_title'),
-          body: t('demo.file_watch.update_notification_body', { type: eventData.type === 'rename' ? 'renamed' : 'changed', path: eventData.path }),
-          silent: true
-        }).catch(() => { }); // err => console.error('Failed to show notification:', err)
-      }
-    });
-
-
-
-    // Load schedule
-    const loadSchedule = async () => {
-      try {
-        const savedSchedule = await window.electronAPI.store.get('backupSchedule');
-        if (savedSchedule) {
-          setSchedule(savedSchedule);
-          calculateNextBackup(savedSchedule);
-        }
-      } catch (_error) {
-        // console.error('Failed to load schedule:', _error);
+    return () => {
+      if (watchCleanupRef.current) {
+        watchCleanupRef.current();
       }
     };
-    loadSchedule();
+  }, []);
 
-    return () => cleanup?.();
-  }, [autoReload, t]); // added autoReload dependency for closure
-
-  const calculateNextBackup = (sch) => {
+  const calculateNextBackup = (sch: string) => {
     if (sch === 'never') {
       setNextBackup(null);
       return;
@@ -104,13 +72,29 @@ export default function DataManagementDemo() {
     setNextBackup(next);
   };
 
-  const handleScheduleChange = async (e) => {
+  // Load schedule
+  useEffect(() => {
+    const loadSchedule = async () => {
+      try {
+        const savedSchedule = await window.electronAPI.store.get<string>('backupSchedule');
+        if (savedSchedule) {
+          setSchedule(savedSchedule);
+          calculateNextBackup(savedSchedule);
+        }
+      } catch (_error) {
+        // console.error('Failed to load schedule:', _error);
+      }
+    };
+    loadSchedule();
+  }, []);
+
+  const handleScheduleChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newSchedule = e.target.value;
     setSchedule(newSchedule);
     calculateNextBackup(newSchedule);
     try {
       await window.electronAPI.store.set('backupSchedule', newSchedule);
-    } catch (err) {
+    } catch (err: any) {
       // console.error('Failed to save schedule:', err);
     }
   };
@@ -119,37 +103,42 @@ export default function DataManagementDemo() {
     try {
       setLoading(true);
       const result = await window.electronAPI.data.listBackups();
-      setBackups(result.backups || []);
-    } catch (error) {
+      setBackups(result.data?.backups || []);
+    } catch (error: any) {
       setMessage({ type: 'error', text: `Failed to load backups: ${error.message}` });
     } finally {
       setLoading(false);
     }
   };
 
+  // Load backups on mount
+  useEffect(() => {
+    loadBackups();
+  }, []);
+
   const handleCreateBackup = async () => {
     try {
       setLoading(true);
       setMessage(null);
       const result = await window.electronAPI.data.createBackup({
-        includeSecureStorage: true,
+        includeDatabase: true, // Type safe option
       });
-      setMessage({ type: 'success', text: t('demo.backup.create_success', { filename: result.filename }) });
+      setMessage({ type: 'success', text: t('demo.backup.create_success', { filename: result.data?.backup.filename }) });
       await loadBackups();
-    } catch (error) {
+    } catch (error: any) {
       setMessage({ type: 'error', text: t('demo.backup.create_error', { error: error.message }) });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleRestoreBackup = async (filename) => {
+  const handleRestoreBackup = async (filename: string) => {
     try {
       setLoading(true);
       setMessage(null);
-      await window.electronAPI.data.restoreBackup({ filename });
+      await window.electronAPI.data.restoreBackup(filename);
       setMessage({ type: 'success', text: `Restored from: ${filename}` });
-    } catch (error) {
+    } catch (error: any) {
       setMessage({ type: 'error', text: t('demo.backup.restore_error', { error: error.message }) });
     } finally {
       setLoading(false);
@@ -167,14 +156,15 @@ export default function DataManagementDemo() {
       });
 
       if (filePath) {
-        const result = await window.electronAPI.data.export(filePath, exportData);
-        if (result.success) {
+        // Use exportData instead of export
+        const result = await window.electronAPI.data.exportData(filePath, exportData);
+        if (result.data?.path) {
           setMessage({ type: 'success', text: t('demo.import_export.export_success', { path: filePath }) });
         } else {
-          throw new Error(result.error || 'Export failed');
+          throw new Error('Export failed');
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       setMessage({ type: 'error', text: t('demo.import_export.export_error', { error: error.message }) });
     } finally {
       setLoading(false);
@@ -192,14 +182,15 @@ export default function DataManagementDemo() {
       });
 
       if (filePath) {
-        const result = await window.electronAPI.data.import(filePath);
-        if (result.success) {
+        // Use importData instead of import
+        const result = await window.electronAPI.data.importData(filePath);
+        if (result.data) {
           setMessage({ type: 'success', text: t('demo.import_export.import_success') });
         } else {
-          throw new Error(result.error || 'Import failed');
+          throw new Error('Import failed');
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       setMessage({ type: 'error', text: t('demo.import_export.import_error', { error: error.message }) });
     } finally {
       setLoading(false);
@@ -216,11 +207,37 @@ export default function DataManagementDemo() {
       });
 
       if (filePath) {
-        await window.electronAPI.file.watchStart(filePath);
+        // Stop previous watch if exists
+        if (watchCleanupRef.current) {
+          watchCleanupRef.current();
+          watchCleanupRef.current = null;
+        }
+
+        const cleanup = await window.electronAPI.file.watch(filePath, (event: string, filename: string) => {
+          // Handle file event
+          const path = filename; // filename usually comes as relative or full depending on watcher
+          // For simplicity let's assume valid info
+
+          const eventData = { path, type: event };
+          setFileEvents(prev => [...prev, { ...eventData, timestamp: new Date().toISOString() }].slice(-10));
+
+          if (event === 'unlink' || event === 'delete') {
+            setMessage({ type: 'error', text: t('demo.file_watch.deleted_error', { path }) });
+            return;
+          }
+
+          if (autoReload && event === 'change') {
+            setMessage({ type: 'success', text: t('demo.file_watch.reload_success', { path }) });
+          } else {
+            // Optional notification
+          }
+        });
+
+        watchCleanupRef.current = cleanup;
         setWatchedPath(filePath);
         setMessage({ type: 'success', text: t('demo.file_watch.watch_success', { path: filePath }) });
       }
-    } catch (error) {
+    } catch (error: any) {
       setMessage({ type: 'error', text: t('demo.file_watch.watch_error', { error: error.message }) });
     } finally {
       setLoading(false);
@@ -229,21 +246,23 @@ export default function DataManagementDemo() {
 
   const handleUnwatchFolder = async () => {
     try {
-      if (!watchedPath) return;
-      await window.electronAPI.file.watchStop(watchedPath);
+      if (watchCleanupRef.current) {
+        watchCleanupRef.current();
+        watchCleanupRef.current = null;
+      }
       setWatchedPath('');
       setFileEvents([]);
       setMessage({ type: 'success', text: t('demo.file_watch.stop_success') });
-    } catch (error) {
+    } catch (error: any) {
       setMessage({ type: 'error', text: t('demo.file_watch.stop_error', { error: error.message }) });
     }
   };
 
-  const handleFileDrop = async (files) => {
+  const handleFileDrop = async (files: File[]) => {
     setMessage({ type: 'info', text: t('demo.drag_drop.received', { count: files.length }) });
   };
 
-  const handleDragStart = (e, backup) => {
+  const handleDragStart = (e: React.DragEvent, backup: BackupMetadata) => {
     e.preventDefault();
     if (!backup.path) {
       setMessage({ type: 'error', text: t('demo.drag_drop.path_missing') });
@@ -353,7 +372,7 @@ export default function DataManagementDemo() {
                       <div>
                         <div className="font-medium">{backup.filename}</div>
                         <div className="text-sm text-muted-foreground">
-                          {new Date(backup.timestamp).toLocaleString()} • {(backup.size / 1024).toFixed(1)} KB
+                          {new Date(backup.timestamp).toLocaleString()} • {((backup.size || 0) / 1024).toFixed(1)} KB
                         </div>
                       </div>
                       <Button
@@ -514,7 +533,7 @@ export default function DataManagementDemo() {
                           {backup.filename}
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          {(backup.size / 1024).toFixed(1)} KB
+                          {((backup.size || 0) / 1024).toFixed(1)} KB
                         </div>
                       </div>
                     </div>

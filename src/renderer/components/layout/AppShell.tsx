@@ -28,7 +28,18 @@ import TabContent from '../TabContent';
 import * as ContextMenu from '../ui/ContextMenu';
 import { useTabContext } from '../../contexts/TabContext';
 
-const SidebarNavButton = ({ active, onClick, icon: Icon, label, id, addTab, type, t, ...props }) => {
+interface SidebarNavButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'type'> {
+  active: boolean;
+  onClick: () => void;
+  icon: React.ElementType;
+  label: string;
+  id: string;
+  addTab: (tab: any, group?: string) => void;
+  type?: string;
+  t: (key: string) => string;
+}
+
+const SidebarNavButton = ({ active, onClick, icon: Icon, label, id, addTab, type, t, ...props }: SidebarNavButtonProps) => {
   const handleOpenNew = () => {
     addTab({ id: `${id}-${Date.now()}`, title: label, type: type || id });
   };
@@ -62,22 +73,11 @@ const SidebarNavButton = ({ active, onClick, icon: Icon, label, id, addTab, type
   );
 };
 
-SidebarNavButton.propTypes = {
-  active: PropTypes.bool,
-  onClick: PropTypes.func.isRequired,
-  icon: PropTypes.elementType.isRequired,
-  label: PropTypes.string.isRequired,
-  id: PropTypes.string.isRequired,
-  addTab: PropTypes.func.isRequired,
-  type: PropTypes.string,
-  t: PropTypes.func.isRequired
-};
-
-const AppShell = ({ children }) => {
+const AppShell = ({ children }: { children: React.ReactNode }) => {
   const [sidebarWidth, setSidebarWidth] = useState(250);
-  const [resizingTarget, setResizingTarget] = useState(null); // 'sidebar' | 'split' | null
+  const [resizingTarget, setResizingTarget] = useState<'sidebar' | 'split' | null>(null);
   const [splitRatio, setSplitRatio] = useState(0.5);
-  const [dragTarget, setDragTarget] = useState(null); // 'primary' | 'secondary' | null
+  const [dragTarget, setDragTarget] = useState<'primary' | 'secondary' | null>(null);
   const { openTab, activeTabId, tabs, closeTab, isSplit, moveTabToGroup } = useTab();
   const { addTab } = useTabContext();
   const { t } = useTranslation('common');
@@ -95,12 +95,12 @@ const AppShell = ({ children }) => {
     content: null,
   });
 
-  const handleMouseDown = (e) => {
+  const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     setResizingTarget('sidebar');
   };
 
-  const handleMouseMove = React.useCallback((e) => {
+  const handleMouseMove = React.useCallback((e: MouseEvent) => {
     if (resizingTarget === 'sidebar') {
       const newWidth = e.clientX;
       if (newWidth >= 200 && newWidth <= 400) {
@@ -133,7 +133,7 @@ const AppShell = ({ children }) => {
   }, [resizingTarget, handleMouseMove, handleMouseUp]);
 
   // Helper handling tab opening
-  const nav = (id, title, typeOverride) => {
+  const nav = (id: string, title: string, typeOverride?: string) => {
     // If we want singleton behavior, use fixed ID.
     // If ID matches, it switches.
     const type = typeOverride || id;
@@ -142,14 +142,14 @@ const AppShell = ({ children }) => {
 
   // Listen for menu actions (IPC)
   useEffect(() => {
-    let cleanupMenuListener;
+    let cleanupMenuListener: (() => void) | undefined;
     if (window.electronAPI?.events?.onMenuAction) {
-      cleanupMenuListener = window.electronAPI.events.onMenuAction((action) => {
+      cleanupMenuListener = window.electronAPI.events.onMenuAction((action: string) => {
         if (action === 'new-tab') {
           openTab({ id: `tab-${Date.now()}`, title: t('nav.new_tab', 'New Tab'), type: 'page' });
         }
         if (action === 'close-tab') {
-          if (tabs.length > 1) {
+          if (tabs.length > 1 && activeTabId) {
             closeTab(activeTabId);
           } else {
             window.electronAPI.window.close();
@@ -163,13 +163,21 @@ const AppShell = ({ children }) => {
   }, [openTab, t, tabs, activeTabId, closeTab, addTab]);
 
   // Listen for file changes
+  // Listen for file changes
   useEffect(() => {
-    if (window.electronAPI?.file?.onFileChanged) {
-      window.electronAPI.file.onFileChanged((data) => {
-        // data can be { filePath, event } or just filePath depending on implementation
-        // Assuming data object or string
-        const path = typeof data === 'string' ? data : data.filePath;
+    // Check if we have the file watch capability
+    const fileAPI = window.electronAPI?.file as any;
 
+    // In preload.ts, file API has 'watch' which returns a cleanup, OR 'onFileChanged' if using legacy/custom
+    // The previous code assumed 'onFileChanged'. 
+    // Let's try to align with what might exist or safely degrade.
+    // If 'watch' exists (from standard ElectronAPI in preload), we use that.
+
+    let cleanup: (() => void) | undefined;
+
+    if (fileAPI?.onFileChanged) {
+      cleanup = fileAPI.onFileChanged((data: any) => {
+        const path = typeof data === 'string' ? data : data.filePath;
         updateNotification({
           content: (
             <div className="flex items-center gap-2 px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 rounded animate-pulse">
@@ -178,7 +186,6 @@ const AppShell = ({ children }) => {
           )
         });
 
-        // Clear after 5 seconds
         const timer = setTimeout(() => {
           updateNotification({ content: null });
         }, 5000);
@@ -186,7 +193,9 @@ const AppShell = ({ children }) => {
         return () => clearTimeout(timer);
       });
     }
+
     return () => {
+      if (cleanup) cleanup();
     };
   }, [updateNotification, t]);
 
@@ -199,8 +208,8 @@ const AppShell = ({ children }) => {
 
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden">
-      <TitleBar className="relative bg-background border-b border-border" />
-      <div className="flex flex-1 overflow-hidden" onMouseMove={handleMouseMove} onMouseUp={handleMouseUp}>
+      <TitleBar className="relative bg-background border-b border-border">{null}</TitleBar>
+      <div className="flex flex-1 overflow-hidden" onMouseMove={(e) => handleMouseMove(e.nativeEvent)} onMouseUp={handleMouseUp}>
         <aside
           style={{ width: `${sidebarWidth}px` }}
           className="flex flex-col border-r border-border bg-card"
@@ -397,7 +406,7 @@ const AppShell = ({ children }) => {
                 setDragTarget('secondary'); // Suggests moving to secondary (which will split)
               }}
               onDragLeave={(e) => {
-                if (e.currentTarget.contains(e.relatedTarget)) return;
+                if (e.currentTarget.contains(e.relatedTarget as Node)) return;
                 setDragTarget(null);
               }}
               onDrop={(e) => {
@@ -438,7 +447,7 @@ const AppShell = ({ children }) => {
                   setDragTarget('primary');
                 }}
                 onDragLeave={(e) => {
-                  if (e.currentTarget.contains(e.relatedTarget)) return;
+                  if (e.currentTarget.contains(e.relatedTarget as Node)) return;
                   setDragTarget(null);
                 }}
                 onDrop={(e) => {
@@ -483,7 +492,7 @@ const AppShell = ({ children }) => {
                   setDragTarget('secondary');
                 }}
                 onDragLeave={(e) => {
-                  if (e.currentTarget.contains(e.relatedTarget)) return;
+                  if (e.currentTarget.contains(e.relatedTarget as Node)) return;
                   setDragTarget(null);
                 }}
                 onDrop={(e) => {
@@ -504,10 +513,6 @@ const AppShell = ({ children }) => {
       <StatusBar />
     </div>
   );
-};
-
-AppShell.propTypes = {
-  children: PropTypes.node.isRequired,
 };
 
 export default AppShell;

@@ -18,19 +18,17 @@ export const useDataMenu = () => {
 
         if (!filePath) return;
 
-        // Show some global loading state? 
-        // For now, we'll just process it. Ideally, we'd have a global toaster or status.
         // console.log('Importing data from:', filePath);
 
-        const result = await window.electronAPI.data.import(filePath);
+        const result = await window.electronAPI.data.importData(filePath);
 
-        if (result.success) {
+        if (result.data) {
           // Notify user via alert or toast (mocked for now)
           alert(`Imported ${result.data ? 'data' : 'file'} successfully!`);
         } else {
-          alert(`Import failed: ${result.error}`);
+          alert(`Import failed: ${result.error || 'Unknown error'}`);
         }
-      } catch (error) {
+      } catch (error: any) {
         // console.error('Menu import error:', error);
         alert(`Import error: ${error.message}`);
       }
@@ -48,24 +46,23 @@ export const useDataMenu = () => {
 
         if (!filePath) return;
 
-        // console.log('Exporting data to:', filePath);
-
         // Use 'settings' preset by default for menu action
-        const result = await window.electronAPI.data.exportPreset(filePath, 'settings');
+        // Assuming exportData can handle this or fallback to generic export
+        const result = await window.electronAPI.data.exportData(filePath, { preset: 'settings' });
 
-        if (result.success) {
-          alert(`Exported data successfully to ${result.path}`);
+        if (result.data?.path) {
+          alert(`Exported data successfully to ${result.data.path}`);
         } else {
-          alert(`Export failed: ${result.error}`);
+          alert(`Export failed: ${result.error || 'Unknown error'}`);
         }
-      } catch (error) {
+      } catch (error: any) {
         // console.error('Menu export error:', error);
         alert(`Export error: ${error.message}`);
       }
     };
 
     // Register listeners using the exposed API
-    const removeListener = window.electronAPI.events.onMenuAction((_event, command, _data) => {
+    const removeListener = window.electronAPI?.events?.onMenuAction((command: string, _data: any) => {
       switch (command) {
         case 'data-import':
           handleImport();

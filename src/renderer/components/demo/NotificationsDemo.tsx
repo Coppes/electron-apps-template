@@ -8,36 +8,39 @@ import { Bell, PaperPlaneRight, Trash, WarningCircle, ShieldCheck, ShieldWarning
  */
 export default function NotificationsDemo() {
   const { t } = useTranslation('common');
-  const [title, setTitle] = useState('Hello!');
-  const [body, setBody] = useState('This is a notification from your Electron app');
+  const [title, setTitle] = useState('Hello Electron');
+  const [body, setBody] = useState('This is a native notification');
   const [urgency, setUrgency] = useState('normal');
   const [silent, setSilent] = useState(false);
   const [withActions, setWithActions] = useState(false);
 
   const [status, setStatus] = useState('');
-  const [permissionStatus, setPermissionStatus] = useState(null);
-  const [eventLog, setEventLog] = useState([]);
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const [permissionStatus, setPermissionStatus] = useState<string | null>(null);
+  const [logs, setLogs] = useState<any[]>([]);
 
-  const addLog = (type, message) => {
+  const addLog = (type: string, message: string, data?: any) => {
     const timestamp = new Date().toLocaleTimeString();
-    setEventLog(prev => [
-      { type, message, timestamp },
+    setLogs(prev => [
+      { type, message, timestamp, data },
       ...prev.slice(0, 9) // Keep last 10
     ]);
   };
 
   useEffect(() => {
+    checkPermission();
+
     // Listen for notification events
-    const unsubscribeClick = window.electronAPI.notifications.onClick((data) => {
-      addLog('click', `Notification clicked: ${data.title}`);
+    const unsubscribeClick = window.electronAPI.notifications.onClick((id: string) => {
+      addLog('click', `Notification clicked: ${id}`);
     });
 
-    const unsubscribeAction = window.electronAPI.notifications.onAction((data) => {
-      addLog('action', `Action clicked: ${data.action} on "${data.title}"`);
+    const unsubscribeAction = window.electronAPI.notifications.onAction((id: string, action: string) => {
+      addLog('action', `Action clicked: ${action} on "${id}"`);
     });
 
-    const unsubscribeClose = window.electronAPI.notifications.onClose((data) => {
-      addLog('close', `Notification closed: ${data.title}`);
+    const unsubscribeClose = window.electronAPI.notifications.onClose((id: string) => {
+      addLog('close', `Notification closed: ${id}`);
     });
 
     return () => {
@@ -45,33 +48,28 @@ export default function NotificationsDemo() {
       if (unsubscribeAction) unsubscribeAction();
       if (unsubscribeClose) unsubscribeClose();
     };
-
   }, []);
 
-
+  const checkPermission = async () => {
+    try {
+      const allowed = await window.electronAPI.notifications.checkPermission();
+      setPermissionStatus(allowed ? 'granted' : 'denied');
+      addLog('permission', `Permission status: ${allowed ? 'Granted' : 'Denied'}`);
+    } catch (error) {
+      setStatus(`Error checking permission: ${(error as Error).message}`);
+    }
+  };
 
   const requestPermission = async () => {
     try {
       const granted = await window.electronAPI.notifications.requestPermission();
       setPermissionStatus(granted ? 'granted' : 'denied');
+      setStatus(granted ? 'Permission granted' : 'Permission denied');
       addLog('permission', `Permission requested: ${granted ? 'Granted' : 'Denied'}`);
     } catch (error) {
-      setStatus(`Error requesting permission: ${error.message}`);
+      setStatus(`Error requesting permission: ${(error as Error).message}`);
     }
   };
-
-  useEffect(() => {
-    const check = async () => {
-      try {
-        const allowed = await window.electronAPI.notifications.checkPermission();
-        setPermissionStatus(allowed ? 'granted' : 'denied');
-        addLog('permission', `Permission status: ${allowed ? 'Granted' : 'Denied'}`);
-      } catch (error) {
-        setStatus(`Error checking permission: ${error.message}`);
-      }
-    };
-    check();
-  }, []);
 
   const showNotification = async () => {
     if (!title.trim()) {
@@ -80,16 +78,20 @@ export default function NotificationsDemo() {
     }
 
     try {
-      const options = {
+      const options: any = {
         title: title.trim(),
         body: body.trim(),
         urgency,
         silent
       };
 
+      // Check platform via navigator or just default to adding actions (Electron handles support)
+      // window.electronAPI.platform is not available.
+      // We can just add actions and if not supported, they might be ignored or we can skip check.
+      // For demo purposes, let's assume if actions enabled, we send them.
       if (withActions) {
         options.actions = [
-          { type: 'button', text: 'Open' },
+          { type: 'button', text: 'Reply' },
           { type: 'button', text: 'Dismiss' }
         ];
       }
@@ -98,12 +100,12 @@ export default function NotificationsDemo() {
       setStatus(`Notification sent: ${title}`);
       addLog('sent', `Sent notification: ${title}`);
     } catch (error) {
-      setStatus(`Error: ${error.message}`);
+      setStatus(`Error: ${(error as Error).message}`);
     }
   };
 
-  const showQuickNotification = async (preset) => {
-    const presets = {
+  const showQuickNotification = async (preset: string) => {
+    const presets: Record<string, any> = {
       success: {
         title: '✓ Success',
         body: 'Operation completed successfully!',
@@ -130,16 +132,19 @@ export default function NotificationsDemo() {
       }
     };
 
-    try {
-      await window.electronAPI.notifications.show(presets[preset]);
-      addLog('sent', `Sent ${preset} notification`);
-    } catch (error) {
-      setStatus(`Error: ${error.message}`);
+    if (presets[preset]) {
+      try {
+        await window.electronAPI.notifications.show(presets[preset]);
+        setStatus(`Sent ${preset} notification`);
+        addLog('sent', `Sent ${preset} notification`);
+      } catch (error) {
+        setStatus(`Error: ${(error as Error).message}`);
+      }
     }
   };
 
   const clearLog = () => {
-    setEventLog([]);
+    setLogs([]);
   };
 
   return (
@@ -150,12 +155,14 @@ export default function NotificationsDemo() {
       </div>
 
       {/* Status */}
-      {status && (
-        <div className="p-3 bg-blue-50 border border-blue-200 rounded flex items-start gap-2">
-          <WarningCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-blue-800">{status}</p>
-        </div>
-      )}
+      {
+        status && (
+          <div className="p-3 bg-blue-50 border border-blue-200 rounded flex items-start gap-2">
+            <WarningCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-blue-800">{status}</p>
+          </div>
+        )
+      }
 
 
 
@@ -291,8 +298,8 @@ export default function NotificationsDemo() {
       {/* Event Log */}
       <div className="border border-gray-200 rounded-lg p-4">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold">{t('notifications_demo.event_log')} ({eventLog.length})</h3>
-          {eventLog.length > 0 && (
+          <h3 className="font-semibold">{t('notifications_demo.event_log')} ({logs.length})</h3>
+          {logs.length > 0 && (
             <button
               onClick={clearLog}
               className="px-3 py-1 text-sm text-red-600 hover:text-red-800 flex items-center gap-1"
@@ -303,11 +310,11 @@ export default function NotificationsDemo() {
           )}
         </div>
 
-        {eventLog.length === 0 ? (
+        {logs.length === 0 ? (
           <p className="text-gray-500 text-sm">{t('notifications_demo.no_events')}</p>
         ) : (
           <div className="space-y-2 max-h-64 overflow-y-auto">
-            {eventLog.map((log, index) => (
+            {logs.map((log, index) => (
               <div
                 key={index}
                 className={`p-2 rounded text-sm border ${log.type === 'click' ? 'bg-blue-50 border-blue-200' :
@@ -350,7 +357,7 @@ export default function NotificationsDemo() {
         </div>
       </div>
 
-    </div>
+    </div >
 
   );
 }

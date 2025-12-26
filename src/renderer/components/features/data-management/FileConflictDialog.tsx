@@ -2,11 +2,32 @@ import { useState } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import PropTypes from 'prop-types';
 
+interface ConflictData {
+  filename: string;
+  local: {
+    modifiedAt: number;
+    size: number;
+    preview?: string;
+  };
+  remote: {
+    modifiedAt: number;
+    size: number;
+    preview?: string;
+  };
+}
+
+interface FileConflictDialogProps {
+  isOpen: boolean;
+  conflict: ConflictData;
+  onResolve: (resolution: string) => void;
+  onClose: () => void;
+}
+
 /**
  * FileConflictDialog Component
  * Modal dialog for resolving file conflicts with diff view
  */
-export default function FileConflictDialog({ isOpen, conflict, onResolve, onClose }) {
+export default function FileConflictDialog({ isOpen, conflict, onResolve, onClose }: FileConflictDialogProps) {
   const { t } = useTranslation('data_management');
   const [selectedResolution, setSelectedResolution] = useState('keep-local');
   const [showDiff, setShowDiff] = useState(false);
@@ -91,7 +112,7 @@ export default function FileConflictDialog({ isOpen, conflict, onResolve, onClos
                 icon="🔀"
                 selected={selectedResolution === 'merge'}
                 onSelect={() => setSelectedResolution('merge')}
-                metadata={{ warning: 'May require manual review after merge' }}
+                metadata={{ warning: 'May require manual review after merge' } as any}
                 t={t}
               />
 
@@ -102,7 +123,7 @@ export default function FileConflictDialog({ isOpen, conflict, onResolve, onClos
                 icon="📋"
                 selected={selectedResolution === 'rename'}
                 onSelect={() => setSelectedResolution('rename')}
-                metadata={{ note: 'Remote file will be saved with a timestamp suffix' }}
+                metadata={{ note: 'Remote file will be saved with a timestamp suffix' } as any}
                 t={t}
               />
             </div>
@@ -191,7 +212,23 @@ export default function FileConflictDialog({ isOpen, conflict, onResolve, onClos
  * ResolutionOption Component
  * Radio button option for conflict resolution
  */
-function ResolutionOption({ id, title, description, icon, selected, onSelect, metadata, t }) {
+interface ResolutionOptionProps {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  selected: boolean;
+  onSelect: () => void;
+  metadata?: {
+    modifiedAt?: number;
+    size?: number;
+    warning?: string;
+    note?: string;
+  };
+  t: (key: string, options?: any) => string;
+}
+
+function ResolutionOption({ id, title, description, icon, selected, onSelect, metadata, t }: ResolutionOptionProps) {
   return (
     <label
       htmlFor={id}
@@ -218,7 +255,7 @@ function ResolutionOption({ id, title, description, icon, selected, onSelect, me
           {metadata && (
             <div className="mt-2 text-xs text-gray-500 dark:text-gray-500">
               {metadata.modifiedAt && <p>{t('conflict.modified', { date: formatDate(metadata.modifiedAt) })}</p>}
-              {metadata.size && <p>Size: {formatFileSize(metadata.size)}</p>}
+              {metadata.size !== undefined && <p>Size: {formatFileSize(metadata.size)}</p>}
               {metadata.warning && (
                 <p className="text-yellow-700 dark:text-yellow-400">⚠️ {metadata.warning}</p>
               )}
@@ -233,13 +270,13 @@ function ResolutionOption({ id, title, description, icon, selected, onSelect, me
   );
 }
 
-function formatDate(timestamp) {
+function formatDate(timestamp: number) {
   if (!timestamp) return 'Unknown';
   return new Date(timestamp).toLocaleString();
 }
 
-function formatFileSize(bytes) {
-  if (!bytes) return 'Unknown';
+function formatFileSize(bytes: number) {
+  if (!bytes && bytes !== 0) return 'Unknown';
   if (bytes === 0) return '0 Bytes';
   const k = 1024;
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];

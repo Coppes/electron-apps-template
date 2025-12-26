@@ -3,12 +3,34 @@ import PropTypes from 'prop-types';
 import { useSettings } from './SettingsContext';
 import { useKeyboardShortcut } from '../hooks/useKeyboardShortcut';
 
-const HistoryContext = createContext(null);
+interface CommandAction {
+  execute: () => void;
+  undo: () => void;
+  label?: string;
+  [key: string]: any;
+}
 
-export const HistoryProvider = ({ children }) => {
+interface HistoryState {
+  past: CommandAction[];
+  future: CommandAction[];
+}
+
+interface HistoryContextType {
+  execute: (command: CommandAction) => void;
+  undo: () => void;
+  redo: () => void;
+  clear: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
+  history: HistoryState;
+}
+
+const HistoryContext = createContext<HistoryContextType | null>(null);
+
+export const HistoryProvider = ({ children }: { children: React.ReactNode }) => {
   const { settings } = useSettings();
 
-  const [history, setHistory] = useState({
+  const [history, setHistory] = useState<HistoryState>({
     past: [],
     future: []
   });
@@ -50,7 +72,7 @@ export const HistoryProvider = ({ children }) => {
   // I will append the hooks near the end of the component, just before return.
 
 
-  const execute = useCallback((command) => {
+  const execute = useCallback((command: CommandAction) => {
     try {
       command.execute();
       setHistory(prev => {
@@ -74,6 +96,8 @@ export const HistoryProvider = ({ children }) => {
 
       const newPast = [...prev.past];
       const command = newPast.pop();
+
+      if (!command) return prev; // Should not happen given length check, but satisfies types
 
       try {
         command.undo();
@@ -99,6 +123,8 @@ export const HistoryProvider = ({ children }) => {
 
       const newFuture = [...prev.future];
       const command = newFuture.shift();
+
+      if (!command) return prev;
 
       try {
         command.execute();

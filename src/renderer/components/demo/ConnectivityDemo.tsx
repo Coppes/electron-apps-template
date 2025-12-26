@@ -15,16 +15,28 @@ export default function ConnectivityDemo() {
   const [manualOffline, setManualOffline] = useState(false);
 
   useEffect(() => {
+    // improved connectivity handling using API and fallback
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
+    // Initial check
+    if (window.electronAPI?.data?.getConnectivityStatus) {
+      window.electronAPI.data.getConnectivityStatus().then(res => setIsOnline(res.data?.online ?? navigator.onLine));
+    }
+
     // Simulate sync stats updates
     const interval = setInterval(() => {
-      if (window.electronAPI?.data?.getSyncStats) {
-        window.electronAPI.data.getSyncStats().then(setSyncStats).catch(() => { });
+      // Use getSyncQueueStatus
+      if (window.electronAPI?.data?.getSyncQueueStatus) {
+        window.electronAPI.data.getSyncQueueStatus().then(res => {
+          if (res.data) {
+            // Map available data to local state structure (approximated)
+            setSyncStats(prev => ({ ...prev, pending: res.data?.pending || 0, completed: (res.data?.total || 0) - (res.data?.pending || 0) }));
+          }
+        }).catch(() => { });
       }
     }, 2000);
 
@@ -43,23 +55,25 @@ export default function ConnectivityDemo() {
 
   const handleTriggerSync = async () => {
     try {
-      if (window.electronAPI?.data?.triggerSync) {
-        await window.electronAPI.data.triggerSync();
+      // Use syncQueueProcess
+      if (window.electronAPI?.data?.syncQueueProcess) {
+        await window.electronAPI.data.syncQueueProcess();
+        // Force refresh stats
+        if (window.electronAPI?.data?.getSyncQueueStatus) {
+          const res = await window.electronAPI.data.getSyncQueueStatus();
+          if (res.data) {
+            setSyncStats(prev => ({ ...prev, pending: res.data?.pending || 0, completed: (res.data?.total || 0) - (res.data?.pending || 0) }));
+          }
+        }
       }
     } catch (error) {
-      // Sync failed, will be retried automatically
+      // Sync failed
     }
   };
 
   const handleClearQueue = async () => {
-    try {
-      if (window.electronAPI?.data?.clearSyncQueue) {
-        await window.electronAPI.data.clearSyncQueue();
-        setSyncStats({ pending: 0, completed: 0, failed: 0 });
-      }
-    } catch (error) {
-      // Clear queue failed
-    }
+    // clearSyncQueue not available in preload
+    console.warn('Clear queue not implemented in API');
   };
 
   return (

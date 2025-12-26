@@ -20,7 +20,7 @@ beforeEach(() => {
 
   // Setup window.api mock
   global.window = global.window || {};
-  global.window.api = {
+  (global as any).window.api = {
     secureStore: mockSecureStore,
   };
 });

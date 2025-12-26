@@ -38,7 +38,7 @@ describe('DataManagementDemo', () => {
       dialog: mockDialog,
       file: mockFile,
       store: mockStore,
-    };
+    } as any;
     mockData.listBackups.mockResolvedValue({ backups: [] });
   });
 
@@ -60,21 +60,29 @@ describe('DataManagementDemo', () => {
     // defined locally to capture logs
     const localListBackups = vi.fn().mockResolvedValue({ backups: [] });
     const localCreateBackup = vi.fn().mockResolvedValue({ filename: 'new-backup.zip' });
+    const mockRestoreBackup = vi.fn(); // Added for the cast
+    const mockExport = vi.fn(); // Added for the cast
+    const mockImport = vi.fn(); // Added for the cast
 
     // Explicitly set window.electronAPI here to override any global verification
     window.electronAPI = {
       data: {
-        ...mockData,
-        listBackups: localListBackups,
-        createBackup: localCreateBackup,
-      },
-      dialog: mockDialog,
-      file: mockFile,
+        listBackups: localListBackups, // Changed from mockListBackups to localListBackups
+        createBackup: localCreateBackup, // Changed from mockCreateBackup to localCreateBackup
+        restoreBackup: mockRestoreBackup,
+        export: mockExport,
+        import: mockImport,
+        getConnectivityStatus: vi.fn(),
+        onConnectivityChanged: vi.fn(),
+        ...({} as any)
+      } as any,
+      dialog: mockDialog as any,
+      file: mockFile as any,
       store: {
-        ...mockStore,
-        get: vi.fn().mockResolvedValue('never'),
-      },
-    };
+        get: vi.fn(),
+        set: vi.fn(),
+      } as any,
+    } as any;
 
     render(<DataManagementDemo />);
 

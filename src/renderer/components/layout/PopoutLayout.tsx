@@ -4,7 +4,7 @@ import TabBar from '../TabBar';
 import TabContent from '../TabContent';
 import { TitleBar } from './TitleBar';
 
-const PopoutLayout = ({ children }) => {
+const PopoutLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="h-screen w-screen bg-background text-foreground flex flex-col overflow-hidden">
       <TitleBar className="relative bg-background border-b border-border" />

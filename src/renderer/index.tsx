@@ -13,10 +13,12 @@ import './index.css';
 
 // Ensure React DevTools are available in development
 if (process.env.NODE_ENV === 'development') {
-  window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = window.__REACT_DEVTOOLS_GLOBAL_HOOK__ || {};
+  (window as any).__REACT_DEVTOOLS_GLOBAL_HOOK__ = (window as any).__REACT_DEVTOOLS_GLOBAL_HOOK__ || {};
 }
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const container = document.getElementById('root');
+if (!container) throw new Error('Root element not found');
+const root = ReactDOM.createRoot(container);
 root.render(
   <React.StrictMode>
     <SettingsProvider>
