@@ -50,28 +50,23 @@ src/
 ```
 src/renderer/
 ├── index.html                      ✅ HTML raiz
-├── index.js                        ✅ Ponto de entrada React
-├── App.jsx                         ✅ Componente raiz
-├── App.test.jsx                    ✅ Testes do App
-│
-├── css/
-│   └── globals.css                 ✅ Estilos globais
-│       - Tailwind directives
-│       - Variáveis shadcn/ui
-│       - Tema dark/light
-│
+├── main.tsx                        ✅ Entry point React
+├── App.tsx                         ✅ Componente raiz
+├── App.test.tsx                    ✅ Testes do App
 ├── components/
-│   ├── Demo.jsx                    ✅ Componente demo (exemplo)
-│   ├── Demo.test.jsx               ✅ Testes do Demo
-│   │
-│   └── ui/
-│       ├── Button.jsx              ✅ Componente Button
-│       │   - Variantes
-│       │   - Tamanhos
-│       │   - Estados
-│       │
-│       └── Input.jsx               ✅ Componente Input
-│           - Validation states
+│   ├── layout/                     ✅ Layouts (AppShell)
+│   │   └── AppShell.tsx
+│   ├── pages/                      ✅ Páginas da aplicação
+│   │   ├── HomePage.tsx
+│   │   ├── SettingsPage.tsx
+│   │   └── ...
+│   ├── Demo.tsx                    ✅ Componente demo (exemplo)
+│   ├── Demo.test.tsx               ✅ Testes do Demo
+│   └── ui/                         ✅ UI Components (shadcn/ui)
+│       ├── Button.tsx              ✅ Componente Button
+│       ├── Card.tsx                ✅ Componente Card
+│       ├── Input.tsx               ✅ Componente Input
+│       └── ...   - Validation states
 │           - Accessibility
 │
 └── utils/
@@ -127,10 +122,10 @@ Outros                           1
 |---------|-----------|
 | `src/renderer/index.html` | HTML raiz da aplicação |
 | `src/renderer/index.js` | Inicializa React |
-| `src/renderer/App.jsx` | Componente raiz |
-| `src/renderer/components/Demo.jsx` | Exemplo de componente |
-| `src/renderer/components/ui/Button.jsx` | Componente Button reutilizável |
-| `src/renderer/components/ui/Input.jsx` | Componente Input reutilizável |
+| `src/renderer/App.tsx` | Componente raiz |
+| `src/renderer/components/Demo.tsx` | Exemplo de componente |
+| `src/renderer/components/ui/Button.tsx` | Componente Button reutilizável |
+| `src/renderer/components/ui/Input.tsx` | Componente Input reutilizável |
 | `src/renderer/utils/cn.js` | Função de merge de classes |
 
 ### Estilos
@@ -228,8 +223,8 @@ npm start
 ## 🎓 Estrutura de Arquivo Típica
 
 ```
-arquivo.jsx                        Componente React
-arquivo.test.jsx                   Testes unitários
+arquivo.tsx                        Componente React
+arquivo.test.tsx                   Testes unitários
 arquivo.js                         Função/utilidade
 arquivo.config.js                  Configuração
 arquivo.css                        Estilos

@@ -23,7 +23,7 @@ npm run test:coverage # Gera relatório de cobertura
 ### Novo Componente React
 
 ```javascript
-// src/renderer/components/MyComponent.jsx
+// src/renderer/components/MyComponent.tsx
 import { useState } from 'react';
 
 export default function MyComponent() {
@@ -40,7 +40,7 @@ export default function MyComponent() {
 ### Novo Componente UI
 
 ```javascript
-// src/renderer/components/ui/MyUIComponent.jsx
+// src/renderer/components/ui/MyUIComponent.tsx
 import { forwardRef } from 'react';
 import { cn } from '../../utils/cn';
 
@@ -81,7 +81,7 @@ contextBridge.exposeInMainWorld('electronAPI', electronAPI);
 ### No Renderer
 
 ```javascript
-// src/renderer/components/MyComponent.jsx
+// src/renderer/components/MyComponent.tsx
 const result = await window.electronAPI.myEvent(data);
 ```
 
@@ -155,14 +155,14 @@ src/
 └── renderer/
     ├── index.html
     ├── index.js
-    ├── App.jsx
+    ├── App.tsx
     ├── components/
-    │   ├── features/
-    │   │   ├── Feature1.jsx
-    │   │   └── Feature1.test.jsx
+    │   ├── Feature1/
+    │   │   ├── Feature1.tsx
+    │   │   └── Feature1.test.tsx
     │   └── ui/
-    │       ├── Button.jsx
-    │       └── Input.jsx
+    │       ├── Button.tsx
+    │       └── Input.tsx
     ├── hooks/
     │   └── useCustomHook.js
     ├── utils/

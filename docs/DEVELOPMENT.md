@@ -45,28 +45,26 @@ npm start
 ```
 electron-apps-template/
 ├── src/
-│   ├── main.js                 # Processo principal
-│   ├── preload.js              # Script de segurança
+│   ├── main.ts                 # Processo principal
+│   ├── preload.ts              # Script de segurança
 │   ├── css/
 │   │   └── globals.css         # Estilos globais
 │   └── renderer/               # Código React
 │       ├── index.html
-│       ├── index.js
-│       ├── App.jsx
-│       ├── App.test.jsx
+│       ├── main.tsx
+│       ├── App.tsx
+│       ├── App.test.tsx
 │       ├── components/
-│       │   ├── Demo.jsx
-│       │   ├── Demo.test.jsx
+│       │   ├── Demo.tsx
+│       │   ├── Demo.test.tsx
 │       │   └── ui/
-│       │       ├── Button.jsx
-│       │       └── Input.jsx
+│       │       ├── Button.tsx
+│       │       ├── Input.tsx
 │       └── utils/
-│           └── cn.js
-├── webpack.main.config.js      # Config Webpack (main)
-├── webpack.renderer.config.js  # Config Webpack (renderer)
-├── forge.config.js             # Config electron-forge
-├── tailwind.config.js          # Config Tailwind
-├── vitest.config.js            # Config testes
+│           └── cn.ts
+├── electron.vite.config.ts     # Config Electron Vite
+├── tailwind.config.ts          # Config Tailwind
+├── vitest.config.ts            # Config testes
 ├── .eslintrc.json              # Config ESLint
 ├── package.json
 ├── README.md
@@ -91,7 +89,7 @@ Isso abrirá a aplicação com:
 #### 1. Criar arquivo do componente
 
 ```bash
-# src/renderer/components/MyComponent.jsx
+# src/renderer/components/MyComponent.tsx
 import { useState } from 'react';
 
 export default function MyComponent() {
@@ -102,7 +100,7 @@ export default function MyComponent() {
 #### 2. Criar arquivo de testes
 
 ```bash
-# src/renderer/components/MyComponent.test.jsx
+# src/renderer/components/MyComponent.test.tsx
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import MyComponent from './MyComponent';
@@ -115,7 +113,7 @@ describe('MyComponent', () => {
 });
 ```
 
-#### 3. Importar no App.jsx
+#### 3. Importar no App.tsx
 
 ```javascript
 import MyComponent from './components/MyComponent';
@@ -125,18 +123,18 @@ import MyComponent from './components/MyComponent';
 
 O template já tem Button e Input prontos. Para criar novos componentes do shadcn/ui:
 
-1. Crie o arquivo em `src/renderer/components/ui/ComponentName.jsx`
+1. Crie o arquivo em `src/renderer/components/ui/ComponentName.tsx`
 2. Use a função `cn` para merge de classes
 3. Importe em seus componentes
 
 Exemplo:
 
-```javascript
-// src/renderer/components/ui/Card.jsx
+```tsx
+// src/renderer/components/ui/Card.tsx
 import { forwardRef } from 'react';
 import { cn } from '../../utils/cn';
 
-const Card = forwardRef(({ className, ...props }, ref) => (
+const Card = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => (
   <div
     ref={ref}
     className={cn('rounded-lg border bg-card text-card-foreground shadow-sm', className)}

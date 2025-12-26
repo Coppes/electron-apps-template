@@ -687,7 +687,7 @@ When an IPC call fails, the response will include:
 
 ## Type Safety
 
-This API uses JSDoc type definitions for better IDE support. For TypeScript projects, type definitions are available in `src/common/types.js`.
+This API uses JSDoc type definitions for better IDE support. For TypeScript projects, type definitions are available in `src/common/types.ts`.
 
 ## Security Considerations
 

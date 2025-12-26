@@ -54,12 +54,12 @@ Seu template boilerplate completo de **Electron + React** foi criado com sucesso
 ```
 ✅ src/renderer/index.html     - HTML raiz
 ✅ src/renderer/index.js       - Ponto de entrada React
-✅ src/renderer/App.jsx        - Componente raiz
-✅ src/renderer/App.test.jsx   - Testes do App
-✅ src/renderer/components/Demo.jsx              - Componente demo
-✅ src/renderer/components/Demo.test.jsx         - Testes do Demo
-✅ src/renderer/components/ui/Button.jsx         - Componente Button
-✅ src/renderer/components/ui/Input.jsx          - Componente Input
+✅ src/renderer/App.tsx        - Componente raiz
+✅ src/renderer/App.test.tsx   - Testes do App
+✅ src/renderer/components/Demo.tsx              - Componente demo
+✅ src/renderer/components/Demo.test.tsx         - Testes do Demo
+✅ src/renderer/components/ui/Button.tsx         - Componente Button
+✅ src/renderer/components/ui/Input.tsx          - Componente Input
 ✅ src/renderer/utils/cn.js                      - Utilitário de classes
 ```
 
@@ -217,13 +217,14 @@ electron-apps-template/
 └── ⚛️ React Frontend
     └── src/renderer/
         ├── index.html
-        ├── index.js
-        ├── App.jsx
+        ├── App.tsx
+        ├── App.test.tsx
         ├── components/
-        │   ├── Demo.jsx
+        │   ├── Demo.tsx
+        │   ├── Demo.test.tsx
         │   └── ui/
-        │       ├── Button.jsx
-        │       └── Input.jsx
+        │       ├── Button.tsx
+        │       ├── Input.tsx
         ├── utils/
         │   └── cn.js
         └── css/
@@ -276,15 +277,15 @@ electron-apps-template/
 
 ### Adicionar um Novo Componente
 
-1. Crie `src/renderer/components/MyComponent.jsx`:
+1. Crie `src/renderer/components/MyComponent.tsx`:
 
-```javascript
+```tsx
 export default function MyComponent() {
-  return <div className="p-4">Meu Componente</div>;
+  return <div>Olá Mundo</div>;
 }
 ```
 
-2. Importe em `App.jsx`:
+2. Importe em `App.tsx`:
 
 ```javascript
 import MyComponent from './components/MyComponent';

@@ -10,6 +10,7 @@ Modern, secure, and scalable Electron + React boilerplate for desktop apps. Focu
 
 - **Electron** v39.1.2 - Main, preload, and renderer processes
 - **React** v18.3.1 - JSX, hooks, functional components
+- **TypeScript** v5.9.3 - Static typing
 - **Node.js** - ES2022+ modules (type: "module")
 
 ### Build & Development
@@ -45,12 +46,13 @@ Modern, secure, and scalable Electron + React boilerplate for desktop apps. Focu
 
 ### Code Quality
 
-- **ESLint** v8.57.1 - JavaScript/React linting
+- **ESLint** v8.57.1 - JavaScript/React/TypeScript linting
   - eslint-config-react-app v7.0.1
   - eslint-plugin-react v7.37.5
   - eslint-plugin-react-hooks v7.0.1
   - eslint-plugin-jsx-a11y v6.10.2
-  - eslint-plugin-import v2.32.0
+  - eslint-plugin-import v2.32.0 (with TS resolver)
+  - @typescript-eslint/parser & plugins
 
 ### Electron Utilities
 
@@ -69,105 +71,105 @@ Modern, secure, and scalable Electron + React boilerplate for desktop apps. Focu
 
 ### Code Style
 
-- **Language**: JavaScript ES2022+ with JSX
+- **Language**: TypeScript (strict mode)
 - **Modules**: ESM (import/export), type: "module" in package.json
 - **Indentation**: 2 spaces
 - **Components**: Functional components with hooks (preferred), PascalCase naming
 - **Variables/Functions**: camelCase
 - **Constants**: UPPER_SNAKE_CASE (e.g., IPC_CHANNELS)
 - **Formatting**: Enforced by ESLint (airbnb + react/recommended)
-- **File Extensions**: .js for logic, .jsx for React components
+- **File Extensions**: .ts for logic, .tsx for React components
 
 ### Architecture Patterns
 
 #### Main Process (src/main/)
 
-- **main.js**: Entry point, initializes app
-- **window-manager.js**: Singleton window manager, creates/manages BrowserWindow instances
-- **lifecycle.js**: Singleton lifecycle manager, app startup/shutdown
-- **config.js**: Centralized configuration (window defaults, CSP, etc.)
-- **logger.js**: Structured logging with electron-log
-- **menu.js**: Application menu with platform-specific variants
-- **tray.js**: System tray icon and context menu management
-- **shortcuts.js**: Global keyboard shortcuts (accelerators) registry
-- **notifications.js**: Native OS notifications handler
-- **recent-docs.js**: OS Recent Documents integration
-- **progress.js**: Taskbar/Dock progress indicator
-- **splash.js**: Splash screen management
-- **dev-tools.js**: Development tools (React DevTools, HMR, performance monitoring)
-- **error-handler.js**: Global error handling, crash reporting
-- **updater.js**: Auto-update with electron-updater
-- **crash-reporter.js**: Crash reporting configuration
+- **main.ts**: Entry point, initializes app
+- **window-manager.ts**: Singleton window manager, creates/manages BrowserWindow instances
+- **lifecycle.ts**: Singleton lifecycle manager, app startup/shutdown
+- **config.ts**: Centralized configuration (window defaults, CSP, etc.)
+- **logger.ts**: Structured logging with electron-log
+- **menu.ts**: Application menu with platform-specific variants
+- **tray.ts**: System tray icon and context menu management
+- **shortcuts.ts**: Global keyboard shortcuts (accelerators) registry
+- **notifications.ts**: Native OS notifications handler
+- **recent-docs.ts**: OS Recent Documents integration
+- **progress.ts**: Taskbar/Dock progress indicator
+- **splash.ts**: Splash screen management
+- **dev-tools.ts**: Development tools (React DevTools, HMR, performance monitoring)
+- **error-handler.ts**: Global error handling, crash reporting
+- **updater.ts**: Auto-update with electron-updater
+- **crash-reporter.ts**: Crash reporting configuration
 - **workers/**: Worker threads for CPU-intensive tasks
 
 #### Security (src/main/security/)
 
-- **context-isolation.js**: Context isolation enforcement
-- **csp.js**: Content Security Policy header builder
-- **navigation-guard.js**: URL navigation validation and blocking
-- **permissions.js**: Permission request handler
-- **audit-log.js**: Security event logging (CSP violations, blocked navigation, permissions)
+- **context-isolation.ts**: Context isolation enforcement
+- **csp.ts**: Content Security Policy header builder
+- **navigation-guard.ts**: URL navigation validation and blocking
+- **permissions.ts**: Permission request handler
+- **audit-log.ts**: Security event logging (CSP violations, blocked navigation, permissions)
 
 #### IPC Communication (src/main/ipc/)
 
-- **bridge.js**: IPC handler registration and routing
-- **schema.js**: Zod-based payload validation schemas
+- **bridge.ts**: IPC handler registration and routing
+- **schema.ts**: Zod-based payload validation schemas
 - **handlers/**: Modular IPC handlers
-  - `window.js`: Window operations (create, close, minimize, maximize, getState)
-  - `store.js`: Persistent storage (get, set, delete, has, clear)
-  - `dialog.js`: Native dialogs (open, save, message, error)
-  - `app.js`: App info (version, path, quit, relaunch, platform, updates)
-  - `log.js`: Remote logging from renderer
-  - `system.js`: System information
-  - `workers.js`: Worker thread management
-  - `tray.js`: Tray management
+  - `window.ts`: Window operations (create, close, minimize, maximize, getState)
+  - `store.ts`: Persistent storage (get, set, delete, has, clear)
+  - `dialog.ts`: Native dialogs (open, save, message, error)
+  - `app.ts`: App info (version, path, quit, relaunch, platform, updates)
+  - `log.ts`: Remote logging from renderer
+  - `system.ts`: System information
+  - `workers.ts`: Worker thread management
+  - `tray.ts`: Tray management
 
-#### Preload (src/preload.js)
+#### Preload (src/preload.ts)
 
 - **contextBridge**: Exposes secure API to renderer
 - **APIs**: windowAPI, storeAPI, dialogAPI, appAPI, systemAPI, logAPI, eventsAPI, updateAPI, trayAPI, shortcutsAPI
-- **Backward Compatibility**: Legacy methods (setTitle, openFile) for migration
 
 #### Renderer (src/renderer/)
 
-- **index.js**: React entry point, mounts App
-- **App.jsx**: Root component with routing/layout
+- **index.html**
+- **main.tsx**: React entry point, mounts App
+- **App.tsx**: Root component with routing/layout
 - **components/**:
   - `layout/`: AppShell (sidebar layout)
   - `pages/`: HomePage, DemoPage, SettingsPage, AboutPage, DataManagementPage, OSIntegrationPage
   - `ui/`: Reusable UI components (Button, Input, Card, ContextMenu, Slider, Table, Tooltip, etc.)
-  - `CommandPalette.jsx`: 'Cmd+K' command interface
-  - `StatusBar.jsx`: Bottom status bar
-  - `TabBar.jsx`: Multi-tab interface
-  - `TourOverlay.jsx`: Onboarding tour
-  - `Demo.jsx`: Demonstrates window and dialog APIs
-  - `ErrorBoundary.jsx`: React error boundary with logging
-  - `UpdateNotification.jsx`: Auto-update UI
-  - `SafeHTML.jsx`: XSS-safe HTML renderer
+  - `CommandPalette.tsx`: 'Cmd+K' command interface
+  - `StatusBar.tsx`: Bottom status bar
+  - `TabBar.tsx`: Multi-tab interface
+  - `TourOverlay.tsx`: Onboarding tour
+  - `Demo.tsx`: Demonstrates window and dialog APIs
+  - `ErrorBoundary.tsx`: React error boundary with logging
+  - `UpdateNotification.tsx`: Auto-update UI
+  - `SafeHTML.tsx`: XSS-safe HTML renderer
 - **Security**: Content Security Policy enforced, no inline scripts, sanitized HTML
 
 #### Testing (test/)
 
 - **setup/**: Test configuration
   - `electron-mocks.js`: Complete Electron API mocks
-  - `vitest.setup.main.js`: Main process test setup
-  - `vitest.setup.renderer.js`: Renderer test setup
-  - `test-helpers.js`: Reusable test utilities
+  - `vitest.setup.main.ts`: Main process test setup
+  - `vitest.setup.renderer.ts`: Renderer test setup
+  - `test-helpers.ts`: Reusable test utilities
 - **fixtures/**: Test data (window, IPC, app states)
 - **unit/main/**: Main process tests (window-manager, logger, security)
 - **unit/renderer/**: Renderer tests (components)
-- **integration/**: Cross-process tests (deferred)
-- **e2e/**: End-to-end tests (deferred)
+- **integration/**: Cross-process tests
+- **e2e/**: End-to-end tests
 
 ### Testing Strategy
 
 - **Runners**: Vitest for both main and renderer processes
 - **Configurations**:
-  - `vitest.config.main.js`: Node environment for main process
-  - `vitest.config.renderer.js`: jsdom environment for React
-  - `vitest.config.js`: Default (jsdom)
+  - `vitest.config.main.ts`: Node environment for main process
+  - `vitest.config.renderer.ts`: jsdom environment for React
+  - `vitest.config.ts`: Default (jsdom)
 - **Coverage**: >80% target for core modules
-- **Test Files**: `*.test.js` or `*.test.jsx`, colocated or in test/unit/
+- **Test Files**: `*.test.ts` or `*.test.tsx`, colocated or in test/unit/
 - **Current Status**: 153 tests passing (82 main + 71 renderer)
 - **Mocking**: Complete Electron API mocks in `electron-mocks.js`
 - **CI**: GitHub Actions workflow configured (.github/workflows/test.yml)
@@ -197,57 +199,57 @@ Modern, secure, and scalable Electron + React boilerplate for desktop apps. Focu
 
 ```
 src/
-├── main.js                    # Electron main entry
-├── preload.js                 # Context bridge
+├── main.ts                    # Electron main entry
+├── preload.ts                 # Context bridge
 ├── common/
-│   ├── constants.js           # IPC channels, constants
-│   └── types.js               # Type definitions
+│   ├── constants.ts           # IPC channels, constants
+│   └── types.ts               # Type definitions
 ├── css/
 │   └── globals.css            # Tailwind + CSS variables
 ├── main/
-│   ├── window-manager.js      # Window management
-│   ├── lifecycle.js           # App lifecycle
-│   ├── config.js              # Configuration
-│   ├── logger.js              # Logging
-│   ├── menu.js                # Application menu
-│   ├── tray.js                # System tray
-│   ├── shortcuts.js           # Global shortcuts
-│   ├── notifications.js       # Native notifications
-│   ├── recent-docs.js         # Recent documents
-│   ├── progress.js            # Dock/Taskbar progress
-│   ├── splash.js              # Splash screen
-│   ├── error-handler.js       # Error handling
-│   ├── updater.js             # Auto-updates
-│   ├── crash-reporter.js      # Crash reporting
-│   ├── dev-tools.js           # Dev utilities
+│   ├── window-manager.ts      # Window management
+│   ├── lifecycle.ts           # App lifecycle
+│   ├── config.ts              # Configuration
+│   ├── logger.ts              # Logging
+│   ├── menu.ts                # Application menu
+│   ├── tray.ts                # System tray
+│   ├── shortcuts.ts           # Global shortcuts
+│   ├── notifications.ts       # Native notifications
+│   ├── recent-docs.ts         # Recent documents
+│   ├── progress.ts            # Dock/Taskbar progress
+│   ├── splash.ts              # Splash screen
+│   ├── error-handler.ts       # Error handling
+│   ├── updater.ts             # Auto-updates
+│   ├── crash-reporter.ts      # Crash reporting
+│   ├── dev-tools.ts           # Dev utilities
 │   ├── ipc/
-│   │   ├── bridge.js          # IPC registration
-│   │   ├── schema.js          # Validation schemas
+│   │   ├── bridge.ts          # IPC registration
+│   │   ├── schema.ts          # Validation schemas
 │   │   └── handlers/          # IPC handlers
 │   ├── security/
-│   │   ├── csp.js             # CSP policy
-│   │   ├── navigation-guard.js
-│   │   ├── permissions.js
-│   │   └── audit-log.js
+│   │   ├── csp.ts             # CSP policy
+│   │   ├── navigation-guard.ts
+│   │   ├── permissions.ts
+│   │   └── audit-log.ts
 │   └── workers/               # Background workers
 ├── renderer/
 │   ├── index.html
-│   ├── index.js
-│   ├── App.jsx
+│   ├── main.tsx
+│   ├── App.tsx
 │   ├── components/
 │   │   ├── layout/
 │   │   ├── pages/
 │   │   ├── ui/                # UI Components (Button, Input, Alert, ContextMenu, etc.)
-│   │   ├── CommandPalette.jsx # Command Palette
-│   │   ├── StatusBar.jsx      # Status Bar
-│   │   ├── TabBar.jsx         # Tabs
-│   │   ├── TourOverlay.jsx    # Onboarding
-│   │   ├── Demo.jsx
-│   │   ├── ErrorBoundary.jsx
-│   │   ├── UpdateNotification.jsx
-│   │   └── SafeHTML.jsx
+│   │   ├── CommandPalette.tsx # Command Palette
+│   │   ├── StatusBar.tsx      # Status Bar
+│   │   ├── TabBar.tsx         # Tabs
+│   │   ├── TourOverlay.tsx    # Onboarding
+│   │   ├── Demo.tsx
+│   │   ├── ErrorBoundary.tsx
+│   │   ├── UpdateNotification.tsx
+│   │   └── SafeHTML.tsx
 │   └── utils/
-│       └── cn.js              # className utilities
+│       └── cn.ts              # className utilities
 └── stories/                   # Storybook stories
 
 test/

@@ -1,7 +1,7 @@
 ---
-trigger: always_on
-glob: "**/*"
+trigger: glob
 description: Design System rules
+globs: *.css, design system, design, frontend, components, icon, style, styling. 
 ---
 
 # Design System Rules

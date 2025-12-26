@@ -1,6 +1,7 @@
 ---
-trigger: always_on
+trigger: glob
 description: Rules for linting, testing, and error handling
+globs: lint, linting, test, tests, error, errors, vitest, mocks, log.
 ---
 
 # Linting, Tests, and Errors

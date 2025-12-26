@@ -1,7 +1,7 @@
 ---
-trigger: always_on
-glob: "**/*"
+trigger: glob
 description: Rules for git commits
+globs: commit, git.
 ---
 
 # Commit Rules
