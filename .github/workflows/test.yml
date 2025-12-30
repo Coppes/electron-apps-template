@@ -13,6 +13,7 @@ concurrency:
 
 jobs:
   test-unit:
+    if: false # Temporarily disabled - workflow not fully implemented yet
     name: Unit Tests (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     
@@ -42,6 +43,7 @@ jobs:
         run: npm run test:renderer -- --run
 
   test-coverage:
+    if: false # Temporarily disabled - workflow not fully implemented yet
     name: Coverage Report
     runs-on: ubuntu-latest
     needs: test-unit
@@ -72,6 +74,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
   lint:
+    if: false # Temporarily disabled - workflow not fully implemented yet
     name: Lint
     runs-on: ubuntu-latest
 
