@@ -10,6 +10,7 @@ on:
 
 jobs:
   memory-test:
+    if: false # Temporarily disabled - workflow not fully implemented yet
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
